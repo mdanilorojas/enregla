@@ -15,7 +15,7 @@ export function LegalPill({ permitType, variant = 'inline', className = '' }: Le
   const [showPopover, setShowPopover] = useState(false);
   const [popoverPosition, setPopoverPosition] = useState<'bottom' | 'top'>('bottom');
   const pillRef = useRef<HTMLDivElement>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const navigate = useNavigate();
   const ref = getLegalReference(permitType);
 
@@ -112,8 +112,6 @@ interface LegalPopoverProps {
 }
 
 function LegalPopover({ ref_, position, onMouseEnter, onMouseLeave, onNavigate }: LegalPopoverProps) {
-  const primarySource = ref_.sources[0];
-
   return (
     <div
       className={`absolute z-50 w-[360px] left-0 ${position === 'top' ? 'bottom-full mb-2' : 'top-full mt-2'} animate-fade-in`}

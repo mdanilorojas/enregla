@@ -49,7 +49,7 @@ export function DeadlineStrip({ renewals, permits, locations }: Props) {
         </button>
       </div>
       <div className="divide-y divide-gray-50">
-        {upcoming.map((item, idx) => (
+        {upcoming.map((item) => (
           <div key={item.id} className="flex items-center gap-3.5 px-5 py-3.5 hover:bg-gray-50/50 transition-colors group">
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
               item.days < 0 ? 'bg-red-100 text-red-500' :

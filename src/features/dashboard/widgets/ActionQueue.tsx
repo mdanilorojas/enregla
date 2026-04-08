@@ -1,5 +1,5 @@
 import type { Task, Location } from '@/types';
-import { Card, Badge, StatusDot } from '@/components/ui';
+import { Card, Badge } from '@/components/ui';
 import { formatDateRelative, daysUntil } from '@/lib/dates';
 import { ListChecks, ArrowRight, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
