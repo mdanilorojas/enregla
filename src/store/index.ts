@@ -10,6 +10,7 @@ import {
 } from '@/data/mock';
 
 interface AppState {
+  isAuthenticated: boolean;
   isOnboarded: boolean;
   company: Company | null;
   locations: Location[];
@@ -18,6 +19,8 @@ interface AppState {
   documents: Document[];
   tasks: Task[];
 
+  login: () => void;
+  logout: () => void;
   setOnboarded: (value: boolean) => void;
   setCompany: (company: Company) => void;
   setLocations: (locations: Location[]) => void;
@@ -40,6 +43,7 @@ interface AppState {
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
+  isAuthenticated: false,
   isOnboarded: true,
   company: mockCompany,
   locations: mockLocations,
@@ -48,6 +52,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   documents: mockDocuments,
   tasks: mockTasks,
 
+  login: () => set({ isAuthenticated: true }),
+  logout: () => set({ isAuthenticated: false }),
   setOnboarded: (value) => set({ isOnboarded: value }),
   setCompany: (company) => set({ company }),
   setLocations: (locations) => set({ locations }),

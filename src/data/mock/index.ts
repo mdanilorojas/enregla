@@ -3,7 +3,7 @@ import { getDateInDays } from '@/lib/dates';
 
 export const mockCompany: Company = {
   id: 'company-1',
-  name: 'Grupo Mestizo',
+  name: 'Grupo KFC',
   ruc: '1792456780001',
   industry: 'restaurante',
   locationCount: 4,
