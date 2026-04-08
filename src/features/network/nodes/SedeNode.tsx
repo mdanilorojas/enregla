@@ -33,14 +33,17 @@ export function SedeNode({ data }: NodeProps) {
 
   return (
     <>
-      <Handle type="target" position={Position.Top} className="!opacity-0 !w-3 !h-3" />
-      <Handle type="target" position={Position.Bottom} className="!opacity-0 !w-3 !h-3" />
-      <Handle type="target" position={Position.Left} className="!opacity-0 !w-3 !h-3" />
-      <Handle type="target" position={Position.Right} className="!opacity-0 !w-3 !h-3" />
-      <Handle type="source" position={Position.Top} className="!opacity-0 !w-3 !h-3" id="s-top" />
-      <Handle type="source" position={Position.Bottom} className="!opacity-0 !w-3 !h-3" id="s-bottom" />
-      <Handle type="source" position={Position.Left} className="!opacity-0 !w-3 !h-3" id="s-left" />
-      <Handle type="source" position={Position.Right} className="!opacity-0 !w-3 !h-3" id="s-right" />
+      {/* Target handles (company → sede) */}
+      <Handle type="target" position={Position.Top} id="top" className="!opacity-0 !w-3 !h-3" />
+      <Handle type="target" position={Position.Bottom} id="bottom" className="!opacity-0 !w-3 !h-3" />
+      <Handle type="target" position={Position.Left} id="left" className="!opacity-0 !w-3 !h-3" />
+      <Handle type="target" position={Position.Right} id="right" className="!opacity-0 !w-3 !h-3" />
+
+      {/* Source handles (sede → permits) */}
+      <Handle type="source" position={Position.Top} id="s-top" className="!opacity-0 !w-3 !h-3" />
+      <Handle type="source" position={Position.Bottom} id="s-bottom" className="!opacity-0 !w-3 !h-3" />
+      <Handle type="source" position={Position.Left} id="s-left" className="!opacity-0 !w-3 !h-3" />
+      <Handle type="source" position={Position.Right} id="s-right" className="!opacity-0 !w-3 !h-3" />
 
       <div className={`bg-white rounded-2xl border-2 ${riskBorder[riskLevel]} shadow-lg min-w-[160px] max-w-[200px] cursor-pointer hover:scale-[1.03] transition-transform active:cursor-grabbing`}>
         <div className="px-4 pt-3.5 pb-3">

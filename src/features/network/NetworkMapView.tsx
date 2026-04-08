@@ -44,6 +44,18 @@ const riskColor: Record<RiskLevel, string> = {
   bajo: '#22c55e',
 };
 
+function getHandlePair(sx: number, sy: number, tx: number, ty: number) {
+  const angle = Math.atan2(ty - sy, tx - sx);
+  if (angle >= -Math.PI / 4 && angle < Math.PI / 4) {
+    return { sourceHandle: 'right', targetHandle: 'left' };
+  } else if (angle >= Math.PI / 4 && angle < (3 * Math.PI) / 4) {
+    return { sourceHandle: 'bottom', targetHandle: 'top' };
+  } else if (angle >= -(3 * Math.PI) / 4 && angle < -Math.PI / 4) {
+    return { sourceHandle: 'top', targetHandle: 'bottom' };
+  }
+  return { sourceHandle: 'left', targetHandle: 'right' };
+}
+
 export function NetworkMapView() {
   const navigate = useNavigate();
   const { company, locations, permits } = useAppStore();
@@ -52,11 +64,15 @@ export function NetworkMapView() {
   const { seedNodes, seedEdges } = useMemo(() => {
     const nodes: Node[] = [];
     const edges: Edge[] = [];
+    const posMap = new Map<string, { x: number; y: number }>();
+
+    const companyPos = { x: 0, y: 0 };
+    posMap.set('company', companyPos);
 
     nodes.push({
       id: 'company',
       type: 'company',
-      position: { x: 0, y: 0 },
+      position: companyPos,
       data: { name: company?.name || 'Empresa', locationCount: locations.length },
     });
 
@@ -65,11 +81,13 @@ export function NetworkMapView() {
       const compliance = calculateCompliancePercentage(locPermits);
       const critical = countCriticalIssues(locPermits);
       const angle = (2 * Math.PI * i) / locations.length - Math.PI / 2;
+      const sedePos = { x: Math.cos(angle) * 300, y: Math.sin(angle) * 300 };
+      posMap.set(loc.id, sedePos);
 
       nodes.push({
         id: loc.id,
         type: 'sede',
-        position: { x: Math.cos(angle) * 300, y: Math.sin(angle) * 300 },
+        position: sedePos,
         data: {
           name: loc.name,
           address: loc.address,
@@ -80,23 +98,29 @@ export function NetworkMapView() {
         },
       });
 
+      const compHandles = getHandlePair(companyPos.x, companyPos.y, sedePos.x, sedePos.y);
       edges.push({
         id: `company-${loc.id}`,
         source: 'company',
         target: loc.id,
+        sourceHandle: compHandles.sourceHandle,
+        targetHandle: compHandles.targetHandle,
         style: { stroke: riskColor[loc.riskLevel], strokeWidth: 2, opacity: 0.35 },
         animated: loc.riskLevel === 'critico',
       });
 
       locPermits.forEach((permit, j) => {
         const pAngle = angle + ((j - (locPermits.length - 1) / 2) * 0.4);
+        const permitPos = {
+          x: sedePos.x + Math.cos(pAngle) * 180,
+          y: sedePos.y + Math.sin(pAngle) * 180,
+        };
+        posMap.set(permit.id, permitPos);
+
         nodes.push({
           id: permit.id,
           type: 'permit',
-          position: {
-            x: Math.cos(angle) * 300 + Math.cos(pAngle) * 180,
-            y: Math.sin(angle) * 300 + Math.sin(pAngle) * 180,
-          },
+          position: permitPos,
           data: {
             label: PERMIT_TYPE_LABELS[permit.type],
             status: permit.status,
@@ -104,10 +128,13 @@ export function NetworkMapView() {
           },
         });
 
+        const permitHandles = getHandlePair(sedePos.x, sedePos.y, permitPos.x, permitPos.y);
         edges.push({
           id: `${loc.id}-${permit.id}`,
           source: loc.id,
           target: permit.id,
+          sourceHandle: `s-${permitHandles.sourceHandle}`,
+          targetHandle: permitHandles.targetHandle,
           style: {
             stroke: statusEdgeColor[permit.status],
             strokeWidth: permit.status === 'vencido' || permit.status === 'no_registrado' ? 2.5 : 1.5,

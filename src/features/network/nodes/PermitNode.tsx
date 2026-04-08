@@ -29,10 +29,10 @@ export function PermitNode({ data }: NodeProps) {
 
   return (
     <>
-      <Handle type="target" position={Position.Top} className="!opacity-0 !w-2 !h-2" />
-      <Handle type="target" position={Position.Bottom} className="!opacity-0 !w-2 !h-2" />
-      <Handle type="target" position={Position.Left} className="!opacity-0 !w-2 !h-2" />
-      <Handle type="target" position={Position.Right} className="!opacity-0 !w-2 !h-2" />
+      <Handle type="target" position={Position.Top} id="top" className="!opacity-0 !w-2 !h-2" />
+      <Handle type="target" position={Position.Bottom} id="bottom" className="!opacity-0 !w-2 !h-2" />
+      <Handle type="target" position={Position.Left} id="left" className="!opacity-0 !w-2 !h-2" />
+      <Handle type="target" position={Position.Right} id="right" className="!opacity-0 !w-2 !h-2" />
 
       <div className={`${s.bg} ${s.border} border rounded-xl px-3 py-2 min-w-[110px] max-w-[150px] shadow-sm cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow`}>
         <p className={`text-[11px] font-semibold ${s.text} truncate leading-tight`}>{label}</p>
