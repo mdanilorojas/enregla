@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppStore } from '@/store';
 import { Card, Badge, StatusDot, EmptyState, LegalPill } from '@/components/ui';
+import { PermitUploadModal } from '@/components/ui/PermitUploadModal';
 import {
   PERMIT_TYPE_LABELS,
   PERMIT_STATUS_LABELS,
@@ -18,12 +20,14 @@ import {
   AlertTriangle,
   MapPin,
   Building2,
+  Upload,
 } from 'lucide-react';
 
 export function LocationDetailView() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { locations, getLocationPermits, getLocationTasks, getLocationDocuments, getLocationRenewals } = useAppStore();
+  const [uploadPermit, setUploadPermit] = useState<Permit | null>(null);
 
   const location = locations.find((l) => l.id === id);
   if (!location) {
@@ -87,7 +91,7 @@ export function LocationDetailView() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {permits.map((permit) => (
-            <PermitCard key={permit.id} permit={permit} />
+            <PermitCard key={permit.id} permit={permit} onUpload={() => setUploadPermit(permit)} />
           ))}
         </div>
       </div>
@@ -100,12 +104,19 @@ export function LocationDetailView() {
           </div>
           <div className="divide-y divide-gray-50">
             {faltantes.map((p) => (
-              <div key={p.id} className="px-5 py-3.5 flex items-center justify-between">
+              <div
+                key={p.id}
+                className="px-5 py-3.5 flex items-center justify-between hover:bg-red-50/30 transition-colors cursor-pointer group"
+                onClick={() => setUploadPermit(p)}
+              >
                 <div>
                   <p className="text-[13px] font-medium text-gray-900">{PERMIT_TYPE_LABELS[p.type]}</p>
                   <p className="text-[12px] text-red-500 mt-0.5">Permiso requerido no registrado</p>
                 </div>
-                <LegalPill permitType={p.type} variant="inline" />
+                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-[11px] font-semibold opacity-0 group-hover:opacity-100 transition-all shadow-sm hover:bg-blue-700">
+                  <Upload size={12} />
+                  Subir
+                </button>
               </div>
             ))}
           </div>
@@ -250,17 +261,27 @@ export function LocationDetailView() {
           <Card><p className="text-[13px] text-gray-400 text-center py-6">Sin tareas asignadas</p></Card>
         )}
       </div>
+
+      {uploadPermit && (
+        <PermitUploadModal
+          permit={uploadPermit}
+          onClose={() => setUploadPermit(null)}
+        />
+      )}
     </div>
   );
 }
 
-function PermitCard({ permit }: { permit: Permit }) {
+function PermitCard({ permit, onUpload }: { permit: Permit; onUpload: () => void }) {
   const isRisk = permit.status === 'vencido' || permit.status === 'no_registrado';
+  const needsAction = permit.status !== 'vigente';
 
   return (
     <Card
       padding="none"
-      className={isRisk ? '!border-red-200' : ''}
+      className={`group ${isRisk ? '!border-red-200' : ''} ${needsAction ? 'cursor-pointer' : ''}`}
+      hover={needsAction}
+      onClick={needsAction ? onUpload : undefined}
     >
       <div className="p-4">
         <div className="flex items-start justify-between mb-2">
@@ -292,10 +313,27 @@ function PermitCard({ permit }: { permit: Permit }) {
           <p className="text-[12px] text-red-500 mt-2 font-medium">Permiso requerido no registrado</p>
         )}
 
-        {/* Legal reference always visible */}
-        <div className="mt-3 pt-3 border-t border-gray-100">
-          <LegalPill permitType={permit.type} variant="full" />
-        </div>
+        {/* Upload CTA for permits that need action */}
+        {needsAction && (
+          <div className="mt-3 pt-3 border-t border-gray-100">
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-blue-50 border border-blue-100/80 group-hover:bg-blue-100/60 transition-colors">
+              <Upload size={13} className="text-blue-500 shrink-0" />
+              <span className="text-[11px] font-semibold text-blue-600">
+                {permit.status === 'no_registrado' ? 'Subir documento para registrar' :
+                 permit.status === 'vencido' ? 'Subir renovación' :
+                 permit.status === 'por_vencer' ? 'Subir renovación anticipada' :
+                 'Subir documento'}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Legal reference for permits that are ok */}
+        {!needsAction && (
+          <div className="mt-3 pt-3 border-t border-gray-100">
+            <LegalPill permitType={permit.type} variant="full" />
+          </div>
+        )}
       </div>
     </Card>
   );

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import type { Company, Location, Permit, Renewal, Document, Task } from '@/types';
+import { addDays } from 'date-fns';
+import type { Company, Location, Permit, Renewal, Document, Task, PermitType } from '@/types';
 import {
   mockCompany,
   mockLocations,
@@ -32,6 +33,8 @@ interface AppState {
   setDocuments: (documents: Document[]) => void;
   setTasks: (tasks: Task[]) => void;
   updateTaskStatus: (id: string, status: Task['status']) => void;
+
+  resolvePermit: (permitId: string, fileName: string) => void;
 
   loadMockData: () => void;
 
@@ -71,6 +74,50 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((s) => ({
       tasks: s.tasks.map((t) => (t.id === id ? { ...t, status } : t)),
     })),
+
+  resolvePermit: (permitId, fileName) => {
+    const state = get();
+    const permit = state.permits.find((p) => p.id === permitId);
+    if (!permit) return;
+
+    const validityDays: Partial<Record<PermitType, number>> = {
+      patente_municipal: 365,
+      bomberos: 365,
+      arcsa: 365,
+    };
+
+    const now = new Date();
+    const days = validityDays[permit.type];
+    const expiryDate = days ? addDays(now, days).toISOString() : undefined;
+
+    const docId = `doc-upload-${Date.now()}`;
+
+    set({
+      permits: state.permits.map((p) =>
+        p.id === permitId
+          ? { ...p, status: 'vigente' as const, issuedDate: now.toISOString(), expiryDate, documentIds: [...p.documentIds, docId] }
+          : p,
+      ),
+      documents: [
+        ...state.documents,
+        {
+          id: docId,
+          locationId: permit.locationId,
+          permitId: permit.id,
+          name: fileName,
+          type: 'permiso_pdf' as const,
+          uploadedAt: now.toISOString(),
+          expiryDate,
+          status: 'vigente' as const,
+        },
+      ],
+      renewals: state.renewals.map((r) =>
+        r.permitId === permitId && r.status !== 'completado'
+          ? { ...r, status: 'completado' as const }
+          : r,
+      ),
+    });
+  },
 
   loadMockData: () =>
     set({
