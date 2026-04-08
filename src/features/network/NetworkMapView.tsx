@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useRef } from 'react';
 import {
   ReactFlow,
   Background,
@@ -9,6 +9,7 @@ import {
   type Node,
   type Edge,
   type NodeMouseHandler,
+  type OnNodeDrag,
   BackgroundVariant,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -20,6 +21,7 @@ import { calculateCompliancePercentage, countCriticalIssues } from '@/lib/risk';
 import { SedeNode } from './nodes/SedeNode';
 import { PermitNode } from './nodes/PermitNode';
 import { CompanyNode } from './nodes/CompanyNode';
+import { useForceLayout } from './useForceLayout';
 
 const nodeTypes = {
   sede: SedeNode,
@@ -35,7 +37,7 @@ const statusEdgeColor: Record<PermitStatus, string> = {
   en_tramite: '#3b82f6',
 };
 
-const riskMiniMapColor: Record<RiskLevel, string> = {
+const riskColor: Record<RiskLevel, string> = {
   critico: '#ef4444',
   alto: '#f97316',
   medio: '#eab308',
@@ -45,37 +47,29 @@ const riskMiniMapColor: Record<RiskLevel, string> = {
 export function NetworkMapView() {
   const navigate = useNavigate();
   const { company, locations, permits } = useAppStore();
+  const draggingRef = useRef<string | null>(null);
 
-  const { initialNodes, initialEdges } = useMemo(() => {
+  const { seedNodes, seedEdges } = useMemo(() => {
     const nodes: Node[] = [];
     const edges: Edge[] = [];
-
-    const centerX = 0;
-    const centerY = 0;
-    const sedeRadius = 340;
-    const permitRadius = 200;
 
     nodes.push({
       id: 'company',
       type: 'company',
-      position: { x: centerX - 90, y: centerY - 40 },
+      position: { x: 0, y: 0 },
       data: { name: company?.name || 'Empresa', locationCount: locations.length },
-      draggable: true,
     });
 
     locations.forEach((loc, i) => {
       const locPermits = permits.filter((p) => p.locationId === loc.id);
       const compliance = calculateCompliancePercentage(locPermits);
       const critical = countCriticalIssues(locPermits);
-
       const angle = (2 * Math.PI * i) / locations.length - Math.PI / 2;
-      const sx = centerX + Math.cos(angle) * sedeRadius;
-      const sy = centerY + Math.sin(angle) * sedeRadius;
 
       nodes.push({
         id: loc.id,
         type: 'sede',
-        position: { x: sx - 80, y: sy - 45 },
+        position: { x: Math.cos(angle) * 300, y: Math.sin(angle) * 300 },
         data: {
           name: loc.name,
           address: loc.address,
@@ -84,55 +78,94 @@ export function NetworkMapView() {
           critical,
           permitCount: locPermits.length,
         },
-        draggable: true,
       });
 
       edges.push({
         id: `company-${loc.id}`,
         source: 'company',
         target: loc.id,
-        type: 'default',
-        style: { stroke: riskMiniMapColor[loc.riskLevel], strokeWidth: 2, opacity: 0.4 },
+        style: { stroke: riskColor[loc.riskLevel], strokeWidth: 2, opacity: 0.35 },
         animated: loc.riskLevel === 'critico',
       });
 
       locPermits.forEach((permit, j) => {
-        const pAngle = angle + ((j - (locPermits.length - 1) / 2) * 0.35);
-        const px = sx + Math.cos(pAngle) * permitRadius;
-        const py = sy + Math.sin(pAngle) * permitRadius;
-
+        const pAngle = angle + ((j - (locPermits.length - 1) / 2) * 0.4);
         nodes.push({
           id: permit.id,
           type: 'permit',
-          position: { x: px - 55, y: py - 22 },
+          position: {
+            x: Math.cos(angle) * 300 + Math.cos(pAngle) * 180,
+            y: Math.sin(angle) * 300 + Math.sin(pAngle) * 180,
+          },
           data: {
             label: PERMIT_TYPE_LABELS[permit.type],
             status: permit.status,
             issuer: permit.issuer,
           },
-          draggable: true,
         });
 
         edges.push({
           id: `${loc.id}-${permit.id}`,
           source: loc.id,
           target: permit.id,
-          type: 'default',
           style: {
             stroke: statusEdgeColor[permit.status],
             strokeWidth: permit.status === 'vencido' || permit.status === 'no_registrado' ? 2.5 : 1.5,
-            opacity: permit.status === 'no_registrado' ? 0.4 : 0.7,
+            opacity: permit.status === 'no_registrado' ? 0.35 : 0.6,
           },
           animated: permit.status === 'vencido',
         });
       });
     });
 
-    return { initialNodes: nodes, initialEdges: edges };
+    return { seedNodes: nodes, seedEdges: edges };
   }, [company, locations, permits]);
 
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
-  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState(seedNodes);
+  const [edges, , onEdgesChange] = useEdgesState(seedEdges);
+
+  const onForceTick = useCallback(
+    (positions: Map<string, { x: number; y: number }>) => {
+      setNodes((prev) =>
+        prev.map((n) => {
+          if (n.id === draggingRef.current) return n;
+          const pos = positions.get(n.id);
+          if (!pos) return n;
+          return { ...n, position: { x: pos.x, y: pos.y } };
+        }),
+      );
+    },
+    [setNodes],
+  );
+
+  const { fixNode, releaseNode } = useForceLayout({
+    nodes: seedNodes,
+    edges: seedEdges,
+    onTick: onForceTick,
+  });
+
+  const onNodeDragStart: OnNodeDrag = useCallback(
+    (_event, node) => {
+      draggingRef.current = node.id;
+      fixNode(node.id, node.position.x, node.position.y);
+    },
+    [fixNode],
+  );
+
+  const onNodeDrag: OnNodeDrag = useCallback(
+    (_event, node) => {
+      fixNode(node.id, node.position.x, node.position.y);
+    },
+    [fixNode],
+  );
+
+  const onNodeDragStop: OnNodeDrag = useCallback(
+    (_event, node) => {
+      draggingRef.current = null;
+      releaseNode(node.id);
+    },
+    [releaseNode],
+  );
 
   const onNodeClick: NodeMouseHandler = useCallback(
     (_, node) => {
@@ -144,18 +177,21 @@ export function NetworkMapView() {
   );
 
   return (
-    <div className="h-[calc(100vh-64px)] -m-6 lg:-m-8">
+    <div className="h-[calc(100vh-64px)] -m-6 lg:-m-8 relative">
       <ReactFlow
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}
+        onNodeDragStart={onNodeDragStart}
+        onNodeDrag={onNodeDrag}
+        onNodeDragStop={onNodeDragStop}
         nodeTypes={nodeTypes}
         fitView
-        fitViewOptions={{ padding: 0.3 }}
-        minZoom={0.2}
-        maxZoom={2}
+        fitViewOptions={{ padding: 0.3, duration: 800 }}
+        minZoom={0.15}
+        maxZoom={2.5}
         proOptions={{ hideAttribution: true }}
         className="bg-[#FAFBFD]"
       >
@@ -167,9 +203,8 @@ export function NetworkMapView() {
         <MiniMap
           nodeColor={(n) => {
             if (n.type === 'company') return '#3b82f6';
-            if (n.type === 'sede') return riskMiniMapColor[(n.data as { riskLevel: RiskLevel }).riskLevel] || '#9ca3af';
-            const status = (n.data as { status: PermitStatus }).status;
-            return statusEdgeColor[status] || '#d1d5db';
+            if (n.type === 'sede') return riskColor[(n.data as { riskLevel: RiskLevel }).riskLevel] || '#9ca3af';
+            return statusEdgeColor[(n.data as { status: PermitStatus }).status] || '#d1d5db';
           }}
           maskColor="rgba(248,250,252,0.7)"
           className="!bg-white !border-gray-200 !rounded-xl !shadow-lg !shadow-black/5"

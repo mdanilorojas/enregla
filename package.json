@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@xyflow/react": "^12.10.2",
+    "d3-force": "^3.0.0",
     "date-fns": "^4.1.0",
     "lucide-react": "^1.7.0",
     "react": "^19.2.4",
@@ -21,6 +22,7 @@
   "devDependencies": {
     "@eslint/js": "^9.39.4",
     "@tailwindcss/vite": "^4.2.2",
+    "@types/d3-force": "^3.0.10",
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
