@@ -7,7 +7,6 @@ import { LocationListView } from '@/features/locations/LocationListView';
 import { LocationDetailView } from '@/features/locations/LocationDetailView';
 import { PermitListView } from '@/features/permits/PermitListView';
 import { RenewalTimelineView } from '@/features/renewals/RenewalTimelineView';
-import { DocumentVaultView } from '@/features/documents/DocumentVaultView';
 import { TaskBoardView } from '@/features/tasks/TaskBoardView';
 import { LegalReferenceView } from '@/features/legal/LegalReferenceView';
 import { NetworkMapView } from '@/features/network/NetworkMapView';
@@ -33,7 +32,6 @@ export default function App() {
             <Route path="/sedes/:id" element={<LocationDetailView />} />
             <Route path="/permisos" element={<PermitListView />} />
             <Route path="/renovaciones" element={<RenewalTimelineView />} />
-            <Route path="/documentos" element={<DocumentVaultView />} />
             <Route path="/tareas" element={<TaskBoardView />} />
             <Route path="/marco-legal" element={<LegalReferenceView />} />
             <Route path="/mapa" element={<NetworkMapView />} />

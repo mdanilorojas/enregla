@@ -8,6 +8,7 @@ import {
   PERMIT_STATUS_LABELS,
   STAGE_LABELS,
   type Permit,
+  type Document,
 } from '@/types';
 import { calculateCompliancePercentage, countCriticalIssues } from '@/lib/risk';
 import { formatDate, formatDateRelative, daysUntil } from '@/lib/dates';
@@ -21,12 +22,13 @@ import {
   MapPin,
   Building2,
   Upload,
+  RefreshCw,
 } from 'lucide-react';
 
 export function LocationDetailView() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { locations, getLocationPermits, getLocationTasks, getLocationDocuments, getLocationRenewals } = useAppStore();
+  const { locations, getLocationPermits, getLocationTasks, getLocationRenewals, getPermitDocuments } = useAppStore();
   const [uploadPermit, setUploadPermit] = useState<Permit | null>(null);
 
   const location = locations.find((l) => l.id === id);
@@ -36,7 +38,6 @@ export function LocationDetailView() {
 
   const permits = getLocationPermits(location.id);
   const tasks = getLocationTasks(location.id);
-  const documents = getLocationDocuments(location.id);
   const renewals = getLocationRenewals(location.id);
   const compliance = calculateCompliancePercentage(permits);
   const criticals = countCriticalIssues(permits);
@@ -91,7 +92,12 @@ export function LocationDetailView() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {permits.map((permit) => (
-            <PermitCard key={permit.id} permit={permit} onUpload={() => setUploadPermit(permit)} />
+            <PermitCard
+              key={permit.id}
+              permit={permit}
+              documents={getPermitDocuments(permit.id)}
+              onUpload={() => setUploadPermit(permit)}
+            />
           ))}
         </div>
       </div>
@@ -175,43 +181,6 @@ export function LocationDetailView() {
 
       <div>
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-8 h-8 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center shadow-sm shadow-sky-500/10">
-            <FileText size={14} strokeWidth={1.8} />
-          </div>
-          <span className="text-[14px] font-semibold text-gray-900">Documentos</span>
-          <span className="text-[12px] text-gray-400 px-2 py-0.5 rounded-lg bg-gray-50 border border-gray-100 font-medium">{documents.length}</span>
-        </div>
-        {documents.length > 0 ? (
-          <div className="space-y-2">
-            {documents.map((doc) => (
-              <Card key={doc.id} padding="sm">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
-                      <FileText size={14} className="text-gray-400" />
-                    </div>
-                    <div>
-                      <p className="text-[13px] font-medium text-gray-900">{doc.name}</p>
-                      <p className="text-[12px] text-gray-400 mt-0.5">Subido {formatDate(doc.uploadedAt)}</p>
-                    </div>
-                  </div>
-                  <Badge
-                    variant="status"
-                    status={doc.status === 'vigente' ? 'vigente' : doc.status === 'vencido' ? 'vencido' : 'no_registrado'}
-                  >
-                    {doc.status}
-                  </Badge>
-                </div>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <Card><p className="text-[13px] text-gray-400 text-center py-6">Sin documentos registrados</p></Card>
-        )}
-      </div>
-
-      <div>
-        <div className="flex items-center gap-3 mb-4">
           <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shadow-sm shadow-rose-500/10">
             <ListChecks size={14} strokeWidth={1.8} />
           </div>
@@ -272,16 +241,19 @@ export function LocationDetailView() {
   );
 }
 
-function PermitCard({ permit, onUpload }: { permit: Permit; onUpload: () => void }) {
+function PermitCard({ permit, documents, onUpload }: { permit: Permit; documents: Document[]; onUpload: () => void }) {
   const isRisk = permit.status === 'vencido' || permit.status === 'no_registrado';
   const needsAction = permit.status !== 'vigente';
+  const latestDoc = documents.length > 0
+    ? documents.sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())[0]
+    : null;
 
   return (
     <Card
       padding="none"
-      className={`group ${isRisk ? '!border-red-200' : ''} ${needsAction ? 'cursor-pointer' : ''}`}
-      hover={needsAction}
-      onClick={needsAction ? onUpload : undefined}
+      className={`group ${isRisk ? '!border-red-200' : ''} cursor-pointer`}
+      hover
+      onClick={onUpload}
     >
       <div className="p-4">
         <div className="flex items-start justify-between mb-2">
@@ -313,9 +285,36 @@ function PermitCard({ permit, onUpload }: { permit: Permit; onUpload: () => void
           <p className="text-[12px] text-red-500 mt-2 font-medium">Permiso requerido no registrado</p>
         )}
 
-        {/* Upload CTA for permits that need action */}
-        {needsAction && (
-          <div className="mt-3 pt-3 border-t border-gray-100">
+        {/* Document section — always visible */}
+        <div className="mt-3 pt-3 border-t border-gray-100">
+          {latestDoc ? (
+            <div className="flex items-center gap-3">
+              {/* Thumbnail */}
+              {latestDoc.thumbnailUrl ? (
+                <div className="w-12 h-12 rounded-lg border border-gray-200 overflow-hidden shrink-0 bg-gray-50">
+                  <img
+                    src={latestDoc.thumbnailUrl}
+                    alt={latestDoc.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-12 h-12 rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center shrink-0">
+                  <FileText size={18} className="text-gray-300" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] font-medium text-gray-700 truncate">{latestDoc.name}</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">{formatDate(latestDoc.uploadedAt)}</p>
+              </div>
+              {/* Re-upload hint */}
+              <div className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
+                  <RefreshCw size={12} className="text-gray-400" />
+                </div>
+              </div>
+            </div>
+          ) : needsAction ? (
             <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-blue-50 border border-blue-100/80 group-hover:bg-blue-100/60 transition-colors">
               <Upload size={13} className="text-blue-500 shrink-0" />
               <span className="text-[11px] font-semibold text-blue-600">
@@ -325,15 +324,13 @@ function PermitCard({ permit, onUpload }: { permit: Permit; onUpload: () => void
                  'Subir documento'}
               </span>
             </div>
-          </div>
-        )}
-
-        {/* Legal reference for permits that are ok */}
-        {!needsAction && (
-          <div className="mt-3 pt-3 border-t border-gray-100">
-            <LegalPill permitType={permit.type} variant="full" />
-          </div>
-        )}
+          ) : (
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-gray-50 border border-gray-100 group-hover:bg-gray-100/60 transition-colors">
+              <Upload size={13} className="text-gray-400 shrink-0" />
+              <span className="text-[11px] font-medium text-gray-500">Subir documento</span>
+            </div>
+          )}
+        </div>
       </div>
     </Card>
   );

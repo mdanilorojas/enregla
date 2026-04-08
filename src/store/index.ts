@@ -34,7 +34,7 @@ interface AppState {
   setTasks: (tasks: Task[]) => void;
   updateTaskStatus: (id: string, status: Task['status']) => void;
 
-  resolvePermit: (permitId: string, fileName: string) => void;
+  resolvePermit: (permitId: string, fileName: string, thumbnailUrl?: string) => void;
 
   loadMockData: () => void;
 
@@ -46,7 +46,7 @@ interface AppState {
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
-  isAuthenticated: false,
+  isAuthenticated: true,
   isOnboarded: true,
   company: mockCompany,
   locations: mockLocations,
@@ -75,7 +75,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       tasks: s.tasks.map((t) => (t.id === id ? { ...t, status } : t)),
     })),
 
-  resolvePermit: (permitId, fileName) => {
+  resolvePermit: (permitId, fileName, thumbnailUrl) => {
     const state = get();
     const permit = state.permits.find((p) => p.id === permitId);
     if (!permit) return;
@@ -109,6 +109,7 @@ export const useAppStore = create<AppState>((set, get) => ({
           uploadedAt: now.toISOString(),
           expiryDate,
           status: 'vigente' as const,
+          thumbnailUrl,
         },
       ],
       renewals: state.renewals.map((r) =>

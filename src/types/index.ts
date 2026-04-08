@@ -87,6 +87,7 @@ export interface Document {
   uploadedAt: string;
   expiryDate?: string;
   status: DocumentStatus;
+  thumbnailUrl?: string;
 }
 
 export interface Task {

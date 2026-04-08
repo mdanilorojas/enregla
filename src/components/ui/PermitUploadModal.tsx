@@ -62,7 +62,7 @@ export function PermitUploadModal({ permit, onClose }: Props) {
     if (!file) return;
     setSaving(true);
     setTimeout(() => {
-      resolvePermit(permit.id, file.name);
+      resolvePermit(permit.id, file.name, preview ?? undefined);
       setStep('done');
       setSaving(false);
     }, 600);
