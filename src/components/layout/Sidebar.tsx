@@ -7,6 +7,7 @@ import {
   FileText,
   ListChecks,
   Scale,
+  Network,
   ChevronLeft,
   ChevronRight,
   Building2,
@@ -22,6 +23,7 @@ const navItems = [
   { to: '/documentos', icon: FileText, label: 'Documentos', badge: null, color: 'sky' as const },
   { to: '/tareas', icon: ListChecks, label: 'Tareas', badge: null, color: 'rose' as const },
   { to: '/marco-legal', icon: Scale, label: 'Marco Legal', badge: null, color: 'indigo' as const },
+  { to: '/mapa', icon: Network, label: 'Mapa de sedes', badge: null, color: 'blue' as const },
 ];
 
 const activeColorMap = {

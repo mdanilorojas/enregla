@@ -9,6 +9,7 @@ const pageNames: Record<string, string> = {
   '/documentos': 'Documentos',
   '/tareas': 'Tareas',
   '/marco-legal': 'Marco Legal',
+  '/mapa': 'Mapa de sedes',
   '/setup': 'Configuración inicial',
 };
 
@@ -20,6 +21,7 @@ const pageDescriptions: Record<string, string> = {
   '/documentos': 'Repositorio documental',
   '/tareas': 'Acciones pendientes',
   '/marco-legal': 'Normativa y regulaciones',
+  '/mapa': 'Grafo interactivo de sedes y regulaciones',
 };
 
 interface TopBarProps {
