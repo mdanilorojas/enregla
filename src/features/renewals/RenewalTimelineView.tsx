@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '@/store';
 import { Card, Badge, LegalPill } from '@/components/ui';
 import { PERMIT_TYPE_LABELS } from '@/types';
@@ -7,6 +8,7 @@ import { parseISO } from 'date-fns';
 
 export function RenewalTimelineView() {
   const { renewals, permits, locations } = useAppStore();
+  const navigate = useNavigate();
 
   const grouped = useMemo(() => {
     const sorted = [...renewals].sort(
@@ -73,8 +75,16 @@ export function RenewalTimelineView() {
                   const days = daysUntil(r.dueDate);
 
                   return (
-                    <Card key={r.id} padding="sm" hover>
-                      <div className="flex items-center gap-4">
+                    <Card
+                      key={r.id}
+                      padding="none"
+                      hover
+                      className="cursor-pointer"
+                    >
+                      <button
+                        onClick={() => navigate(`/permisos/${r.permitId}`)}
+                        className="w-full flex items-center gap-4 px-4 py-3 text-left"
+                      >
                         <div className="flex flex-col items-center w-12 shrink-0">
                           <span className={`text-xl font-semibold tabular-nums ${
                             days < 0 ? 'text-red-500' :
@@ -114,7 +124,7 @@ export function RenewalTimelineView() {
                         }`}>
                           {formatDateRelative(r.dueDate)}
                         </span>
-                      </div>
+                      </button>
                     </Card>
                   );
                 })}

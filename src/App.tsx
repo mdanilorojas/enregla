@@ -6,6 +6,7 @@ import { DashboardView } from '@/features/dashboard/DashboardView';
 import { LocationListView } from '@/features/locations/LocationListView';
 import { LocationDetailView } from '@/features/locations/LocationDetailView';
 import { PermitListView } from '@/features/permits/PermitListView';
+import { PermitDetailView } from '@/features/permits/PermitDetailView';
 import { RenewalTimelineView } from '@/features/renewals/RenewalTimelineView';
 import { TaskBoardView } from '@/features/tasks/TaskBoardView';
 import { LegalReferenceView } from '@/features/legal/LegalReferenceView';
@@ -31,6 +32,7 @@ export default function App() {
             <Route path="/sedes" element={<LocationListView />} />
             <Route path="/sedes/:id" element={<LocationDetailView />} />
             <Route path="/permisos" element={<PermitListView />} />
+            <Route path="/permisos/:id" element={<PermitDetailView />} />
             <Route path="/renovaciones" element={<RenewalTimelineView />} />
             <Route path="/tareas" element={<TaskBoardView />} />
             <Route path="/marco-legal" element={<LegalReferenceView />} />
