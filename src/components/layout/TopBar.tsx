@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Menu, Search, Bell, Settings } from 'lucide-react';
 
@@ -28,12 +29,26 @@ interface TopBarProps {
 
 export function TopBar({ onMenuToggle }: TopBarProps) {
   const location = useLocation();
+  const [scrolled, setScrolled] = useState(false);
+
   const basePath = '/' + location.pathname.split('/').filter(Boolean).slice(0, 1).join('/');
   const title = pageNames[basePath] || pageNames[location.pathname] || '';
   const description = pageDescriptions[basePath] || '';
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <header className="h-[64px] border-b border-gray-200/60 bg-white/80 backdrop-blur-xl flex items-center justify-between px-6 sticky top-0 z-20">
+    <header className={`h-[64px] border-b flex items-center justify-between px-6 sticky top-0 z-20 transition-all duration-300 ${
+      scrolled
+        ? 'bg-white/70 backdrop-blur-2xl border-gray-200/80 shadow-sm'
+        : 'bg-white/90 backdrop-blur-xl border-gray-200/60'
+    }`}>
       <div className="flex items-center gap-4">
         <button
           onClick={onMenuToggle}

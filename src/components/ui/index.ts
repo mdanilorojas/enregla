@@ -8,3 +8,7 @@ export { ComplianceGauge } from './ComplianceGauge';
 export { ProgressRing } from './ProgressRing';
 export { EmptyState } from './EmptyState';
 export { LegalPill } from './LegalPill';
+export { GlassCard } from './GlassCard';
+export { GlassBackground } from './GlassBackground';
+export { GlassModal } from './GlassModal';
+export { GlassNotification } from './GlassNotification';

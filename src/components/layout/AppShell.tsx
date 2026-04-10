@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
+import { GlassBackground } from '@/components/ui';
 
 export function AppShell() {
   const [collapsed, setCollapsed] = useState(false);
@@ -13,7 +14,8 @@ export function AppShell() {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-[#F8FAFC] relative">
+      <GlassBackground />
       {mobileOpen && (
         <div
           className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 lg:hidden"

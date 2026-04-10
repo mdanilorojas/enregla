@@ -6,8 +6,7 @@ import { LiveStatusIndicator } from './widgets/LiveStatusIndicator';
 import { RiskOverview } from './widgets/RiskOverview';
 import { ComplianceTrend } from './widgets/ComplianceTrend';
 import { ExpirationCalendar } from './widgets/ExpirationCalendar';
-import { DeadlineStrip } from './widgets/DeadlineStrip';
-import { CriticalAlerts } from './widgets/CriticalAlerts';
+import { QuickActions } from './widgets/QuickActions';
 import { LocationGrid } from './widgets/LocationGrid';
 import { ActionQueue } from './widgets/ActionQueue';
 import { ExportDashboard } from './widgets/ExportDashboard';
@@ -75,16 +74,13 @@ export function DashboardView() {
         totalPermits={permits.length}
       />
 
-      {/* Alerts & Deadlines */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <CriticalAlerts permits={permits} locations={locations} />
-        <DeadlineStrip renewals={renewals} permits={permits} locations={locations} />
-      </div>
-
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ComplianceTrend currentCompliance={compliancePct} />
-        <ExpirationCalendar renewals={renewals} />
+      {/* Charts & Actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ComplianceTrend currentCompliance={compliancePct} />
+          <ExpirationCalendar renewals={renewals} />
+        </div>
+        <QuickActions permits={permits} locations={locations} renewals={renewals} />
       </div>
 
       {/* Location Grid */}
