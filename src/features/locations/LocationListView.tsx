@@ -1,10 +1,12 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '@/store';
 import { calculateCompliancePercentage, countCriticalIssues } from '@/lib/risk';
 import { STAGE_LABELS, PERMIT_TYPE_LABELS } from '@/types';
 import type { RiskLevel, PermitStatus } from '@/types';
-import { ArrowUpRight, AlertTriangle, Clock, ListChecks } from 'lucide-react';
+import { ArrowUpRight, AlertTriangle, Clock, ListChecks, Map, ChevronDown, ChevronUp } from 'lucide-react';
 import { formatDateRelative } from '@/lib/dates';
+import { NetworkMapView } from '@/features/network/NetworkMapView';
 
 const riskAccent: Record<RiskLevel, string> = {
   critico: 'border-t-red-500',
@@ -34,14 +36,35 @@ const complianceColor = (pct: number) =>
 export function LocationListView() {
   const navigate = useNavigate();
   const { locations, permits, renewals, tasks } = useAppStore();
+  const [showMap, setShowMap] = useState(true);
 
   return (
     <div>
-      <div className="mb-8">
+      <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-900 tracking-tight">Sedes</h2>
         <p className="text-[13px] text-gray-500 mt-1">
           {locations.length} {locations.length === 1 ? 'local registrado' : 'locales registrados'}
         </p>
+      </div>
+
+      {/* Network Map */}
+      <div className="mb-6">
+        <button
+          onClick={() => setShowMap(!showMap)}
+          className="flex items-center gap-2 mb-3 text-sm font-semibold text-gray-700 hover:text-gray-900 transition-colors"
+        >
+          <Map size={16} />
+          <span>Mapa de red</span>
+          {showMap ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </button>
+
+        {showMap && (
+          <div className="bg-white rounded-2xl border border-gray-200/60 shadow-sm overflow-hidden">
+            <div className="h-[500px] relative">
+              <NetworkMapView embedded />
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -56,7 +56,11 @@ function getHandlePair(sx: number, sy: number, tx: number, ty: number) {
   return { sourceHandle: 'left', targetHandle: 'right' };
 }
 
-export function NetworkMapView() {
+interface NetworkMapViewProps {
+  embedded?: boolean;
+}
+
+export function NetworkMapView({ embedded = false }: NetworkMapViewProps) {
   const navigate = useNavigate();
   const { company, locations, permits } = useAppStore();
   const draggingRef = useRef<string | null>(null);
@@ -204,7 +208,7 @@ export function NetworkMapView() {
   );
 
   return (
-    <div className="h-[calc(100vh-64px)] -m-6 lg:-m-8 relative">
+    <div className={embedded ? 'h-full relative' : 'h-[calc(100vh-64px)] -m-6 lg:-m-8 relative'}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -241,7 +245,7 @@ export function NetworkMapView() {
       </ReactFlow>
 
       {/* Legend */}
-      <div className="absolute bottom-6 left-6 bg-white/90 backdrop-blur-sm rounded-xl border border-gray-200/80 shadow-lg px-4 py-3 z-10">
+      <div className={`absolute ${embedded ? 'bottom-3 left-3' : 'bottom-6 left-6'} bg-white/90 backdrop-blur-sm rounded-xl border border-gray-200/80 shadow-lg ${embedded ? 'px-3 py-2' : 'px-4 py-3'} z-10`}>
         <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2">Estado de permisos</p>
         <div className="flex flex-wrap gap-x-4 gap-y-1.5">
           {([
