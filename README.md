@@ -1,3 +1,93 @@
+# EnRegla - React + TypeScript + Vite + Supabase
+
+Aplicación web desarrollada con React, TypeScript, Vite y Supabase para gestión de documentos y autenticación de usuarios.
+
+## 🚀 Stack Tecnológico
+
+- **Frontend:** React 19 + TypeScript
+- **Build Tool:** Vite 8
+- **Backend:** Supabase (PostgreSQL + Auth + Storage)
+- **Deployment:** Vercel
+- **Styling:** Tailwind CSS
+
+## 📦 Instalación
+
+\`\`\`bash
+# Instalar dependencias
+npm install
+
+# Configurar variables de entorno
+cp .env.example .env.local
+# Edita .env.local con tus credenciales de Supabase
+
+# Iniciar servidor de desarrollo
+npm run dev
+\`\`\`
+
+## ⚙️ Configuración de Supabase
+
+Ver la guía completa en [SUPABASE_SETUP.md](./SUPABASE_SETUP.md)
+
+### Quick Start:
+
+1. Crea un proyecto en [supabase.com](https://supabase.com)
+2. Copia las credenciales a `.env.local`
+3. Ejecuta los scripts SQL para crear las tablas
+4. ¡Listo para usar!
+
+## 🏗️ Arquitectura
+
+\`\`\`
+┌─────────────────┐         ┌─────────────────────┐
+│   Frontend      │────────>│     Supabase        │
+│   React/Vite    │   API   │  • PostgreSQL       │
+│   (Vercel)      │         │  • Auth             │
+│                 │         │  • Storage          │
+└─────────────────┘         └─────────────────────┘
+```
+
+## 📁 Estructura del Proyecto
+
+\`\`\`
+enregla/
+├── src/
+│   ├── components/
+│   │   ├── Auth/           # Componentes de autenticación
+│   │   └── Storage/        # Componentes de subida de archivos
+│   ├── hooks/              # Custom React hooks
+│   ├── lib/
+│   │   ├── supabase.ts     # Cliente de Supabase
+│   │   ├── auth.ts         # Utilidades de autenticación
+│   │   └── storage.ts      # Utilidades de Storage
+│   └── ...
+├── .env.example            # Ejemplo de variables de entorno
+├── .env.local              # Variables de entorno (no commitear)
+└── SUPABASE_SETUP.md       # Guía de configuración
+\`\`\`
+
+## 🔐 Características
+
+- ✅ Autenticación de usuarios (email/password)
+- ✅ Gestión de sesiones
+- ✅ Subida de archivos (PDFs, PNGs, etc.)
+- ✅ Storage privado y público
+- ✅ Base de datos PostgreSQL
+- ✅ Row Level Security (RLS)
+
+## 🚢 Deployment
+
+### Vercel (Frontend)
+
+\`\`\`bash
+# Conecta tu repositorio a Vercel
+# Configura las variables de entorno en Vercel Dashboard
+# Deploy automático en cada push a main
+\`\`\`
+
+Ver más detalles en [SUPABASE_SETUP.md](./SUPABASE_SETUP.md#5-deploy-en-vercel)
+
+---
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

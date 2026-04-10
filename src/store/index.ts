@@ -46,14 +46,14 @@ interface AppState {
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
-  isAuthenticated: true,
-  isOnboarded: true,
-  company: mockCompany,
-  locations: mockLocations,
-  permits: mockPermits,
-  renewals: mockRenewals,
-  documents: mockDocuments,
-  tasks: mockTasks,
+  isAuthenticated: false,
+  isOnboarded: false,
+  company: null,
+  locations: [],
+  permits: [],
+  renewals: [],
+  documents: [],
+  tasks: [],
 
   login: () => set({ isAuthenticated: true }),
   logout: () => set({ isAuthenticated: false }),

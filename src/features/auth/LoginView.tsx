@@ -18,8 +18,9 @@ export function LoginView() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -28,11 +29,34 @@ export function LoginView() {
       return;
     }
 
+    if (isSignUp && password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => {
-      login();
-      navigate('/', { replace: true });
-    }, 800);
+
+    try {
+      // Import Supabase auth functions
+      const { signIn, signUp } = await import('@/lib/auth');
+
+      if (isSignUp) {
+        await signUp(email, password);
+        setError(''); // Clear any errors
+        // Show success message
+        alert('¡Cuenta creada! Revisa tu email para confirmar tu cuenta.');
+      } else {
+        await signIn(email, password);
+        // Update Zustand store
+        login();
+        navigate('/', { replace: true });
+      }
+    } catch (err: any) {
+      console.error('Auth error:', err);
+      setError(err.message || `Error al ${isSignUp ? 'crear cuenta' : 'iniciar sesión'}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -121,8 +145,12 @@ export function LoginView() {
           </div>
 
           <div className="mb-8">
-            <h2 className="text-[24px] font-bold text-gray-900 tracking-tight">Iniciar sesión</h2>
-            <p className="text-[14px] text-gray-400 mt-1.5">Ingresa tus credenciales para continuar</p>
+            <h2 className="text-[24px] font-bold text-gray-900 tracking-tight">
+              {isSignUp ? 'Crear cuenta' : 'Iniciar sesión'}
+            </h2>
+            <p className="text-[14px] text-gray-400 mt-1.5">
+              {isSignUp ? 'Completa los datos para registrarte' : 'Ingresa tus credenciales para continuar'}
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -187,12 +215,27 @@ export function LoginView() {
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  Entrar
+                  {isSignUp ? 'Crear cuenta' : 'Entrar'}
                   <ArrowRight size={16} />
                 </>
               )}
             </button>
           </form>
+
+          {/* DEV BYPASS BUTTON - Only visible in development */}
+          {import.meta.env.DEV && (
+            <button
+              type="button"
+              onClick={() => {
+                login();
+                useAppStore.getState().loadMockData();
+                navigate('/', { replace: true });
+              }}
+              className="w-full mt-4 px-4 py-2.5 rounded-xl bg-yellow-50 border-2 border-yellow-200 text-yellow-800 text-[12px] font-bold hover:bg-yellow-100 transition-all duration-200"
+            >
+              🚀 BYPASS LOGIN (DEV MODE)
+            </button>
+          )}
 
           {/* Divider */}
           <div className="flex items-center gap-4 my-7">
@@ -215,9 +258,16 @@ export function LoginView() {
 
           {/* Footer */}
           <p className="text-center text-[12px] text-gray-400 mt-8">
-            ¿No tienes cuenta?{' '}
-            <button className="text-blue-600 hover:text-blue-700 font-semibold transition-colors">
-              Solicita acceso
+            {isSignUp ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}{' '}
+            <button
+              type="button"
+              onClick={() => {
+                setIsSignUp(!isSignUp);
+                setError('');
+              }}
+              className="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+            >
+              {isSignUp ? 'Inicia sesión' : 'Crea una cuenta'}
             </button>
           </p>
         </div>
