@@ -41,29 +41,24 @@ export function ExpirationCalendar({ renewals }: ExpirationCalendarProps) {
   const isCurrentMonth = (date: Date) => date.getMonth() === today.getMonth();
 
   return (
-    <Card>
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shadow-sm">
-          <Calendar size={18} strokeWidth={2} />
-        </div>
-        <div>
-          <h3 className="text-lg font-bold text-gray-900">Calendario de Vencimientos</h3>
-          <p className="text-sm text-gray-500">{format(today, 'MMMM yyyy', { locale: es })}</p>
-        </div>
+    <Card padding="sm">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-sm font-bold text-gray-900">Calendario - {format(today, 'MMMM', { locale: es })}</h3>
+        <Calendar size={14} className="text-gray-400" />
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1">
         {/* Weekday headers */}
-        <div className="grid grid-cols-7 gap-2">
-          {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map((day) => (
-            <div key={day} className="text-center text-xs font-bold text-gray-500 uppercase tracking-wide py-2">
+        <div className="grid grid-cols-7 gap-1">
+          {['D', 'L', 'M', 'M', 'J', 'V', 'S'].map((day, i) => (
+            <div key={i} className="text-center text-[9px] font-bold text-gray-400 uppercase py-1">
               {day}
             </div>
           ))}
         </div>
 
         {/* Calendar days */}
-        <div className="grid grid-cols-7 gap-2">
+        <div className="grid grid-cols-7 gap-1">
           {days.map((day) => {
             const intensity = getDayIntensity(day);
             const dayRenewals = getDayRenewals(day);
@@ -74,43 +69,38 @@ export function ExpirationCalendar({ renewals }: ExpirationCalendarProps) {
               <div key={day.toISOString()} className="relative">
                 <button
                   className={`
-                    w-full aspect-square rounded-lg flex flex-col items-center justify-center
-                    text-xs font-semibold transition-all cursor-pointer
+                    w-full aspect-square rounded flex items-center justify-center
+                    text-[10px] font-semibold transition-all cursor-pointer
                     ${intensity.bg} ${intensity.text}
-                    ${!currentMonth ? 'opacity-40' : ''}
-                    ${today ? 'ring-2 ring-blue-500 ring-offset-1' : ''}
+                    ${!currentMonth ? 'opacity-30' : ''}
+                    ${today ? 'ring-1 ring-blue-500' : ''}
                   `}
                   title={dayRenewals.length > 0 ? `${dayRenewals.length} vencimiento(s)` : format(day, 'dd/MM/yyyy')}
                 >
-                  <span>{format(day, 'd')}</span>
-                  {dayRenewals.length > 0 && (
-                    <span className="text-[9px] font-bold mt-0.5">
-                      {dayRenewals.length}
-                    </span>
-                  )}
+                  {format(day, 'd')}
                 </button>
               </div>
             );
           })}
         </div>
 
-        {/* Legend */}
-        <div className="flex items-center justify-center gap-4 pt-4 border-t border-gray-100">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-gray-100" />
-            <span className="text-xs text-gray-600">Sin vencimientos</span>
+        {/* Compact Legend */}
+        <div className="flex items-center justify-center gap-3 pt-2 border-t border-gray-100">
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded bg-gray-100" />
+            <span className="text-[9px] text-gray-500">0</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-amber-100" />
-            <span className="text-xs text-gray-600">1</span>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded bg-amber-100" />
+            <span className="text-[9px] text-gray-500">1</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-orange-300" />
-            <span className="text-xs text-gray-600">2</span>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded bg-orange-300" />
+            <span className="text-[9px] text-gray-500">2</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-red-400" />
-            <span className="text-xs text-gray-600">3+</span>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded bg-red-400" />
+            <span className="text-[9px] text-gray-500">3+</span>
           </div>
         </div>
       </div>

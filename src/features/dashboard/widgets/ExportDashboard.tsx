@@ -61,25 +61,22 @@ export function ExportDashboard({ dashboardRef }: ExportDashboardProps) {
   };
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-1">
       <button
         onClick={exportToPDF}
         disabled={exporting}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-all disabled:opacity-50"
+        title="Exportar PDF"
       >
-        {exporting ? (
-          <Loader2 size={16} className="animate-spin" />
-        ) : (
-          <Download size={16} />
-        )}
-        {exporting ? 'Exportando...' : 'Exportar PDF'}
+        {exporting ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
+        PDF
       </button>
       <button
         onClick={shareLink}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-300 active:scale-95 transition-all shadow-sm"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-all"
+        title="Compartir"
       >
-        <Share2 size={16} />
-        Compartir
+        <Share2 size={12} />
       </button>
     </div>
   );

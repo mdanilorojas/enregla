@@ -31,19 +31,16 @@ export function ComplianceTrend({ currentCompliance }: ComplianceTrendProps) {
   }, [data]);
 
   return (
-    <Card>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h3 className="text-lg font-bold text-gray-900">Tendencia de Cumplimiento</h3>
-          <p className="text-sm text-gray-500 mt-0.5">Últimos 30 días</p>
-        </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200">
-          <TrendingUp size={14} className="text-emerald-600" />
-          <span className="text-sm font-bold text-emerald-600">+{trend}%</span>
+    <Card padding="sm">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-sm font-bold text-gray-900">Tendencia de Cumplimiento</h3>
+        <div className="flex items-center gap-1 px-2 py-1 rounded bg-emerald-50">
+          <TrendingUp size={12} className="text-emerald-600" />
+          <span className="text-xs font-bold text-emerald-600">+{trend}%</span>
         </div>
       </div>
 
-      <ResponsiveContainer width="100%" height={240}>
+      <ResponsiveContainer width="100%" height={180}>
         <LineChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
           <XAxis
