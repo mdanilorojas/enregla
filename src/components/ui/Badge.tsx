@@ -3,18 +3,18 @@ import type { RiskLevel, PermitStatus, TaskPriority } from '@/types';
 type BadgeVariant = 'risk' | 'status' | 'priority' | 'neutral';
 
 const riskColors: Record<RiskLevel, string> = {
-  critico: 'bg-red-50 text-red-600 ring-red-500/20',
-  alto: 'bg-orange-50 text-orange-600 ring-orange-500/20',
-  medio: 'bg-yellow-50 text-yellow-700 ring-yellow-500/20',
-  bajo: 'bg-emerald-50 text-emerald-600 ring-emerald-500/20',
+  critico: 'bg-red-100 text-red-800 ring-red-600/30',
+  alto: 'bg-orange-100 text-orange-800 ring-orange-600/30',
+  medio: 'bg-amber-100 text-amber-800 ring-amber-600/30',
+  bajo: 'bg-emerald-100 text-emerald-800 ring-emerald-600/30',
 };
 
 const statusColors: Record<PermitStatus, string> = {
-  vigente: 'bg-emerald-50 text-emerald-700 ring-emerald-500/20',
-  por_vencer: 'bg-yellow-50 text-yellow-700 ring-yellow-500/20',
-  vencido: 'bg-red-50 text-red-600 ring-red-500/20',
-  no_registrado: 'bg-gray-50 text-gray-500 ring-gray-400/20',
-  en_tramite: 'bg-blue-50 text-blue-600 ring-blue-500/20',
+  vigente: 'bg-emerald-100 text-emerald-800 ring-emerald-600/30',
+  por_vencer: 'bg-amber-100 text-amber-800 ring-amber-600/30',
+  vencido: 'bg-red-100 text-red-800 ring-red-600/30',
+  no_registrado: 'bg-slate-100 text-slate-700 ring-slate-500/30',
+  en_tramite: 'bg-blue-100 text-blue-800 ring-blue-600/30',
 };
 
 const priorityColors: Record<TaskPriority, string> = {

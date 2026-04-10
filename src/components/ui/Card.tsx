@@ -17,22 +17,31 @@ const paddings = {
 
 const accentColors = {
   none: '',
-  blue: 'border-l-2 border-l-blue-500',
-  emerald: 'border-l-2 border-l-emerald-500',
-  amber: 'border-l-2 border-l-amber-500',
-  red: 'border-l-2 border-l-red-500',
-  violet: 'border-l-2 border-l-violet-500',
+  blue: 'border-l-3 border-l-[--color-primary]',
+  emerald: 'border-l-3 border-l-emerald-600',
+  amber: 'border-l-3 border-l-amber-500',
+  red: 'border-l-3 border-l-red-600',
+  violet: 'border-l-3 border-l-violet-600',
 };
 
 export function Card({ children, className = '', padding = 'md', hover, onClick, accent = 'none', glow }: CardProps) {
   const glowClass = glow ? 'shadow-lg shadow-blue-500/5' : '';
+  const baseClasses = 'bg-white rounded-xl border border-slate-200 shadow-md';
+  const hoverClasses = hover ? 'hover:shadow-lg hover:border-slate-300 transition-all duration-200 cursor-pointer hover:-translate-y-1' : '';
+  const interactiveClasses = onClick ? 'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[--color-primary]' : '';
 
   return (
     <div
-      className={`bg-white rounded-2xl border border-gray-200/60 shadow-[0_1px_3px_0_rgba(0,0,0,0.04)] ${paddings[padding]} ${accentColors[accent]} ${hover ? 'hover:shadow-[0_8px_25px_-5px_rgba(0,0,0,0.08)] hover:border-gray-200 transition-all duration-200 cursor-pointer hover:-translate-y-[1px]' : ''} ${glowClass} ${className}`}
+      className={`${baseClasses} ${paddings[padding]} ${accentColors[accent]} ${hoverClasses} ${interactiveClasses} ${glowClass} ${className}`}
       onClick={onClick}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      } : undefined}
     >
       {children}
     </div>

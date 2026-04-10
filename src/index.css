@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans: 'Fira Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-heading: 'Fira Code', ui-monospace, monospace;
 
   --color-enregla-950: #FAFAFA;
   --color-enregla-900: #FFFFFF;
@@ -23,6 +24,10 @@
   --color-brand-500: #3B82F6;
   --color-brand-600: #2563EB;
   --color-brand-700: #1D4ED8;
+
+  --color-primary: #2563EB;
+  --color-secondary: #3B82F6;
+  --color-cta: #F97316;
 
   --color-risk-critico: #EF4444;
   --color-risk-alto: #F97316;

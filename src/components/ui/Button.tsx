@@ -4,10 +4,10 @@ type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 const variants: Record<ButtonVariant, string> = {
-  primary: 'bg-gray-900 text-white hover:bg-gray-800 active:bg-gray-700 shadow-sm',
-  secondary: 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 shadow-sm',
-  ghost: 'text-gray-500 hover:text-gray-700 hover:bg-gray-100',
-  danger: 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200/60',
+  primary: 'bg-[--color-cta] text-white hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0 shadow-md hover:shadow-lg',
+  secondary: 'bg-white text-[--color-primary] hover:bg-blue-50 border-2 border-[--color-primary] shadow-sm',
+  ghost: 'text-gray-600 hover:text-gray-900 hover:bg-gray-100',
+  danger: 'bg-red-600 text-white hover:bg-red-700 hover:-translate-y-0.5 active:translate-y-0 shadow-sm',
 };
 
 const sizes: Record<ButtonSize, string> = {
@@ -25,7 +25,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export function Button({ variant = 'primary', size = 'md', icon, children, className = '', ...props }: ButtonProps) {
   return (
     <button
-      className={`inline-flex items-center justify-center rounded-lg font-medium transition-all duration-150 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`inline-flex items-center justify-center rounded-lg font-semibold transition-all duration-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[--color-primary] ${variants[variant]} ${sizes[size]} ${className}`}
       {...props}
     >
       {icon}
