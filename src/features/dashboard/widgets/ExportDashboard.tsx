@@ -65,15 +65,15 @@ export function ExportDashboard({ dashboardRef }: ExportDashboardProps) {
       <button
         onClick={exportToPDF}
         disabled={exporting}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-all disabled:opacity-50"
+        className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-all disabled:opacity-50"
         title="Exportar PDF"
       >
         {exporting ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
-        PDF
+        <span className="hidden sm:inline">PDF</span>
       </button>
       <button
         onClick={shareLink}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-all"
+        className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-all"
         title="Compartir"
       >
         <Share2 size={12} />

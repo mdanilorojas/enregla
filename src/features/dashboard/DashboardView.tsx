@@ -43,8 +43,8 @@ export function DashboardView() {
   return (
     <div ref={dashboardRef} className="space-y-6" id="dashboard">
       {/* Compact header */}
-      <div className="flex items-center justify-between gap-4">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+        <div className="min-w-0">
           <h2 className="text-lg font-bold text-gray-900">
             {company?.name || 'Dashboard'}
           </h2>
@@ -53,10 +53,10 @@ export function DashboardView() {
             <LiveStatusIndicator />
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs">
-            <Activity size={14} className="text-gray-400" />
-            <span className="text-gray-600 font-medium">
+        <div className="flex items-center gap-2 sm:shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs">
+            <Activity size={14} className="text-gray-400 hidden sm:block" />
+            <span className="text-gray-600 font-medium whitespace-nowrap">
               {permits.length} permisos · {locations.length} sedes
             </span>
           </div>
