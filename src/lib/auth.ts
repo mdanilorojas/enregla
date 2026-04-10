@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import type { User, Session, AuthError } from '@supabase/supabase-js';
+import type { User, Session } from '@supabase/supabase-js';
 
 /**
  * Sign up a new user with email and password
