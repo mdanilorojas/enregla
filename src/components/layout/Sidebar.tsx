@@ -6,7 +6,6 @@ import {
   CalendarClock,
   ListChecks,
   Scale,
-  Network,
   ChevronLeft,
   ChevronRight,
   Building2,
@@ -21,7 +20,6 @@ const navItems = [
   { to: '/renovaciones', icon: CalendarClock, label: 'Renovaciones', badge: null, color: 'amber' as const },
   { to: '/tareas', icon: ListChecks, label: 'Tareas', badge: null, color: 'rose' as const },
   { to: '/marco-legal', icon: Scale, label: 'Marco Legal', badge: null, color: 'indigo' as const },
-  { to: '/mapa', icon: Network, label: 'Mapa de sedes', badge: null, color: 'blue' as const },
 ];
 
 const activeColorMap = {

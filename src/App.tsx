@@ -10,7 +10,6 @@ import { PermitDetailView } from '@/features/permits/PermitDetailView';
 import { RenewalTimelineView } from '@/features/renewals/RenewalTimelineView';
 import { TaskBoardView } from '@/features/tasks/TaskBoardView';
 import { LegalReferenceView } from '@/features/legal/LegalReferenceView';
-import { NetworkMapView } from '@/features/network/NetworkMapView';
 import { OnboardingWizard } from '@/features/onboarding/OnboardingWizard';
 
 export default function App() {
@@ -36,7 +35,6 @@ export default function App() {
             <Route path="/renovaciones" element={<RenewalTimelineView />} />
             <Route path="/tareas" element={<TaskBoardView />} />
             <Route path="/marco-legal" element={<LegalReferenceView />} />
-            <Route path="/mapa" element={<NetworkMapView />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         )}
