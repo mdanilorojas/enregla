@@ -5,5 +5,6 @@ export { StatusDot } from './StatusDot';
 export { RiskIndicator } from './RiskIndicator';
 export { ProgressBar } from './ProgressBar';
 export { ComplianceGauge } from './ComplianceGauge';
+export { ProgressRing } from './ProgressRing';
 export { EmptyState } from './EmptyState';
 export { LegalPill } from './LegalPill';
