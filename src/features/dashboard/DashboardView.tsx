@@ -8,12 +8,11 @@ import { ComplianceTrend } from './widgets/ComplianceTrend';
 import { ExpirationCalendar } from './widgets/ExpirationCalendar';
 import { QuickActions } from './widgets/QuickActions';
 import { LocationGrid } from './widgets/LocationGrid';
-import { ActionQueue } from './widgets/ActionQueue';
 import { ExportDashboard } from './widgets/ExportDashboard';
 import { Activity } from 'lucide-react';
 
 export function DashboardView() {
-  const { locations, permits, renewals, tasks, company } = useAppStore();
+  const { locations, permits, renewals, company } = useAppStore();
   const [loading, setLoading] = useState(true);
   const dashboardRef = useRef<HTMLDivElement | null>(null);
 
@@ -85,9 +84,6 @@ export function DashboardView() {
 
       {/* Location Grid */}
       <LocationGrid locations={locations} permits={permits} renewals={renewals} />
-
-      {/* Action Queue */}
-      <ActionQueue tasks={tasks} locations={locations} />
     </div>
   );
 }
