@@ -6,10 +6,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { Card, Badge, EmptyState, GlassNotification } from '@/components/ui';
 import { PermitsTable } from './PermitsTable';
 import { RenewPermitModal } from '@/features/permits/RenewPermitModal';
+import { GeneratePublicLinkModal } from '@/features/publicLinks/GeneratePublicLinkModal';
+import { PublicLinkSuccessModal } from '@/features/publicLinks/PublicLinkSuccessModal';
 import { RISK_LABELS } from '@/types';
 import { formatDate, daysUntil } from '@/lib/dates';
-import { ArrowLeft, MapPin, Building2, AlertCircle, CalendarCheck, Clock } from 'lucide-react';
-import type { Permit } from '@/types/database';
+import { ArrowLeft, MapPin, Building2, AlertCircle, CalendarCheck, Clock, Link2 } from 'lucide-react';
+import type { Permit, PublicLink } from '@/types/database';
 
 const LOCATION_STATUS_LABELS = {
   operando: 'Operando',
@@ -33,6 +35,8 @@ export function LocationDetailView() {
   const canEdit = role === 'admin' || role === 'operator';
   const [renewingPermit, setRenewingPermit] = useState<Permit | null>(null);
   const [showSuccessNotification, setShowSuccessNotification] = useState(false);
+  const [showGenerateLinkModal, setShowGenerateLinkModal] = useState(false);
+  const [generatedLink, setGeneratedLink] = useState<PublicLink | null>(null);
 
   // Calculate summary metrics
   const summary = useMemo(() => {
@@ -67,6 +71,11 @@ export function LocationDetailView() {
     setTimeout(() => {
       setShowSuccessNotification(false);
     }, 3000);
+  };
+
+  const handleLinkGenerated = (link: PublicLink) => {
+    setGeneratedLink(link);
+    setShowGenerateLinkModal(false);
   };
 
   // Loading state
@@ -135,6 +144,16 @@ export function LocationDetailView() {
           <Badge variant="risk" risk={location.risk_level}>
             {RISK_LABELS[location.risk_level]}
           </Badge>
+
+          {canEdit && (
+            <button
+              onClick={() => setShowGenerateLinkModal(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 active:scale-95 transition-all shadow-sm"
+            >
+              <Link2 size={16} />
+              Generar Link
+            </button>
+          )}
         </div>
       </div>
 
@@ -201,6 +220,26 @@ export function LocationDetailView() {
         permit={renewingPermit}
         onClose={() => setRenewingPermit(null)}
         onSuccess={handleRenewalSuccess}
+      />
+    )}
+
+      {/* Generate Public Link Modal */}
+      {location && (
+        <GeneratePublicLinkModal
+          companyId={location.company_id}
+          locationId={location.id}
+          locationName={location.name}
+          isOpen={showGenerateLinkModal}
+          onClose={() => setShowGenerateLinkModal(false)}
+          onSuccess={handleLinkGenerated}
+        />
+      )}
+
+      {/* Public Link Success Modal */}
+      <PublicLinkSuccessModal
+        link={generatedLink}
+        isOpen={!!generatedLink}
+        onClose={() => setGeneratedLink(null)}
       />
     )}
 
