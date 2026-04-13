@@ -1,0 +1,60 @@
+-- Seed data for PermitOps V1 Demo
+-- This file is for reference only - seed data will be created after authentication is set up
+
+-- Example company
+-- INSERT INTO companies (id, name, business_type, city, location_count, regulatory_factors)
+-- VALUES (
+--   'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+--   'Supermaxi Ecuador',
+--   'Retail - Supermarket',
+--   'Quito',
+--   15,
+--   '{"industry": "retail", "size": "large", "risk_category": "medium"}'
+-- );
+
+-- Example locations
+-- INSERT INTO locations (company_id, name, address, status, risk_level)
+-- VALUES
+-- (
+--   'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+--   'Supermaxi Mall del Sol',
+--   'Av. Principal 123, Guayaquil',
+--   'operando',
+--   'medio'
+-- ),
+-- (
+--   'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+--   'Supermaxi El Jardín',
+--   'Av. República del Salvador, Quito',
+--   'operando',
+--   'bajo'
+-- );
+
+-- Example permits
+-- INSERT INTO permits (company_id, location_id, type, status, permit_number, issue_date, expiry_date, issuer, notes)
+-- VALUES
+-- (
+--   'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+--   (SELECT id FROM locations WHERE name = 'Supermaxi Mall del Sol'),
+--   'Permiso de Funcionamiento',
+--   'vigente',
+--   'PF-2024-001234',
+--   '2024-01-15',
+--   '2025-01-15',
+--   'Municipio de Guayaquil',
+--   'Renovación anual requerida'
+-- ),
+-- (
+--   'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+--   (SELECT id FROM locations WHERE name = 'Supermaxi Mall del Sol'),
+--   'Certificado de Salud',
+--   'por_vencer',
+--   'CS-2024-005678',
+--   '2024-02-01',
+--   '2024-05-01',
+--   'Ministerio de Salud Pública',
+--   'Vence en 30 días - Programar inspección'
+-- );
+
+-- Note: Actual seed data will be created after user authentication is configured
+-- and admin users are created in the system.
