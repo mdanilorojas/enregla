@@ -107,3 +107,33 @@ export function getPublicUrl(token: string): string {
 
   return `${baseUrl}/p/${token}`;
 }
+
+/**
+ * Public permit data returned by get_public_permits function
+ */
+export interface PublicPermitData {
+  location_name: string;
+  location_address: string;
+  permit_type: string;
+  permit_number: string;
+  status: string;
+  issue_date: string;
+  expiry_date: string;
+  issuer: string;
+}
+
+/**
+ * Call the get_public_permits Supabase function
+ * This increments view_count and updates last_viewed_at automatically
+ */
+export async function getPublicPermits(token: string): Promise<PublicPermitData[]> {
+  const { data, error } = await supabase.rpc('get_public_permits', {
+    link_token: token,
+  });
+
+  if (error) {
+    throw new Error(`Error al obtener permisos públicos: ${error.message}`);
+  }
+
+  return data || [];
+}

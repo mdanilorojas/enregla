@@ -12,6 +12,7 @@ import { RenewalTimelineView } from '@/features/renewals/RenewalTimelineView';
 import { TaskBoardView } from '@/features/tasks/TaskBoardView';
 import { LegalReferenceView } from '@/features/legal/LegalReferenceView';
 import { OnboardingWizard } from '@/features/onboarding/OnboardingWizard';
+import { PublicVerificationView } from '@/features/public/PublicVerificationView';
 
 function OnboardingRoute() {
   const { profile, loading } = useAuth();
@@ -63,6 +64,10 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public routes - NO authentication required */}
+        <Route path="/p/:token" element={<PublicVerificationView />} />
+
+        {/* Auth routes */}
         <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <LoginView />} />
         <Route
           path="/setup"
