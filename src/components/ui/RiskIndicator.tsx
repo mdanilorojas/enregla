@@ -1,11 +1,17 @@
-import type { RiskLevel } from '@/types';
-import { RISK_LABELS } from '@/types';
+import type { RiskLevel } from '@/types/database';
 
 interface RiskIndicatorProps {
   level: RiskLevel;
   showLabel?: boolean;
   size?: 'sm' | 'md' | 'lg';
 }
+
+const RISK_LABELS: Record<RiskLevel, string> = {
+  critico: 'Crítico',
+  alto: 'Alto',
+  medio: 'Medio',
+  bajo: 'Bajo',
+};
 
 const dotColors: Record<RiskLevel, string> = {
   critico: 'bg-red-500',

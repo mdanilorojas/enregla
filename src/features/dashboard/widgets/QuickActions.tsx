@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { Permit, Location, Renewal } from '@/types';
+import type { Permit } from '@/types/database';
+import type { Location } from '@/types/database';
 import { GlassCard } from '@/components/ui';
 import { RefreshCw, FileText, AlertCircle, MapPin, ArrowRight, CheckCircle } from 'lucide-react';
 import { daysUntil } from '@/lib/dates';
@@ -8,7 +9,6 @@ import { daysUntil } from '@/lib/dates';
 interface QuickActionsProps {
   permits: Permit[];
   locations: Location[];
-  renewals: Renewal[];
 }
 
 interface Action {
@@ -20,14 +20,14 @@ interface Action {
   action: () => void;
 }
 
-export function QuickActions({ permits, locations, renewals }: QuickActionsProps) {
+export function QuickActions({ permits, locations }: QuickActionsProps) {
   const navigate = useNavigate();
 
   const actions = useMemo<Action[]>(() => {
     const suggestions: Action[] = [];
 
     // Critical: Expired permits
-    const expiredPermits = permits.filter((p) => p.status === 'vencido');
+    const expiredPermits = permits.filter((p) => p.status === 'vencido' && p.is_active);
     if (expiredPermits.length > 0) {
       suggestions.push({
         id: 'expired',
@@ -39,9 +39,9 @@ export function QuickActions({ permits, locations, renewals }: QuickActionsProps
       });
     }
 
-    // Urgent renewals
-    const urgentRenewals = renewals.filter(
-      (r) => r.status !== 'completado' && daysUntil(r.dueDate) <= 15 && daysUntil(r.dueDate) >= 0
+    // Urgent renewals (expiring within 15 days)
+    const urgentRenewals = permits.filter(
+      (p) => p.is_active && p.expiry_date && daysUntil(p.expiry_date) <= 15 && daysUntil(p.expiry_date) >= 0
     );
     if (urgentRenewals.length > 0) {
       suggestions.push({
@@ -50,12 +50,12 @@ export function QuickActions({ permits, locations, renewals }: QuickActionsProps
         count: urgentRenewals.length,
         icon: <RefreshCw size={16} />,
         variant: 'warning',
-        action: () => navigate('/renovaciones'),
+        action: () => navigate('/permisos'),
       });
     }
 
     // Missing permits
-    const unregisteredPermits = permits.filter((p) => p.status === 'no_registrado');
+    const unregisteredPermits = permits.filter((p) => p.status === 'no_registrado' && p.is_active);
     if (unregisteredPermits.length > 0) {
       suggestions.push({
         id: 'missing',
@@ -68,7 +68,7 @@ export function QuickActions({ permits, locations, renewals }: QuickActionsProps
     }
 
     // High risk locations
-    const highRiskLocations = locations.filter((l) => l.riskLevel === 'critico' || l.riskLevel === 'alto');
+    const highRiskLocations = locations.filter((l) => l.risk_level === 'critico' || l.risk_level === 'alto');
     if (highRiskLocations.length > 0) {
       suggestions.push({
         id: 'risk',
@@ -81,7 +81,7 @@ export function QuickActions({ permits, locations, renewals }: QuickActionsProps
     }
 
     return suggestions;
-  }, [permits, locations, renewals, navigate]);
+  }, [permits, locations, navigate]);
 
   const variantStyles = {
     urgent: 'bg-red-50 hover:bg-red-100 text-red-700 border-red-200',

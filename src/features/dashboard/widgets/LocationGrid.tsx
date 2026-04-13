@@ -1,32 +1,36 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { Location, Permit, Renewal } from '@/types';
-import { STAGE_LABELS } from '@/types';
+import type { Location, Permit } from '@/types/database';
+import { getLocationPermitStats } from '@/lib/dashboard-metrics';
 import { RiskIndicator, ProgressBar } from '@/components/ui';
-import { calculateCompliancePercentage, countCriticalIssues } from '@/lib/risk';
 import { daysUntil, formatDateRelative } from '@/lib/dates';
 import { MapPin, Building2, Edit, ExternalLink } from 'lucide-react';
 
 interface Props {
   locations: Location[];
   permits: Permit[];
-  renewals: Renewal[];
 }
 
-function LocationCard({ location, permits, renewals, navigate }: {
+const STATUS_LABELS: Record<Location['status'], string> = {
+  operando: 'Operando',
+  en_preparacion: 'En preparación',
+  cerrado: 'Cerrado',
+};
+
+function LocationCard({ location, permits, navigate }: {
   location: Location;
   permits: Permit[];
-  renewals: Renewal[];
   navigate: (path: string) => void;
 }) {
   const [isHovered, setIsHovered] = useState(false);
-  const locPermits = permits.filter((p) => p.locationId === location.id);
-  const compliance = calculateCompliancePercentage(locPermits);
-  const critical = countCriticalIssues(locPermits);
-  const locRenewals = renewals.filter((r) => r.locationId === location.id);
-  const nextRenewal = locRenewals
-    .filter((r) => r.status !== 'completado')
-    .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())[0];
+  const locPermits = permits.filter((p) => p.location_id === location.id && p.is_active);
+  const stats = getLocationPermitStats(locPermits);
+  const compliance = stats.total > 0 ? Math.round((stats.vigentes / stats.total) * 100) : 0;
+
+  // Find next expiring permit
+  const nextExpiring = locPermits
+    .filter((p) => p.expiry_date && p.status !== 'vigente')
+    .sort((a, b) => new Date(a.expiry_date!).getTime() - new Date(b.expiry_date!).getTime())[0];
 
   return (
     <div
@@ -80,9 +84,9 @@ function LocationCard({ location, permits, renewals, navigate }: {
         </div>
 
         <div className="flex items-center gap-3 mb-4">
-          <RiskIndicator level={location.riskLevel} size="sm" />
+          <RiskIndicator level={location.risk_level} size="sm" />
           <span className="text-[11px] text-gray-500 px-2.5 py-1 rounded-lg bg-gray-50 border border-gray-100 font-medium">
-            {STAGE_LABELS[location.stage]}
+            {STATUS_LABELS[location.status]}
           </span>
         </div>
 
@@ -98,10 +102,10 @@ function LocationCard({ location, permits, renewals, navigate }: {
         </div>
 
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          {critical > 0 ? (
+          {stats.criticalCount > 0 ? (
             <span className="inline-flex items-center gap-1.5 text-[11px] text-red-500 font-semibold">
               <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-              {critical} {critical === 1 ? 'problema crítico' : 'problemas críticos'}
+              {stats.criticalCount} {stats.criticalCount === 1 ? 'problema crítico' : 'problemas críticos'}
             </span>
           ) : (
             <span className="inline-flex items-center gap-1.5 text-[11px] text-emerald-500 font-semibold">
@@ -109,17 +113,17 @@ function LocationCard({ location, permits, renewals, navigate }: {
               Sin problemas
             </span>
           )}
-          {nextRenewal && (
+          {nextExpiring && nextExpiring.expiry_date && (
             <span
               className={`text-[11px] font-semibold ${
-                daysUntil(nextRenewal.dueDate) < 0
+                daysUntil(nextExpiring.expiry_date) < 0
                   ? 'text-red-500'
-                  : daysUntil(nextRenewal.dueDate) <= 30
+                  : daysUntil(nextExpiring.expiry_date) <= 30
                   ? 'text-amber-600'
                   : 'text-gray-400'
               }`}
             >
-              {formatDateRelative(nextRenewal.dueDate)}
+              {formatDateRelative(nextExpiring.expiry_date)}
             </span>
           )}
         </div>
@@ -128,8 +132,20 @@ function LocationCard({ location, permits, renewals, navigate }: {
   );
 }
 
-export function LocationGrid({ locations, permits, renewals }: Props) {
+export function LocationGrid({ locations, permits }: Props) {
   const navigate = useNavigate();
+
+  if (locations.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <div className="w-16 h-16 rounded-xl bg-gray-100 text-gray-400 flex items-center justify-center mx-auto mb-4">
+          <MapPin size={24} />
+        </div>
+        <p className="text-sm font-semibold text-gray-700 mb-1">No hay sedes registradas</p>
+        <p className="text-xs text-gray-500">Complete el proceso de onboarding para crear sus primeras sedes</p>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -150,7 +166,6 @@ export function LocationGrid({ locations, permits, renewals }: Props) {
             key={loc.id}
             location={loc}
             permits={permits}
-            renewals={renewals}
             navigate={navigate}
           />
         ))}
