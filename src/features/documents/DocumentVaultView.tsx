@@ -56,8 +56,8 @@ export function DocumentVaultView() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 tracking-tight">Documentos</h2>
-          <p className="text-[13px] text-gray-500 mt-1">{documents.length} documentos registrados</p>
+          <h2 className="text-2xl font-black text-[var(--color-legal-ink)] tracking-tight uppercase">Documentos</h2>
+          <p className="text-[13px] font-medium text-slate-500 mt-1 uppercase tracking-widest">{documents.length} documentos registrados</p>
         </div>
         <div className="flex items-center gap-0.5 bg-gray-100 rounded-lg p-0.5">
           <button
@@ -81,9 +81,9 @@ export function DocumentVaultView() {
 
       {missingDocs.length > 0 && (
         <Card padding="none" className="mb-6 !border-orange-200">
-          <div className="flex items-center gap-2.5 px-5 py-3.5 border-b border-orange-100 bg-orange-50/50">
-            <AlertTriangle size={16} className="text-orange-500" />
-            <span className="text-[14px] font-semibold text-orange-700">Documentos faltantes</span>
+          <div className="flex items-center gap-2.5 px-5 py-4 border-b-2 border-orange-200 bg-orange-50">
+            <AlertTriangle size={18} className="text-orange-600" strokeWidth={2.5} />
+            <span className="text-[14px] font-bold text-orange-800 uppercase tracking-wide">Documentos faltantes</span>
             <Badge variant="risk" risk="alto" className="ml-auto">{missingDocs.length}</Badge>
           </div>
           <div className="divide-y divide-gray-50">
@@ -106,10 +106,10 @@ export function DocumentVaultView() {
       <div className="space-y-6">
         {grouped.map(([key, { label, docs }]) => (
           <div key={key}>
-            <div className="flex items-center gap-2.5 mb-3">
-              <FolderOpen size={15} className="text-gray-400" />
-              <h3 className="text-[14px] font-semibold text-gray-700">{label}</h3>
-              <span className="text-[12px] text-gray-400 px-1.5 py-0.5 rounded-full bg-gray-100">{docs.length}</span>
+            <div className="flex items-center gap-2.5 mb-4 px-2">
+              <FolderOpen size={18} className="text-slate-800" strokeWidth={2.5} />
+              <h3 className="text-[15px] font-bold text-[var(--color-legal-ink)] uppercase tracking-wide">{label}</h3>
+              <span className="text-[12px] font-bold text-slate-700 px-2 py-0.5 rounded-sm bg-slate-200 border border-slate-300">{docs.length}</span>
             </div>
             <div className="space-y-2">
               {docs.map((doc) => {
@@ -117,22 +117,22 @@ export function DocumentVaultView() {
                 const permit = doc.permitId ? permits.find((p) => p.id === doc.permitId) : null;
 
                 return (
-                  <Card key={doc.id} padding="sm" hover>
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
-                        <FileText size={16} className="text-gray-400" />
+                  <Card key={doc.id} padding="sm" hover className="border-2 border-slate-200 rounded-sm hover:border-slate-400 transition-colors shadow-none">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-sm bg-[var(--color-legal-paper)] border-2 border-slate-200 flex items-center justify-center shrink-0">
+                        <FileText size={18} className="text-slate-700" strokeWidth={2.5} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-medium text-gray-900 truncate">{doc.name}</p>
-                        <div className="flex items-center gap-2 mt-0.5">
+                        <p className="text-[14px] font-black text-[var(--color-legal-ink)] truncate uppercase tracking-widest">{doc.name}</p>
+                        <div className="flex items-center gap-2 mt-1">
                           {groupBy !== 'sede' && (
-                            <span className="text-[12px] text-gray-400">{loc?.name}</span>
+                            <span className="text-[12px] font-medium text-slate-600 uppercase tracking-wide">{loc?.name}</span>
                           )}
                           {groupBy !== 'permiso' && permit && (
-                            <span className="text-[12px] text-gray-400">{PERMIT_TYPE_LABELS[permit.type]}</span>
+                            <span className="text-[12px] font-medium text-slate-600 uppercase tracking-wide">{PERMIT_TYPE_LABELS[permit.type]}</span>
                           )}
-                          <span className="text-gray-300">·</span>
-                          <span className="text-[12px] text-gray-400">{formatDate(doc.uploadedAt)}</span>
+                          <span className="text-slate-300">·</span>
+                          <span className="text-[12px] font-medium text-slate-500 uppercase tracking-widest">{formatDate(doc.uploadedAt)}</span>
                         </div>
                       </div>
                       <Badge

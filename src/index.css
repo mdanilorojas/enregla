@@ -40,7 +40,12 @@
   --color-status-no-registrado: #9CA3AF;
   --color-status-en-tramite: #3B82F6;
 
-  --color-surface-base: #F8FAFC;
+  --color-brand-defense: #EA580C;
+  --color-brand-shield: #059669;
+  --color-legal-paper: #F8FAFC;
+  --color-legal-ink: #0F172A;
+
+  --color-surface-base: var(--color-legal-paper);
   --color-surface-raised: #FFFFFF;
   --color-surface-overlay: #FFFFFF;
   --color-surface-elevated: #FFFFFF;
@@ -48,8 +53,8 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-surface-base);
-  color: var(--color-enregla-100);
+  background-color: var(--color-legal-paper);
+  color: var(--color-legal-ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
