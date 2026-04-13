@@ -50,6 +50,27 @@ export async function getPermit(permitId: string): Promise<Permit | null> {
 }
 
 /**
+ * Fetch all versions of a permit (history)
+ * Returns array sorted by version DESC (newest first)
+ */
+export async function getPermitHistory(permitId: string): Promise<Permit[]> {
+  // First get the current permit to find its type and location
+  const currentPermit = await getPermit(permitId);
+  if (!currentPermit) return [];
+
+  // Get all permits with same type and location (all versions)
+  const { data, error } = await supabase
+    .from('permits')
+    .select('*')
+    .eq('type', currentPermit.type)
+    .eq('location_id', currentPermit.location_id)
+    .order('version', { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+}
+
+/**
  * Update permit status
  */
 export async function updatePermitStatus(

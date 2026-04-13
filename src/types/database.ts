@@ -267,3 +267,13 @@ export type PermitStatus = Permit['status'];
 export type LocationStatus = Location['status'];
 export type RiskLevel = Location['risk_level'];
 export type UserRole = Profile['role'];
+
+// Labels
+export const PERMIT_TYPE_LABELS: Record<string, string> = {
+  patente_municipal: 'Patente municipal',
+  bomberos: 'Permiso de bomberos',
+  arcsa: 'Permiso sanitario ARCSA',
+  uso_suelo: 'Certificado uso de suelo',
+  rotulacion: 'Permiso de rotulación',
+  ruc: 'RUC / situación tributaria',
+};
