@@ -241,7 +241,6 @@ export function LocationDetailView() {
         isOpen={!!generatedLink}
         onClose={() => setGeneratedLink(null)}
       />
-    )}
 
     {/* Success Notification */}
     {showSuccessNotification && (
