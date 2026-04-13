@@ -1,11 +1,11 @@
 import { eachDayOfInterval, format, isSameDay, startOfMonth, endOfMonth, startOfWeek, endOfWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
-import type { Renewal } from '@/types';
+import type { UpcomingRenewal } from '@/lib/dashboard-metrics';
 import { Card } from '@/components/ui';
 import { Calendar } from 'lucide-react';
 
 interface ExpirationCalendarProps {
-  renewals: Renewal[];
+  renewals: UpcomingRenewal[];
 }
 
 export function ExpirationCalendar({ renewals }: ExpirationCalendarProps) {
@@ -22,7 +22,7 @@ export function ExpirationCalendar({ renewals }: ExpirationCalendarProps) {
 
   const getDayIntensity = (date: Date) => {
     const count = renewals.filter((r) =>
-      isSameDay(new Date(r.dueDate), date) && r.status !== 'completado'
+      isSameDay(new Date(r.expiryDate), date) && r.status !== 'vigente'
     ).length;
 
     if (count === 0) return { bg: 'bg-gray-50 hover:bg-gray-100', text: 'text-gray-600' };
@@ -33,7 +33,7 @@ export function ExpirationCalendar({ renewals }: ExpirationCalendarProps) {
 
   const getDayRenewals = (date: Date) => {
     return renewals.filter((r) =>
-      isSameDay(new Date(r.dueDate), date) && r.status !== 'completado'
+      isSameDay(new Date(r.expiryDate), date) && r.status !== 'vigente'
     );
   };
 

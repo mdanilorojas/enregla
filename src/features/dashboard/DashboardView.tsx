@@ -1,6 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
-import { useAppStore } from '@/store';
-import { calculateCompanyRisk, calculateCompliancePercentage, countCriticalIssues } from '@/lib/risk';
+import { useRef } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { useLocations } from '@/hooks/useLocations';
+import { usePermits } from '@/hooks/usePermits';
+import { calculateDashboardMetrics, getUpcomingRenewals } from '@/lib/dashboard-metrics';
 import { DashboardSkeleton } from './DashboardSkeleton';
 import { LiveStatusIndicator } from './widgets/LiveStatusIndicator';
 import { RiskOverview } from './widgets/RiskOverview';
@@ -10,18 +12,19 @@ import { QuickActions } from './widgets/QuickActions';
 import { LocationGrid } from './widgets/LocationGrid';
 import { ExportDashboard } from './widgets/ExportDashboard';
 import { DailyInsight } from './widgets/DailyInsight';
-import { GlassNotification } from '@/components/ui';
-import { Activity } from 'lucide-react';
+import { Activity, AlertTriangle } from 'lucide-react';
 
 export function DashboardView() {
-  const { locations, permits, renewals, company } = useAppStore();
-  const [loading, setLoading] = useState(true);
-  const [showWelcome, setShowWelcome] = useState(true);
+  const { companyId, profile } = useAuth();
+  const { locations, loading: locationsLoading } = useLocations(companyId);
+  const { permits, loading: permitsLoading } = usePermits({ companyId });
   const dashboardRef = useRef<HTMLDivElement | null>(null);
 
-  const companyRisk = calculateCompanyRisk(locations);
-  const compliancePct = calculateCompliancePercentage(permits);
-  const criticalCount = countCriticalIssues(permits);
+  const loading = locationsLoading || permitsLoading;
+
+  // Calculate metrics from real data
+  const metrics = calculateDashboardMetrics(permits, locations);
+  const upcomingRenewals = getUpcomingRenewals(permits, locations, 5);
 
   const today = new Date();
   const formattedDate = today.toLocaleDateString('es-EC', {
@@ -31,23 +34,6 @@ export function DashboardView() {
     day: 'numeric',
   });
 
-  useEffect(() => {
-    // Simulate data loading
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 800);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    // Auto-dismiss welcome notification after 4 seconds
-    if (showWelcome) {
-      const timer = setTimeout(() => {
-        setShowWelcome(false);
-      }, 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [showWelcome]);
 
   if (loading) {
     return <DashboardSkeleton />;
@@ -59,7 +45,7 @@ export function DashboardView() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div className="min-w-0">
           <h2 className="text-lg font-bold text-gray-900">
-            {company?.name || 'Dashboard'}
+            {profile?.full_name ? `Bienvenido, ${profile.full_name.split(' ')[0]}` : 'Dashboard'}
           </h2>
           <div className="flex items-center gap-3 mt-1">
             <p className="text-xs text-gray-500 capitalize">{formattedDate}</p>
@@ -67,9 +53,13 @@ export function DashboardView() {
           </div>
         </div>
         <div className="flex items-center gap-2 sm:shrink-0">
-          <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs">
-            <Activity size={14} className="text-gray-400 hidden sm:block" />
-            <span className="text-gray-600 font-medium whitespace-nowrap">
+          <button className="flex items-center gap-2 px-4 py-2 bg-[#EA580C] text-white font-bold rounded-lg uppercase tracking-wide text-xs hover:bg-[#C2410C] border-2 border-transparent transition-colors shadow-sm">
+            <AlertTriangle size={16} strokeWidth={2.5} />
+            Auxilio en Inspección
+          </button>
+          <div className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-lg bg-white border-2 border-slate-200 text-xs shadow-sm">
+            <Activity size={14} className="text-gray-400 hidden sm:block" strokeWidth={2.5} />
+            <span className="text-gray-900 font-bold whitespace-nowrap">
               {permits.length} permisos · {locations.length} sedes
             </span>
           </div>
@@ -79,39 +69,28 @@ export function DashboardView() {
 
       {/* Risk Overview */}
       <RiskOverview
-        risk={companyRisk}
-        compliance={compliancePct}
-        criticalCount={criticalCount}
+        risk={metrics.companyRiskLevel}
+        compliance={metrics.compliance}
+        criticalCount={metrics.criticalCount}
         totalLocations={locations.length}
         totalPermits={permits.length}
       />
 
       {/* Daily Insight - Glass Effect */}
-      <DailyInsight compliancePercent={compliancePct} criticalCount={criticalCount} />
+      <DailyInsight compliancePercent={metrics.compliance} criticalCount={metrics.criticalCount} />
 
       {/* Charts & Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <ComplianceTrend currentCompliance={compliancePct} />
-          <ExpirationCalendar renewals={renewals} />
+          <ComplianceTrend currentCompliance={metrics.compliance} />
+          <ExpirationCalendar renewals={upcomingRenewals} />
         </div>
-        <QuickActions permits={permits} locations={locations} renewals={renewals} />
+        <QuickActions permits={permits} locations={locations} />
       </div>
 
       {/* Location Grid */}
-      <LocationGrid locations={locations} permits={permits} renewals={renewals} />
+      <LocationGrid locations={locations} permits={permits} />
 
-      {/* Floating Glass Notification */}
-      {showWelcome && (
-        <div className="fixed bottom-6 right-6 z-50 animate-slide-up">
-          <GlassNotification
-            type="info"
-            title="Dashboard actualizado"
-            message="Ahora con efectos glassmorphism para una experiencia premium"
-            onClose={() => setShowWelcome(false)}
-          />
-        </div>
-      )}
     </div>
   );
 }
