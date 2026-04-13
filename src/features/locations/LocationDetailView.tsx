@@ -1,13 +1,15 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLocation } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
 import { useAuth } from '@/hooks/useAuth';
-import { Card, Badge, EmptyState } from '@/components/ui';
+import { Card, Badge, EmptyState, GlassNotification } from '@/components/ui';
 import { PermitsTable } from './PermitsTable';
+import { RenewPermitModal } from '@/features/permits/RenewPermitModal';
 import { RISK_LABELS } from '@/types';
 import { formatDate, daysUntil } from '@/lib/dates';
 import { ArrowLeft, MapPin, Building2, AlertCircle, CalendarCheck, Clock } from 'lucide-react';
+import type { Permit } from '@/types/database';
 
 const LOCATION_STATUS_LABELS = {
   operando: 'Operando',
@@ -26,9 +28,11 @@ export function LocationDetailView() {
   const navigate = useNavigate();
   const { role } = useAuth();
   const { location, loading: loadingLocation } = useLocation(id);
-  const { permits, loading: loadingPermits } = usePermits({ locationId: id });
+  const { permits, loading: loadingPermits, refetch: refetchPermits } = usePermits({ locationId: id });
 
   const canEdit = role === 'admin' || role === 'operator';
+  const [renewingPermit, setRenewingPermit] = useState<Permit | null>(null);
+  const [showSuccessNotification, setShowSuccessNotification] = useState(false);
 
   // Calculate summary metrics
   const summary = useMemo(() => {
@@ -48,9 +52,21 @@ export function LocationDetailView() {
   }, [permits]);
 
   const handleRenew = (permitId: string) => {
-    // Placeholder for Task 13 - Renew Permit Modal
-    console.log('Renew permit:', permitId);
-    // TODO: Open renewal modal when Task 13 is complete
+    const permit = permits.find((p) => p.id === permitId);
+    if (permit) {
+      setRenewingPermit(permit);
+    }
+  };
+
+  const handleRenewalSuccess = () => {
+    setRenewingPermit(null);
+    setShowSuccessNotification(true);
+    refetchPermits();
+
+    // Hide notification after 3 seconds
+    setTimeout(() => {
+      setShowSuccessNotification(false);
+    }, 3000);
   };
 
   // Loading state
@@ -81,15 +97,16 @@ export function LocationDetailView() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Back button */}
-      <button
-        onClick={() => navigate('/')}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors font-medium"
-      >
-        <ArrowLeft size={16} />
-        Volver al Dashboard
-      </button>
+    <>
+      <div className="space-y-6">
+        {/* Back button */}
+        <button
+          onClick={() => navigate('/')}
+          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors font-medium"
+        >
+          <ArrowLeft size={16} />
+          Volver al Dashboard
+        </button>
 
       {/* Header Section */}
       <div className="flex items-start justify-between">
@@ -177,5 +194,27 @@ export function LocationDetailView() {
         <PermitsTable permits={permits} onRenew={canEdit ? handleRenew : undefined} />
       </div>
     </div>
+
+    {/* Renewal Modal */}
+    {renewingPermit && (
+      <RenewPermitModal
+        permit={renewingPermit}
+        onClose={() => setRenewingPermit(null)}
+        onSuccess={handleRenewalSuccess}
+      />
+    )}
+
+    {/* Success Notification */}
+    {showSuccessNotification && (
+      <div className="fixed top-4 right-4 z-50">
+        <GlassNotification
+          type="success"
+          title="Éxito"
+          message="Permiso renovado exitosamente"
+          onClose={() => setShowSuccessNotification(false)}
+        />
+      </div>
+    )}
+    </>
   );
 }
