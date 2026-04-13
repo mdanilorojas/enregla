@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppShell } from '@/components/layout/AppShell';
 import { ProtectedRoute } from '@/components/Auth';
-import { useAppStore } from '@/store';
 import { useAuth } from '@/hooks/useAuth';
 import { LoginView } from '@/features/auth/LoginView';
 import { DashboardView } from '@/features/dashboard/DashboardView';
@@ -14,10 +13,44 @@ import { TaskBoardView } from '@/features/tasks/TaskBoardView';
 import { LegalReferenceView } from '@/features/legal/LegalReferenceView';
 import { OnboardingWizard } from '@/features/onboarding/OnboardingWizard';
 
-function ProtectedOnboardingRoute() {
-  const isOnboarded = useAppStore((s) => s.isOnboarded);
+function OnboardingRoute() {
+  const { profile, loading } = useAuth();
 
-  if (!isOnboarded) {
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+          <p className="text-sm text-gray-600 font-medium">Cargando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If user already has company, redirect to dashboard
+  if (profile?.company_id) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <OnboardingWizard />;
+}
+
+function ProtectedOnboardingRoute() {
+  const { profile, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+          <p className="text-sm text-gray-600 font-medium">Cargando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If user doesn't have a company, redirect to onboarding
+  if (!profile?.company_id) {
     return <Navigate to="/setup" replace />;
   }
 
@@ -35,7 +68,7 @@ export default function App() {
           path="/setup"
           element={
             <ProtectedRoute>
-              <OnboardingWizard />
+              <OnboardingRoute />
             </ProtectedRoute>
           }
         />

@@ -9,11 +9,14 @@ import { ExpirationCalendar } from './widgets/ExpirationCalendar';
 import { QuickActions } from './widgets/QuickActions';
 import { LocationGrid } from './widgets/LocationGrid';
 import { ExportDashboard } from './widgets/ExportDashboard';
+import { DailyInsight } from './widgets/DailyInsight';
+import { GlassNotification } from '@/components/ui';
 import { Activity } from 'lucide-react';
 
 export function DashboardView() {
   const { locations, permits, renewals, company } = useAppStore();
   const [loading, setLoading] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(true);
   const dashboardRef = useRef<HTMLDivElement | null>(null);
 
   const companyRisk = calculateCompanyRisk(locations);
@@ -35,6 +38,16 @@ export function DashboardView() {
     }, 800);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    // Auto-dismiss welcome notification after 4 seconds
+    if (showWelcome) {
+      const timer = setTimeout(() => {
+        setShowWelcome(false);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [showWelcome]);
 
   if (loading) {
     return <DashboardSkeleton />;
@@ -73,6 +86,9 @@ export function DashboardView() {
         totalPermits={permits.length}
       />
 
+      {/* Daily Insight - Glass Effect */}
+      <DailyInsight compliancePercent={compliancePct} criticalCount={criticalCount} />
+
       {/* Charts & Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -84,6 +100,18 @@ export function DashboardView() {
 
       {/* Location Grid */}
       <LocationGrid locations={locations} permits={permits} renewals={renewals} />
+
+      {/* Floating Glass Notification */}
+      {showWelcome && (
+        <div className="fixed bottom-6 right-6 z-50 animate-slide-up">
+          <GlassNotification
+            type="info"
+            title="Dashboard actualizado"
+            message="Ahora con efectos glassmorphism para una experiencia premium"
+            onClose={() => setShowWelcome(false)}
+          />
+        </div>
+      )}
     </div>
   );
 }

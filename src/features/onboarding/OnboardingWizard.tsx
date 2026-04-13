@@ -1,123 +1,124 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAppStore } from '@/store';
-import type { OnboardingInput, OnboardingLocationInput, IndustryType, ClassificationResult } from '@/types';
-import { classifyAllLocations } from '@/data/classification-rules';
-import { StepEmpresa } from './steps/StepEmpresa';
-import { StepLocales } from './steps/StepLocales';
-import { StepClasificacion } from './steps/StepClasificacion';
-import { StepResultado } from './steps/StepResultado';
-import { Building2, MapPin, Shield, CheckCircle2 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { completeOnboarding, type OnboardingData } from '@/lib/api/onboarding';
+import { Step1Company } from './steps/Step1Company';
+import { Step2Regulatory } from './steps/Step2Regulatory';
+import { Step3Locations } from './steps/Step3Locations';
+import { Step4Review } from './steps/Step4Review';
+import { Building2, Shield, MapPin, CheckCircle2, Loader2 } from 'lucide-react';
 
 const STEPS = [
-  { id: 'empresa', label: 'Empresa', icon: Building2 },
-  { id: 'locales', label: 'Locales', icon: MapPin },
-  { id: 'clasificacion', label: 'Clasificación', icon: Shield },
-  { id: 'resultado', label: 'Resultado', icon: CheckCircle2 },
+  { id: 'company', label: 'Empresa', icon: Building2 },
+  { id: 'regulatory', label: 'Regulatorio', icon: Shield },
+  { id: 'locations', label: 'Locales', icon: MapPin },
+  { id: 'review', label: 'Revisar', icon: CheckCircle2 },
 ];
 
-const emptyLocation: OnboardingLocationInput = {
-  name: '',
-  address: '',
-  city: 'Quito',
-  stage: 'operando',
-  handlesFood: true,
-  sellsAlcohol: false,
-  hasSignage: false,
-  hasWarehouse: false,
-};
-
 export function OnboardingWizard() {
-  const navigate = useNavigate();
-  const { loadMockData, setOnboarded } = useAppStore();
+  const { user } = useAuth();
   const [step, setStep] = useState(0);
-  const [input, setInput] = useState<OnboardingInput>({
-    companyName: '',
-    ruc: '',
-    industry: 'restaurante',
-    locationCount: 1,
-    locations: [{ ...emptyLocation }],
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const [data, setData] = useState<OnboardingData>({
+    company: {
+      name: '',
+      ruc: '',
+      city: 'Quito',
+      business_type: 'Supermercado',
+    },
+    regulatory_factors: {
+      alimentos: false,
+      alcohol: false,
+      salud: false,
+      quimicos: false,
+    },
+    locations: [
+      {
+        name: '',
+        address: '',
+        status: 'operando',
+      },
+    ],
   });
-  const [classifications, setClassifications] = useState<ClassificationResult[]>([]);
 
-  const updateInput = (partial: Partial<OnboardingInput>) => {
-    setInput((prev) => {
-      const next = { ...prev, ...partial };
-      if (partial.locationCount !== undefined && partial.locationCount !== prev.locations.length) {
-        const count = partial.locationCount;
-        if (count > prev.locations.length) {
-          const additional = Array.from(
-            { length: count - prev.locations.length },
-            () => ({ ...emptyLocation })
-          );
-          next.locations = [...prev.locations, ...additional];
-        } else {
-          next.locations = prev.locations.slice(0, count);
-        }
-      }
-      return next;
-    });
-  };
-
-  const updateLocation = (index: number, partial: Partial<OnboardingLocationInput>) => {
-    setInput((prev) => {
-      const locations = [...prev.locations];
-      locations[index] = { ...locations[index], ...partial };
-      return { ...prev, locations };
-    });
-  };
-
-  const cloneFirstLocation = () => {
-    if (input.locations.length < 2) return;
-    const first = input.locations[0];
-    setInput((prev) => ({
+  const updateCompany = (partial: Partial<OnboardingData['company']>) => {
+    setData((prev) => ({
       ...prev,
-      locations: prev.locations.map((loc, i) =>
-        i === 0
-          ? loc
-          : {
-              ...loc,
-              city: first.city,
-              stage: first.stage,
-              handlesFood: first.handlesFood,
-              sellsAlcohol: first.sellsAlcohol,
-              hasSignage: first.hasSignage,
-              hasWarehouse: first.hasWarehouse,
-            }
-      ),
+      company: { ...prev.company, ...partial },
+    }));
+  };
+
+  const updateRegulatory = (partial: Partial<OnboardingData['regulatory_factors']>) => {
+    setData((prev) => ({
+      ...prev,
+      regulatory_factors: { ...prev.regulatory_factors, ...partial },
+    }));
+  };
+
+  const updateLocations = (locations: OnboardingData['locations']) => {
+    setData((prev) => ({
+      ...prev,
+      locations,
     }));
   };
 
   const handleNext = () => {
-    if (step === 1) {
-      const results = classifyAllLocations(input.locations, input.industry as IndustryType);
-      setClassifications(results);
-    }
     setStep((s) => Math.min(s + 1, 3));
   };
 
-  const handleBack = () => setStep((s) => Math.max(s - 1, 0));
+  const handleBack = () => {
+    setStep((s) => Math.max(s - 1, 0));
+  };
 
-  const handleComplete = () => {
-    loadMockData();
-    setOnboarded(true);
-    navigate('/');
+  const handleComplete = async () => {
+    if (!user) {
+      setError('No user found. Please login again.');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      await completeOnboarding(user.id, data);
+      // Force reload to get updated profile with company_id
+      window.location.href = '/';
+    } catch (err) {
+      console.error('Onboarding error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to complete onboarding');
+      setLoading(false);
+    }
   };
 
   const canProceed = (): boolean => {
-    if (step === 0) return input.companyName.trim().length > 0 && input.ruc.trim().length > 0;
-    if (step === 1) return input.locations.every((l) => l.name.trim().length > 0);
+    if (step === 0) {
+      return (
+        data.company.name.trim().length > 0 &&
+        data.company.ruc.length === 13 &&
+        /^\d+$/.test(data.company.ruc)
+      );
+    }
+    if (step === 2) {
+      return (
+        data.locations.length > 0 &&
+        data.locations.every((l) => l.name.trim().length > 0 && l.address.trim().length > 0)
+      );
+    }
     return true;
   };
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] flex">
+      {/* Sidebar */}
       <div className="w-[280px] bg-white border-r border-gray-200/80 p-6 flex flex-col shrink-0">
         <div className="flex items-center gap-2.5 mb-10">
           <div className="w-8 h-8 rounded-lg bg-gray-900 flex items-center justify-center">
-            <span className="text-white font-bold text-[11px]">ER</span>
+            <span className="text-white font-bold text-[11px]">PM</span>
           </div>
-          <span className="text-[15px] font-semibold text-gray-900 tracking-tight">EnRegla</span>
+          <span className="text-[15px] font-semibold text-gray-900 tracking-tight">
+            PermitOps
+          </span>
         </div>
 
         <div className="space-y-1">
@@ -155,37 +156,46 @@ export function OnboardingWizard() {
 
         <div className="mt-auto pt-6">
           <p className="text-[12px] text-gray-400 leading-relaxed">
-            Los datos ingresados determinan las obligaciones regulatorias aplicables a tu negocio.
+            Configura tu empresa y genera automáticamente los permisos necesarios para cada local.
           </p>
         </div>
       </div>
 
+      {/* Main Content */}
       <div className="flex-1 flex flex-col">
         <div className="flex-1 flex items-start justify-center overflow-y-auto py-12 px-8">
           <div className="w-full max-w-2xl">
             {step === 0 && (
-              <StepEmpresa input={input} onUpdate={updateInput} />
+              <Step1Company data={data.company} onUpdate={updateCompany} />
             )}
             {step === 1 && (
-              <StepLocales
-                locations={input.locations}
-                onUpdateLocation={updateLocation}
-                onClone={cloneFirstLocation}
-              />
+              <Step2Regulatory data={data.regulatory_factors} onUpdate={updateRegulatory} />
             )}
             {step === 2 && (
-              <StepClasificacion classifications={classifications} />
+              <Step3Locations locations={data.locations} onUpdate={updateLocations} />
             )}
             {step === 3 && (
-              <StepResultado classifications={classifications} input={input} />
+              <Step4Review
+                company={data.company}
+                regulatory={data.regulatory_factors}
+                locations={data.locations}
+              />
+            )}
+
+            {/* Error Message */}
+            {error && (
+              <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-[13px] text-red-900">{error}</p>
+              </div>
             )}
           </div>
         </div>
 
+        {/* Footer Actions */}
         <div className="border-t border-gray-200/80 px-8 py-4 flex items-center justify-between bg-white/80 backdrop-blur-xl">
           <button
             onClick={handleBack}
-            disabled={step === 0}
+            disabled={step === 0 || loading}
             className="text-[13px] text-gray-500 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-medium"
           >
             Atrás
@@ -193,17 +203,25 @@ export function OnboardingWizard() {
           {step < 3 ? (
             <button
               onClick={handleNext}
-              disabled={!canProceed()}
+              disabled={!canProceed() || loading}
               className="px-5 py-2.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm"
             >
-              Continuar
+              Siguiente
             </button>
           ) : (
             <button
               onClick={handleComplete}
-              className="px-5 py-2.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg hover:bg-gray-800 transition-colors shadow-sm"
+              disabled={loading}
+              className="px-5 py-2.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg hover:bg-gray-800 disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm flex items-center gap-2"
             >
-              Iniciar sistema
+              {loading ? (
+                <>
+                  <Loader2 size={14} className="animate-spin" />
+                  Activando...
+                </>
+              ) : (
+                'Activar Sistema'
+              )}
             </button>
           )}
         </div>

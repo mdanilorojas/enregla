@@ -7,6 +7,12 @@ export function useAuth() {
   const { user, profile, loading, setAuth, setLoading, clear } = useAuthStore();
 
   useEffect(() => {
+    // In dev mode, skip Supabase validation if we already have a user (from dev login)
+    if (import.meta.env.DEV && user) {
+      setLoading(false);
+      return;
+    }
+
     // Check current session
     getCurrentUser()
       .then((data) => {
@@ -37,7 +43,7 @@ export function useAuth() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [setAuth, setLoading, clear]);
+  }, [setAuth, setLoading, clear, user]);
 
   return {
     user,

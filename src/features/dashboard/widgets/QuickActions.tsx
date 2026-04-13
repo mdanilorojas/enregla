@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Permit, Location, Renewal } from '@/types';
-import { Card } from '@/components/ui';
+import { GlassCard } from '@/components/ui';
 import { RefreshCw, FileText, AlertCircle, MapPin, ArrowRight, CheckCircle } from 'lucide-react';
 import { daysUntil } from '@/lib/dates';
 
@@ -91,7 +91,7 @@ export function QuickActions({ permits, locations, renewals }: QuickActionsProps
 
   if (actions.length === 0) {
     return (
-      <Card padding="sm">
+      <GlassCard intensity="medium" className="p-4">
         <div className="text-center py-6">
           <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3">
             <CheckCircle size={20} />
@@ -99,12 +99,12 @@ export function QuickActions({ permits, locations, renewals }: QuickActionsProps
           <p className="text-sm font-bold text-emerald-900 mb-1">Todo en orden</p>
           <p className="text-xs text-emerald-600">Sin acciones pendientes</p>
         </div>
-      </Card>
+      </GlassCard>
     );
   }
 
   return (
-    <Card padding="sm">
+    <GlassCard intensity="medium" className="p-4">
       <h3 className="text-sm font-bold text-gray-900 mb-3">Acciones</h3>
       <div className="space-y-2">
         {actions.map((action) => (
@@ -124,6 +124,6 @@ export function QuickActions({ permits, locations, renewals }: QuickActionsProps
           </button>
         ))}
       </div>
-    </Card>
+    </GlassCard>
   );
 }

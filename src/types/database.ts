@@ -205,7 +205,7 @@ export interface Database {
       profiles: {
         Row: {
           id: string;
-          company_id: string;
+          company_id: string | null;
           full_name: string;
           role: 'admin' | 'operator' | 'viewer';
           avatar_url: string | null;
@@ -215,7 +215,7 @@ export interface Database {
         };
         Insert: {
           id: string;
-          company_id: string;
+          company_id?: string | null;
           full_name: string;
           role: 'admin' | 'operator' | 'viewer';
           avatar_url?: string | null;
@@ -225,7 +225,7 @@ export interface Database {
         };
         Update: {
           id?: string;
-          company_id?: string;
+          company_id?: string | null;
           full_name?: string;
           role?: 'admin' | 'operator' | 'viewer';
           avatar_url?: string | null;
