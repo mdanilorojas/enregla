@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Fira Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-heading: 'Fira Code', ui-monospace, monospace;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  --font-heading: 'SF Pro Display', 'Inter', -apple-system, sans-serif;
 
   --color-enregla-950: #FAFAFA;
   --color-enregla-900: #FFFFFF;
@@ -40,10 +40,10 @@
   --color-status-no-registrado: #9CA3AF;
   --color-status-en-tramite: #3B82F6;
 
-  --color-brand-defense: #EA580C;
-  --color-brand-shield: #059669;
-  --color-legal-paper: #F8FAFC;
-  --color-legal-ink: #0F172A;
+  --color-brand-defense: #FF5A1F;
+  --color-brand-shield: #10B981;
+  --color-legal-paper: #FAFAFA;
+  --color-legal-ink: #09090B;
 
   --color-surface-base: var(--color-legal-paper);
   --color-surface-raised: #FFFFFF;
@@ -57,7 +57,7 @@ body {
   color: var(--color-legal-ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  letter-spacing: -0.011em;
 }
 
 * {

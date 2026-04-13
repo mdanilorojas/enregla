@@ -1,7 +1,6 @@
 import type { RiskLevel } from '@/types';
-import { RISK_LABELS } from '@/types';
 import { Card } from '@/components/ui';
-import { AlertTriangle, MapPin, TrendingDown } from 'lucide-react';
+import { MapPin, TrendingUp, AlertCircle, ShieldCheck } from 'lucide-react';
 
 interface Props {
   risk: RiskLevel;
@@ -11,71 +10,53 @@ interface Props {
   totalPermits: number;
 }
 
-export function RiskOverview({ risk, compliance, criticalCount, totalLocations, totalPermits }: Props) {
+export function RiskOverview({ compliance, criticalCount, totalLocations, totalPermits }: Props) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {/* Compliance */}
-      <Card padding="sm" className="flex items-center justify-between">
-        <div>
-          <p className="text-[10px] uppercase tracking-wide text-gray-400 font-semibold mb-1">Cumplimiento</p>
-          <p className="text-2xl font-bold text-gray-900">{compliance}%</p>
-        </div>
-        <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-          compliance >= 80 ? 'bg-emerald-50 text-emerald-600' :
-          compliance >= 50 ? 'bg-amber-50 text-amber-600' :
-          'bg-red-50 text-red-600'
+      <Card padding="md" className="flex items-center gap-4">
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
+          compliance >= 80 ? 'bg-[#10B981]/10 text-[#059669]' :
+          compliance >= 50 ? 'bg-amber-100/50 text-amber-600' :
+          'bg-red-50 text-red-500'
         }`}>
-          <TrendingDown size={20} />
+          {compliance >= 80 ? <ShieldCheck size={24} /> : <TrendingUp size={24} />}
         </div>
-      </Card>
-
-      {/* Risk */}
-      <Card padding="sm" className="flex items-center justify-between">
         <div>
-          <p className="text-[10px] uppercase tracking-wide text-gray-400 font-semibold mb-1">Riesgo</p>
-          <p className={`text-lg font-bold ${
-            risk === 'critico' ? 'text-red-600' :
-            risk === 'alto' ? 'text-orange-600' :
-            risk === 'medio' ? 'text-amber-600' :
-            'text-emerald-600'
-          }`}>
-            {RISK_LABELS[risk]}
-          </p>
-        </div>
-        <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-          risk === 'critico' ? 'bg-red-50 text-red-600' :
-          risk === 'alto' ? 'bg-orange-50 text-orange-600' :
-          risk === 'medio' ? 'bg-amber-50 text-amber-600' :
-          'bg-emerald-50 text-emerald-600'
-        }`}>
-          <AlertTriangle size={20} />
+          <p className="text-[12px] uppercase tracking-widest text-slate-400 font-bold mb-0.5">Cumplimiento Global</p>
+          <div className="flex items-baseline gap-2">
+            <p className="text-[28px] font-semibold text-[--color-legal-ink] leading-none">{compliance}%</p>
+          </div>
         </div>
       </Card>
 
       {/* Critical */}
-      <Card padding="sm" className="flex items-center justify-between">
-        <div>
-          <p className="text-[10px] uppercase tracking-wide text-gray-400 font-semibold mb-1">Críticos</p>
-          <p className={`text-2xl font-bold ${criticalCount > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
-            {criticalCount}
-          </p>
-        </div>
-        <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-          criticalCount > 0 ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'
+      <Card padding="md" className="flex items-center gap-4">
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
+          criticalCount > 0 ? 'bg-[#FF5A1F]/10 text-[#FF5A1F]' : 'bg-emerald-50 text-emerald-500'
         }`}>
-          <AlertTriangle size={20} />
+          <AlertCircle size={24} />
+        </div>
+        <div>
+          <p className="text-[12px] uppercase tracking-widest text-slate-400 font-bold mb-0.5">Atención Requerida</p>
+          <div className="flex items-baseline gap-2">
+            <p className="text-[28px] font-semibold text-[--color-legal-ink] leading-none">{criticalCount}</p>
+            <span className="text-[13px] font-medium text-slate-500 ml-1">permisos críticos</span>
+          </div>
         </div>
       </Card>
 
       {/* Locations */}
-      <Card padding="sm" className="flex items-center justify-between">
-        <div>
-          <p className="text-[10px] uppercase tracking-wide text-gray-400 font-semibold mb-1">Sedes</p>
-          <p className="text-2xl font-bold text-gray-900">{totalLocations}</p>
-          <p className="text-[10px] text-gray-500">{totalPermits} permisos</p>
+      <Card padding="md" className="flex items-center gap-4">
+        <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 text-slate-500 flex items-center justify-center shrink-0">
+          <MapPin size={24} />
         </div>
-        <div className="w-12 h-12 rounded-lg bg-gray-50 text-gray-600 flex items-center justify-center">
-          <MapPin size={20} />
+        <div>
+          <p className="text-[12px] uppercase tracking-widest text-slate-400 font-bold mb-0.5">Sedes Activas</p>
+          <div className="flex items-baseline gap-2">
+            <p className="text-[28px] font-semibold text-[--color-legal-ink] leading-none">{totalLocations}</p>
+            <span className="text-[13px] font-medium text-slate-500 ml-1">({totalPermits} docs)</span>
+          </div>
         </div>
       </Card>
     </div>

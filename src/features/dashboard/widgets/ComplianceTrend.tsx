@@ -1,93 +1,74 @@
 import { useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { subDays, format } from 'date-fns';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import type { Location, Permit } from '@/types/database';
+import { getLocationPermitStats } from '@/lib/dashboard-metrics';
 import { Card } from '@/components/ui';
-import { TrendingUp } from 'lucide-react';
+import { Building2 } from 'lucide-react';
 
-interface ComplianceTrendProps {
-  currentCompliance: number;
+interface Props {
+  locations: Location[];
+  permits: Permit[];
 }
 
-export function ComplianceTrend({ currentCompliance }: ComplianceTrendProps) {
+export function ComplianceTrend({ locations, permits }: Props) {
   const data = useMemo(() => {
-    // Generate last 30 days trend
-    // In a real app, this would come from historical data
-    return Array.from({ length: 30 }, (_, i) => {
-      const baseCompliance = currentCompliance - 15 + (i / 30) * 15;
-      const variance = (Math.random() - 0.5) * 10;
+    return locations.map(loc => {
+      const locPermits = permits.filter(p => p.location_id === loc.id && p.is_active);
+      const stats = getLocationPermitStats(locPermits);
+      const compliance = stats.total > 0 ? Math.round((stats.vigentes / stats.total) * 100) : 0;
       return {
-        date: format(subDays(new Date(), 29 - i), 'dd/MM'),
-        compliance: Math.max(0, Math.min(100, baseCompliance + variance)),
-        target: 85,
+        name: loc.name.length > 12 ? loc.name.substring(0, 12) + '...' : loc.name,
+        fullName: loc.name,
+        compliance,
       };
-    });
-  }, [currentCompliance]);
+    }).sort((a, b) => b.compliance - a.compliance);
+  }, [locations, permits]);
 
-  const trend = useMemo(() => {
-    if (data.length < 2) return 0;
-    const first = data[0].compliance;
-    const last = data[data.length - 1].compliance;
-    return ((last - first) / first * 100).toFixed(1);
-  }, [data]);
+  if (data.length === 0) {
+    return null;
+  }
 
   return (
-    <Card padding="sm">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-bold text-gray-900">Tendencia de Cumplimiento</h3>
-        <div className="flex items-center gap-1 px-2 py-1 rounded bg-emerald-50">
-          <TrendingUp size={12} className="text-emerald-600" />
-          <span className="text-xs font-bold text-emerald-600">+{trend}%</span>
+    <Card padding="md">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-[12px] font-bold text-slate-400 uppercase tracking-widest">Cumplimiento por Sede</h3>
+        <div className="w-8 h-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center">
+          <Building2 size={14} className="text-slate-400" />
         </div>
       </div>
 
-      <ResponsiveContainer width="100%" height={180}>
-        <LineChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis
-            dataKey="date"
-            stroke="#94a3b8"
-            fontSize={11}
-            tickLine={false}
-            axisLine={{ stroke: '#e2e8f0' }}
+      <ResponsiveContainer width="100%" height={220}>
+        <BarChart data={data} margin={{ top: 0, right: 0, left: -20, bottom: 0 }} barSize={32}>
+          <XAxis 
+            dataKey="name" 
+            axisLine={false} 
+            tickLine={false} 
+            tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 500 }} 
+            dy={10}
           />
-          <YAxis
-            stroke="#94a3b8"
-            fontSize={11}
+          <YAxis 
+            axisLine={false} 
+            tickLine={false} 
+            tick={{ fontSize: 11, fill: '#94a3b8', fontWeight: 500 }} 
             domain={[0, 100]}
-            tickLine={false}
-            axisLine={{ stroke: '#e2e8f0' }}
-            tickFormatter={(value) => `${value}%`}
+            tickFormatter={(val) => `${val}%`}
           />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: '#fff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
-              fontSize: '12px',
-              boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-            }}
-            formatter={(value: any) => [`${Number(value).toFixed(1)}%`, '']}
-            labelStyle={{ fontWeight: '600', marginBottom: '4px' }}
+          <Tooltip 
+            cursor={{ fill: '#f8fafc' }}
+            contentStyle={{ borderRadius: '16px', border: '1px solid #f1f5f9', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)', padding: '12px' }}
+            formatter={(value: number) => [`${value}%`, 'Cumplimiento']}
+            labelFormatter={(_, payload) => payload[0]?.payload?.fullName || ''}
+            labelStyle={{ color: '#0f172a', fontWeight: 'bold', marginBottom: '4px' }}
           />
-          <Line
-            type="monotone"
-            dataKey="target"
-            stroke="#f59e0b"
-            strokeWidth={2}
-            strokeDasharray="5 5"
-            dot={false}
-            name="Objetivo"
-          />
-          <Line
-            type="monotone"
-            dataKey="compliance"
-            stroke="#10b981"
-            strokeWidth={3}
-            dot={{ fill: '#10b981', r: 2 }}
-            activeDot={{ r: 5, fill: '#10b981', stroke: '#fff', strokeWidth: 2 }}
-            name="Cumplimiento"
-          />
-        </LineChart>
+          <Bar dataKey="compliance" radius={[6, 6, 6, 6]}>
+            {data.map((entry, index) => (
+              <Cell 
+                key={`cell-${index}`} 
+                fill={entry.compliance >= 80 ? '#10b981' : entry.compliance >= 50 ? '#f59e0b' : '#ef4444'} 
+              />
+            ))}
+          </Bar>
+        </BarChart>
       </ResponsiveContainer>
     </Card>
   );

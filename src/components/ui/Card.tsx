@@ -26,8 +26,8 @@ const accentColors = {
 
 export function Card({ children, className = '', padding = 'md', hover, onClick, accent = 'none', glow }: CardProps) {
   const glowClass = glow ? 'shadow-lg shadow-blue-500/5' : '';
-  const baseClasses = 'bg-white rounded-xl border border-slate-200 shadow-md';
-  const hoverClasses = hover ? 'hover:shadow-lg hover:border-slate-300 transition-all duration-200 cursor-pointer hover:-translate-y-1' : '';
+  const baseClasses = 'bg-white rounded-2xl border border-slate-100 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05),0_10px_20px_-4px_rgba(0,0,0,0.02)]';
+  const hoverClasses = hover ? 'hover:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.08),0_24px_32px_-12px_rgba(0,0,0,0.04)] hover:border-slate-200 transition-all duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] cursor-pointer hover:-translate-y-1' : '';
   const interactiveClasses = onClick ? 'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[--color-primary]' : '';
 
   return (
