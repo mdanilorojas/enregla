@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { usePermissions } from '@/hooks/usePermissions';
 import type { Permit } from '@/types/database';
 import { Badge } from '@/components/ui';
@@ -60,7 +61,14 @@ export function PermitsTable({ permits, onRenew }: PermitsTableProps) {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {permits.map((permit) => (
-              <tr key={permit.id} className="hover:bg-gray-50 transition-colors">
+              <motion.tr
+                key={permit.id}
+                className="hover:bg-gray-50 transition-colors"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
+                whileHover={{ scale: 1.005 }}
+              >
                 <td className="px-5 py-4 text-sm font-medium text-gray-900">
                   {PERMIT_TYPE_LABELS[permit.type as keyof typeof PERMIT_TYPE_LABELS] || permit.type}
                 </td>
@@ -116,7 +124,7 @@ export function PermitsTable({ permits, onRenew }: PermitsTableProps) {
                     </button>
                   </div>
                 </td>
-              </tr>
+              </motion.tr>
             ))}
           </tbody>
         </table>

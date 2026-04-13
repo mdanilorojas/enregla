@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useLocation } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
 import { usePublicLink } from '@/hooks/usePublicLink';
@@ -10,6 +11,7 @@ import { PublicLinkBanner } from './PublicLinkBanner';
 import { RenewPermitModal } from '@/features/permits/RenewPermitModal';
 import { GeneratePublicLinkModal } from '@/features/publicLinks/GeneratePublicLinkModal';
 import { PublicLinkSuccessModal } from '@/features/publicLinks/PublicLinkSuccessModal';
+import { fadeIn, slideUp } from '@/components/ui/transitions';
 import { RISK_LABELS } from '@/types';
 import { formatDate, daysUntil } from '@/lib/dates';
 import { ArrowLeft, MapPin, Building2, AlertCircle, CalendarCheck, Clock, Link2 } from 'lucide-react';
@@ -113,7 +115,12 @@ export function LocationDetailView() {
 
   return (
     <>
-      <div className="space-y-6">
+      <motion.div
+        className="space-y-6"
+        variants={fadeIn}
+        initial="hidden"
+        animate="visible"
+      >
         {/* Back button */}
         <button
           onClick={() => navigate('/')}
@@ -124,7 +131,7 @@ export function LocationDetailView() {
         </button>
 
       {/* Header Section */}
-      <div className="flex items-start justify-between">
+      <motion.div className="flex items-start justify-between" variants={slideUp}>
         <div>
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-50 to-violet-100 border border-violet-200/60 flex items-center justify-center shadow-sm">
@@ -161,18 +168,20 @@ export function LocationDetailView() {
             </button>
           )}
         </div>
-      </div>
+      </motion.div>
 
       {/* Public Link Banner */}
       {publicLink && (
-        <PublicLinkBanner
+        <motion.div variants={slideUp}>
+          <PublicLinkBanner
           link={publicLink}
           onLinkDeactivated={handleLinkDeactivated}
-        />
+          />
+        </motion.div>
       )}
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <motion.div className="grid grid-cols-1 sm:grid-cols-3 gap-4" variants={slideUp}>
         <Card className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center">
             <CalendarCheck size={20} className="text-emerald-600" />
@@ -212,10 +221,10 @@ export function LocationDetailView() {
             )}
           </div>
         </Card>
-      </div>
+      </motion.div>
 
       {/* Permits Table */}
-      <div>
+      <motion.div variants={slideUp}>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-gray-900">Permisos</h2>
           {permits.length > 0 && (
@@ -225,8 +234,8 @@ export function LocationDetailView() {
           )}
         </div>
         <PermitsTable permits={permits} onRenew={canRenew ? handleRenew : undefined} />
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
 
     {/* Renewal Modal */}
     {renewingPermit && (

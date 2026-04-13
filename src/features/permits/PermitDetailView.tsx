@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { usePermit } from '@/hooks/usePermit';
 import { useLocation } from '@/hooks/useLocations';
 import { useDocuments } from '@/hooks/useDocuments';
@@ -9,6 +10,7 @@ import { formatDate, formatDateRelative, daysUntil } from '@/lib/dates';
 import { PermitHistory } from './PermitHistory';
 import { DocumentUpload } from '@/components/documents/DocumentUpload';
 import { DocumentList } from '@/components/documents/DocumentList';
+import { fadeIn, slideUp } from '@/components/ui/transitions';
 import {
   ArrowLeft,
   Shield,
@@ -55,7 +57,12 @@ export function PermitDetailView() {
   const isRisk = permit.status === 'vencido' || permit.status === 'no_registrado';
 
   return (
-    <div className="space-y-6 max-w-3xl">
+    <motion.div
+      className="space-y-6 max-w-3xl"
+      variants={fadeIn}
+      initial="hidden"
+      animate="visible"
+    >
       <button
         onClick={() => navigate('/permisos')}
         className="flex items-center gap-1.5 text-[13px] text-gray-500 hover:text-gray-900 transition-colors font-medium"
@@ -65,7 +72,7 @@ export function PermitDetailView() {
       </button>
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
+      <motion.div className="flex items-start justify-between gap-4" variants={slideUp}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200/60 flex items-center justify-center shadow-sm">
             <Shield size={18} className="text-emerald-600" strokeWidth={1.8} />
@@ -80,22 +87,26 @@ export function PermitDetailView() {
         <Badge variant="status" status={permit.status} pulse={permit.status === 'vencido'}>
           {PERMIT_STATUS_LABELS[permit.status] || permit.status}
         </Badge>
-      </div>
+      </motion.div>
 
       {/* Risk alert */}
       {isRisk && (
-        <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-red-50 border border-red-100">
+        <motion.div
+          className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-red-50 border border-red-100"
+          variants={slideUp}
+        >
           <AlertTriangle size={14} className="text-red-500 shrink-0" />
           <span className="text-[13px] text-red-600 font-medium">
             {permit.status === 'vencido'
               ? 'Permiso vencido — actividad regulada sin autorización vigente'
               : 'Permiso requerido no registrado — riesgo operativo activo'}
           </span>
-        </div>
+        </motion.div>
       )}
 
       {/* Details grid */}
-      <Card>
+      <motion.div variants={slideUp}>
+        <Card>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
           <div>
             <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider block mb-1">Sede</span>
@@ -156,10 +167,11 @@ export function PermitDetailView() {
             <p className="text-[13px] text-gray-600 leading-relaxed">{permit.notes}</p>
           </div>
         )}
-      </Card>
+        </Card>
+      </motion.div>
 
       {/* Documents */}
-      <div>
+      <motion.div variants={slideUp}>
         <div className="flex items-center gap-3 mb-3">
           <div className="w-8 h-8 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center shadow-sm shadow-sky-500/10">
             <FileText size={14} strokeWidth={1.8} />
@@ -188,10 +200,10 @@ export function PermitDetailView() {
             onDocumentDeleted={refetchDocuments}
           />
         )}
-      </div>
+      </motion.div>
 
       {/* Version History */}
-      <div>
+      <motion.div variants={slideUp}>
         <div className="flex items-center gap-3 mb-3">
           <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center shadow-sm shadow-purple-500/10">
             <History size={14} strokeWidth={1.8} />
@@ -200,11 +212,11 @@ export function PermitDetailView() {
         </div>
 
         <PermitHistory history={history} currentPermitId={permit.id} />
-      </div>
+      </motion.div>
 
       {/* Navigate to sede */}
       {locationData && (
-        <div className="pt-2">
+        <motion.div className="pt-2" variants={slideUp}>
           <button
             onClick={() => navigate(`/sedes/${locationData.id}`)}
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200/80 text-[13px] font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
@@ -212,8 +224,8 @@ export function PermitDetailView() {
             <MapPin size={14} />
             Ver sede {locationData.name}
           </button>
-        </div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }

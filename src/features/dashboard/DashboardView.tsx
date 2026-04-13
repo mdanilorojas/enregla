@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocations } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
@@ -12,6 +13,7 @@ import { QuickActions } from './widgets/QuickActions';
 import { LocationGrid } from './widgets/LocationGrid';
 import { ExportDashboard } from './widgets/ExportDashboard';
 import { DailyInsight } from './widgets/DailyInsight';
+import { fadeIn, staggerContainer, slideUp } from '@/components/ui/transitions';
 import { Activity, AlertTriangle } from 'lucide-react';
 
 export function DashboardView() {
@@ -40,9 +42,19 @@ export function DashboardView() {
   }
 
   return (
-    <div ref={dashboardRef} className="space-y-6" id="dashboard">
+    <motion.div
+      ref={dashboardRef}
+      className="space-y-6"
+      id="dashboard"
+      variants={fadeIn}
+      initial="hidden"
+      animate="visible"
+    >
       {/* Compact header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+      <motion.div
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4"
+        variants={slideUp}
+      >
         <div className="min-w-0">
           <h2 className="text-[24px] font-semibold text-[--color-legal-ink] tracking-tight">
             {profile?.full_name ? `Bienvenido, ${profile.full_name.split(' ')[0]}` : 'Dashboard'}
@@ -62,34 +74,38 @@ export function DashboardView() {
           </div>
           <ExportDashboard dashboardRef={dashboardRef} />
         </div>
-      </div>
+      </motion.div>
 
       {/* Risk Overview */}
-      <RiskOverview
-        risk={metrics.companyRiskLevel}
-        compliance={metrics.compliance}
-        criticalCount={metrics.criticalCount}
-        totalLocations={locations.length}
-        totalPermits={permits.length}
-      />
+      <motion.div variants={slideUp}>
+        <RiskOverview
+          risk={metrics.companyRiskLevel}
+          compliance={metrics.compliance}
+          criticalCount={metrics.criticalCount}
+          totalLocations={locations.length}
+          totalPermits={permits.length}
+        />
+      </motion.div>
 
       {/* Charts & Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <motion.div className="grid grid-cols-1 lg:grid-cols-3 gap-4" variants={slideUp}>
         <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
           <ComplianceTrend locations={locations} permits={permits} />
           <ExpirationCalendar renewals={upcomingRenewals} />
         </div>
         <QuickActions permits={permits} locations={locations} />
-      </div>
+      </motion.div>
 
       {/* Location Grid */}
-      <LocationGrid locations={locations} permits={permits} />
+      <motion.div variants={slideUp}>
+        <LocationGrid locations={locations} permits={permits} />
+      </motion.div>
 
       {/* Daily Insight - Moved to bottom toast style */}
       <div className="fixed bottom-6 right-6 z-50 w-full max-w-sm">
         <DailyInsight compliancePercent={metrics.compliance} criticalCount={metrics.criticalCount} />
       </div>
 
-    </div>
+    </motion.div>
   );
 }

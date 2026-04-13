@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import type { Location, Permit } from '@/types/database';
 import { getLocationPermitStats } from '@/lib/dashboard-metrics';
 import { RiskIndicator, ProgressBar } from '@/components/ui';
@@ -33,11 +34,13 @@ function LocationCard({ location, permits, navigate }: {
     .sort((a, b) => new Date(a.expiry_date!).getTime() - new Date(b.expiry_date!).getTime())[0];
 
   return (
-    <div
+    <motion.div
       onClick={() => navigate(`/sedes/${location.id}`)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className="relative overflow-hidden group bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-lg transition-all cursor-pointer"
+      whileHover={{ scale: 1.02, y: -4 }}
+      transition={{ duration: 0.2 }}
     >
       {/* Animated gradient on hover */}
       <div
@@ -128,7 +131,7 @@ function LocationCard({ location, permits, navigate }: {
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -160,16 +163,36 @@ export function LocationGrid({ locations, permits }: Props) {
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: {
+              staggerChildren: 0.1,
+            },
+          },
+        }}
+      >
         {locations.map((loc) => (
-          <LocationCard
+          <motion.div
             key={loc.id}
-            location={loc}
-            permits={permits}
-            navigate={navigate}
-          />
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 },
+            }}
+          >
+            <LocationCard
+              location={loc}
+              permits={permits}
+              navigate={navigate}
+            />
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 }
