@@ -7,6 +7,7 @@ export { ProgressBar } from './ProgressBar';
 export { ComplianceGauge } from './ComplianceGauge';
 export { ProgressRing } from './ProgressRing';
 export { EmptyState } from './EmptyState';
+export { Skeleton } from './Skeleton';
 export { LegalPill } from './LegalPill';
 export { GlassCard } from './GlassCard';
 export { GlassBackground } from './GlassBackground';
