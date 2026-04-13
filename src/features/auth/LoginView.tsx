@@ -43,7 +43,7 @@ export function LoginView() {
   };
 
   const handleDevLogin = () => {
-    // Mock user data for development
+    // Mock user data for development - bypasses onboarding
     const mockUser = {
       id: 'dev-user-123',
       email: 'dev@supermaxi.com',
@@ -56,7 +56,7 @@ export function LoginView() {
 
     const mockProfile = {
       id: 'dev-user-123',
-      company_id: null, // NULL to trigger onboarding flow
+      company_id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479', // Supermaxi company from seed data
       full_name: 'Demo User (Dev)',
       role: 'admin' as const,
       avatar_url: null,
