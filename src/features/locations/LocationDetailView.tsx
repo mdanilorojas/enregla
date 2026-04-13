@@ -2,9 +2,11 @@ import { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLocation } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
+import { usePublicLink } from '@/hooks/usePublicLink';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, Badge, EmptyState, GlassNotification } from '@/components/ui';
 import { PermitsTable } from './PermitsTable';
+import { PublicLinkBanner } from './PublicLinkBanner';
 import { RenewPermitModal } from '@/features/permits/RenewPermitModal';
 import { GeneratePublicLinkModal } from '@/features/publicLinks/GeneratePublicLinkModal';
 import { PublicLinkSuccessModal } from '@/features/publicLinks/PublicLinkSuccessModal';
@@ -31,6 +33,7 @@ export function LocationDetailView() {
   const { role } = useAuth();
   const { location, loading: loadingLocation } = useLocation(id);
   const { permits, loading: loadingPermits, refetch: refetchPermits } = usePermits({ locationId: id });
+  const { link: publicLink, refetch: refetchPublicLink } = usePublicLink(id);
 
   const canEdit = role === 'admin' || role === 'operator';
   const [renewingPermit, setRenewingPermit] = useState<Permit | null>(null);
@@ -76,6 +79,11 @@ export function LocationDetailView() {
   const handleLinkGenerated = (link: PublicLink) => {
     setGeneratedLink(link);
     setShowGenerateLinkModal(false);
+    refetchPublicLink(); // Refresh banner
+  };
+
+  const handleLinkDeactivated = () => {
+    refetchPublicLink(); // Hide banner after deactivation
   };
 
   // Loading state
@@ -156,6 +164,14 @@ export function LocationDetailView() {
           )}
         </div>
       </div>
+
+      {/* Public Link Banner */}
+      {publicLink && (
+        <PublicLinkBanner
+          link={publicLink}
+          onLinkDeactivated={handleLinkDeactivated}
+        />
+      )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
