@@ -56,7 +56,7 @@ export function LoginView() {
 
     const mockProfile = {
       id: 'dev-user-123',
-      company_id: 'dev-company-123',
+      company_id: null, // NULL to trigger onboarding flow
       full_name: 'Demo User (Dev)',
       role: 'admin' as const,
       avatar_url: null,
