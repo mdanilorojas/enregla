@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { usePermit } from '@/hooks/usePermit';
 import { useLocation } from '@/hooks/useLocations';
 import { useDocuments } from '@/hooks/useDocuments';
-import { useAuth } from '@/hooks/useAuth';
+import { usePermissions } from '@/hooks/usePermissions';
 import { Card, Badge, EmptyState } from '@/components/ui';
 import { PERMIT_TYPE_LABELS } from '@/types/database';
 import { formatDate, formatDateRelative, daysUntil } from '@/lib/dates';
@@ -29,11 +29,9 @@ const PERMIT_STATUS_LABELS: Record<string, string> = {
 export function PermitDetailView() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { role } = useAuth();
+  const { canUpload } = usePermissions();
   const { permit, history, loading, error } = usePermit(id);
   const { documents, loading: docsLoading, refetch: refetchDocuments } = useDocuments(id);
-
-  const canUpload = role === 'admin' || role === 'operator';
 
   if (loading) {
     return (

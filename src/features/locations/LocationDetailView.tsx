@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useLocation } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
 import { usePublicLink } from '@/hooks/usePublicLink';
-import { useAuth } from '@/hooks/useAuth';
+import { usePermissions } from '@/hooks/usePermissions';
 import { Card, Badge, EmptyState, GlassNotification } from '@/components/ui';
 import { PermitsTable } from './PermitsTable';
 import { PublicLinkBanner } from './PublicLinkBanner';
@@ -30,12 +30,10 @@ const LOCATION_STATUS_COLORS = {
 export function LocationDetailView() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { role } = useAuth();
+  const { canRenew, canGeneratePublicLink } = usePermissions();
   const { location, loading: loadingLocation } = useLocation(id);
   const { permits, loading: loadingPermits, refetch: refetchPermits } = usePermits({ locationId: id });
   const { link: publicLink, refetch: refetchPublicLink } = usePublicLink(id);
-
-  const canEdit = role === 'admin' || role === 'operator';
   const [renewingPermit, setRenewingPermit] = useState<Permit | null>(null);
   const [showSuccessNotification, setShowSuccessNotification] = useState(false);
   const [showGenerateLinkModal, setShowGenerateLinkModal] = useState(false);
@@ -153,7 +151,7 @@ export function LocationDetailView() {
             {RISK_LABELS[location.risk_level]}
           </Badge>
 
-          {canEdit && (
+          {canGeneratePublicLink && (
             <button
               onClick={() => setShowGenerateLinkModal(true)}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 active:scale-95 transition-all shadow-sm"
@@ -226,7 +224,7 @@ export function LocationDetailView() {
             </span>
           )}
         </div>
-        <PermitsTable permits={permits} onRenew={canEdit ? handleRenew : undefined} />
+        <PermitsTable permits={permits} onRenew={canRenew ? handleRenew : undefined} />
       </div>
     </div>
 

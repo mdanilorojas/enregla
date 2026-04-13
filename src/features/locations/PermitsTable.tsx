@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { usePermissions } from '@/hooks/usePermissions';
 import type { Permit } from '@/types/database';
 import { Badge } from '@/components/ui';
 import { PERMIT_TYPE_LABELS, PERMIT_STATUS_LABELS } from '@/types';
@@ -13,8 +13,7 @@ interface PermitsTableProps {
 
 export function PermitsTable({ permits, onRenew }: PermitsTableProps) {
   const navigate = useNavigate();
-  const { role } = useAuth();
-  const canEdit = role === 'admin' || role === 'operator';
+  const { canRenew } = usePermissions();
 
   const handleViewDetails = (permitId: string) => {
     navigate(`/permisos/${permitId}`);
@@ -25,7 +24,7 @@ export function PermitsTable({ permits, onRenew }: PermitsTableProps) {
       <div className="bg-white rounded-xl border border-slate-200 shadow-md p-8">
         <div className="text-center">
           <p className="text-sm text-gray-500 mb-4">No hay permisos registrados.</p>
-          {canEdit && (
+          {canRenew && (
             <p className="text-sm text-gray-400">Agrega el primer permiso →</p>
           )}
         </div>
@@ -54,11 +53,9 @@ export function PermitsTable({ permits, onRenew }: PermitsTableProps) {
               <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Emisor
               </th>
-              {canEdit && (
-                <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                  Acciones
-                </th>
-              )}
+              <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                Acciones
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -99,28 +96,26 @@ export function PermitsTable({ permits, onRenew }: PermitsTableProps) {
                     <span className="text-gray-400 italic">N/A</span>
                   )}
                 </td>
-                {canEdit && (
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-2">
-                      {permit.status === 'por_vencer' && onRenew && (
-                        <button
-                          onClick={() => onRenew(permit.id)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-semibold transition-colors border border-amber-200"
-                        >
-                          <RefreshCw size={12} />
-                          Renovar
-                        </button>
-                      )}
+                <td className="px-5 py-4">
+                  <div className="flex items-center gap-2">
+                    {canRenew && permit.status === 'por_vencer' && onRenew && (
                       <button
-                        onClick={() => handleViewDetails(permit.id)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold transition-colors border border-blue-200"
+                        onClick={() => onRenew(permit.id)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-semibold transition-colors border border-amber-200"
                       >
-                        <Eye size={12} />
-                        Ver Detalles
+                        <RefreshCw size={12} />
+                        Renovar
                       </button>
-                    </div>
-                  </td>
-                )}
+                    )}
+                    <button
+                      onClick={() => handleViewDetails(permit.id)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold transition-colors border border-blue-200"
+                    >
+                      <Eye size={12} />
+                      Ver Detalles
+                    </button>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
