@@ -1,16 +1,21 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { usePermit } from '@/hooks/usePermit';
 import { useLocation } from '@/hooks/useLocations';
+import { useDocuments } from '@/hooks/useDocuments';
+import { useAuth } from '@/hooks/useAuth';
 import { Card, Badge, EmptyState } from '@/components/ui';
 import { PERMIT_TYPE_LABELS } from '@/types/database';
 import { formatDate, formatDateRelative, daysUntil } from '@/lib/dates';
 import { PermitHistory } from './PermitHistory';
+import { DocumentUpload } from '@/components/documents/DocumentUpload';
+import { DocumentList } from '@/components/documents/DocumentList';
 import {
   ArrowLeft,
   Shield,
   AlertTriangle,
   MapPin,
   History,
+  FileText,
 } from 'lucide-react';
 
 const PERMIT_STATUS_LABELS: Record<string, string> = {
@@ -24,7 +29,11 @@ const PERMIT_STATUS_LABELS: Record<string, string> = {
 export function PermitDetailView() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { role } = useAuth();
   const { permit, history, loading, error } = usePermit(id);
+  const { documents, loading: docsLoading, refetch: refetchDocuments } = useDocuments(id);
+
+  const canUpload = role === 'admin' || role === 'operator';
 
   if (loading) {
     return (
@@ -150,6 +159,38 @@ export function PermitDetailView() {
           </div>
         )}
       </Card>
+
+      {/* Documents */}
+      <div>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-8 h-8 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center shadow-sm shadow-sky-500/10">
+            <FileText size={14} strokeWidth={1.8} />
+          </div>
+          <span className="text-[14px] font-semibold text-gray-900">Documentos</span>
+        </div>
+
+        {/* Upload section (admin/operator only) */}
+        {canUpload && (
+          <div className="mb-4">
+            <DocumentUpload
+              permitId={permit.id}
+              onUploadSuccess={refetchDocuments}
+            />
+          </div>
+        )}
+
+        {/* Documents list */}
+        {docsLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="w-8 h-8 border-4 border-gray-200 border-t-gray-600 rounded-full animate-spin" />
+          </div>
+        ) : (
+          <DocumentList
+            documents={documents}
+            onDocumentDeleted={refetchDocuments}
+          />
+        )}
+      </div>
 
       {/* Version History */}
       <div>
