@@ -42,6 +42,33 @@ export function LoginView() {
     }
   };
 
+  const handleDevLogin = () => {
+    // Mock user data for development
+    const mockUser = {
+      id: 'dev-user-123',
+      email: 'dev@supermaxi.com',
+      created_at: new Date().toISOString(),
+      app_metadata: {},
+      user_metadata: {},
+      aud: 'authenticated',
+      role: 'authenticated',
+    } as any;
+
+    const mockProfile = {
+      id: 'dev-user-123',
+      company_id: 'dev-company-123',
+      full_name: 'Demo User (Dev)',
+      role: 'admin' as const,
+      avatar_url: null,
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    setAuth(mockUser, mockProfile);
+    navigate('/', { replace: true });
+  };
+
   return (
     <div className="min-h-screen flex">
       {/* Left — Brand panel */}
@@ -199,6 +226,17 @@ export function LoginView() {
                 </>
               )}
             </button>
+
+            {/* Dev Login Button - Only visible in development */}
+            {import.meta.env.DEV && (
+              <button
+                type="button"
+                onClick={handleDevLogin}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[13px] font-semibold shadow-lg shadow-amber-500/25 hover:shadow-xl hover:shadow-amber-500/30 hover:from-amber-600 hover:to-orange-600 active:scale-[0.98] transition-all duration-200 border-2 border-amber-400"
+              >
+                🚀 Dev Login (Skip Auth)
+              </button>
+            )}
           </form>
 
           {/* Divider */}
