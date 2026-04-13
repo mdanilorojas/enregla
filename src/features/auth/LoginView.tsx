@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppStore } from '@/store';
+import { login } from '@/lib/api/auth';
+import { useAuthStore } from '@/store/authStore';
 import { Shield, Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 const FEATURES = [
@@ -12,14 +13,14 @@ const FEATURES = [
 
 export function LoginView() {
   const navigate = useNavigate();
-  const login = useAppStore((s) => s.login);
+  const setAuth = useAuthStore((state) => state.setAuth);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -29,10 +30,16 @@ export function LoginView() {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      login();
+
+    try {
+      const data = await login({ email, password });
+      setAuth(data.user, data.profile);
       navigate('/', { replace: true });
-    }, 800);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

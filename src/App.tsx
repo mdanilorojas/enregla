@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppShell } from '@/components/layout/AppShell';
+import { ProtectedRoute } from '@/components/Auth';
 import { useAppStore } from '@/store';
+import { useAuth } from '@/hooks/useAuth';
 import { LoginView } from '@/features/auth/LoginView';
 import { DashboardView } from '@/features/dashboard/DashboardView';
 import { LocationListView } from '@/features/locations/LocationListView';
@@ -12,32 +14,48 @@ import { TaskBoardView } from '@/features/tasks/TaskBoardView';
 import { LegalReferenceView } from '@/features/legal/LegalReferenceView';
 import { OnboardingWizard } from '@/features/onboarding/OnboardingWizard';
 
-export default function App() {
-  const isAuthenticated = useAppStore((s) => s.isAuthenticated);
+function ProtectedOnboardingRoute() {
   const isOnboarded = useAppStore((s) => s.isOnboarded);
+
+  if (!isOnboarded) {
+    return <Navigate to="/setup" replace />;
+  }
+
+  return <AppShell />;
+}
+
+export default function App() {
+  const { isAuthenticated } = useAuth();
 
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <LoginView />} />
-        <Route path="/setup" element={<OnboardingWizard />} />
-        {!isAuthenticated ? (
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        ) : !isOnboarded ? (
-          <Route path="*" element={<Navigate to="/setup" replace />} />
-        ) : (
-          <Route element={<AppShell />}>
-            <Route path="/" element={<DashboardView />} />
-            <Route path="/sedes" element={<LocationListView />} />
-            <Route path="/sedes/:id" element={<LocationDetailView />} />
-            <Route path="/permisos" element={<PermitListView />} />
-            <Route path="/permisos/:id" element={<PermitDetailView />} />
-            <Route path="/renovaciones" element={<RenewalTimelineView />} />
-            <Route path="/tareas" element={<TaskBoardView />} />
-            <Route path="/marco-legal" element={<LegalReferenceView />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Route>
-        )}
+        <Route
+          path="/setup"
+          element={
+            <ProtectedRoute>
+              <OnboardingWizard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          element={
+            <ProtectedRoute>
+              <ProtectedOnboardingRoute />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/" element={<DashboardView />} />
+          <Route path="/sedes" element={<LocationListView />} />
+          <Route path="/sedes/:id" element={<LocationDetailView />} />
+          <Route path="/permisos" element={<PermitListView />} />
+          <Route path="/permisos/:id" element={<PermitDetailView />} />
+          <Route path="/renovaciones" element={<RenewalTimelineView />} />
+          <Route path="/tareas" element={<TaskBoardView />} />
+          <Route path="/marco-legal" element={<LegalReferenceView />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
