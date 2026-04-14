@@ -40,18 +40,29 @@ export function useAuth() {
           console.log('[useAuth] Auth state changed:', event, session ? 'with session' : 'no session');
           if (event === 'SIGNED_IN' && session) {
             console.log('[useAuth] Getting profile for user:', session.user.email);
-            // Fetch profile directly using session.user.id
-            const { data: profiles } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .limit(1);
+            try {
+              // Fetch profile directly using session.user.id
+              const { data: profiles, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .limit(1);
 
-            if (profiles && profiles.length > 0) {
-              console.log('[useAuth] Profile found, setting auth');
-              setAuth(session.user, profiles[0]);
-            } else {
-              console.warn('[useAuth] No profile found for user');
+              if (error) {
+                console.error('[useAuth] Profile fetch error:', error);
+                setAuth(session.user, null as any);
+                return;
+              }
+
+              if (profiles && profiles.length > 0) {
+                console.log('[useAuth] Profile found, setting auth');
+                setAuth(session.user, profiles[0]);
+              } else {
+                console.warn('[useAuth] No profile found for user');
+                setAuth(session.user, null as any);
+              }
+            } catch (err) {
+              console.error('[useAuth] Exception fetching profile:', err);
               setAuth(session.user, null as any);
             }
           } else if (event === 'SIGNED_OUT') {
