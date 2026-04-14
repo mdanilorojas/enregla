@@ -11,15 +11,19 @@ interface SedeCardProps {
     vigentes: number;
     total: number;
   };
+  onClick?: () => void;
 }
 
-export function SedeCard({ sede, permitCounts }: SedeCardProps) {
+export function SedeCard({ sede, permitCounts, onClick }: SedeCardProps) {
   const compliancePercent = permitCounts.total > 0
     ? Math.round((permitCounts.vigentes / permitCounts.total) * 100)
     : 0;
 
   return (
-    <Card className="hover:shadow-lg transition-shadow">
+    <Card
+      className="hover:shadow-lg transition-shadow cursor-pointer"
+      onClick={onClick}
+    >
       <CardHeader>
         <div className="flex items-start justify-between">
           <CardTitle className="text-lg">{sede.name}</CardTitle>

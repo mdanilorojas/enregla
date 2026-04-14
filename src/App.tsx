@@ -9,6 +9,7 @@ import { DashboardView } from '@/features/dashboard/DashboardView';
 import { DashboardView as DashboardViewV2 } from '@/features-v2/dashboard/DashboardView';
 import { LocationListView } from '@/features/locations/LocationListView';
 import { LocationDetailView } from '@/features/locations/LocationDetailView';
+import { LocationDetailView as LocationDetailViewV2 } from '@/features-v2/locations/LocationDetailView';
 import { PermitListView } from '@/features/permits/PermitListView';
 import { PermitDetailView } from '@/features/permits/PermitDetailView';
 import { RenewalTimelineView } from '@/features/renewals/RenewalTimelineView';
@@ -85,7 +86,7 @@ export default function App() {
         >
           <Route path="/" element={UI_VERSION === 'v2' ? <DashboardViewV2 /> : <DashboardView />} />
           <Route path="/sedes" element={<LocationListView />} />
-          <Route path="/sedes/:id" element={<LocationDetailView />} />
+          <Route path="/sedes/:id" element={UI_VERSION === 'v2' ? <LocationDetailViewV2 /> : <LocationDetailView />} />
           <Route path="/permisos" element={<PermitListView />} />
           <Route path="/permisos/:id" element={<PermitDetailView />} />
           <Route path="/renovaciones" element={<RenewalTimelineView />} />

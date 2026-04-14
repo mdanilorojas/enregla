@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocations } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
@@ -7,6 +8,7 @@ import { MetricsGrid } from './MetricsGrid';
 import { SedeCard } from './SedeCard';
 
 export function DashboardView() {
+  const navigate = useNavigate();
   const { companyId } = useAuth();
   const { locations, loading: loadingLocations, error: locationsError } = useLocations(companyId);
   const { permits, loading: loadingPermits, error: permitsError } = usePermits({ companyId });
@@ -115,6 +117,7 @@ export function DashboardView() {
                   key={location.id}
                   sede={location}
                   permitCounts={locationPermitCounts[location.id] || { vigentes: 0, total: 0 }}
+                  onClick={() => navigate(`/sedes/${location.id}`)}
                 />
               ))}
             </div>

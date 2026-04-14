@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getCompanyPermits, getLocationPermits } from '@/lib/api/permits';
+import { getCompanyPermits, getLocationPermits, updatePermit as updatePermitApi } from '@/lib/api/permits';
 import type { Permit } from '@/types/database';
 
 interface UsePermitsOptions {
@@ -43,24 +43,35 @@ export function usePermits({ companyId, locationId }: UsePermitsOptions) {
       });
   }, [companyId, locationId]);
 
+  const refetch = () => {
+    if (locationId || companyId) {
+      setLoading(true);
+      const fetchPromise = locationId
+        ? getLocationPermits(locationId)
+        : companyId
+        ? getCompanyPermits(companyId)
+        : Promise.resolve([]);
+
+      fetchPromise
+        .then(setPermits)
+        .catch((err) => setError(err.message))
+        .finally(() => setLoading(false));
+    }
+  };
+
+  const updatePermit = async (permitId: string, updates: Partial<Permit>) => {
+    const updatedPermit = await updatePermitApi(permitId, updates);
+    setPermits((prev) =>
+      prev.map((permit) => (permit.id === permitId ? updatedPermit : permit))
+    );
+    return updatedPermit;
+  };
+
   return {
     permits,
     loading,
     error,
-    refetch: () => {
-      if (locationId || companyId) {
-        setLoading(true);
-        const fetchPromise = locationId
-          ? getLocationPermits(locationId)
-          : companyId
-          ? getCompanyPermits(companyId)
-          : Promise.resolve([]);
-
-        fetchPromise
-          .then(setPermits)
-          .catch((err) => setError(err.message))
-          .finally(() => setLoading(false));
-      }
-    }
+    refetch,
+    updatePermit,
   };
 }
