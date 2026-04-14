@@ -22,7 +22,16 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<Step>(initialStep);
-  const [completedSteps, setCompletedSteps] = useState<Step[]>([]);
+  const [completedSteps, setCompletedSteps] = useState<Step[]>(() => {
+    const steps: Step[] = [];
+    if (initialStep === 'company' || initialStep === 'locations') {
+      steps.push('profile');
+    }
+    if (initialStep === 'locations') {
+      steps.push('company');
+    }
+    return steps;
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

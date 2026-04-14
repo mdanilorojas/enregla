@@ -48,14 +48,6 @@ function OnboardingRoute() {
     initialStep = 'profile';
   }
 
-  // If user already has company, check if they have locations
-  // If they do, redirect to dashboard
-  if (profile?.company_id) {
-    // This check is simplified - in production you'd query locations
-    // For now, assume if they have company_id, they might be mid-flow
-    // The wizard will handle redirection after locations are saved
-  }
-
   return UI_VERSION === 'v2' ? (
     <IncrementalWizard initialStep={initialStep} />
   ) : (
