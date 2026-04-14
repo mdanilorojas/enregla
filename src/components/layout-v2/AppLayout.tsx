@@ -128,7 +128,7 @@ export function AppLayout() {
           <SidebarFooter>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+                <div className="flex items-center gap-2 px-2 py-2">
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-accent text-sidebar-accent-foreground">
                     <User className="size-4" />
                   </div>
@@ -142,12 +142,13 @@ export function AppLayout() {
                   </div>
                   <button
                     onClick={() => signOut()}
-                    className="ml-auto p-1 hover:bg-sidebar-accent rounded"
+                    className="ml-auto p-1 hover:bg-sidebar-accent rounded transition-colors"
                     title="Cerrar sesión"
+                    type="button"
                   >
                     <LogOut className="size-4" />
                   </button>
-                </SidebarMenuButton>
+                </div>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarFooter>
