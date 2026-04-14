@@ -53,10 +53,10 @@ export function ComplianceTrend({ locations, permits }: Props) {
             domain={[0, 100]}
             tickFormatter={(val) => `${val}%`}
           />
-          <Tooltip 
+          <Tooltip
             cursor={{ fill: '#f8fafc' }}
             contentStyle={{ borderRadius: '16px', border: '1px solid #f1f5f9', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)', padding: '12px' }}
-            formatter={(value: number) => [`${value}%`, 'Cumplimiento']}
+            formatter={(value) => [`${value}%`, 'Cumplimiento']}
             labelFormatter={(_, payload) => payload[0]?.payload?.fullName || ''}
             labelStyle={{ color: '#0f172a', fontWeight: 'bold', marginBottom: '4px' }}
           />

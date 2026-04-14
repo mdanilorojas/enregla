@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { createPublicLink, getPublicUrl } from '@/lib/api/publicLinks';
+import { createPublicLink } from '@/lib/api/publicLinks';
 import { X, Link2, Building2, MapPin, AlertCircle } from 'lucide-react';
 import type { PublicLink } from '@/types/database';
 

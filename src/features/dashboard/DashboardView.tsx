@@ -13,8 +13,8 @@ import { QuickActions } from './widgets/QuickActions';
 import { LocationGrid } from './widgets/LocationGrid';
 import { ExportDashboard } from './widgets/ExportDashboard';
 import { DailyInsight } from './widgets/DailyInsight';
-import { fadeIn, staggerContainer, slideUp } from '@/components/ui/transitions';
-import { Activity, AlertTriangle } from 'lucide-react';
+import { fadeIn, slideUp } from '@/components/ui/transitions';
+import { Activity } from 'lucide-react';
 
 export function DashboardView() {
   const { companyId, profile } = useAuth();

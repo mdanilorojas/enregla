@@ -82,8 +82,8 @@ export async function getLocationPublicLink(locationId: string): Promise<PublicL
  * Deactivate a public link
  */
 export async function deactivatePublicLink(linkId: string): Promise<void> {
-  const { error } = await supabase
-    .from('public_links')
+  const query = supabase.from('public_links') as any;
+  const { error } = await query
     .update({
       is_active: false,
       updated_at: new Date().toISOString(),
@@ -127,7 +127,8 @@ export interface PublicPermitData {
  * This increments view_count and updates last_viewed_at automatically
  */
 export async function getPublicPermits(token: string): Promise<PublicPermitData[]> {
-  const { data, error } = await supabase.rpc('get_public_permits', {
+  const query = supabase as any;
+  const { data, error } = await query.rpc('get_public_permits', {
     link_token: token,
   });
 
