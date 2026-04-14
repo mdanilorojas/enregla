@@ -18,22 +18,43 @@ export function useAuth() {
     }
 
     authInitialized = true;
-    console.log('[useAuth] First initialization - checking auth...');
+    console.log('[useAuth] First initialization - checking session with timeout...');
 
-    // Check current session
-    getCurrentUser()
-      .then((data) => {
-        console.log('[useAuth] getCurrentUser result:', data);
-        if (data) {
-          console.log('[useAuth] User authenticated');
-          setAuth(data.user, data.profile);
+    // Get session with timeout to avoid hanging
+    const sessionPromise = supabase.auth.getSession();
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Session check timeout')), 5000)
+    );
+
+    Promise.race([sessionPromise, timeoutPromise])
+      .then(async (result: any) => {
+        console.log('[useAuth] Session check completed');
+        const { data: { session } } = result;
+
+        if (session) {
+          console.log('[useAuth] Active session found for:', session.user.email);
+          // Fetch profile
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .limit(1);
+
+          if (profiles && profiles.length > 0) {
+            console.log('[useAuth] Profile loaded, setting auth');
+            setAuth(session.user, profiles[0]);
+          } else {
+            console.warn('[useAuth] No profile found');
+            setAuth(session.user, null as any);
+          }
         } else {
-          console.log('[useAuth] No user found');
+          console.log('[useAuth] No active session');
           clear();
         }
       })
       .catch((error) => {
-        console.error('[useAuth] getCurrentUser error:', error);
+        console.error('[useAuth] Session check failed:', error.message);
+        // If timeout or error, clear auth and let user login
         clear();
       });
 
@@ -41,11 +62,22 @@ export function useAuth() {
     if (!authSubscription) {
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
         async (event, session) => {
-          console.log('[useAuth] Auth state changed:', event);
+          console.log('[useAuth] Auth state changed:', event, session ? 'with session' : 'no session');
           if (event === 'SIGNED_IN' && session) {
-            const userData = await getCurrentUser();
-            if (userData) {
-              setAuth(userData.user, userData.profile);
+            console.log('[useAuth] Getting profile for user:', session.user.email);
+            // Fetch profile directly using session.user.id
+            const { data: profiles } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .limit(1);
+
+            if (profiles && profiles.length > 0) {
+              console.log('[useAuth] Profile found, setting auth');
+              setAuth(session.user, profiles[0]);
+            } else {
+              console.warn('[useAuth] No profile found for user');
+              setAuth(session.user, null as any);
             }
           } else if (event === 'SIGNED_OUT') {
             clear();
