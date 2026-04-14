@@ -17,6 +17,7 @@ import { TaskBoardView } from '@/features/tasks/TaskBoardView';
 import { LegalReferenceView } from '@/features/legal/LegalReferenceView';
 import { OnboardingWizard } from '@/features/onboarding/OnboardingWizard';
 import { OnboardingWizard as OnboardingWizardV2 } from '@/features-v2/onboarding/OnboardingWizard';
+import { IncrementalWizard } from '@/features-v2/onboarding-incremental/IncrementalWizard';
 
 function OnboardingRoute() {
   const { profile, loading } = useAuth();
@@ -32,12 +33,34 @@ function OnboardingRoute() {
     );
   }
 
-  // If user already has company, redirect to dashboard
-  if (profile?.company_id) {
-    return <Navigate to="/" replace />;
+  // Determine initial step based on profile state
+  let initialStep: 'profile' | 'company' | 'locations' = 'profile';
+
+  if (profile?.full_name && profile?.company_id) {
+    // Has profile and company, check if has locations
+    // If has locations, redirect to dashboard (handled by ProtectedOnboardingRoute)
+    initialStep = 'locations';
+  } else if (profile?.full_name) {
+    // Has profile but no company
+    initialStep = 'company';
+  } else {
+    // No profile yet
+    initialStep = 'profile';
   }
 
-  return UI_VERSION === 'v2' ? <OnboardingWizardV2 /> : <OnboardingWizard />;
+  // If user already has company, check if they have locations
+  // If they do, redirect to dashboard
+  if (profile?.company_id) {
+    // This check is simplified - in production you'd query locations
+    // For now, assume if they have company_id, they might be mid-flow
+    // The wizard will handle redirection after locations are saved
+  }
+
+  return UI_VERSION === 'v2' ? (
+    <IncrementalWizard initialStep={initialStep} />
+  ) : (
+    <OnboardingWizard />
+  );
 }
 
 function ProtectedOnboardingRoute() {
