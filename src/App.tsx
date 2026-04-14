@@ -16,6 +16,7 @@ import { RenewalTimelineView } from '@/features/renewals/RenewalTimelineView';
 import { TaskBoardView } from '@/features/tasks/TaskBoardView';
 import { LegalReferenceView } from '@/features/legal/LegalReferenceView';
 import { OnboardingWizard } from '@/features/onboarding/OnboardingWizard';
+import { OnboardingWizard as OnboardingWizardV2 } from '@/features-v2/onboarding/OnboardingWizard';
 
 function OnboardingRoute() {
   const { profile, loading } = useAuth();
@@ -36,7 +37,7 @@ function OnboardingRoute() {
     return <Navigate to="/" replace />;
   }
 
-  return <OnboardingWizard />;
+  return UI_VERSION === 'v2' ? <OnboardingWizardV2 /> : <OnboardingWizard />;
 }
 
 function ProtectedOnboardingRoute() {
