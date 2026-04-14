@@ -153,7 +153,6 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
               <CompanyStep
                 initialData={savedCompany}
                 onNext={handleCompanyNext}
-                onBack={handleBack}
                 loading={loading}
               />
             )}
@@ -161,7 +160,6 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
             {currentStep === 'locations' && (
               <LocationsStep
                 onComplete={handleLocationsComplete}
-                onBack={handleBack}
                 loading={loading}
               />
             )}
