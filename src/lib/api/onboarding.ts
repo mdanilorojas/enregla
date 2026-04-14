@@ -267,6 +267,12 @@ export async function saveCompany(
     city: companyData.city,
     business_type: companyData.business_type,
     location_count: 0,
+    regulatory_factors: {
+      alimentos: false,
+      alcohol: false,
+      salud: false,
+      quimicos: false,
+    } as any,
   };
 
   const { data: company, error: companyError } = await (supabase
