@@ -119,8 +119,8 @@ export async function getCurrentUser() {
       return null;
     }
 
-    const profile = profiles[0];
-    console.log('[getCurrentUser] Step 8: SUCCESS - Profile found:', profile.email, 'Company:', profile.company_id);
+    const profile = profiles[0] as Database['public']['Tables']['profiles']['Row'];
+    console.log('[getCurrentUser] Step 8: SUCCESS - Profile found:', user.email, 'Company:', profile.company_id);
 
     return {
       user,

@@ -5,7 +5,6 @@ import {
   FileText,
   Settings,
   Building2,
-  ChevronRight,
   User,
   LogOut
 } from 'lucide-react';

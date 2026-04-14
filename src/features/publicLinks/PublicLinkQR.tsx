@@ -11,7 +11,6 @@ interface PublicLinkQRProps {
 export function PublicLinkQR({
   url,
   size = 256,
-  includeLabel = false,
   label,
 }: PublicLinkQRProps) {
   const qrRef = useRef<HTMLDivElement>(null);

@@ -13,6 +13,7 @@ export interface Database {
         Row: {
           id: string;
           name: string;
+          ruc: string;
           business_type: string;
           city: string;
           location_count: number;
@@ -23,6 +24,7 @@ export interface Database {
         Insert: {
           id?: string;
           name: string;
+          ruc: string;
           business_type: string;
           city: string;
           location_count?: number;
@@ -33,6 +35,7 @@ export interface Database {
         Update: {
           id?: string;
           name?: string;
+          ruc?: string;
           business_type?: string;
           city?: string;
           location_count?: number;

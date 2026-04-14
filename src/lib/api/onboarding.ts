@@ -231,12 +231,12 @@ export async function saveProfile(
   userId: string,
   fullName: string
 ): Promise<void> {
-  const { error } = await supabase
+  const { error } = await (supabase
     .from('profiles')
     .update({
       full_name: fullName,
       role: 'admin', // Default role for first user
-    })
+    }) as any)
     .eq('id', userId);
 
   if (error) throw error;
@@ -254,6 +254,11 @@ export async function saveCompany(
     business_type: string;
   }
 ): Promise<string> {
+  // Validate RUC
+  if (!/^\d{13}$/.test(companyData.ruc)) {
+    throw new Error('RUC debe tener exactamente 13 dígitos numéricos');
+  }
+
   // 1. Create company
   const companyInsert: CompanyInsert = {
     name: companyData.name,
@@ -263,19 +268,19 @@ export async function saveCompany(
     location_count: 0,
   };
 
-  const { data: company, error: companyError } = await supabase
+  const { data: company, error: companyError } = (await supabase
     .from('companies')
-    .insert(companyInsert as any)
+    .insert(companyInsert)
     .select()
-    .single();
+    .single()) as { data: CompanyRow | null; error: any };
 
   if (companyError) throw companyError;
   if (!company) throw new Error('Failed to create company');
 
   // 2. Link company to profile
-  const { error: profileError } = await supabase
+  const { error: profileError } = await (supabase
     .from('profiles')
-    .update({ company_id: company.id })
+    .update({ company_id: company.id }) as any)
     .eq('id', userId);
 
   if (profileError) throw profileError;
@@ -309,95 +314,23 @@ export async function saveLocationWithPermits(
     risk_level: 'medio',
   };
 
-  const { data: location, error: locationError } = await supabase
+  const { data: location, error: locationError } = (await supabase
     .from('locations')
-    .insert(locationInsert as any)
+    .insert(locationInsert)
     .select()
-    .single();
+    .single()) as { data: LocationRow | null; error: any };
 
   if (locationError) throw locationError;
   if (!location) throw new Error('Failed to create location');
 
-  // 2. Build permit list
-  const permits: PermitInsert[] = [];
-
-  // Base permits (always created)
-  permits.push(
-    {
-      company_id: companyId,
-      location_id: location.id,
-      type: 'Patente Municipal',
-      issuer: 'Municipio',
-      status: 'no_registrado',
-      is_active: true,
-      version: 1,
-    },
-    {
-      company_id: companyId,
-      location_id: location.id,
-      type: 'RUC',
-      issuer: 'SRI',
-      status: 'no_registrado',
-      is_active: true,
-      version: 1,
-    }
-  );
-
-  // Conditional permits based on regulatory factors
-  if (locationData.regulatory.alimentos) {
-    permits.push({
-      company_id: companyId,
-      location_id: location.id,
-      type: 'Permiso Sanitario (ARCSA)',
-      issuer: 'ARCSA',
-      status: 'no_registrado',
-      is_active: true,
-      version: 1,
-    });
+  // 2. Generate permits using existing helper
+  try {
+    await generateInitialPermits(companyId, location.id, locationData.regulatory);
+  } catch (error) {
+    // Rollback: delete the location if permit creation failed
+    await supabase.from('locations').delete().eq('id', location.id);
+    throw error;
   }
-
-  if (locationData.regulatory.alcohol) {
-    permits.push({
-      company_id: companyId,
-      location_id: location.id,
-      type: 'Permiso de Alcohol (SCPM)',
-      issuer: 'SCPM',
-      status: 'no_registrado',
-      is_active: true,
-      version: 1,
-    });
-  }
-
-  if (locationData.regulatory.salud) {
-    permits.push({
-      company_id: companyId,
-      location_id: location.id,
-      type: 'Permiso de Salud (MSP)',
-      issuer: 'MSP',
-      status: 'no_registrado',
-      is_active: true,
-      version: 1,
-    });
-  }
-
-  if (locationData.regulatory.quimicos) {
-    permits.push({
-      company_id: companyId,
-      location_id: location.id,
-      type: 'Permiso Químicos (CONSEP)',
-      issuer: 'CONSEP',
-      status: 'no_registrado',
-      is_active: true,
-      version: 1,
-    });
-  }
-
-  // 3. Insert all permits
-  const { error: permitsError } = await supabase
-    .from('permits')
-    .insert(permits as any);
-
-  if (permitsError) throw permitsError;
 
   return location.id;
 }

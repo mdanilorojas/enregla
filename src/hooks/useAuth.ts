@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
-import { getCurrentUser, logout } from '@/lib/api/auth';
+import { logout } from '@/lib/api/auth';
 import { supabase } from '@/lib/supabase';
 
 // Global flag to ensure auth check only happens once
@@ -8,7 +8,7 @@ let authInitialized = false;
 let authSubscription: any = null;
 
 export function useAuth() {
-  const { user, profile, loading, setAuth, setLoading, clear } = useAuthStore();
+  const { user, profile, loading, setAuth, clear } = useAuthStore();
 
   useEffect(() => {
     // Only initialize auth once for the entire app

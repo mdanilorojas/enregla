@@ -22,7 +22,7 @@ export function PermitHistory({ history, currentPermitId }: PermitHistoryProps) 
 
   return (
     <div className="space-y-3">
-      {history.map((version, index) => {
+      {history.map((version) => {
         const isCurrentVersion = version.id === currentPermitId;
         const isArchived = !version.is_active;
 

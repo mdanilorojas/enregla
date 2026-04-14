@@ -62,7 +62,7 @@ export function DashboardView() {
           <div className="text-center py-12">
             <h2 className="text-2xl font-semibold text-danger mb-2">Error Loading Dashboard</h2>
             <p className="text-text-secondary mb-4">
-              {locationsError?.message || permitsError?.message || 'Unable to load dashboard data. Please try again.'}
+              {locationsError || permitsError || 'Unable to load dashboard data. Please try again.'}
             </p>
             <button
               onClick={() => window.location.reload()}
