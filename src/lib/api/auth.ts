@@ -79,8 +79,14 @@ export async function logout() {
 
 export async function getCurrentUser() {
   try {
-    console.log('[getCurrentUser] Fetching user from Supabase...');
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    console.log('[getCurrentUser] Step 1: Starting...');
+    console.log('[getCurrentUser] Step 2: Calling supabase.auth.getUser()...');
+
+    const userPromise = supabase.auth.getUser();
+    console.log('[getCurrentUser] Step 3: Waiting for user response...');
+
+    const { data: { user }, error: userError } = await userPromise;
+    console.log('[getCurrentUser] Step 4: User response received');
 
     if (userError) {
       console.error('[getCurrentUser] User fetch error:', userError);
@@ -91,14 +97,19 @@ export async function getCurrentUser() {
       return null;
     }
 
-    console.log('[getCurrentUser] User found:', user.email, 'ID:', user.id);
+    console.log('[getCurrentUser] Step 5: User found:', user.email, 'ID:', user.id);
+    console.log('[getCurrentUser] Step 6: Fetching profile...');
 
     // Use limit(1) instead of maybeSingle() to handle duplicates
-    const { data: profiles, error: profileError } = await supabase
+    const profilePromise = supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .limit(1);
+
+    console.log('[getCurrentUser] Step 7: Waiting for profile response...');
+    const { data: profiles, error: profileError } = await profilePromise;
+    console.log('[getCurrentUser] Step 8: Profile response received');
 
     if (profileError) {
       console.error('[getCurrentUser] Profile fetch error:', profileError);
@@ -110,14 +121,14 @@ export async function getCurrentUser() {
     }
 
     const profile = profiles[0];
-    console.log('[getCurrentUser] Profile found:', profile.email, 'Company:', profile.company_id);
+    console.log('[getCurrentUser] Step 9: SUCCESS - Profile found:', profile.email, 'Company:', profile.company_id);
 
     return {
       user,
       profile,
     };
   } catch (error) {
-    console.error('[getCurrentUser] Unexpected error:', error);
+    console.error('[getCurrentUser] ERROR at some step:', error);
     throw error;
   }
 }
