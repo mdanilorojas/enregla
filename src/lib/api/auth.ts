@@ -80,25 +80,24 @@ export async function logout() {
 export async function getCurrentUser() {
   try {
     console.log('[getCurrentUser] Step 1: Starting...');
-    console.log('[getCurrentUser] Step 2: Calling supabase.auth.getUser()...');
+    console.log('[getCurrentUser] Step 2: Calling supabase.auth.getSession()...');
 
-    const userPromise = supabase.auth.getUser();
-    console.log('[getCurrentUser] Step 3: Waiting for user response...');
+    // Use getSession() instead of getUser() - more reliable
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    console.log('[getCurrentUser] Step 3: Session response received');
 
-    const { data: { user }, error: userError } = await userPromise;
-    console.log('[getCurrentUser] Step 4: User response received');
-
-    if (userError) {
-      console.error('[getCurrentUser] User fetch error:', userError);
-      throw userError;
+    if (sessionError) {
+      console.error('[getCurrentUser] Session fetch error:', sessionError);
+      throw sessionError;
     }
-    if (!user) {
-      console.log('[getCurrentUser] No user session found');
+    if (!session) {
+      console.log('[getCurrentUser] No active session found');
       return null;
     }
 
-    console.log('[getCurrentUser] Step 5: User found:', user.email, 'ID:', user.id);
-    console.log('[getCurrentUser] Step 6: Fetching profile...');
+    const user = session.user;
+    console.log('[getCurrentUser] Step 4: User found from session:', user.email, 'ID:', user.id);
+    console.log('[getCurrentUser] Step 5: Fetching profile...');
 
     // Use limit(1) instead of maybeSingle() to handle duplicates
     const profilePromise = supabase
@@ -107,9 +106,9 @@ export async function getCurrentUser() {
       .eq('id', user.id)
       .limit(1);
 
-    console.log('[getCurrentUser] Step 7: Waiting for profile response...');
+    console.log('[getCurrentUser] Step 6: Waiting for profile response...');
     const { data: profiles, error: profileError } = await profilePromise;
-    console.log('[getCurrentUser] Step 8: Profile response received');
+    console.log('[getCurrentUser] Step 7: Profile response received');
 
     if (profileError) {
       console.error('[getCurrentUser] Profile fetch error:', profileError);
@@ -121,7 +120,7 @@ export async function getCurrentUser() {
     }
 
     const profile = profiles[0];
-    console.log('[getCurrentUser] Step 9: SUCCESS - Profile found:', profile.email, 'Company:', profile.company_id);
+    console.log('[getCurrentUser] Step 8: SUCCESS - Profile found:', profile.email, 'Company:', profile.company_id);
 
     return {
       user,
