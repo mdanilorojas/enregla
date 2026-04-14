@@ -32,7 +32,7 @@ const REGULATORY_OPTIONS = [
   { key: 'quimicos' as const, label: 'Maneja químicos', permit: 'CONSEP' },
 ];
 
-export function LocationsStep({ onComplete, onBack, loading }: LocationsStepProps) {
+export function LocationsStep({ onComplete, loading }: LocationsStepProps) {
   const [locations, setLocations] = useState<LocationInput[]>([
     {
       name: '',

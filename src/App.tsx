@@ -16,7 +16,6 @@ import { RenewalTimelineView } from '@/features/renewals/RenewalTimelineView';
 import { TaskBoardView } from '@/features/tasks/TaskBoardView';
 import { LegalReferenceView } from '@/features/legal/LegalReferenceView';
 import { OnboardingWizard } from '@/features/onboarding/OnboardingWizard';
-import { OnboardingWizard as OnboardingWizardV2 } from '@/features-v2/onboarding/OnboardingWizard';
 import { IncrementalWizard } from '@/features-v2/onboarding-incremental/IncrementalWizard';
 
 function OnboardingRoute() {

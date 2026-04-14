@@ -24,7 +24,6 @@ export function ProgressStepper({ currentStep, completedSteps }: ProgressStepper
         const Icon = step.icon;
         const isActive = step.id === currentStep;
         const isCompleted = completedSteps.includes(step.id as any);
-        const isFuture = !isActive && !isCompleted;
 
         return (
           <div

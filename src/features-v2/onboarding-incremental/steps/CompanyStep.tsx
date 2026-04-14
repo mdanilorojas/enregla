@@ -34,7 +34,7 @@ const BUSINESS_TYPES = [
   { value: 'Otro', label: 'Otro' },
 ];
 
-export function CompanyStep({ initialData, onNext, onBack, loading }: CompanyStepProps) {
+export function CompanyStep({ initialData, onNext, loading }: CompanyStepProps) {
   const [data, setData] = useState<CompanyData>({
     name: initialData?.name || '',
     ruc: initialData?.ruc || '',
