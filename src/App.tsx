@@ -2,8 +2,10 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppShell } from '@/components/layout/AppShell';
 import { ProtectedRoute } from '@/components/Auth';
 import { useAuth } from '@/hooks/useAuth';
+import { UI_VERSION } from '@/config';
 import { LoginView } from '@/features/auth/LoginView';
 import { DashboardView } from '@/features/dashboard/DashboardView';
+import { DashboardView as DashboardViewV2 } from '@/features-v2/dashboard/DashboardView';
 import { LocationListView } from '@/features/locations/LocationListView';
 import { LocationDetailView } from '@/features/locations/LocationDetailView';
 import { PermitListView } from '@/features/permits/PermitListView';
@@ -79,7 +81,7 @@ export default function App() {
             </ProtectedRoute>
           }
         >
-          <Route path="/" element={<DashboardView />} />
+          <Route path="/" element={UI_VERSION === 'v2' ? <DashboardViewV2 /> : <DashboardView />} />
           <Route path="/sedes" element={<LocationListView />} />
           <Route path="/sedes/:id" element={<LocationDetailView />} />
           <Route path="/permisos" element={<PermitListView />} />
