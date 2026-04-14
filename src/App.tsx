@@ -3,6 +3,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { ProtectedRoute } from '@/components/Auth';
 import { useAuth } from '@/hooks/useAuth';
 import { LoginView } from '@/features/auth/LoginView';
+import { AuthCallback } from '@/features/auth/AuthCallback';
 import { DashboardView } from '@/features/dashboard/DashboardView';
 import { LocationListView } from '@/features/locations/LocationListView';
 import { LocationDetailView } from '@/features/locations/LocationDetailView';
@@ -69,6 +70,7 @@ export default function App() {
 
         {/* Auth routes */}
         <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <LoginView />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route
           path="/setup"
           element={

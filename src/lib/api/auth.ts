@@ -101,3 +101,18 @@ export async function getSession() {
   if (error) throw error;
   return session;
 }
+
+/**
+ * Sign in with OAuth provider (Google, etc.)
+ */
+export async function signInWithOAuth(provider: 'google' | 'twitter') {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    },
+  });
+
+  if (error) throw error;
+  return data;
+}
