@@ -10,7 +10,6 @@ interface CompanyData {
 interface CompanyStepProps {
   initialData?: Partial<CompanyData>;
   onNext: (data: CompanyData) => Promise<void>;
-  onBack: () => void;
   loading: boolean;
 }
 

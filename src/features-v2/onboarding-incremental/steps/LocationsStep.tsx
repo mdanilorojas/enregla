@@ -15,7 +15,6 @@ interface LocationInput {
 
 interface LocationsStepProps {
   onComplete: (locations: LocationInput[]) => Promise<void>;
-  onBack: () => void;
   loading: boolean;
 }
 
