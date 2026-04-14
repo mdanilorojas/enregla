@@ -1,3 +1,13 @@
+/**
+ * Design System Tokens
+ *
+ * Both Professional and Energetic themes are loaded simultaneously.
+ * Theme switching works via data-theme attribute on <html> element.
+ * Only ONE data-theme value should be set at a time.
+ *
+ * Current theme: Set in index.html as data-theme="professional"
+ * Toggle: DesignSystemToggle component changes the attribute
+ */
 @import './styles/design-tokens-professional.css';
 @import './styles/design-tokens-energetic.css';
 
@@ -21,17 +31,6 @@
   --color-enregla-100: #111827;
   --color-enregla-50: #030712;
 
-  --color-brand-50: #EFF6FF;
-  --color-brand-100: #DBEAFE;
-  --color-brand-200: #BFDBFE;
-  --color-brand-500: #3B82F6;
-  --color-brand-600: #2563EB;
-  --color-brand-700: #1D4ED8;
-
-  --color-primary: #2563EB;
-  --color-secondary: #3B82F6;
-  --color-cta: #F97316;
-
   --color-risk-critico: #EF4444;
   --color-risk-alto: #F97316;
   --color-risk-medio: #EAB308;
@@ -52,57 +51,6 @@
   --color-surface-raised: #FFFFFF;
   --color-surface-overlay: #FFFFFF;
   --color-surface-elevated: #FFFFFF;
-
-  /* Design Token Mappings for shadcn/ui */
-  /* Map Tailwind utilities to design token CSS variables */
-  --color-background: var(--color-background);
-  --color-surface: var(--color-surface);
-  --color-primary-hover: var(--color-primary-hover);
-  --color-secondary-hover: var(--color-secondary-hover);
-  --color-accent: var(--color-accent);
-  --color-accent-hover: var(--color-accent-hover);
-  --color-success: var(--color-success);
-  --color-success-bg: var(--color-success-bg);
-  --color-success-border: var(--color-success-border);
-  --color-warning: var(--color-warning);
-  --color-warning-bg: var(--color-warning-bg);
-  --color-warning-border: var(--color-warning-border);
-  --color-danger: var(--color-danger);
-  --color-danger-bg: var(--color-danger-bg);
-  --color-danger-border: var(--color-danger-border);
-  --color-info: var(--color-info);
-  --color-info-bg: var(--color-info-bg);
-  --color-info-border: var(--color-info-border);
-  --color-border: var(--color-border);
-  --color-text: var(--color-text);
-  --color-text-secondary: var(--color-text-secondary);
-  --color-text-muted: var(--color-text-muted);
-
-  /* Spacing utilities */
-  --spacing-xs: var(--spacing-xs);
-  --spacing-sm: var(--spacing-sm);
-  --spacing-md: var(--spacing-md);
-  --spacing-lg: var(--spacing-lg);
-  --spacing-xl: var(--spacing-xl);
-  --spacing-2xl: var(--spacing-2xl);
-
-  /* Border radius utilities */
-  --radius-sm: var(--radius-sm);
-  --radius-md: var(--radius-md);
-  --radius-lg: var(--radius-lg);
-  --radius-xl: var(--radius-xl);
-  --radius-full: var(--radius-full);
-
-  /* Shadow utilities */
-  --shadow-sm: var(--shadow-sm);
-  --shadow-md: var(--shadow-md);
-  --shadow-lg: var(--shadow-lg);
-  --shadow-xl: var(--shadow-xl);
-
-  /* Transition utilities */
-  --transition-fast: var(--transition-fast);
-  --transition-base: var(--transition-base);
-  --transition-slow: var(--transition-slow);
 }
 
 body {
