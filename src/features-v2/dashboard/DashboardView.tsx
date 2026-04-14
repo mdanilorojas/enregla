@@ -9,8 +9,22 @@ import { DesignSystemToggle } from '@/components/ui-v2/DesignSystemToggle';
 
 export function DashboardView() {
   const { companyId } = useAuth();
-  const { locations, loading: loadingLocations } = useLocations(companyId);
-  const { permits, loading: loadingPermits } = usePermits({ companyId });
+  const { locations, loading: loadingLocations, error: locationsError } = useLocations(companyId);
+  const { permits, loading: loadingPermits, error: permitsError } = usePermits({ companyId });
+
+  // Guard: redirect or show message if no companyId
+  if (!companyId) {
+    return (
+      <div className="min-h-screen bg-background p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-12">
+            <h2 className="text-2xl font-semibold text-text mb-2">No Company Found</h2>
+            <p className="text-text-secondary">Please complete your company setup to access the dashboard.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Calculate dashboard metrics
   const metrics = useMemo(() => {
@@ -38,6 +52,28 @@ export function DashboardView() {
 
     return counts;
   }, [locations, permits]);
+
+  // Error state
+  if (locationsError || permitsError) {
+    return (
+      <div className="min-h-screen bg-background p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-12">
+            <h2 className="text-2xl font-semibold text-danger mb-2">Error Loading Dashboard</h2>
+            <p className="text-text-secondary mb-4">
+              {locationsError?.message || permitsError?.message || 'Unable to load dashboard data. Please try again.'}
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Loading state
   if (loadingLocations || loadingPermits) {
