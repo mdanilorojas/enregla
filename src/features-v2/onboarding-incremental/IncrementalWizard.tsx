@@ -29,6 +29,7 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
   // Track saved data for "Back" navigation
   const [savedProfile, setSavedProfile] = useState(profile?.full_name || '');
   const [savedCompany, setSavedCompany] = useState<any>(null);
+  const [companyId, setCompanyId] = useState<string | null>(profile?.company_id || null);
 
   const handleProfileNext = async (fullName: string) => {
     if (!user) return;
@@ -56,7 +57,8 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
     setError(null);
 
     try {
-      await saveCompany(user.id, companyData);
+      const newCompanyId = await saveCompany(user.id, companyData);
+      setCompanyId(newCompanyId);
       setSavedCompany(companyData);
       setCompletedSteps((prev) => [...prev, 'company']);
       setCurrentStep('locations');
@@ -69,7 +71,7 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
   };
 
   const handleLocationsComplete = async (locations: any[]) => {
-    if (!user || !profile?.company_id) return;
+    if (!user || !companyId) return;
 
     setLoading(true);
     setError(null);
@@ -77,7 +79,7 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
     try {
       // Save each location with its permits
       for (const location of locations) {
-        await saveLocationWithPermits(profile.company_id, location);
+        await saveLocationWithPermits(companyId, location);
       }
 
       // Update company location_count
