@@ -18,45 +18,20 @@ export function useAuth() {
     }
 
     authInitialized = true;
-    console.log('[useAuth] First initialization - checking session with timeout...');
+    console.log('[useAuth] First initialization - relying on auth state change events...');
 
-    // Get session with timeout to avoid hanging
-    const sessionPromise = supabase.auth.getSession();
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Session check timeout')), 5000)
-    );
-
-    Promise.race([sessionPromise, timeoutPromise])
-      .then(async (result: any) => {
-        console.log('[useAuth] Session check completed');
-        const { data: { session } } = result;
-
-        if (session) {
-          console.log('[useAuth] Active session found for:', session.user.email);
-          // Fetch profile
-          const { data: profiles } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .limit(1);
-
-          if (profiles && profiles.length > 0) {
-            console.log('[useAuth] Profile loaded, setting auth');
-            setAuth(session.user, profiles[0]);
-          } else {
-            console.warn('[useAuth] No profile found');
-            setAuth(session.user, null as any);
-          }
-        } else {
-          console.log('[useAuth] No active session');
-          clear();
-        }
-      })
-      .catch((error) => {
-        console.error('[useAuth] Session check failed:', error.message);
-        // If timeout or error, clear auth and let user login
+    // Set a timeout to stop loading if no auth event comes
+    setTimeout(() => {
+      const currentState = useAuthStore.getState();
+      console.log('[useAuth] Checking auth after 2s, user:', currentState.user ? 'EXISTS' : 'NULL');
+      if (!currentState.user) {
+        // Only clear if still no user after 2 seconds
+        console.log('[useAuth] No session detected, clearing loading state');
         clear();
-      });
+      } else {
+        console.log('[useAuth] User authenticated via event, all good');
+      }
+    }, 2000);
 
     // Listen for auth changes (only once)
     if (!authSubscription) {
