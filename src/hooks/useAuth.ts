@@ -40,13 +40,27 @@ export function useAuth() {
           console.log('[useAuth] Auth state changed:', event, session ? 'with session' : 'no session');
           if (event === 'SIGNED_IN' && session) {
             console.log('[useAuth] Getting profile for user:', session.user.email);
+            console.log('[useAuth] Step 1: Starting profile fetch...');
+
             try {
-              // Fetch profile directly using session.user.id
-              const { data: profiles, error } = await supabase
+              // Add timeout to profile fetch
+              const profilePromise = supabase
                 .from('profiles')
                 .select('*')
                 .eq('id', session.user.id)
                 .limit(1);
+
+              const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Profile fetch timeout')), 3000)
+              );
+
+              console.log('[useAuth] Step 2: Waiting for profile response...');
+              const { data: profiles, error } = await Promise.race([
+                profilePromise,
+                timeoutPromise
+              ]) as any;
+
+              console.log('[useAuth] Step 3: Profile response received');
 
               if (error) {
                 console.error('[useAuth] Profile fetch error:', error);
@@ -55,14 +69,15 @@ export function useAuth() {
               }
 
               if (profiles && profiles.length > 0) {
-                console.log('[useAuth] Profile found, setting auth');
+                console.log('[useAuth] Step 4: Profile found, setting auth');
                 setAuth(session.user, profiles[0]);
               } else {
-                console.warn('[useAuth] No profile found for user');
+                console.warn('[useAuth] Step 4: No profile found for user');
                 setAuth(session.user, null as any);
               }
             } catch (err) {
-              console.error('[useAuth] Exception fetching profile:', err);
+              console.error('[useAuth] Profile fetch failed:', err instanceof Error ? err.message : err);
+              // Still set the user even without profile
               setAuth(session.user, null as any);
             }
           } else if (event === 'SIGNED_OUT') {
