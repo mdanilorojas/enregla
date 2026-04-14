@@ -78,42 +78,48 @@ export async function logout() {
 }
 
 export async function getCurrentUser() {
-  console.log('[getCurrentUser] Fetching user from Supabase...');
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  try {
+    console.log('[getCurrentUser] Fetching user from Supabase...');
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-  if (userError) {
-    console.error('[getCurrentUser] User fetch error:', userError);
-    throw userError;
+    if (userError) {
+      console.error('[getCurrentUser] User fetch error:', userError);
+      throw userError;
+    }
+    if (!user) {
+      console.log('[getCurrentUser] No user session found');
+      return null;
+    }
+
+    console.log('[getCurrentUser] User found:', user.email, 'ID:', user.id);
+
+    // Use limit(1) instead of maybeSingle() to handle duplicates
+    const { data: profiles, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .limit(1);
+
+    if (profileError) {
+      console.error('[getCurrentUser] Profile fetch error:', profileError);
+      throw profileError;
+    }
+    if (!profiles || profiles.length === 0) {
+      console.warn('[getCurrentUser] No profile found for user:', user.id);
+      return null;
+    }
+
+    const profile = profiles[0];
+    console.log('[getCurrentUser] Profile found:', profile.email, 'Company:', profile.company_id);
+
+    return {
+      user,
+      profile,
+    };
+  } catch (error) {
+    console.error('[getCurrentUser] Unexpected error:', error);
+    throw error;
   }
-  if (!user) {
-    console.log('[getCurrentUser] No user session found');
-    return null;
-  }
-
-  console.log('[getCurrentUser] User found:', user.email, 'ID:', user.id);
-
-  // Use maybeSingle() to handle potential duplicates gracefully
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .maybeSingle();
-
-  if (profileError) {
-    console.error('[getCurrentUser] Profile fetch error:', profileError);
-    throw profileError;
-  }
-  if (!profile) {
-    console.warn('[getCurrentUser] No profile found for user:', user.id);
-    return null;
-  }
-
-  console.log('[getCurrentUser] Profile found:', profile);
-
-  return {
-    user,
-    profile,
-  };
 }
 
 export async function getSession() {
