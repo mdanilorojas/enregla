@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppShell } from '@/components/layout/AppShell';
+import { AppLayout } from '@/components/layout-v2/AppLayout';
 import { ProtectedRoute } from '@/components/Auth';
 import { useAuth } from '@/hooks/useAuth';
 import { UI_VERSION } from '@/config';
@@ -56,7 +57,8 @@ function ProtectedOnboardingRoute() {
     return <Navigate to="/setup" replace />;
   }
 
-  return <AppShell />;
+  // Use v2 layout with new sidebar, or v1 layout with old sidebar
+  return UI_VERSION === 'v2' ? <AppLayout /> : <AppShell />;
 }
 
 export default function App() {

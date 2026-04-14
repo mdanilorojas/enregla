@@ -5,7 +5,6 @@ import { usePermits } from '@/hooks/usePermits';
 import { RiskOverviewCard } from './RiskOverviewCard';
 import { MetricsGrid } from './MetricsGrid';
 import { SedeCard } from './SedeCard';
-import { DesignSystemToggle } from '@/components/ui-v2/DesignSystemToggle';
 
 export function DashboardView() {
   const { companyId } = useAuth();
@@ -93,11 +92,7 @@ export function DashboardView() {
   }
 
   return (
-    <>
-      {/* Design System Toggle - only in dev */}
-      {import.meta.env.DEV && <DesignSystemToggle />}
-
-      <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background p-8">
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Page Header */}
           <div>
@@ -126,6 +121,5 @@ export function DashboardView() {
           </div>
         </div>
       </div>
-    </>
   );
 }
