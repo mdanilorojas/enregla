@@ -1,4 +1,5 @@
-import { Badge } from './badge';
+import { Badge, badgeVariants } from './badge';
+import type { VariantProps } from 'class-variance-authority';
 
 export type PermitStatus =
   | 'vigente'
@@ -12,7 +13,9 @@ interface StatusBadgeProps {
   className?: string;
 }
 
-const statusConfig: Record<PermitStatus, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>['variant']>;
+
+const statusConfig: Record<PermitStatus, { label: string; variant: BadgeVariant }> = {
   vigente: { label: 'Vigente', variant: 'default' },
   por_vencer: { label: 'Por vencer', variant: 'secondary' },
   vencido: { label: 'Vencido', variant: 'destructive' },
@@ -22,6 +25,15 @@ const statusConfig: Record<PermitStatus, { label: string; variant: 'default' | '
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
   const config = statusConfig[status];
+
+  if (!config) {
+    console.warn(`Unknown permit status: ${status}`);
+    return (
+      <Badge variant="outline" className={className}>
+        {status}
+      </Badge>
+    );
+  }
 
   return (
     <Badge variant={config.variant} className={className}>
