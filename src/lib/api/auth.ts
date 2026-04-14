@@ -78,10 +78,19 @@ export async function logout() {
 }
 
 export async function getCurrentUser() {
+  console.log('[getCurrentUser] Fetching user from Supabase...');
   const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-  if (userError) throw userError;
-  if (!user) return null;
+  if (userError) {
+    console.error('[getCurrentUser] User fetch error:', userError);
+    throw userError;
+  }
+  if (!user) {
+    console.log('[getCurrentUser] No user session found');
+    return null;
+  }
+
+  console.log('[getCurrentUser] User found:', user.email, 'ID:', user.id);
 
   // Use maybeSingle() to handle potential duplicates gracefully
   const { data: profile, error: profileError } = await supabase
@@ -90,11 +99,16 @@ export async function getCurrentUser() {
     .eq('id', user.id)
     .maybeSingle();
 
-  if (profileError) throw profileError;
+  if (profileError) {
+    console.error('[getCurrentUser] Profile fetch error:', profileError);
+    throw profileError;
+  }
   if (!profile) {
-    console.warn('No profile found for user:', user.id);
+    console.warn('[getCurrentUser] No profile found for user:', user.id);
     return null;
   }
+
+  console.log('[getCurrentUser] Profile found:', profile);
 
   return {
     user,

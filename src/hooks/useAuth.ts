@@ -7,28 +7,37 @@ export function useAuth() {
   const { user, profile, loading, setAuth, setLoading, clear } = useAuthStore();
 
   useEffect(() => {
+    console.log('[useAuth] Starting auth check...');
+
     // In dev mode, skip Supabase validation if we already have a user (from dev login)
     if (import.meta.env.DEV && user) {
+      console.log('[useAuth] Dev mode with existing user, skipping check');
       setLoading(false);
       return;
     }
 
     // Check current session
+    console.log('[useAuth] Fetching current user...');
     getCurrentUser()
       .then((data) => {
+        console.log('[useAuth] getCurrentUser result:', data);
         if (data) {
+          console.log('[useAuth] User authenticated, setting auth');
           setAuth(data.user, data.profile);
         } else {
+          console.log('[useAuth] No user found, clearing auth');
           clear();
         }
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('[useAuth] getCurrentUser error:', error);
         clear();
       });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('[useAuth] Auth state changed:', event);
         if (event === 'SIGNED_IN' && session) {
           const userData = await getCurrentUser();
           if (userData) {
