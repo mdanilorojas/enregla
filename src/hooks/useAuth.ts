@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
-import { getCurrentUser, signOut as apiSignOut } from '@/lib/api/auth';
+import { getCurrentUser, logout } from '@/lib/api/auth';
 import { supabase } from '@/lib/supabase';
 
 // Global flag to ensure auth check only happens once
@@ -61,7 +61,7 @@ export function useAuth() {
   }, [setAuth, clear]);
 
   const signOut = async () => {
-    await apiSignOut();
+    await logout();
     clear();
   };
 
