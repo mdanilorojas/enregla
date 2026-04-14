@@ -24,14 +24,15 @@ export async function login(credentials: LoginCredentials) {
 
   if (error) throw error;
 
-  // Fetch profile
+  // Fetch profile - use maybeSingle() to handle potential duplicates
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', data.user.id)
-    .single();
+    .maybeSingle();
 
   if (profileError) throw profileError;
+  if (!profile) throw new Error('No profile found for user');
 
   return {
     user: data.user,
@@ -82,13 +83,18 @@ export async function getCurrentUser() {
   if (userError) throw userError;
   if (!user) return null;
 
+  // Use maybeSingle() to handle potential duplicates gracefully
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
-    .single();
+    .maybeSingle();
 
   if (profileError) throw profileError;
+  if (!profile) {
+    console.warn('No profile found for user:', user.id);
+    return null;
+  }
 
   return {
     user,
