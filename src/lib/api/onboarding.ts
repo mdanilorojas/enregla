@@ -150,15 +150,16 @@ export async function completeOnboarding(
   // 1. Create company
   const companyData: CompanyInsert = {
     name: data.company.name,
+    ruc: data.company.ruc,
     business_type: data.company.business_type,
     city: data.company.city,
     location_count: data.locations.length,
     regulatory_factors: data.regulatory_factors as any,
   };
 
-  const companyResult: any = await supabase
-    .from('companies')
-    .insert(companyData as any)
+  const companyResult = await (supabase
+    .from('companies') as any)
+    .insert(companyData)
     .select()
     .single();
 
@@ -177,9 +178,9 @@ export async function completeOnboarding(
       risk_level: 'medio', // Initial risk level
     };
 
-    const locationResult: any = await supabase
-      .from('locations')
-      .insert(locationData as any)
+    const locationResult: any = await (supabase
+      .from('locations') as any)
+      .insert(locationData)
       .select()
       .single();
 
@@ -232,11 +233,11 @@ export async function saveProfile(
   fullName: string
 ): Promise<void> {
   const { error } = await (supabase
-    .from('profiles')
+    .from('profiles') as any)
     .update({
       full_name: fullName,
       role: 'admin', // Default role for first user
-    }) as any)
+    })
     .eq('id', userId);
 
   if (error) throw error;
@@ -268,19 +269,19 @@ export async function saveCompany(
     location_count: 0,
   };
 
-  const { data: company, error: companyError } = (await supabase
-    .from('companies')
+  const { data: company, error: companyError } = await (supabase
+    .from('companies') as any)
     .insert(companyInsert)
     .select()
-    .single()) as { data: CompanyRow | null; error: any };
+    .single();
 
   if (companyError) throw companyError;
   if (!company) throw new Error('Failed to create company');
 
   // 2. Link company to profile
   const { error: profileError } = await (supabase
-    .from('profiles')
-    .update({ company_id: company.id }) as any)
+    .from('profiles') as any)
+    .update({ company_id: company.id })
     .eq('id', userId);
 
   if (profileError) throw profileError;
@@ -314,11 +315,11 @@ export async function saveLocationWithPermits(
     risk_level: 'medio',
   };
 
-  const { data: location, error: locationError } = (await supabase
-    .from('locations')
+  const { data: location, error: locationError } = await (supabase
+    .from('locations') as any)
     .insert(locationInsert)
     .select()
-    .single()) as { data: LocationRow | null; error: any };
+    .single();
 
   if (locationError) throw locationError;
   if (!location) throw new Error('Failed to create location');

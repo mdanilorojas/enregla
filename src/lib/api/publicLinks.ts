@@ -82,13 +82,13 @@ export async function getLocationPublicLink(locationId: string): Promise<PublicL
  * Deactivate a public link
  */
 export async function deactivatePublicLink(linkId: string): Promise<void> {
-  const { error } = (await supabase
-    .from('public_links')
+  const { error } = await (supabase
+    .from('public_links') as any)
     .update({
       is_active: false,
       updated_at: new Date().toISOString(),
     })
-    .eq('id', linkId)) as { error: any };
+    .eq('id', linkId);
 
   if (error) {
     throw new Error(`Error al desactivar el link: ${error.message}`);
