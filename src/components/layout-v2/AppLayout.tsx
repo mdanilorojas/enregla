@@ -1,15 +1,28 @@
-import { Outlet } from 'react-router-dom';
-import { Home, MapPin, FileText, Settings } from 'lucide-react';
+import { Outlet, useLocation, Link } from 'react-router-dom';
+import {
+  Home,
+  MapPin,
+  FileText,
+  Settings,
+  Building2,
+  ChevronRight,
+  User,
+  LogOut
+} from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
+  SidebarTrigger,
 } from '@/components/ui-v2/sidebar';
 
 const menuItems = [
@@ -28,6 +41,9 @@ const menuItems = [
     url: '/permisos',
     icon: FileText,
   },
+];
+
+const settingsItems = [
   {
     title: 'Configuración',
     url: '/configuracion',
@@ -36,31 +52,112 @@ const menuItems = [
 ];
 
 export function AppLayout() {
+  const { profile, signOut } = useAuth();
+  const location = useLocation();
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <Sidebar>
+          {/* Header con empresa */}
+          <SidebarHeader>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-white">
+                    <Building2 className="size-4" />
+                  </div>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">EnRegla</span>
+                    <span className="truncate text-xs text-sidebar-foreground/70">
+                      Control operativo
+                    </span>
+                  </div>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarHeader>
+
+          {/* Content con menú */}
           <SidebarContent>
+            {/* Menú principal */}
             <SidebarGroup>
-              <SidebarGroupLabel>MENÚ PRINCIPAL</SidebarGroupLabel>
+              <SidebarGroupLabel>Menú principal</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {menuItems.map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
-                        <a href={item.url}>
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.title}</span>
-                        </a>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
+                  {menuItems.map((item) => {
+                    const isActive = location.pathname === item.url;
+                    return (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton asChild isActive={isActive}>
+                          <Link to={item.url}>
+                            <item.icon />
+                            <span>{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            {/* Settings */}
+            <SidebarGroup className="mt-auto">
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {settingsItems.map((item) => {
+                    const isActive = location.pathname === item.url;
+                    return (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton asChild isActive={isActive}>
+                          <Link to={item.url}>
+                            <item.icon />
+                            <span>{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
+
+          {/* Footer con usuario */}
+          <SidebarFooter>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-accent text-sidebar-accent-foreground">
+                    <User className="size-4" />
+                  </div>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">
+                      {profile?.full_name || 'Usuario'}
+                    </span>
+                    <span className="truncate text-xs text-sidebar-foreground/70">
+                      {profile?.role === 'admin' ? 'Administrador' : profile?.role === 'operator' ? 'Operador' : 'Visor'}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => signOut()}
+                    className="ml-auto p-1 hover:bg-sidebar-accent rounded"
+                    title="Cerrar sesión"
+                  >
+                    <LogOut className="size-4" />
+                  </button>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarFooter>
         </Sidebar>
+
         <main className="flex-1">
+          {/* Trigger para colapsar/expandir sidebar en mobile */}
+          <div className="sticky top-0 z-10 bg-background border-b px-4 py-2 lg:hidden">
+            <SidebarTrigger />
+          </div>
           <Outlet />
         </main>
       </div>
