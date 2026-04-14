@@ -9,13 +9,6 @@ export function useAuth() {
   useEffect(() => {
     console.log('[useAuth] Starting auth check...');
 
-    // In dev mode, skip Supabase validation if we already have a user (from dev login)
-    if (import.meta.env.DEV && user) {
-      console.log('[useAuth] Dev mode with existing user, skipping check');
-      setLoading(false);
-      return;
-    }
-
     // Check current session
     console.log('[useAuth] Fetching current user...');
     getCurrentUser()
@@ -52,7 +45,8 @@ export function useAuth() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [setAuth, setLoading, clear, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps - only run once on mount
 
   return {
     user,
