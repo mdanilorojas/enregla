@@ -11,6 +11,7 @@
     "seed": "tsx scripts/seed-demo.ts"
   },
   "dependencies": {
+    "@radix-ui/react-slot": "^1.2.4",
     "@supabase/supabase-js": "^2.103.0",
     "@tanstack/react-virtual": "^3.13.23",
     "@types/qrcode.react": "^1.0.5",
