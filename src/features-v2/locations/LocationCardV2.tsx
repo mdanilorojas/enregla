@@ -12,10 +12,14 @@ interface LocationCardV2Props {
 // Helper functions for data processing
 
 /**
- * Generate a location code from the location ID
+ * Generates a formatted location code from a UUID.
  * Format: SEDE-{first 8 chars}-{chars 24-27}
+ * Falls back gracefully for non-UUID IDs.
  */
 function getLocationCode(id: string): string {
+  if (id.length < 27) {
+    return `SEDE-${id.substring(0, Math.min(8, id.length)).toUpperCase()}`;
+  }
   return `SEDE-${id.substring(0, 8).toUpperCase()}-${id.substring(24, 27).toUpperCase()}`;
 }
 
@@ -43,8 +47,16 @@ function getStatusVariant(status: string): 'default' | 'secondary' | 'outline' {
 /**
  * Get risk level configuration for badge display
  */
-function getRiskLevelConfig(riskLevel: string): { variant: string; className?: string; label: string } {
-  const riskMap: Record<string, { variant: string; className?: string; label: string }> = {
+function getRiskLevelConfig(riskLevel: string): {
+  variant: 'default' | 'secondary' | 'destructive' | 'outline';
+  className?: string;
+  label: string;
+} {
+  const riskMap: Record<string, {
+    variant: 'default' | 'secondary' | 'destructive' | 'outline';
+    className?: string;
+    label: string;
+  }> = {
     critico: { variant: 'destructive', label: 'Crítica' },
     alto: { variant: 'default', className: 'bg-orange-500 text-white hover:bg-orange-600', label: 'Alta' },
     medio: { variant: 'default', className: 'bg-amber-500 text-white hover:bg-amber-600', label: 'Media' },
@@ -83,6 +95,8 @@ export function LocationCardV2({ location, permits }: LocationCardV2Props) {
   const navigate = useNavigate();
   const locationCode = getLocationCode(location.id);
   const city = getCityFromAddress(location.address);
+  const activePermits = permits.filter(p => p.is_active);
+  const vigentesCount = activePermits.filter(p => p.status === 'vigente').length;
 
   /**
    * Navigate to location detail view on click
@@ -158,7 +172,7 @@ export function LocationCardV2({ location, permits }: LocationCardV2Props) {
             const riskConfig = getRiskLevelConfig(location.risk_level || 'bajo');
             return (
               <Badge
-                variant={riskConfig.variant as any}
+                variant={riskConfig.variant}
                 className={riskConfig.className}
               >
                 {riskConfig.label}
@@ -173,19 +187,13 @@ export function LocationCardV2({ location, permits }: LocationCardV2Props) {
           <div className="flex items-center justify-between text-xs mb-2">
             <span className="font-medium text-gray-500">Permisos</span>
             <span className="font-mono text-gray-900">
-              {(() => {
-                const activePermits = permits.filter(p => p.is_active);
-                const vigentes = activePermits.filter(p => p.status === 'vigente').length;
-                return `${vigentes}/${activePermits.length}`;
-              })()}
+              {vigentesCount}/{activePermits.length}
             </span>
           </div>
 
           {/* Colored dots */}
           <div className="flex items-center gap-1 flex-wrap">
             {(() => {
-              const activePermits = permits.filter(p => p.is_active);
-
               // Group by status
               const vigente = activePermits.filter(p => p.status === 'vigente');
               const porVencer = activePermits.filter(p => p.status === 'por_vencer');
