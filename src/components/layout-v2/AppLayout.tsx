@@ -1,4 +1,5 @@
 import { Outlet, useLocation, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import {
   Home,
   MapPin,
@@ -10,7 +11,8 @@ import {
   Network,
   CalendarClock,
   ListChecks,
-  Scale
+  Scale,
+  Bell
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -75,10 +77,43 @@ const settingsItems = [
   },
 ];
 
+const pageNames: Record<string, string> = {
+  '/': 'Dashboard',
+  '/sedes': 'Sedes',
+  '/mapa-red': 'Mapa Interactivo',
+  '/permisos': 'Permisos',
+  '/renovaciones': 'Renovaciones',
+  '/tareas': 'Tareas',
+  '/marco-legal': 'Marco Legal',
+};
+
+const pageDescriptions: Record<string, string> = {
+  '/': 'Resumen general de cumplimiento',
+  '/sedes': 'Gestión de ubicaciones',
+  '/mapa-red': 'Red de sedes y relaciones',
+  '/permisos': 'Control de permisos y licencias',
+  '/renovaciones': 'Línea de tiempo de renovaciones',
+  '/tareas': 'Acciones pendientes',
+  '/marco-legal': 'Normativa y regulaciones',
+};
+
 function AppLayoutContent() {
   const { profile, signOut } = useAuth();
   const location = useLocation();
   const { open } = useSidebar();
+  const [scrolled, setScrolled] = useState(false);
+
+  const basePath = '/' + location.pathname.split('/').filter(Boolean).slice(0, 1).join('/');
+  const title = pageNames[basePath] || pageNames[location.pathname] || 'EnRegla';
+  const description = pageDescriptions[basePath] || '';
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -184,11 +219,31 @@ function AppLayoutContent() {
             marginLeft: open ? '16rem' : '3rem'
           }}
         >
-          {/* Trigger para colapsar/expandir sidebar */}
-          <div className="sticky top-0 z-10 bg-background border-b px-4 py-2 flex items-center gap-2">
-            <SidebarTrigger />
-            <h1 className="text-sm font-semibold">EnRegla</h1>
-          </div>
+          {/* Top Bar */}
+          <header className={`h-16 border-b flex items-center justify-between px-6 sticky top-0 z-20 transition-all duration-200 ${
+            scrolled
+              ? 'bg-white/95 backdrop-blur-lg border-gray-200/60 shadow-sm'
+              : 'bg-white border-gray-200/40'
+          }`}>
+            <div className="flex items-center gap-4">
+              <SidebarTrigger className="lg:hidden" />
+              <div>
+                <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
+                {description && (
+                  <p className="text-xs text-gray-500 mt-0.5">{description}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {/* Notification */}
+              <button className="relative p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all">
+                <Bell size={20} strokeWidth={2} />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white" />
+              </button>
+            </div>
+          </header>
+
           <div className="p-6 lg:p-8">
             <Outlet />
           </div>
