@@ -177,10 +177,11 @@ export function AppLayout() {
           </SidebarFooter>
         </Sidebar>
 
-        <main className="flex-1 w-full">
-          {/* Trigger para colapsar/expandir sidebar en mobile */}
-          <div className="sticky top-0 z-10 bg-background border-b px-4 py-2 lg:hidden">
+        <main className="flex-1 w-full min-w-0">
+          {/* Trigger para colapsar/expandir sidebar */}
+          <div className="sticky top-0 z-10 bg-background border-b px-4 py-2 flex items-center gap-2">
             <SidebarTrigger />
+            <h1 className="text-sm font-semibold">EnRegla</h1>
           </div>
           <div className="p-6 lg:p-8">
             <Outlet />
