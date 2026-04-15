@@ -8,6 +8,8 @@ import {
   useEdgesState,
   type Node,
   type Edge,
+  type OnNodeDrag,
+  type NodeMouseHandler,
   BackgroundVariant,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -123,7 +125,7 @@ export function NetworkMapViewV2({ embedded = false }: NetworkMapViewV2Props) {
       type: 'company',
       position: companyPos,
       data: {
-        name: profile.company?.name || 'Empresa',
+        name: 'Empresa', // TODO: Get company name from companies table
         locationCount: locations.length,
       },
     });
@@ -214,27 +216,89 @@ export function NetworkMapViewV2({ embedded = false }: NetworkMapViewV2Props) {
     return { seedNodes: nodes, seedEdges: edges };
   }, [profile, locations, permits, isDesktop]);
 
-  // TODO: Add ReactFlow state and physics (Task 5)
+  // ReactFlow state management
+  const [nodes, setNodes, onNodesChange] = useNodesState(seedNodes);
+  const [edges, , onEdgesChange] = useEdgesState(seedEdges);
+
+  // Physics simulation callback
+  const onForceTick = useCallback(
+    (positions: Map<string, { x: number; y: number }>) => {
+      setNodes((prev) =>
+        prev.map((n) => {
+          // Don't move node being dragged
+          if (n.id === draggingRef.current) return n;
+          const pos = positions.get(n.id);
+          if (!pos) return n;
+          return { ...n, position: { x: pos.x, y: pos.y } };
+        }),
+      );
+    },
+    [setNodes],
+  );
+
+  // Setup force layout physics
+  const { fixNode, releaseNode } = useForceLayout({
+    nodes: seedNodes,
+    edges: seedEdges,
+    onTick: onForceTick,
+  });
+
+  // Drag handlers for physics simulation
+  const onNodeDragStart: OnNodeDrag = useCallback(
+    (_event, node) => {
+      draggingRef.current = node.id;
+      fixNode(node.id, node.position.x, node.position.y);
+    },
+    [fixNode],
+  );
+
+  const onNodeDrag: OnNodeDrag = useCallback(
+    (_event, node) => {
+      fixNode(node.id, node.position.x, node.position.y);
+    },
+    [fixNode],
+  );
+
+  const onNodeDragStop: OnNodeDrag = useCallback(
+    (_event, node) => {
+      draggingRef.current = null;
+      releaseNode(node.id);
+    },
+    [releaseNode],
+  );
+
+  // Click handler for sede navigation
+  const onNodeClick: NodeMouseHandler = useCallback(
+    (_, node) => {
+      if (node.type === 'sede') {
+        navigate(`/sedes/${node.id}`);
+      }
+    },
+    [navigate],
+  );
+
   // TODO: Add loading/error/empty states (Task 6)
   // TODO: Implement ReactFlow render (Task 7)
 
   // Placeholder for unused imports/variables (used in subsequent tasks)
-  void useCallback;
-  void useNodesState;
-  void useEdgesState;
   void ReactFlow;
   void Background;
   void Controls;
   void MiniMap;
   void BackgroundVariant;
   void Building2;
-  void useForceLayout;
   void SedeNode;
   void PermitNode;
   void CompanyNode;
   void nodeTypes;
-  void navigate;
-  void draggingRef;
+  void onNodesChange;
+  void onEdgesChange;
+  void onNodeClick;
+  void onNodeDragStart;
+  void onNodeDrag;
+  void onNodeDragStop;
+  void nodes;
+  void edges;
   void embedded;
   void loading;
   void error;
