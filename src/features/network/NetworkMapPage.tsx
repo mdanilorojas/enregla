@@ -1,4 +1,6 @@
 import { NetworkMapView } from './NetworkMapView';
+import { NetworkMapViewV2 } from '@/features-v2/network/NetworkMapViewV2';
+import { UI_VERSION } from '@/config';
 
 export function NetworkMapPage() {
   return (
@@ -7,7 +9,11 @@ export function NetworkMapPage() {
         <h2 className="text-lg font-bold text-gray-900 mb-0.5">Mapa de Red</h2>
         <p className="text-xs text-gray-500">Vista interactiva de sedes y permisos</p>
       </div>
-      <NetworkMapView embedded={false} />
+      {UI_VERSION === 'v2' ? (
+        <NetworkMapViewV2 embedded={false} />
+      ) : (
+        <NetworkMapView embedded={false} />
+      )}
     </div>
   );
 }
