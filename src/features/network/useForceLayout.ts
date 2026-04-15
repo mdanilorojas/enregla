@@ -37,6 +37,8 @@ export function useForceLayout({ nodes, edges, onTick }: UseForceLayoutOptions) 
       type: n.type,
       x: n.position.x,
       y: n.position.y,
+      // Fix permit nodes in place - don't let physics move them
+      ...(n.type === 'permit' ? { fx: n.position.x, fy: n.position.y } : {}),
     }));
 
     const simLinks: SimLink[] = edges.map((e) => ({
