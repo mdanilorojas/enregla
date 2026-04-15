@@ -82,12 +82,10 @@ export function LocationDetailView() {
 
   const handleGeneratePublicLink = () => {
     // TODO: Implement in Milestone 4
-    console.log('Generate public link for location:', id);
   };
 
   const handleViewPublicLink = () => {
     // TODO: Implement in Milestone 4
-    console.log('View public link for location:', id);
   };
 
   return (
