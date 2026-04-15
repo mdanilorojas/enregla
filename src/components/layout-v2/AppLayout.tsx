@@ -174,7 +174,7 @@ export function AppLayout() {
         </div>
       </aside>
       {/* Main Content */}
-      <div className={`transition-all duration-200 ${sidebarOpen ? 'ml-64' : 'ml-16'} min-h-screen`}>
+      <div className={`transition-all duration-200 ${sidebarOpen ? 'ml-64' : 'ml-16'} min-h-screen w-full`}>
         {/* Top Bar */}
         <header className={`h-16 border-b flex items-center justify-between px-6 sticky top-0 z-20 transition-all duration-200 ${
           scrolled
@@ -206,7 +206,9 @@ export function AppLayout() {
         </header>
 
         <div className="p-6 lg:p-8">
-          <Outlet />
+          <div className="max-w-[1400px] mx-auto">
+            <Outlet />
+          </div>
         </div>
       </div>
     </div>
