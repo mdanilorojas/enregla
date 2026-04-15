@@ -135,7 +135,6 @@ export function PermitUploadForm({
 
     try {
       // 1. Upload file to Supabase Storage
-      console.log('Uploading document to Supabase Storage...');
       uploadedFilePath = await uploadPermitDocument(permit.id, file);
 
       // 2. Calculate dates in ISO format
@@ -143,7 +142,6 @@ export function PermitUploadForm({
       const expiryDateISO = expiryDate ? format(expiryDate, 'yyyy-MM-dd') : null;
 
       // 3. Update permit record with dates and status
-      console.log('Updating permit record...');
       await updatePermit(permit.id, {
         issue_date: issueDateISO,
         expiry_date: expiryDateISO,
@@ -151,14 +149,12 @@ export function PermitUploadForm({
       });
 
       // 4. Success - call parent callback
-      console.log('Upload successful!');
       onSuccess();
     } catch (err) {
       console.error('Upload error:', err);
 
       // Rollback: if file was uploaded but permit update failed, try to delete file
       if (uploadedFilePath) {
-        console.log('Attempting to rollback file upload...');
         try {
           const { supabase } = await import('@/lib/supabase');
           // Delete file from storage
