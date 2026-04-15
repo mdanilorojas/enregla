@@ -286,7 +286,57 @@ export function NetworkMapViewV2({ embedded = false }: NetworkMapViewV2Props) {
     [navigate],
   );
 
-  // TODO: Add loading/error/empty states (Task 6)
+  // Loading state
+  if (loading) {
+    return (
+      <div className={embedded ? 'h-full' : 'h-[calc(100vh-64px)]'}>
+        <div className="h-full flex items-center justify-center bg-[#FAFBFD]">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-sm text-gray-600">Cargando mapa de red...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className={embedded ? 'h-full' : 'h-[calc(100vh-64px)]'}>
+        <div className="h-full flex items-center justify-center bg-[#FAFBFD]">
+          <div className="text-center">
+            <p className="text-red-500 mb-4">Error al cargar mapa de red</p>
+            <p className="text-sm text-gray-500 mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+            >
+              Reintentar
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state (no locations)
+  if (locations.length === 0) {
+    return (
+      <div className={embedded ? 'h-full' : 'h-[calc(100vh-64px)]'}>
+        <div className="h-full flex items-center justify-center bg-[#FAFBFD]">
+          <div className="text-center">
+            <Building2 className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No hay sedes</h3>
+            <p className="text-sm text-gray-500">
+              Crea tu primera sede para visualizar la red
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // TODO: Implement ReactFlow render (Task 7)
 
   // Placeholder for unused imports/variables (used in subsequent tasks)
@@ -295,7 +345,6 @@ export function NetworkMapViewV2({ embedded = false }: NetworkMapViewV2Props) {
   void Controls;
   void MiniMap;
   void BackgroundVariant;
-  void Building2;
   void SedeNode;
   void PermitNode;
   void CompanyNode;
@@ -308,9 +357,6 @@ export function NetworkMapViewV2({ embedded = false }: NetworkMapViewV2Props) {
   void onNodeDragStop;
   void nodes;
   void edges;
-  void embedded;
-  void loading;
-  void error;
 
   return (
     <div>NetworkMapViewV2 - nodes: {seedNodes.length}, edges: {seedEdges.length}</div>
