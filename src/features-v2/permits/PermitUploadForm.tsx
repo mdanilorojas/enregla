@@ -117,16 +117,65 @@ export function PermitUploadForm({
   };
 
   const handleUpload = async () => {
+    // Validate form
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
       return;
     }
 
-    // Upload logic will be implemented in next task
-    console.log('Uploading file:', file?.name);
-    console.log('Issue date:', issueDate);
-    console.log('Expiry date:', expiryDate);
+    if (!file) return;
+
+    setLoading(true);
+    setError(null);
+
+    let uploadedFilePath: string | undefined;
+
+    try {
+      // 1. Upload file to Supabase Storage
+      console.log('Uploading document to Supabase Storage...');
+      uploadedFilePath = await uploadPermitDocument(permit.id, file);
+
+      // 2. Calculate dates in ISO format
+      const issueDateISO = issueDate.toISOString().split('T')[0];
+      const expiryDateISO = expiryDate ? expiryDate.toISOString().split('T')[0] : null;
+
+      // 3. Update permit record with dates and status
+      console.log('Updating permit record...');
+      await updatePermit(permit.id, {
+        issue_date: issueDateISO,
+        expiry_date: expiryDateISO,
+        status: 'vigente',
+      });
+
+      // 4. Success - call parent callback
+      console.log('Upload successful!');
+      onSuccess();
+    } catch (err) {
+      console.error('Upload error:', err);
+
+      // Rollback: if file was uploaded but permit update failed, try to delete file
+      if (uploadedFilePath) {
+        console.log('Attempting to rollback file upload...');
+        try {
+          const { supabase } = await import('@/lib/supabase');
+          await supabase.storage
+            .from('permit-documents')
+            .remove([uploadedFilePath]);
+        } catch (rollbackErr) {
+          console.error('Rollback failed:', rollbackErr);
+          // Continue - show original error to user
+        }
+      }
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Error al subir el documento. Intenta de nuevo.'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
