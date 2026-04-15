@@ -78,8 +78,35 @@ export function PermitUploadForm({
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
+  const validateForm = (): string | null => {
+    if (!file) return 'Selecciona un documento para subir';
+
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    if (issueDate > today) {
+      return 'La fecha de emisión no puede ser futura';
+    }
+
+    const tenYearsAgo = new Date();
+    tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
+    if (issueDate < tenYearsAgo) {
+      return 'Fecha inválida. Verifica la fecha de emisión';
+    }
+
+    return null;
+  };
+
   const handleUpload = async () => {
-    console.log('Upload handler - to be implemented');
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    // Upload logic will be implemented in next task
+    console.log('Uploading file:', file?.name);
+    console.log('Issue date:', issueDate);
+    console.log('Expiry date:', expiryDate);
   };
 
   return (
@@ -136,9 +163,52 @@ export function PermitUploadForm({
         </div>
       </div>
 
-      {/* Date picker - placeholder for next step */}
+      {/* Issue date picker */}
       <div>
-        <p className="text-sm text-gray-500">Fecha de emisión: {format(issueDate, 'dd/MM/yyyy')}</p>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Fecha de emisión del permiso
+        </label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full justify-start text-left font-normal"
+              disabled={loading}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {format(issueDate, 'dd/MM/yyyy')}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={issueDate}
+              onSelect={(date) => {
+                if (date) {
+                  setIssueDate(date);
+                  setError(null);
+                }
+              }}
+              disabled={(date) => {
+                // Disable future dates
+                const today = new Date();
+                today.setHours(23, 59, 59, 999);
+                if (date > today) return true;
+
+                // Disable dates more than 10 years in past
+                const tenYearsAgo = new Date();
+                tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
+                if (date < tenYearsAgo) return true;
+
+                return false;
+              }}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
+        <p className="text-xs text-gray-500 mt-1.5">
+          Confirma la fecha en que fue emitido el permiso
+        </p>
       </div>
 
       {/* Expiry display - placeholder for next step */}
