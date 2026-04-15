@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getCompanyPermits, getLocationPermits, updatePermit as updatePermitApi } from '@/lib/api/permits';
+import { getCompanyPermits, getLocationPermits } from '@/lib/api/permits';
+import { supabase } from '@/lib/supabase';
 import type { Permit } from '@/types/database';
 
 interface UsePermitsOptions {
@@ -59,12 +60,34 @@ export function usePermits({ companyId, locationId }: UsePermitsOptions) {
     }
   };
 
-  const updatePermit = async (permitId: string, updates: Partial<Permit>) => {
-    const updatedPermit = await updatePermitApi(permitId, updates);
-    setPermits((prev) =>
-      prev.map((permit) => (permit.id === permitId ? updatedPermit : permit))
-    );
-    return updatedPermit;
+  /**
+   * Update a permit record
+   */
+  const updatePermit = async (
+    permitId: string,
+    updates: {
+      issue_date?: string;
+      expiry_date?: string | null;
+      status?: 'vigente' | 'por_vencer' | 'vencido' | 'en_tramite' | 'no_registrado';
+      permit_number?: string | null;
+      notes?: string | null;
+    }
+  ) => {
+    const query = supabase.from('permits') as any;
+    const { error } = await query
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', permitId);
+
+    if (error) {
+      console.error('Error updating permit:', error);
+      throw new Error(`Error al actualizar el permiso: ${error.message}`);
+    }
+
+    // Refresh permits list
+    refetch();
   };
 
   return {
