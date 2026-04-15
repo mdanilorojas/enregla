@@ -10,6 +10,7 @@ import { DashboardView as DashboardViewV2 } from '@/features-v2/dashboard/Dashbo
 import { LocationListView } from '@/features/locations/LocationListView';
 import { LocationDetailView } from '@/features/locations/LocationDetailView';
 import { LocationDetailView as LocationDetailViewV2 } from '@/features-v2/locations/LocationDetailView';
+import { LocationsListViewV2 } from '@/features-v2/locations/LocationsListViewV2';
 import { PermitListView } from '@/features/permits/PermitListView';
 import { PermitDetailView } from '@/features/permits/PermitDetailView';
 import { RenewalTimelineView } from '@/features/renewals/RenewalTimelineView';
@@ -104,7 +105,7 @@ export default function App() {
           }
         >
           <Route path="/" element={UI_VERSION === 'v2' ? <DashboardViewV2 /> : <DashboardView />} />
-          <Route path="/sedes" element={<LocationListView />} />
+          <Route path="/sedes" element={UI_VERSION === 'v2' ? <LocationsListViewV2 /> : <LocationListView />} />
           <Route path="/sedes/:id" element={UI_VERSION === 'v2' ? <LocationDetailViewV2 /> : <LocationDetailView />} />
           <Route path="/mapa-red" element={<NetworkMapPage />} />
           <Route path="/permisos" element={<PermitListView />} />
