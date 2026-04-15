@@ -3,11 +3,20 @@
  * Source: deep-research-report.md
  */
 
+/**
+ * Number of days before expiry when a permit is considered "about to expire"
+ */
+export const EXPIRY_WARNING_DAYS = 30;
+
 export interface PermitDuration {
   years?: number;
   type: 'calendar' | 'fiscal' | 'year_end' | 'annual_renewal' | 'indefinite';
-  renewalMonth?: number | 'byRUC';
 }
+
+/**
+ * Permit status types exported for consumers
+ */
+export type PermitStatus = 'vigente' | 'por_vencer' | 'vencido';
 
 /**
  * Duration rules for each permit type
@@ -25,7 +34,7 @@ export const PERMIT_DURATIONS: Record<string, PermitDuration> = {
   'Permiso Anual de Funcionamiento': { years: 1, type: 'fiscal' },
 
   // Municipal permits
-  'LUAE': { type: 'annual_renewal', renewalMonth: 'byRUC' },
+  'LUAE': { type: 'annual_renewal' },
   'Patente Municipal': { years: 1, type: 'calendar' },
 
   // Fire department - until year end
@@ -33,7 +42,7 @@ export const PERMIT_DURATIONS: Record<string, PermitDuration> = {
 
   // Special permits
   'Licencia Rayos X': { years: 4, type: 'calendar' },
-  'PUCA': { type: 'annual_renewal', renewalMonth: 1 },
+  'PUCA': { type: 'annual_renewal' },
 
   // Tax - indefinite
   'RUC': { type: 'indefinite' },
@@ -47,11 +56,23 @@ export const PERMIT_DURATIONS: Record<string, PermitDuration> = {
 /**
  * Calculate expiry date for a permit based on its type and issue date
  * Returns null for indefinite permits
+ *
+ * IMPORTANT: All dates are treated as local/naive dates without timezone conversion.
+ * This is intentional - permit issue dates in Ecuador are recorded as local dates
+ * without timezone information. Expiry dates are calculated using local calendar dates.
+ *
+ * NOTE: Expiry dates returned are at start-of-day (00:00:00). The permit is considered
+ * valid through the entire expiry date (until 23:59:59 of that day).
  */
 export function calculateExpiryDate(
   permitType: string,
   issueDate: Date
 ): Date | null {
+  // Validate issueDate parameter
+  if (!(issueDate instanceof Date) || isNaN(issueDate.getTime())) {
+    throw new Error('Invalid issueDate: must be a valid Date object');
+  }
+
   const duration = PERMIT_DURATIONS[permitType];
 
   if (!duration) {
@@ -98,7 +119,7 @@ export function calculateExpiryDate(
  */
 export function calculatePermitStatus(
   expiryDate: Date | null
-): 'vigente' | 'por_vencer' | 'vencido' {
+): PermitStatus {
   if (!expiryDate) return 'vigente'; // Indefinite permits stay vigente
 
   const now = new Date();
@@ -107,7 +128,7 @@ export function calculatePermitStatus(
   );
 
   if (daysUntilExpiry < 0) return 'vencido';
-  if (daysUntilExpiry <= 30) return 'por_vencer';
+  if (daysUntilExpiry <= EXPIRY_WARNING_DAYS) return 'por_vencer';
   return 'vigente';
 }
 
