@@ -54,8 +54,26 @@ export const PERMIT_DURATIONS: Record<string, PermitDuration> = {
 };
 
 /**
- * Calculate expiry date for a permit based on its type and issue date
- * Returns null for indefinite permits
+ * Calculate expiry date for a permit based on its type and issue date.
+ *
+ * @param permitType - The permit type string (must match PERMIT_DURATIONS keys)
+ * @param issueDate - The date the permit was issued
+ * @returns The calculated expiry date, or null for indefinite permits
+ *
+ * @example
+ * // ARCSA permit issued today expires in 1 year
+ * const expiry = calculateExpiryDate('Permiso Sanitario (ARCSA)', new Date('2026-04-14'));
+ * // Returns: new Date('2027-04-14')
+ *
+ * @example
+ * // Bomberos permit expires on December 31 of issue year
+ * const expiry = calculateExpiryDate('Bomberos', new Date('2026-04-14'));
+ * // Returns: new Date('2026-12-31')
+ *
+ * @example
+ * // RUC permit is indefinite
+ * const expiry = calculateExpiryDate('RUC', new Date('2026-04-14'));
+ * // Returns: null
  *
  * IMPORTANT: All dates are treated as local/naive dates without timezone conversion.
  * This is intentional - permit issue dates in Ecuador are recorded as local dates
@@ -115,7 +133,30 @@ export function calculateExpiryDate(
 }
 
 /**
- * Calculate permit status based on expiry date
+ * Calculate permit status based on expiry date.
+ *
+ * @param expiryDate - The permit expiry date, or null for indefinite permits
+ * @returns Status: 'vigente' (valid), 'por_vencer' (expiring soon), or 'vencido' (expired)
+ *
+ * @example
+ * // Permit expires in 45 days
+ * const status = calculatePermitStatus(new Date('2026-05-30'));
+ * // Returns: 'vigente'
+ *
+ * @example
+ * // Permit expires in 15 days
+ * const status = calculatePermitStatus(new Date('2026-04-29'));
+ * // Returns: 'por_vencer'
+ *
+ * @example
+ * // Permit already expired
+ * const status = calculatePermitStatus(new Date('2026-01-01'));
+ * // Returns: 'vencido'
+ *
+ * @example
+ * // Indefinite permit (like RUC)
+ * const status = calculatePermitStatus(null);
+ * // Returns: 'vigente'
  */
 export function calculatePermitStatus(
   expiryDate: Date | null
@@ -133,7 +174,22 @@ export function calculatePermitStatus(
 }
 
 /**
- * Format permit duration for display to user
+ * Format permit duration for display to user in Spanish.
+ *
+ * @param permitType - The permit type string
+ * @returns Human-readable duration string describing how long the permit is valid
+ *
+ * @example
+ * formatPermitDuration('Permiso Sanitario (ARCSA)')
+ * // Returns: 'Vigencia: 1 año'
+ *
+ * @example
+ * formatPermitDuration('Bomberos')
+ * // Returns: 'Vigencia: Hasta 31-dic del año en curso'
+ *
+ * @example
+ * formatPermitDuration('RUC')
+ * // Returns: 'Vigencia: Indefinida'
  */
 export function formatPermitDuration(permitType: string): string {
   const duration = PERMIT_DURATIONS[permitType];
