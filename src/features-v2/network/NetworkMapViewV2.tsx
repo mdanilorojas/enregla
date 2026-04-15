@@ -123,7 +123,7 @@ export function NetworkMapViewV2({ embedded = false }: NetworkMapViewV2Props) {
       type: 'company',
       position: companyPos,
       data: {
-        name: 'Empresa',
+        name: profile.company?.name || 'Empresa',
         locationCount: locations.length,
       },
     });

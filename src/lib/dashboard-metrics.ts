@@ -26,7 +26,7 @@ export function calculateDashboardMetrics(
   const porVencer = activePermits.filter((p) => p.status === 'por_vencer').length;
   const faltantes = activePermits.filter((p) => p.status === 'no_registrado').length;
   const vencidos = activePermits.filter((p) => p.status === 'vencido').length;
-  const enTramite = activePermits.filter((p) => (p.status as string) === 'en_tramite').length;
+  const enTramite = 0; // Status 'en_tramite' was removed from the system
 
   // Calculate compliance percentage
   const totalActive = activePermits.length;
