@@ -1,4 +1,5 @@
-import { MoreHorizontal, ExternalLink, RefreshCw } from 'lucide-react';
+import React, { useState } from 'react';
+import { MoreHorizontal, ExternalLink, RefreshCw, FileText } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -15,6 +16,9 @@ import {
 } from '@/components/ui-v2/dropdown-menu';
 import { Button } from '@/components/ui-v2/button';
 import { StatusBadge } from '@/components/ui-v2/StatusBadge';
+import { PermitUploadForm } from '@/features-v2/permits/PermitUploadForm';
+import { usePermits } from '@/hooks/usePermits';
+import { useAuth } from '@/hooks/useAuth';
 import type { Permit } from '@/types/database';
 
 interface PermitsTableProps {
@@ -24,6 +28,10 @@ interface PermitsTableProps {
 }
 
 export function PermitsTable({ permits, onRenewPermit, onViewDetails }: PermitsTableProps) {
+  const [expandedPermitId, setExpandedPermitId] = useState<string | null>(null);
+  const { companyId } = useAuth();
+  const { updatePermit, refetch } = usePermits({ companyId });
+
   if (permits.length === 0) {
     return (
       <div className="text-center py-12 text-text-secondary">
@@ -56,34 +64,64 @@ export function PermitsTable({ permits, onRenewPermit, onViewDetails }: PermitsT
         </TableHeader>
         <TableBody>
           {permits.map((permit) => (
-            <TableRow key={permit.id}>
-              <TableCell className="font-medium">{permit.type}</TableCell>
-              <TableCell>{permit.permit_number || '-'}</TableCell>
-              <TableCell>
-                <StatusBadge status={permit.status} />
-              </TableCell>
-              <TableCell>{formatDate(permit.issue_date)}</TableCell>
-              <TableCell>{formatDate(permit.expiry_date)}</TableCell>
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => onViewDetails(permit.id)}>
-                      <ExternalLink className="mr-2 h-4 w-4" />
-                      Ver detalles
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onRenewPermit(permit)}>
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      Renovar
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
+            <React.Fragment key={permit.id}>
+              {/* Main row */}
+              <TableRow className="hover:bg-gray-50 transition-colors">
+                <TableCell className="font-medium">{permit.type}</TableCell>
+                <TableCell>{permit.permit_number || '-'}</TableCell>
+                <TableCell>
+                  <StatusBadge status={permit.status} />
+                </TableCell>
+                <TableCell>{formatDate(permit.issue_date)}</TableCell>
+                <TableCell>
+                  {permit.expiry_date
+                    ? formatDate(permit.expiry_date)
+                    : permit.status === 'no_registrado'
+                    ? '-'
+                    : 'Indefinido'}
+                </TableCell>
+                <TableCell>
+                  {permit.status === 'no_registrado' ? (
+                    <button
+                      onClick={() => setExpandedPermitId(expandedPermitId === permit.id ? null : permit.id)}
+                      className="text-primary hover:text-primary/80 font-medium transition-colors"
+                    >
+                      {expandedPermitId === permit.id ? 'Cancelar' : 'Subir documento'}
+                    </button>
+                  ) : (
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1.5 text-gray-600">
+                        <FileText className="h-4 w-4" />
+                        <span className="text-xs">Documento</span>
+                      </div>
+                      <button
+                        onClick={() => setExpandedPermitId(expandedPermitId === permit.id ? null : permit.id)}
+                        className="text-gray-600 hover:text-gray-900 text-sm transition-colors"
+                      >
+                        {expandedPermitId === permit.id ? 'Cancelar' : 'Reemplazar'}
+                      </button>
+                    </div>
+                  )}
+                </TableCell>
+              </TableRow>
+
+              {/* Expanded row with upload form */}
+              {expandedPermitId === permit.id && (
+                <TableRow>
+                  <TableCell colSpan={6} className="p-0">
+                    <PermitUploadForm
+                      permit={permit}
+                      updatePermit={updatePermit}
+                      onSuccess={() => {
+                        setExpandedPermitId(null);
+                        refetch();
+                      }}
+                      onCancel={() => setExpandedPermitId(null)}
+                    />
+                  </TableCell>
+                </TableRow>
+              )}
+            </React.Fragment>
           ))}
         </TableBody>
       </Table>
