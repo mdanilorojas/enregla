@@ -23,14 +23,12 @@ export function AppShell() {
         />
       )}
 
-      <div className={`lg:block ${mobileOpen ? 'block' : 'hidden'}`}>
-        <Sidebar
-          collapsed={collapsed}
-          onToggle={() => setCollapsed(!collapsed)}
-        />
-      </div>
+      <Sidebar
+        collapsed={collapsed}
+        onToggle={() => setCollapsed(!collapsed)}
+      />
 
-      <div className={`transition-all duration-200 ${collapsed ? 'lg:ml-[64px]' : 'lg:ml-[252px]'}`}>
+      <div className={`transition-all duration-200 ${collapsed ? 'ml-[64px]' : 'ml-[252px]'}`}>
         <TopBar onMenuToggle={() => setMobileOpen(!mobileOpen)} />
         <main className="p-6 lg:p-8 max-w-[1400px]">
           <Outlet />
