@@ -17,6 +17,7 @@ import { TaskBoardView } from '@/features/tasks/TaskBoardView';
 import { LegalReferenceView } from '@/features/legal/LegalReferenceView';
 import { OnboardingWizard } from '@/features/onboarding/OnboardingWizard';
 import { IncrementalWizard } from '@/features-v2/onboarding-incremental/IncrementalWizard';
+import { PublicVerificationPage } from '@/features-v2/public-links/PublicVerificationPage';
 
 function OnboardingRoute() {
   const { profile, loading } = useAuth();
@@ -83,6 +84,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public verification page - no auth required */}
+        <Route path="/p/:token" element={<PublicVerificationPage />} />
         <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <LoginView />} />
         <Route
           path="/setup"
