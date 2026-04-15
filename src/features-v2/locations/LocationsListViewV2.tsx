@@ -1,9 +1,12 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocations } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
 import { Building2, Plus } from 'lucide-react';
 import { LocationCardV2 } from './LocationCardV2';
 import { Card, CardContent } from '@/components/ui-v2/card';
+import { CreateLocationModal } from './CreateLocationModal';
 
 export function LocationsListViewV2() {
   const { profile } = useAuth();
@@ -13,6 +16,15 @@ export function LocationsListViewV2() {
   const { permits, loading: loadingPermits, error: permitsError } = usePermits({ companyId });
 
   const loading = loadingLocations || loadingPermits;
+  const navigate = useNavigate();
+
+  // Modal state
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+
+  // Handle successful location creation
+  const handleLocationCreated = (locationId: string) => {
+    navigate(`/sedes/${locationId}`);
+  };
   const error = locationsError || permitsError;
 
   // Loading state
@@ -72,8 +84,8 @@ export function LocationsListViewV2() {
               Comienza creando tu primera sede
             </p>
             <button
-              onClick={() => alert('Funcionalidad próximamente')}
-              className="mt-6 bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors inline-flex items-center gap-2"
+              onClick={() => setCreateModalOpen(true)}
+              className="mt-6 bg-blue-900 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors inline-flex items-center gap-2 font-medium"
             >
               <Plus size={16} />
               Crear Primera Sede
@@ -101,8 +113,8 @@ export function LocationsListViewV2() {
             </p>
           </div>
           <button
-            onClick={() => alert('Funcionalidad próximamente')}
-            className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors inline-flex items-center gap-2"
+            onClick={() => setCreateModalOpen(true)}
+            className="bg-blue-900 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors inline-flex items-center gap-2 font-medium"
           >
             <Plus size={16} />
             Crear Sede
@@ -119,6 +131,14 @@ export function LocationsListViewV2() {
             />
           ))}
         </div>
+
+        {/* Create location modal */}
+        <CreateLocationModal
+          open={createModalOpen}
+          onClose={() => setCreateModalOpen(false)}
+          onSuccess={handleLocationCreated}
+          companyId={companyId || ''}
+        />
       </div>
     </div>
   );
