@@ -53,22 +53,35 @@ interface PermitUploadFormProps {
   ) => Promise<void>;
 }
 
+/**
+ * PermitUploadForm - Inline form for uploading permit documents
+ *
+ * Allows users to:
+ * - Upload document file (PDF, JPG, PNG, max 10MB)
+ * - Select permit issue date
+ * - See automatically calculated expiry date based on permit type
+ * - Submit to update permit status to 'vigente'
+ *
+ * Features rollback logic if file upload succeeds but permit update fails.
+ */
 export function PermitUploadForm({
   permit,
   onSuccess,
   onCancel,
   updatePermit,
 }: PermitUploadFormProps) {
+  // ========== State Management ==========
   const [file, setFile] = useState<File | null>(null);
   const [issueDate, setIssueDate] = useState<Date>(new Date());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // ========== Computed Values ==========
   const expiryDate = useMemo(() => {
     return calculateExpiryDate(permit.type, issueDate);
   }, [permit.type, issueDate]);
 
-  // File handling
+  // ========== Event Handlers ==========
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
@@ -85,7 +98,7 @@ export function PermitUploadForm({
       return;
     }
 
-    // Validate file extension (security - prevent spoofed MIME types)
+    // Validate file extension
     const fileExtension = selectedFile.name.split('.').pop()?.toLowerCase();
     if (!VALID_FILE_EXTENSIONS.includes(fileExtension || '')) {
       setError('Extensión de archivo no válida');
@@ -97,9 +110,9 @@ export function PermitUploadForm({
   };
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
   const validateForm = (): string | null => {
@@ -119,7 +132,6 @@ export function PermitUploadForm({
   const handleUpload = async () => {
     if (loading) return; // Guard against double-clicks
 
-    // Validate form
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
@@ -182,6 +194,7 @@ export function PermitUploadForm({
     }
   };
 
+  // ========== Render ==========
   return (
     <div className="bg-gray-50 border-t border-gray-200 p-6 space-y-4">
       {/* File upload zone */}
@@ -272,7 +285,7 @@ export function PermitUploadForm({
         </p>
       </div>
 
-      {/* Expiry display - placeholder for next step */}
+      {/* Expiry display */}
       {expiryDate && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
           <p className="text-sm font-semibold text-gray-900">Vencimiento calculado</p>
