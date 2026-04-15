@@ -64,6 +64,8 @@ export function useForceLayout({ nodes, edges, onTick }: UseForceLayoutOptions) 
           .strength((link) => {
             const src = link.source as SimNode;
             const tgt = link.target as SimNode;
+            // Disable link forces for permits - they're fixed in place
+            if (src.type === 'permit' || tgt.type === 'permit') return 0;
             if (src.type === 'company' || tgt.type === 'company') return 0.3;
             return 0.6;
           }),
@@ -72,6 +74,8 @@ export function useForceLayout({ nodes, edges, onTick }: UseForceLayoutOptions) 
         'charge',
         forceManyBody<SimNode>()
           .strength((d) => {
+            // Disable charge force for permits - they're fixed in place
+            if (d.type === 'permit') return 0;
             if (d.type === 'company') return -800;
             if (d.type === 'sede') return -500;
             return -200;
@@ -82,6 +86,8 @@ export function useForceLayout({ nodes, edges, onTick }: UseForceLayoutOptions) 
         'collide',
         forceCollide<SimNode>()
           .radius((d) => {
+            // Disable collision for permits - they're fixed in place
+            if (d.type === 'permit') return 0;
             if (d.type === 'company') return 100;
             if (d.type === 'sede') return 90;
             return 60;
