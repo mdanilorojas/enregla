@@ -1,5 +1,3 @@
-// @ts-nocheck
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useMemo, useCallback, useRef } from 'react';
 import {
   ReactFlow,
@@ -48,6 +46,10 @@ export function NetworkMapViewV2({ embedded = false }: NetworkMapViewV2Props) {
 
   const { locations, loading: locationsLoading, error: locationsError } = useLocations(companyId);
   const { permits, loading: permitsLoading, error: permitsError } = usePermits({ companyId });
+
+  // Combined loading and error states
+  const loading = locationsLoading || permitsLoading;
+  const error = locationsError || permitsError;
 
   // Responsive detection: desktop shows permits, mobile shows only locations
   const isDesktop = useMediaQuery('(min-width: 768px)');
