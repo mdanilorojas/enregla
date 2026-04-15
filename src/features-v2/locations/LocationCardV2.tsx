@@ -153,7 +153,7 @@ export function LocationCardV2({ location, permits }: LocationCardV2Props) {
 
         {/* Nivel de Riesgo */}
         <div className="mb-3">
-          <p className="text-xs font-medium text-gray-500 mb-2">Nivel de Riesgo</p>
+          <p className="text-xs font-medium text-gray-500 mb-2 mt-3">Nivel de Riesgo</p>
           {(() => {
             const riskConfig = getRiskLevelConfig(location.risk_level || 'bajo');
             return (
@@ -168,7 +168,7 @@ export function LocationCardV2({ location, permits }: LocationCardV2Props) {
         </div>
 
         {/* Permisos */}
-        <div>
+        <div className="mt-3">
           {/* Label and counter */}
           <div className="flex items-center justify-between text-xs mb-2">
             <span className="font-medium text-gray-500">Permisos</span>
