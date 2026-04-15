@@ -337,28 +337,72 @@ export function NetworkMapViewV2({ embedded = false }: NetworkMapViewV2Props) {
     );
   }
 
-  // TODO: Implement ReactFlow render (Task 7)
-
-  // Placeholder for unused imports/variables (used in subsequent tasks)
-  void ReactFlow;
-  void Background;
-  void Controls;
-  void MiniMap;
-  void BackgroundVariant;
-  void SedeNode;
-  void PermitNode;
-  void CompanyNode;
-  void nodeTypes;
-  void onNodesChange;
-  void onEdgesChange;
-  void onNodeClick;
-  void onNodeDragStart;
-  void onNodeDrag;
-  void onNodeDragStop;
-  void nodes;
-  void edges;
-
+  // Success state - render graph
   return (
-    <div>NetworkMapViewV2 - nodes: {seedNodes.length}, edges: {seedEdges.length}</div>
+    <div className={embedded ? 'h-full relative' : 'h-[calc(100vh-64px)] relative'}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onNodeClick={onNodeClick}
+        onNodeDragStart={onNodeDragStart}
+        onNodeDrag={onNodeDrag}
+        onNodeDragStop={onNodeDragStop}
+        nodeTypes={nodeTypes}
+        fitView
+        fitViewOptions={{ padding: 0.3, duration: 800 }}
+        minZoom={0.15}
+        maxZoom={2.5}
+        proOptions={{ hideAttribution: true }}
+        className="bg-[#FAFBFD]"
+      >
+        <Background
+          variant={BackgroundVariant.Dots}
+          gap={24}
+          size={1}
+          color="#e2e5ea"
+        />
+        <Controls
+          showInteractive={false}
+          className="!bg-white !border-gray-200 !rounded-xl !shadow-lg !shadow-black/5 [&>button]:!border-gray-100 [&>button]:!rounded-lg [&>button:hover]:!bg-gray-50"
+        />
+        <MiniMap
+          nodeColor={(n) => {
+            if (n.type === 'company') return '#3b82f6';
+            if (n.type === 'sede') {
+              const riskLevel = (n.data as { riskLevel: RiskLevel }).riskLevel;
+              return riskColor[riskLevel] || '#9ca3af';
+            }
+            const status = (n.data as { status: PermitStatus }).status;
+            return statusEdgeColor[status] || '#d1d5db';
+          }}
+          maskColor="rgba(248,250,252,0.7)"
+          className="!bg-white !border-gray-200 !rounded-xl !shadow-lg !shadow-black/5"
+          pannable
+          zoomable
+        />
+      </ReactFlow>
+
+      {/* Legend */}
+      <div className={`absolute ${embedded ? 'bottom-3 left-3' : 'bottom-6 left-6'} bg-white/90 backdrop-blur-sm rounded-xl border border-gray-200/80 shadow-lg ${embedded ? 'px-3 py-2' : 'px-4 py-3'} z-10`}>
+        <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2">
+          Estado de permisos
+        </p>
+        <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+          {([
+            ['#22c55e', 'Vigente'],
+            ['#eab308', 'Por vencer'],
+            ['#ef4444', 'Vencido'],
+            ['#d1d5db', 'No registrado'],
+          ] as const).map(([color, label]) => (
+            <div key={label} className="flex items-center gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
+              <span className="text-[11px] text-gray-600">{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
