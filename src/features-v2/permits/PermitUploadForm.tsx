@@ -8,6 +8,11 @@ import { uploadPermitDocument } from '@/lib/api/documents';
 import { calculateExpiryDate, formatPermitDuration } from '@/lib/permitRules';
 import type { Permit } from '@/types/database';
 
+// File validation constants
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const VALID_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+const VALID_FILE_EXTENSIONS = ['pdf', 'jpg', 'jpeg', 'png'];
+
 interface PermitUploadFormProps {
   permit: Permit;
   onSuccess: () => void;
@@ -45,15 +50,21 @@ export function PermitUploadForm({
     if (!selectedFile) return;
 
     // Validate file size (10MB max)
-    if (selectedFile.size > 10 * 1024 * 1024) {
+    if (selectedFile.size > MAX_FILE_SIZE) {
       setError('El archivo es demasiado grande (máximo 10MB)');
       return;
     }
 
     // Validate file type
-    const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-    if (!validTypes.includes(selectedFile.type)) {
+    if (!VALID_FILE_TYPES.includes(selectedFile.type)) {
       setError('Formato no válido. Solo se aceptan PDF, JPG, PNG');
+      return;
+    }
+
+    // Validate file extension (security - prevent spoofed MIME types)
+    const fileExtension = selectedFile.name.split('.').pop()?.toLowerCase();
+    if (!VALID_FILE_EXTENSIONS.includes(fileExtension || '')) {
+      setError('Extensión de archivo no válida');
       return;
     }
 
@@ -89,7 +100,7 @@ export function PermitUploadForm({
             <div className="space-y-2">
               <Upload className="h-8 w-8 text-green-600 mx-auto" />
               <div>
-                <p className="font-medium text-gray-900">{file.name}</p>
+                <p className="font-medium text-gray-900 truncate" title={file.name}>{file.name}</p>
                 <p className="text-sm text-gray-500 font-mono">
                   {formatFileSize(file.size)}
                 </p>
@@ -141,7 +152,7 @@ export function PermitUploadForm({
 
       {/* Error message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2" role="alert">
           <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 shrink-0" />
           <p className="text-sm text-red-700">{error}</p>
         </div>
