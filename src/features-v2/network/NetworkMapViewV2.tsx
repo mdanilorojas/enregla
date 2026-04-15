@@ -8,8 +8,6 @@ import {
   useEdgesState,
   type Node,
   type Edge,
-  type NodeMouseHandler,
-  type OnNodeDrag,
   BackgroundVariant,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -23,7 +21,8 @@ import { useForceLayout } from '@/features/network/useForceLayout';
 import { SedeNode } from '@/features/network/nodes/SedeNode';
 import { PermitNode } from '@/features/network/nodes/PermitNode';
 import { CompanyNode } from '@/features/network/nodes/CompanyNode';
-import type { RiskLevel, PermitStatus, Location, Permit } from '@/types';
+import type { RiskLevel, PermitStatus } from '@/types';
+import type { Permit } from '@/types/database';
 
 // Node types for ReactFlow
 const nodeTypes = {
@@ -108,13 +107,139 @@ export function NetworkMapViewV2({ embedded = false }: NetworkMapViewV2Props) {
   // Responsive detection: desktop shows permits, mobile shows only locations
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
-  // TODO: Add helper functions (Task 3)
-  // TODO: Generate nodes and edges (Task 4)
+  // Generate nodes and edges based on data
+  const { seedNodes, seedEdges } = useMemo(() => {
+    const nodes: Node[] = [];
+    const edges: Edge[] = [];
+
+    if (!profile?.company_id || locations.length === 0) {
+      return { seedNodes: [], seedEdges: [] };
+    }
+
+    // 1. Company (HQ) node at center
+    const companyPos = { x: 0, y: 0 };
+    nodes.push({
+      id: 'company',
+      type: 'company',
+      position: companyPos,
+      data: {
+        name: 'Empresa',
+        locationCount: locations.length,
+      },
+    });
+
+    // 2. Location nodes in circle around HQ
+    locations.forEach((loc, i) => {
+      const locPermits = permits.filter(p => p.location_id === loc.id && p.is_active);
+      const compliance = calculateCompliance(locPermits);
+      const critical = countCritical(locPermits);
+
+      // Calculate position in circle (radius 300px)
+      const angle = (2 * Math.PI * i) / locations.length - Math.PI / 2;
+      const sedePos = {
+        x: Math.cos(angle) * 300,
+        y: Math.sin(angle) * 300,
+      };
+
+      nodes.push({
+        id: loc.id,
+        type: 'sede',
+        position: sedePos,
+        data: {
+          name: loc.name,
+          address: loc.address,
+          riskLevel: loc.risk_level,
+          compliance,
+          critical,
+          permitCount: locPermits.length,
+        },
+      });
+
+      // Edge: Company → Sede
+      const compHandles = getHandlePair(companyPos.x, companyPos.y, sedePos.x, sedePos.y);
+      edges.push({
+        id: `company-${loc.id}`,
+        source: 'company',
+        target: loc.id,
+        sourceHandle: compHandles.sourceHandle,
+        targetHandle: compHandles.targetHandle,
+        style: {
+          stroke: riskColor[loc.risk_level],
+          strokeWidth: 2,
+          opacity: 0.35,
+        },
+        animated: loc.risk_level === 'critico', // Animate red lines for critical
+      });
+
+      // 3. Permit nodes (only on desktop)
+      if (isDesktop) {
+        locPermits.forEach((permit, j) => {
+          // Position permits in arc around their sede (radius 180px)
+          const pAngle = angle + ((j - (locPermits.length - 1) / 2) * 0.4);
+          const permitPos = {
+            x: sedePos.x + Math.cos(pAngle) * 180,
+            y: sedePos.y + Math.sin(pAngle) * 180,
+          };
+
+          nodes.push({
+            id: permit.id,
+            type: 'permit',
+            position: permitPos,
+            data: {
+              label: permit.type,
+              status: permit.status,
+              issuer: permit.issuer || 'N/A',
+            },
+          });
+
+          // Edge: Sede → Permit
+          const permitHandles = getHandlePair(sedePos.x, sedePos.y, permitPos.x, permitPos.y);
+          edges.push({
+            id: `${loc.id}-${permit.id}`,
+            source: loc.id,
+            target: permit.id,
+            sourceHandle: `s-${permitHandles.sourceHandle}`,
+            targetHandle: permitHandles.targetHandle,
+            style: {
+              stroke: statusEdgeColor[permit.status],
+              strokeWidth: (permit.status === 'vencido' || permit.status === 'no_registrado') ? 2.5 : 1.5,
+              opacity: permit.status === 'no_registrado' ? 0.35 : 0.6,
+            },
+            animated: permit.status === 'vencido', // Animate red lines for expired
+          });
+        });
+      }
+    });
+
+    return { seedNodes: nodes, seedEdges: edges };
+  }, [profile, locations, permits, isDesktop]);
+
   // TODO: Add ReactFlow state and physics (Task 5)
   // TODO: Add loading/error/empty states (Task 6)
   // TODO: Implement ReactFlow render (Task 7)
 
+  // Placeholder for unused imports/variables (used in subsequent tasks)
+  void useCallback;
+  void useNodesState;
+  void useEdgesState;
+  void ReactFlow;
+  void Background;
+  void Controls;
+  void MiniMap;
+  void BackgroundVariant;
+  void Building2;
+  void useForceLayout;
+  void SedeNode;
+  void PermitNode;
+  void CompanyNode;
+  void nodeTypes;
+  void navigate;
+  void draggingRef;
+  void embedded;
+  void loading;
+  void error;
+
   return (
-    <div>NetworkMapViewV2 - TODO</div>
+    <div>NetworkMapViewV2 - nodes: {seedNodes.length}, edges: {seedEdges.length}</div>
   );
 }
