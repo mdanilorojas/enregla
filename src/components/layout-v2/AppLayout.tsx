@@ -81,7 +81,7 @@ export function AppLayout() {
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
-        <Sidebar>
+        <Sidebar collapsible="icon">
           {/* Header con empresa */}
           <SidebarHeader>
             <SidebarMenu>
@@ -177,12 +177,14 @@ export function AppLayout() {
           </SidebarFooter>
         </Sidebar>
 
-        <main className="flex-1">
+        <main className="flex-1 w-full">
           {/* Trigger para colapsar/expandir sidebar en mobile */}
           <div className="sticky top-0 z-10 bg-background border-b px-4 py-2 lg:hidden">
             <SidebarTrigger />
           </div>
-          <Outlet />
+          <div className="p-6 lg:p-8">
+            <Outlet />
+          </div>
         </main>
       </div>
     </SidebarProvider>
