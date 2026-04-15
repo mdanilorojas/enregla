@@ -17,7 +17,7 @@ export function LocationDetailView() {
   const navigate = useNavigate();
   const { companyId } = useAuth();
   const { locations, loading: loadingLocations } = useLocations(companyId);
-  const { permits, loading: loadingPermits, updatePermit } = usePermits({ companyId, locationId: id });
+  const { permits, loading: loadingPermits, updatePermit, refetch } = usePermits({ companyId, locationId: id });
 
   const [selectedPermit, setSelectedPermit] = useState<Permit | null>(null);
   const [renewModalOpen, setRenewModalOpen] = useState(false);
@@ -155,6 +155,8 @@ export function LocationDetailView() {
               permits={locationPermits}
               onRenewPermit={handleRenewPermit}
               onViewDetails={handleViewPermitDetails}
+              updatePermit={updatePermit}
+              refetch={refetch}
             />
           </CardContent>
         </Card>

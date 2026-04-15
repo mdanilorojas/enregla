@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MoreHorizontal, ExternalLink, RefreshCw, FileText } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -8,29 +8,35 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui-v2/table';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui-v2/dropdown-menu';
-import { Button } from '@/components/ui-v2/button';
 import { StatusBadge } from '@/components/ui-v2/StatusBadge';
 import { PermitUploadForm } from '@/features-v2/permits/PermitUploadForm';
-import { usePermits } from '@/hooks/usePermits';
-import { useAuth } from '@/hooks/useAuth';
 import type { Permit } from '@/types/database';
 
 interface PermitsTableProps {
   permits: Permit[];
   onRenewPermit: (permit: Permit) => void;
   onViewDetails: (permitId: string) => void;
+  updatePermit: (
+    permitId: string,
+    updates: {
+      issue_date?: string;
+      expiry_date?: string | null;
+      status?: 'vigente' | 'por_vencer' | 'vencido' | 'en_tramite' | 'no_registrado';
+      permit_number?: string | null;
+      notes?: string | null;
+    }
+  ) => Promise<void>;
+  refetch: () => Promise<void> | undefined;
 }
 
-export function PermitsTable({ permits, onRenewPermit, onViewDetails }: PermitsTableProps) {
+export function PermitsTable({
+  permits,
+  onRenewPermit: _onRenewPermit,
+  onViewDetails: _onViewDetails,
+  updatePermit,
+  refetch
+}: PermitsTableProps) {
   const [expandedPermitId, setExpandedPermitId] = useState<string | null>(null);
-  const { companyId } = useAuth();
-  const { updatePermit, refetch } = usePermits({ companyId });
 
   if (permits.length === 0) {
     return (
