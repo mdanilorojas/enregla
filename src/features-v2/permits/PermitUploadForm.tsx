@@ -1,12 +1,17 @@
-import { useState } from 'react';
-// import { format } from 'date-fns';
-// import { Upload, Calendar as CalendarIcon, AlertCircle } from 'lucide-react';
+import { useState, useMemo } from 'react';
+// @ts-expect-error - Used in Task 4
+import { format } from 'date-fns';
+// @ts-expect-error - Used in Task 4
+import { Upload, Calendar as CalendarIcon, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui-v2/button';
-// import { Calendar } from '@/components/ui-v2/calendar';
-// import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui-v2/popover';
-// import { uploadPermitDocument } from '@/lib/api/documents';
-import { calculateExpiryDate } from '@/lib/permitRules';
-// import { formatPermitDuration } from '@/lib/permitRules';
+// @ts-expect-error - Used in Task 4
+import { Calendar } from '@/components/ui-v2/calendar';
+// @ts-expect-error - Used in Task 4
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui-v2/popover';
+// @ts-expect-error - Used in Task 4
+import { uploadPermitDocument } from '@/lib/api/documents';
+// @ts-expect-error - formatPermitDuration used in Task 4
+import { calculateExpiryDate, formatPermitDuration } from '@/lib/permitRules';
 import type { Permit } from '@/types/database';
 
 interface PermitUploadFormProps {
@@ -18,24 +23,28 @@ interface PermitUploadFormProps {
 
 export function PermitUploadForm({
   permit,
-  onSuccess: _onSuccess,
+  // @ts-expect-error - Used in Task 6
+  onSuccess,
   onCancel,
-  updatePermit: _updatePermit,
+  // @ts-expect-error - Used in Task 6
+  updatePermit,
 }: PermitUploadFormProps) {
-  const [_file, _setFile] = useState<File | null>(null);
-  const [issueDate, _setIssueDate] = useState<Date>(new Date());
-  const [_loading, _setLoading] = useState(false);
-  const [_error, _setError] = useState<string | null>(null);
+  // @ts-expect-error - Used in Task 4
+  const [file, setFile] = useState<File | null>(null);
+  // @ts-expect-error - setIssueDate used in Task 5
+  const [issueDate, setIssueDate] = useState<Date>(new Date());
+  // @ts-expect-error - Used in Task 6
+  const [loading, setLoading] = useState(false);
+  // @ts-expect-error - Used in Task 6
+  const [error, setError] = useState<string | null>(null);
 
-  // Calculate expiry date in real-time (will be used in next task)
-  // const expiryDate = useMemo(() => {
-  //   return calculateExpiryDate(permit.type, issueDate);
-  // }, [permit.type, issueDate]);
+  // @ts-expect-error - Used in Task 4
+  const expiryDate = useMemo(() => {
+    return calculateExpiryDate(permit.type, issueDate);
+  }, [permit.type, issueDate]);
 
-  // Placeholder for upload handler (will implement in next task)
   const handleUpload = async () => {
     console.log('Upload handler - to be implemented');
-    console.log('Expiry will be:', calculateExpiryDate(permit.type, issueDate));
   };
 
   return (
