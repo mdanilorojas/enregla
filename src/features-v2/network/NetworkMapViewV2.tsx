@@ -176,21 +176,12 @@ export function NetworkMapViewV2({ embedded = false }: NetworkMapViewV2Props) {
       // 3. Permit nodes (only on desktop)
       if (isDesktop) {
         locPermits.forEach((permit, j) => {
-          // Position permits in radial fan pattern extending away from HQ
-          // Like "rays of sun" emanating from the sede in the direction opposite to center
-
-          // Calculate base direction: from HQ to sede (this is already 'angle')
-          // Permits spread in a fan around this direction
-          const fanSpan = Math.PI / 3; // 60 degrees total fan spread
-          const fanStart = angle - fanSpan / 2; // Start of fan
-          const permitAngle = fanStart + (j / Math.max(locPermits.length - 1, 1)) * fanSpan;
-
-          // All permits at same radius (equal distance from sede)
-          const permitRadius = 220;
-
+          // Start permits near their sede, let physics organize them naturally
+          // Small random offset to prevent stacking
+          const offsetAngle = (Math.PI * 2 * j) / locPermits.length;
           const permitPos = {
-            x: sedePos.x + Math.cos(permitAngle) * permitRadius,
-            y: sedePos.y + Math.sin(permitAngle) * permitRadius,
+            x: sedePos.x + Math.cos(offsetAngle) * 50,
+            y: sedePos.y + Math.sin(offsetAngle) * 50,
           };
 
           nodes.push({
