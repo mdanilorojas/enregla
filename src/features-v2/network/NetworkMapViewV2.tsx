@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useRef } from 'react';
+import { useMemo, useCallback, useRef, useEffect } from 'react';
 import {
   ReactFlow,
   Background,
@@ -218,7 +218,16 @@ export function NetworkMapViewV2({ embedded = false }: NetworkMapViewV2Props) {
 
   // ReactFlow state management
   const [nodes, setNodes, onNodesChange] = useNodesState(seedNodes);
-  const [edges, , onEdgesChange] = useEdgesState(seedEdges);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(seedEdges);
+
+  // Sync ReactFlow state when seed data changes (responsive, data refresh)
+  useEffect(() => {
+    setNodes(seedNodes);
+  }, [seedNodes, setNodes]);
+
+  useEffect(() => {
+    setEdges(seedEdges);
+  }, [seedEdges, setEdges]);
 
   // Physics simulation callback
   const onForceTick = useCallback(
