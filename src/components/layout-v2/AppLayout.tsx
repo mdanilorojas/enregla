@@ -15,21 +15,6 @@ import {
   Bell
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-  useSidebar,
-} from '@/components/ui-v2/sidebar';
 
 const menuItems = [
   {
@@ -97,10 +82,10 @@ const pageDescriptions: Record<string, string> = {
   '/marco-legal': 'Normativa y regulaciones',
 };
 
-function AppLayoutContent() {
+export function AppLayout() {
   const { profile, signOut } = useAuth();
   const location = useLocation();
-  const { open } = useSidebar();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [scrolled, setScrolled] = useState(false);
 
   const basePath = '/' + location.pathname.split('/').filter(Boolean).slice(0, 1).join('/');
@@ -116,147 +101,114 @@ function AppLayoutContent() {
   }, []);
 
   return (
-    <div className="flex min-h-screen w-full bg-background">
-      <Sidebar collapsible="icon" variant="sidebar">
-          {/* Header con empresa */}
-          <SidebarHeader>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-white">
-                    <Building2 className="size-4" />
-                  </div>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">EnRegla</span>
-                    <span className="truncate text-xs text-sidebar-foreground/70">
-                      Control operativo
-                    </span>
-                  </div>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarHeader>
-
-          {/* Content con menú */}
-          <SidebarContent>
-            {/* Menú principal */}
-            <SidebarGroup>
-              <SidebarGroupLabel>Menú principal</SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {menuItems.map((item) => {
-                    const isActive = location.pathname === item.url;
-                    return (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild isActive={isActive}>
-                          <Link to={item.url}>
-                            <item.icon />
-                            <span>{item.title}</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    );
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-
-            {/* Settings */}
-            <SidebarGroup className="mt-auto">
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {settingsItems.map((item) => {
-                    const isActive = location.pathname === item.url;
-                    return (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton asChild isActive={isActive}>
-                          <Link to={item.url}>
-                            <item.icon />
-                            <span>{item.title}</span>
-                          </Link>
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    );
-                  })}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </SidebarContent>
-
-          {/* Footer con usuario */}
-          <SidebarFooter>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <div className="flex items-center gap-2 px-2 py-2">
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-accent text-sidebar-accent-foreground">
-                    <User className="size-4" />
-                  </div>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">
-                      {profile?.full_name || 'Usuario'}
-                    </span>
-                    <span className="truncate text-xs text-sidebar-foreground/70">
-                      {profile?.role === 'admin' ? 'Administrador' : profile?.role === 'operator' ? 'Operador' : 'Visor'}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => signOut()}
-                    className="ml-auto p-1 hover:bg-sidebar-accent rounded transition-colors"
-                    title="Cerrar sesión"
-                    type="button"
-                  >
-                    <LogOut className="size-4" />
-                  </button>
-                </div>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarFooter>
-        </Sidebar>
-
-        <main
-          className="flex-1 min-w-0 transition-[margin-left] duration-200"
-          style={{
-            marginLeft: open ? '16rem' : '3rem',
-            width: `calc(100% - ${open ? '16rem' : '3rem'})`
-          }}
-        >
-          {/* Top Bar */}
-          <header className={`h-16 border-b flex items-center justify-between px-6 sticky top-0 z-20 transition-all duration-200 ${
-            scrolled
-              ? 'bg-white/95 backdrop-blur-lg border-gray-200/60 shadow-sm'
-              : 'bg-white border-gray-200/40'
-          }`}>
-            <div className="flex items-center gap-4">
-              <SidebarTrigger className="lg:hidden" />
-              <div>
-                <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
-                {description && (
-                  <p className="text-xs text-gray-500 mt-0.5">{description}</p>
-                )}
-              </div>
+    <div className="flex min-h-screen w-full bg-gray-50">
+      {/* Sidebar */}
+      <aside className={`fixed left-0 top-0 h-screen bg-white border-r border-gray-200 flex flex-col z-40 transition-all duration-200 ${
+        sidebarOpen ? 'w-64' : 'w-16'
+      }`}>
+        {/* Header */}
+        <div className="flex items-center gap-3 px-4 h-16 border-b border-gray-200">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-900 to-blue-800 flex items-center justify-center">
+            <Building2 size={20} className="text-white" />
+          </div>
+          {sidebarOpen && (
+            <div>
+              <p className="text-sm font-semibold text-gray-900">EnRegla</p>
+              <p className="text-xs text-gray-500">Control operativo</p>
             </div>
+          )}
+        </div>
 
-            <div className="flex items-center gap-3">
-              {/* Notification */}
-              <button className="relative p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all">
-                <Bell size={20} strokeWidth={2} />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white" />
+        {/* Menu */}
+        <nav className="flex-1 p-3 overflow-y-auto">
+          <p className={`text-xs font-semibold text-gray-400 uppercase mb-2 px-3 ${!sidebarOpen && 'hidden'}`}>
+            Menú principal
+          </p>
+          {menuItems.map((item) => {
+            const isActive = location.pathname === item.url;
+            return (
+              <Link
+                key={item.url}
+                to={item.url}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-colors ${
+                  isActive
+                    ? 'bg-blue-50 text-blue-900 font-medium'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                <item.icon size={20} />
+                {sidebarOpen && <span className="text-sm">{item.title}</span>}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Footer */}
+        <div className="p-3 border-t border-gray-200">
+          {sidebarOpen ? (
+            <div className="flex items-center gap-3 px-3 py-2 bg-gray-50 rounded-lg">
+              <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                <User size={16} className="text-blue-900" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">{profile?.full_name || 'Usuario'}</p>
+                <p className="text-xs text-gray-500 truncate capitalize">{profile?.role || 'viewer'}</p>
+              </div>
+              <button
+                onClick={() => signOut()}
+                className="p-1 hover:bg-gray-200 rounded transition-colors"
+                title="Cerrar sesión"
+              >
+                <LogOut size={16} className="text-gray-600" />
               </button>
             </div>
-          </header>
-
-          <div className="p-6 lg:p-8">
-            <Outlet />
+          ) : (
+            <button
+              onClick={() => signOut()}
+              className="w-full p-2 hover:bg-gray-50 rounded transition-colors"
+              title="Cerrar sesión"
+            >
+              <LogOut size={20} className="text-gray-600 mx-auto" />
+            </button>
+          )}
+        </div>
+      </aside>
+      {/* Main Content */}
+      <div className={`transition-all duration-200 ${sidebarOpen ? 'ml-64' : 'ml-16'} min-h-screen`}>
+        {/* Top Bar */}
+        <header className={`h-16 border-b flex items-center justify-between px-6 sticky top-0 z-20 transition-all duration-200 ${
+          scrolled
+            ? 'bg-white/95 backdrop-blur-lg border-gray-200/60 shadow-sm'
+            : 'bg-white border-gray-200/40'
+        }`}>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all"
+            >
+              <Building2 size={20} />
+            </button>
+            <div>
+              <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
+              {description && (
+                <p className="text-xs text-gray-500 mt-0.5">{description}</p>
+              )}
+            </div>
           </div>
-        </main>
-    </div>
-  );
-}
 
-export function AppLayout() {
-  return (
-    <SidebarProvider defaultOpen={true}>
-      <AppLayoutContent />
-    </SidebarProvider>
+          <div className="flex items-center gap-3">
+            {/* Notification */}
+            <button className="relative p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all">
+              <Bell size={20} strokeWidth={2} />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white" />
+            </button>
+          </div>
+        </header>
+
+        <div className="p-6 lg:p-8">
+          <Outlet />
+        </div>
+      </div>
+    </div>
   );
 }
