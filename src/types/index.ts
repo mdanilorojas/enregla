@@ -23,8 +23,7 @@ export type PermitStatus =
   | 'vigente'
   | 'por_vencer'
   | 'vencido'
-  | 'no_registrado'
-  | 'en_tramite';
+  | 'no_registrado';
 
 export type LocationStage = 'apertura' | 'operando' | 'renovando';
 
@@ -194,7 +193,6 @@ export const PERMIT_STATUS_LABELS: Record<PermitStatus, string> = {
   por_vencer: 'Por vencer',
   vencido: 'Vencido',
   no_registrado: 'No registrado',
-  en_tramite: 'En trámite',
 };
 
 export const RISK_LABELS: Record<RiskLevel, string> = {

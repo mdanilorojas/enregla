@@ -20,6 +20,7 @@ import { OnboardingWizard } from '@/features/onboarding/OnboardingWizard';
 import { IncrementalWizard } from '@/features-v2/onboarding-incremental/IncrementalWizard';
 import { PublicVerificationPage } from '@/features-v2/public-links/PublicVerificationPage';
 import { NetworkMapPage } from '@/features/network/NetworkMapPage';
+import { DesignSystemView } from '@/features-v2/design-system/DesignSystemView';
 
 function OnboardingRoute() {
   const { profile, loading } = useAuth();
@@ -113,6 +114,7 @@ export default function App() {
           <Route path="/renovaciones" element={<RenewalTimelineView />} />
           <Route path="/tareas" element={<TaskBoardView />} />
           <Route path="/marco-legal" element={<LegalReferenceView />} />
+          <Route path="/design-system" element={<DesignSystemView />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

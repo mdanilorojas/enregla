@@ -82,7 +82,7 @@ export interface Database {
           company_id: string;
           location_id: string;
           type: string;
-          status: 'vigente' | 'por_vencer' | 'vencido' | 'en_tramite' | 'no_registrado';
+          status: 'vigente' | 'por_vencer' | 'vencido' | 'no_registrado';
           permit_number: string | null;
           issue_date: string | null;
           expiry_date: string | null;
@@ -100,7 +100,7 @@ export interface Database {
           company_id: string;
           location_id: string;
           type: string;
-          status: 'vigente' | 'por_vencer' | 'vencido' | 'en_tramite' | 'no_registrado';
+          status: 'vigente' | 'por_vencer' | 'vencido' | 'no_registrado';
           permit_number?: string | null;
           issue_date?: string | null;
           expiry_date?: string | null;

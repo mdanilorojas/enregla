@@ -14,7 +14,6 @@ const statusColors: Record<PermitStatus, string> = {
   por_vencer: 'bg-amber-100/50 text-amber-700',
   vencido: 'bg-red-100/50 text-red-700',
   no_registrado: 'bg-slate-100 text-slate-500',
-  en_tramite: 'bg-blue-100/50 text-blue-700',
 };
 
 const priorityColors: Record<TaskPriority, string> = {

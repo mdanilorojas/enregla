@@ -46,7 +46,6 @@ const statusEdgeColor: Record<PermitStatus, string> = {
   por_vencer: '#eab308',    // Yellow
   vencido: '#ef4444',       // Red
   no_registrado: '#d1d5db', // Gray
-  en_tramite: '#a78bfa',    // Purple
 };
 
 /**

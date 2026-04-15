@@ -22,7 +22,6 @@ const PERMIT_STATUS_LABELS: Record<string, string> = {
   vigente: 'Vigente',
   por_vencer: 'Por Vencer',
   vencido: 'Vencido',
-  en_tramite: 'En Trámite',
   no_registrado: 'No Registrado',
 };
 

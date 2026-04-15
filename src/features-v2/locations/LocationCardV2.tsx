@@ -198,15 +198,13 @@ export function LocationCardV2({ location, permits }: LocationCardV2Props) {
               const vigente = activePermits.filter(p => p.status === 'vigente');
               const porVencer = activePermits.filter(p => p.status === 'por_vencer');
               const vencido = activePermits.filter(p => p.status === 'vencido');
-              const enTramite = activePermits.filter(p => p.status === 'en_tramite');
               const noRegistrado = activePermits.filter(p => p.status === 'no_registrado');
 
-              // Order: vigente, por_vencer, vencido, en_tramite, no_registrado
+              // Order: vigente, por_vencer, vencido, no_registrado
               const orderedPermits = [
                 ...vigente,
                 ...porVencer,
                 ...vencido,
-                ...enTramite,
                 ...noRegistrado,
               ];
 

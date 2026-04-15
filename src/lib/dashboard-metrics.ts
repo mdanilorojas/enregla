@@ -26,11 +26,10 @@ export function calculateDashboardMetrics(
   const porVencer = activePermits.filter((p) => p.status === 'por_vencer').length;
   const faltantes = activePermits.filter((p) => p.status === 'no_registrado').length;
   const vencidos = activePermits.filter((p) => p.status === 'vencido').length;
-  const enTramite = activePermits.filter((p) => p.status === 'en_tramite').length;
 
   // Calculate compliance percentage
   const totalActive = activePermits.length;
-  const compliant = vigentes + enTramite;
+  const compliant = vigentes;
   const compliance = totalActive > 0 ? Math.round((compliant / totalActive) * 100) : 0;
 
   // Count critical issues

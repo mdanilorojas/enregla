@@ -4,7 +4,6 @@ import {
   Home,
   MapPin,
   FileText,
-  Settings,
   Building2,
   User,
   LogOut,
@@ -54,13 +53,6 @@ const menuItems = [
   },
 ];
 
-const settingsItems = [
-  {
-    title: 'Configuración',
-    url: '/configuracion',
-    icon: Settings,
-  },
-];
 
 const pageNames: Record<string, string> = {
   '/': 'Dashboard',

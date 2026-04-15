@@ -171,7 +171,7 @@ export function TaskBoardView() {
                             <Badge
                               variant="status"
                               status={
-                                task.status === 'en_progreso' ? 'en_tramite' :
+                                task.status === 'en_progreso' ? 'por_vencer' :
                                 task.status === 'bloqueada' ? 'vencido' :
                                 'no_registrado'
                               }
