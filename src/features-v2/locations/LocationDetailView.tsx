@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin } from 'lucide-react';
+import { ArrowLeft, MapPin, Share2 } from 'lucide-react';
 import { useLocations } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui-v2/badge';
 import { PermitsTable } from './PermitsTable';
 import { PublicLinkBanner } from './PublicLinkBanner';
 import { RenewPermitModal } from './RenewPermitModal';
+import { ShareLocationModal } from '@/features-v2/public-links/ShareLocationModal';
 import type { Permit } from '@/types/database';
 
 export function LocationDetailView() {
@@ -21,6 +22,7 @@ export function LocationDetailView() {
 
   const [selectedPermit, setSelectedPermit] = useState<Permit | null>(null);
   const [renewModalOpen, setRenewModalOpen] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   const location = useMemo(() => {
     return locations.find(loc => loc.id === id);
@@ -114,9 +116,19 @@ export function LocationDetailView() {
                   <p className="text-text-secondary">{location.address}</p>
                 </div>
               </div>
-              <Badge variant={stats.compliance >= 80 ? 'default' : 'secondary'}>
-                {stats.compliance}% Cumplimiento
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant={stats.compliance >= 80 ? 'default' : 'secondary'}>
+                  {stats.compliance}% Cumplimiento
+                </Badge>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShareModalOpen(true)}
+                >
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Compartir
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -170,6 +182,15 @@ export function LocationDetailView() {
             setSelectedPermit(null);
           }}
           onConfirm={handleConfirmRenewal}
+        />
+
+        {/* Share modal */}
+        <ShareLocationModal
+          locationId={location.id}
+          locationName={location.name}
+          locationAddress={location.address}
+          isOpen={shareModalOpen}
+          onClose={() => setShareModalOpen(false)}
         />
       </div>
     </div>
