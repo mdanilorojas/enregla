@@ -6,7 +6,11 @@ import {
   Settings,
   Building2,
   User,
-  LogOut
+  LogOut,
+  Network,
+  CalendarClock,
+  ListChecks,
+  Scale
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -36,9 +40,29 @@ const menuItems = [
     icon: MapPin,
   },
   {
+    title: 'Mapa Interactivo',
+    url: '/mapa-red',
+    icon: Network,
+  },
+  {
     title: 'Permisos',
     url: '/permisos',
     icon: FileText,
+  },
+  {
+    title: 'Renovaciones',
+    url: '/renovaciones',
+    icon: CalendarClock,
+  },
+  {
+    title: 'Tareas',
+    url: '/tareas',
+    icon: ListChecks,
+  },
+  {
+    title: 'Marco Legal',
+    url: '/marco-legal',
+    icon: Scale,
   },
 ];
 
