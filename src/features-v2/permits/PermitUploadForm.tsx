@@ -117,6 +117,8 @@ export function PermitUploadForm({
   };
 
   const handleUpload = async () => {
+    if (loading) return; // Guard against double-clicks
+
     // Validate form
     const validationError = validateForm();
     if (validationError) {
@@ -137,8 +139,8 @@ export function PermitUploadForm({
       uploadedFilePath = await uploadPermitDocument(permit.id, file);
 
       // 2. Calculate dates in ISO format
-      const issueDateISO = issueDate.toISOString().split('T')[0];
-      const expiryDateISO = expiryDate ? expiryDate.toISOString().split('T')[0] : null;
+      const issueDateISO = format(issueDate, 'yyyy-MM-dd');
+      const expiryDateISO = expiryDate ? format(expiryDate, 'yyyy-MM-dd') : null;
 
       // 3. Update permit record with dates and status
       console.log('Updating permit record...');
@@ -159,9 +161,15 @@ export function PermitUploadForm({
         console.log('Attempting to rollback file upload...');
         try {
           const { supabase } = await import('@/lib/supabase');
+          // Delete file from storage
           await supabase.storage
             .from('permit-documents')
             .remove([uploadedFilePath]);
+          // Delete document record from database
+          await supabase
+            .from('documents')
+            .delete()
+            .eq('file_path', uploadedFilePath);
         } catch (rollbackErr) {
           console.error('Rollback failed:', rollbackErr);
           // Continue - show original error to user
