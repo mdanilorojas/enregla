@@ -18,7 +18,16 @@ interface PermitUploadFormProps {
   permit: Permit;
   onSuccess: () => void;
   onCancel: () => void;
-  updatePermit: (permitId: string, updates: any) => Promise<void>;
+  updatePermit: (
+    permitId: string,
+    updates: {
+      issue_date?: string;
+      expiry_date?: string | null;
+      status?: 'vigente' | 'por_vencer' | 'vencido' | 'en_tramite' | 'no_registrado';
+      permit_number?: string | null;
+      notes?: string | null;
+    }
+  ) => Promise<void>;
 }
 
 export function PermitUploadForm({
