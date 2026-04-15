@@ -214,9 +214,10 @@ function AppLayoutContent() {
         </Sidebar>
 
         <main
-          className="flex-1 w-full min-w-0 transition-[margin-left] duration-200"
+          className="flex-1 min-w-0 transition-[margin-left] duration-200"
           style={{
-            marginLeft: open ? '16rem' : '3rem'
+            marginLeft: open ? '16rem' : '3rem',
+            width: `calc(100% - ${open ? '16rem' : '3rem'})`
           }}
         >
           {/* Top Bar */}
