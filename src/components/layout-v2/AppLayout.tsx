@@ -26,6 +26,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
+  useSidebar,
 } from '@/components/ui-v2/sidebar';
 
 const menuItems = [
@@ -74,14 +75,14 @@ const settingsItems = [
   },
 ];
 
-export function AppLayout() {
+function AppLayoutContent() {
   const { profile, signOut } = useAuth();
   const location = useLocation();
+  const { open } = useSidebar();
 
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full">
-        <Sidebar collapsible="icon">
+    <div className="flex min-h-screen w-full bg-background">
+      <Sidebar collapsible="icon" variant="sidebar">
           {/* Header con empresa */}
           <SidebarHeader>
             <SidebarMenu>
@@ -177,7 +178,12 @@ export function AppLayout() {
           </SidebarFooter>
         </Sidebar>
 
-        <main className="flex-1 w-full min-w-0">
+        <main
+          className="flex-1 w-full min-w-0 transition-[margin-left] duration-200"
+          style={{
+            marginLeft: open ? '16rem' : '3rem'
+          }}
+        >
           {/* Trigger para colapsar/expandir sidebar */}
           <div className="sticky top-0 z-10 bg-background border-b px-4 py-2 flex items-center gap-2">
             <SidebarTrigger />
@@ -187,7 +193,14 @@ export function AppLayout() {
             <Outlet />
           </div>
         </main>
-      </div>
+    </div>
+  );
+}
+
+export function AppLayout() {
+  return (
+    <SidebarProvider defaultOpen={true}>
+      <AppLayoutContent />
     </SidebarProvider>
   );
 }
