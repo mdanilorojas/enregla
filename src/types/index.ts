@@ -66,6 +66,7 @@ export interface Permit {
   issuedDate?: string;
   expiryDate?: string;
   documentIds: string[];
+  is_active?: boolean;
 }
 
 export interface Renewal {
