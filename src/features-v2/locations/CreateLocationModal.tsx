@@ -18,10 +18,8 @@ import {
   SelectValue,
 } from '@/components/ui-v2/select';
 import { Loader2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { createLocation } from '@/lib/api/locations';
-import type { Location } from '@/types/database';
 
 interface CreateLocationModalProps {
   open: boolean;
@@ -142,7 +140,146 @@ export function CreateLocationModal({
       });
     }
   };
-  // TODO: Add JSX (Task 5)
+  // Handle close with confirmation if form has data
+  const handleClose = () => {
+    if (loading) return; // Prevent close during loading
 
-  return null; // Placeholder
+    if (hasData) {
+      const confirm = window.confirm('¿Descartar cambios?');
+      if (!confirm) return;
+    }
+
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Crear Nueva Sede</DialogTitle>
+          <DialogDescription>
+            Completa la información básica de la sede
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          {/* Name field */}
+          <div className="space-y-2">
+            <label htmlFor="name" className="text-sm font-medium">
+              Nombre de la sede
+            </label>
+            <Input
+              id="name"
+              placeholder="Ej: Supermaxi Norte, Oficina Centro, etc."
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                clearError('name');
+              }}
+              disabled={loading}
+            />
+            {errors.name && (
+              <p className="text-xs text-red-500 mt-1">{errors.name}</p>
+            )}
+          </div>
+
+          {/* Address field */}
+          <div className="space-y-2">
+            <label htmlFor="address" className="text-sm font-medium">
+              Dirección
+            </label>
+            <Textarea
+              id="address"
+              placeholder="Av. Principal 123, Quito"
+              rows={3}
+              value={address}
+              onChange={(e) => {
+                setAddress(e.target.value);
+                clearError('address');
+              }}
+              disabled={loading}
+            />
+            {errors.address && (
+              <p className="text-xs text-red-500 mt-1">{errors.address}</p>
+            )}
+          </div>
+
+          {/* Status field */}
+          <div className="space-y-2">
+            <label htmlFor="status" className="text-sm font-medium">
+              Estado de la sede
+            </label>
+            <Select
+              value={status}
+              onValueChange={(value) => {
+                setStatus(value as any);
+                clearError('status');
+              }}
+              disabled={loading}
+            >
+              <SelectTrigger id="status">
+                <SelectValue placeholder="Seleccionar estado" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="operando">Operando</SelectItem>
+                <SelectItem value="en_preparacion">En preparación</SelectItem>
+                <SelectItem value="cerrado">Cerrado</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.status && (
+              <p className="text-xs text-red-500 mt-1">{errors.status}</p>
+            )}
+          </div>
+
+          {/* Risk level field */}
+          <div className="space-y-2">
+            <label htmlFor="risk-level" className="text-sm font-medium">
+              Nivel de riesgo inicial
+            </label>
+            <Select
+              value={riskLevel}
+              onValueChange={(value) => {
+                setRiskLevel(value as any);
+                clearError('riskLevel');
+              }}
+              disabled={loading}
+            >
+              <SelectTrigger id="risk-level">
+                <SelectValue placeholder="Seleccionar nivel de riesgo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="bajo">🟢 Bajo</SelectItem>
+                <SelectItem value="medio">🟡 Medio</SelectItem>
+                <SelectItem value="alto">🟠 Alto</SelectItem>
+                <SelectItem value="critico">🔴 Crítico</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.riskLevel && (
+              <p className="text-xs text-red-500 mt-1">{errors.riskLevel}</p>
+            )}
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={handleClose}
+            disabled={loading}
+          >
+            Cancelar
+          </Button>
+          <Button onClick={handleSubmit} disabled={loading}>
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creando...
+              </>
+            ) : (
+              'Crear'
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 }
