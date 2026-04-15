@@ -13,6 +13,30 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const VALID_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
 const VALID_FILE_EXTENSIONS = ['pdf', 'jpg', 'jpeg', 'png'];
 
+// Date validation helpers
+const getTodayEndOfDay = (): Date => {
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+  return today;
+};
+
+const getTenYearsAgo = (): Date => {
+  const date = new Date();
+  date.setFullYear(date.getFullYear() - 10);
+  date.setHours(0, 0, 0, 0);
+  return date;
+};
+
+const isValidIssueDate = (date: Date): boolean => {
+  const todayEOD = getTodayEndOfDay();
+  if (date > todayEOD) return false;
+
+  const tenYearsAgo = getTenYearsAgo();
+  if (date < tenYearsAgo) return false;
+
+  return true;
+};
+
 interface PermitUploadFormProps {
   permit: Permit;
   onSuccess: () => void;
@@ -81,15 +105,11 @@ export function PermitUploadForm({
   const validateForm = (): string | null => {
     if (!file) return 'Selecciona un documento para subir';
 
-    const today = new Date();
-    today.setHours(23, 59, 59, 999);
-    if (issueDate > today) {
-      return 'La fecha de emisión no puede ser futura';
-    }
-
-    const tenYearsAgo = new Date();
-    tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
-    if (issueDate < tenYearsAgo) {
+    if (!isValidIssueDate(issueDate)) {
+      const todayEOD = getTodayEndOfDay();
+      if (issueDate > todayEOD) {
+        return 'La fecha de emisión no puede ser futura';
+      }
       return 'Fecha inválida. Verifica la fecha de emisión';
     }
 
@@ -189,19 +209,7 @@ export function PermitUploadForm({
                   setError(null);
                 }
               }}
-              disabled={(date) => {
-                // Disable future dates
-                const today = new Date();
-                today.setHours(23, 59, 59, 999);
-                if (date > today) return true;
-
-                // Disable dates more than 10 years in past
-                const tenYearsAgo = new Date();
-                tenYearsAgo.setFullYear(tenYearsAgo.getFullYear() - 10);
-                if (date < tenYearsAgo) return true;
-
-                return false;
-              }}
+              disabled={(date) => !isValidIssueDate(date)}
               initialFocus
             />
           </PopoverContent>
