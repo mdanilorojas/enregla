@@ -176,11 +176,20 @@ export function NetworkMapViewV2({ embedded = false }: NetworkMapViewV2Props) {
       // 3. Permit nodes (only on desktop)
       if (isDesktop) {
         locPermits.forEach((permit, j) => {
-          // Position permits in arc around their sede (radius 180px)
-          const pAngle = angle + ((j - (locPermits.length - 1) / 2) * 0.4);
+          // Position permits in arc around their sede
+          // Arc spans 120° (π/1.5 radians) centered on direction away from HQ
+          const arcSpan = Math.PI / 1.5; // 120 degrees
+          const startAngle = angle + Math.PI - arcSpan / 2; // Center arc opposite to HQ
+          const permitAngle = startAngle + (j / Math.max(locPermits.length - 1, 1)) * arcSpan;
+
+          // Use adaptive radius based on number of permits (more permits = wider arc)
+          const baseRadius = 200;
+          const radiusVariation = Math.min(locPermits.length * 8, 60); // Up to 60px variation
+          const permitRadius = baseRadius + (j % 2 === 0 ? 0 : radiusVariation);
+
           const permitPos = {
-            x: sedePos.x + Math.cos(pAngle) * 180,
-            y: sedePos.y + Math.sin(pAngle) * 180,
+            x: sedePos.x + Math.cos(permitAngle) * permitRadius,
+            y: sedePos.y + Math.sin(permitAngle) * permitRadius,
           };
 
           nodes.push({
