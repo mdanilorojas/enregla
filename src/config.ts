@@ -10,7 +10,7 @@ export type DesignSystem = 'professional' | 'energetic';
 
 /** Current UI version - 'v1' (legacy) or 'v2' (shadcn migration) */
 export const UI_VERSION: UIVersion =
-  (import.meta.env.VITE_UI_VERSION || 'v1') as UIVersion;
+  (import.meta.env.VITE_UI_VERSION || 'v2') as UIVersion;
 
 /** Active design system theme - 'professional' (blue/trust) or 'energetic' (orange/urgent) */
 export const DESIGN_SYSTEM: DesignSystem =
