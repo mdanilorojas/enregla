@@ -44,7 +44,7 @@ export function usePermits({ companyId, locationId }: UsePermitsOptions) {
       });
   }, [companyId, locationId]);
 
-  const refetch = () => {
+  const refetch = async () => {
     if (locationId || companyId) {
       setLoading(true);
       const fetchPromise = locationId
@@ -53,7 +53,7 @@ export function usePermits({ companyId, locationId }: UsePermitsOptions) {
         ? getCompanyPermits(companyId)
         : Promise.resolve([]);
 
-      fetchPromise
+      return fetchPromise
         .then(setPermits)
         .catch((err) => setError(err.message))
         .finally(() => setLoading(false));
@@ -73,8 +73,7 @@ export function usePermits({ companyId, locationId }: UsePermitsOptions) {
       notes?: string | null;
     }
   ) => {
-    const query = supabase.from('permits') as any;
-    const { error } = await query
+    const { error } = await (supabase.from('permits') as any)
       .update({
         ...updates,
         updated_at: new Date().toISOString(),
@@ -87,7 +86,7 @@ export function usePermits({ companyId, locationId }: UsePermitsOptions) {
     }
 
     // Refresh permits list
-    refetch();
+    await refetch();
   };
 
   return {
