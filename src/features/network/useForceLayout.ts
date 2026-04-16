@@ -5,8 +5,6 @@ import {
   forceManyBody,
   forceCenter,
   forceCollide,
-  forceX,
-  forceY,
   type SimulationNodeDatum,
   type SimulationLinkDatum,
 } from 'd3-force';
