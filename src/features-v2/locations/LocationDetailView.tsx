@@ -115,7 +115,7 @@ export function LocationDetailView() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant={stats.compliance >= 80 ? 'default' : 'secondary'}>
+                <Badge color={stats.compliance >= 80 ? 'green' : stats.compliance >= 60 ? 'yellow' : 'red'}>
                   {stats.compliance}% Cumplimiento
                 </Badge>
                 <Button

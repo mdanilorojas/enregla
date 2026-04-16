@@ -19,6 +19,13 @@ export function SedeCard({ sede, permitCounts, onClick }: SedeCardProps) {
     ? Math.round((permitCounts.vigentes / permitCounts.total) * 100)
     : 0;
 
+  // Lógica de color basada en nivel de cumplimiento
+  const getBadgeColor = (): 'green' | 'yellow' | 'red' => {
+    if (compliancePercent >= 80) return 'green';
+    if (compliancePercent >= 60) return 'yellow';
+    return 'red';
+  };
+
   return (
     <Card
       className="hover:shadow-lg transition-shadow cursor-pointer"
@@ -27,7 +34,7 @@ export function SedeCard({ sede, permitCounts, onClick }: SedeCardProps) {
       <CardHeader>
         <div className="flex items-start justify-between">
           <CardTitle className="text-lg">{sede.name}</CardTitle>
-          <Badge variant={compliancePercent >= 80 ? 'default' : 'secondary'}>
+          <Badge color={getBadgeColor()}>
             {compliancePercent}%
           </Badge>
         </div>

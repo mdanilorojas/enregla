@@ -112,7 +112,7 @@ export default function App() {
           <Route path="/sedes" element={UI_VERSION === 'v2' ? <LocationsListViewV2 /> : <LocationListView />} />
           <Route path="/sedes/:id" element={UI_VERSION === 'v2' ? <LocationDetailViewV2 /> : <LocationDetailView />} />
           <Route path="/mapa-red" element={<NetworkMapPage />} />
-          <Route path="/mapa-permisos" element={<PermitsMapPage />} />
+          {/* <Route path="/mapa-permisos" element={<PermitsMapPage />} /> Temporarily disabled - WIP */}
           <Route path="/permisos" element={<PermitListView />} />
           <Route path="/permisos/:id" element={<PermitDetailView />} />
           <Route path="/renovaciones" element={<RenewalTimelineView />} />

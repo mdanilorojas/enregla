@@ -11,7 +11,8 @@ import {
   CalendarClock,
   ListChecks,
   Scale,
-  Bell
+  Bell,
+  Workflow
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -51,6 +52,11 @@ const menuItems = [
     url: '/marco-legal',
     icon: Scale,
   },
+  {
+    title: 'Mapa de Permisos',
+    url: '/mapa-permisos',
+    icon: Workflow,
+  },
 ];
 
 
@@ -62,6 +68,7 @@ const pageNames: Record<string, string> = {
   '/renovaciones': 'Renovaciones',
   '/tareas': 'Tareas',
   '/marco-legal': 'Marco Legal',
+  '/mapa-permisos': 'Mapa de Permisos',
 };
 
 const pageDescriptions: Record<string, string> = {
@@ -72,6 +79,7 @@ const pageDescriptions: Record<string, string> = {
   '/renovaciones': 'Línea de tiempo de renovaciones',
   '/tareas': 'Acciones pendientes',
   '/marco-legal': 'Normativa y regulaciones',
+  '/mapa-permisos': 'Visualiza permisos por tipo de comercio',
 };
 
 export function AppLayout() {

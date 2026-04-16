@@ -5,7 +5,7 @@ import { useLocations } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
 import { Building2, Plus } from 'lucide-react';
 import { LocationCardV2 } from './LocationCardV2';
-import { Card, CardContent } from '@/components/ui-v2/card';
+import { Card, CardContent, Button } from '@/components/ui-v2';
 import { CreateLocationModal } from './CreateLocationModal';
 
 export function LocationsListViewV2() {
@@ -58,14 +58,14 @@ export function LocationsListViewV2() {
       <div className="min-h-screen bg-background p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-12">
-            <p className="text-red-500 mb-4">Error al cargar sedes</p>
+            <p className="text-red-600 mb-4">Error al cargar sedes</p>
             <p className="text-sm text-gray-500 mb-4">{error}</p>
-            <button
+            <Button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+              className="bg-gray-900 hover:bg-gray-800"
             >
               Reintentar
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -83,13 +83,13 @@ export function LocationsListViewV2() {
             <p className="mt-2 text-sm text-gray-500">
               Comienza creando tu primera sede
             </p>
-            <button
+            <Button
               onClick={() => setCreateModalOpen(true)}
-              className="mt-6 bg-blue-900 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors inline-flex items-center gap-2 font-medium"
+              className="mt-6 bg-blue-900 hover:bg-blue-800"
             >
               <Plus size={16} />
               Crear Primera Sede
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -112,13 +112,13 @@ export function LocationsListViewV2() {
               Gestión de sedes y ubicaciones de tu empresa
             </p>
           </div>
-          <button
+          <Button
             onClick={() => setCreateModalOpen(true)}
-            className="bg-blue-900 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors inline-flex items-center gap-2 font-medium"
+            className="bg-blue-900 hover:bg-blue-800"
           >
             <Plus size={16} />
             Crear Sede
-          </button>
+          </Button>
         </div>
 
         {/* Grid of location cards */}

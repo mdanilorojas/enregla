@@ -33,36 +33,34 @@ function getCityFromAddress(address: string | null | undefined): string {
 }
 
 /**
- * Get badge variant based on location status
+ * Get badge color based on location status
  */
-function getStatusVariant(status: string): 'default' | 'secondary' | 'outline' {
-  const statusMap: Record<string, 'default' | 'secondary' | 'outline'> = {
-    operando: 'default',
-    en_preparacion: 'outline',
-    cerrado: 'secondary',
+function getStatusColor(status: string): 'green' | 'blue' | 'gray' {
+  const statusMap: Record<string, 'green' | 'blue' | 'gray'> = {
+    operando: 'green',
+    en_preparacion: 'blue',
+    cerrado: 'gray',
   };
-  return statusMap[status.toLowerCase()] || 'secondary';
+  return statusMap[status.toLowerCase()] || 'gray';
 }
 
 /**
  * Get risk level configuration for badge display
  */
 function getRiskLevelConfig(riskLevel: string): {
-  variant: 'default' | 'secondary' | 'destructive' | 'outline';
-  className?: string;
+  color: 'red' | 'orange' | 'yellow' | 'green' | 'gray';
   label: string;
 } {
   const riskMap: Record<string, {
-    variant: 'default' | 'secondary' | 'destructive' | 'outline';
-    className?: string;
+    color: 'red' | 'orange' | 'yellow' | 'green' | 'gray';
     label: string;
   }> = {
-    critico: { variant: 'destructive', label: 'Crítica' },
-    alto: { variant: 'default', className: 'bg-orange-500 text-white hover:bg-orange-600', label: 'Alta' },
-    medio: { variant: 'default', className: 'bg-amber-500 text-white hover:bg-amber-600', label: 'Media' },
-    bajo: { variant: 'default', label: 'Baja' },
+    critico: { color: 'red', label: 'Crítica' },
+    alto: { color: 'orange', label: 'Alta' },
+    medio: { color: 'yellow', label: 'Media' },
+    bajo: { color: 'green', label: 'Baja' },
   };
-  return riskMap[riskLevel.toLowerCase()] || { variant: 'secondary', label: 'Desconocido' };
+  return riskMap[riskLevel.toLowerCase()] || { color: 'gray', label: 'Desconocido' };
 }
 
 /**
@@ -160,7 +158,7 @@ export function LocationCardV2({ location, permits }: LocationCardV2Props) {
         {/* Estado */}
         <div className="mb-3">
           <p className="text-xs font-medium text-gray-500 mb-2">Estado</p>
-          <Badge variant={getStatusVariant(location.status)}>
+          <Badge color={getStatusColor(location.status)}>
             {getStatusLabel(location.status)}
           </Badge>
         </div>
@@ -171,10 +169,7 @@ export function LocationCardV2({ location, permits }: LocationCardV2Props) {
           {(() => {
             const riskConfig = getRiskLevelConfig(location.risk_level || 'bajo');
             return (
-              <Badge
-                variant={riskConfig.variant}
-                className={riskConfig.className}
-              >
+              <Badge color={riskConfig.color}>
                 {riskConfig.label}
               </Badge>
             );

@@ -62,9 +62,9 @@ export function RenewPermitModal({ permit, open, onClose, onConfirm }: RenewPerm
           </div>
 
           {permit && (
-            <div className="rounded-lg bg-surface p-3 text-sm">
-              <p className="text-text-secondary">
-                <span className="font-medium">Vencimiento actual:</span>{' '}
+            <div className="rounded-lg bg-gray-50 border border-gray-200 p-3 text-sm">
+              <p className="text-gray-600">
+                <span className="font-medium text-gray-900">Vencimiento actual:</span>{' '}
                 {permit.expiry_date
                   ? new Date(permit.expiry_date).toLocaleDateString('es-EC')
                   : 'No registrado'
@@ -78,7 +78,11 @@ export function RenewPermitModal({ permit, open, onClose, onConfirm }: RenewPerm
           <Button variant="outline" onClick={onClose} disabled={loading}>
             Cancelar
           </Button>
-          <Button onClick={handleConfirm} disabled={!expiryDate || loading}>
+          <Button
+            onClick={handleConfirm}
+            disabled={!expiryDate || loading}
+            className="bg-blue-900 hover:bg-blue-800"
+          >
             {loading ? 'Renovando...' : 'Confirmar renovación'}
           </Button>
         </DialogFooter>

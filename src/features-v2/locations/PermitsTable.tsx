@@ -90,7 +90,7 @@ export function PermitsTable({
                   {permit.status === 'no_registrado' ? (
                     <button
                       onClick={() => setExpandedPermitId(expandedPermitId === permit.id ? null : permit.id)}
-                      className="text-primary hover:text-primary/80 font-medium transition-colors"
+                      className="text-blue-900 hover:text-blue-800 font-medium transition-colors"
                     >
                       {expandedPermitId === permit.id ? 'Cancelar' : 'Subir documento'}
                     </button>
@@ -102,7 +102,7 @@ export function PermitsTable({
                       </div>
                       <button
                         onClick={() => setExpandedPermitId(expandedPermitId === permit.id ? null : permit.id)}
-                        className="text-gray-600 hover:text-gray-900 text-sm transition-colors"
+                        className="text-gray-700 hover:text-gray-900 text-sm transition-colors"
                       >
                         {expandedPermitId === permit.id ? 'Cancelar' : 'Reemplazar'}
                       </button>

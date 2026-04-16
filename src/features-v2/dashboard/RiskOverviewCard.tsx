@@ -21,10 +21,10 @@ export function RiskOverviewCard({ metrics }: RiskOverviewCardProps) {
   const riskLevel = getRiskLevel();
 
   const riskConfig = {
-    bajo: { label: 'Bajo', variant: 'default' as const },
-    medio: { label: 'Medio', variant: 'secondary' as const },
-    alto: { label: 'Alto', variant: 'outline' as const },
-    critico: { label: 'Crítico', variant: 'destructive' as const },
+    bajo: { label: 'Bajo', color: 'green' as const },
+    medio: { label: 'Medio', color: 'yellow' as const },
+    alto: { label: 'Alto', color: 'orange' as const },
+    critico: { label: 'Crítico', color: 'red' as const },
   };
 
   const config = riskConfig[riskLevel];
@@ -38,7 +38,7 @@ export function RiskOverviewCard({ metrics }: RiskOverviewCardProps) {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-4xl font-bold">{Math.round(metrics.compliance)}%</span>
-            <Badge variant={config.variant}>
+            <Badge color={config.color}>
               Riesgo {config.label}
             </Badge>
           </div>
