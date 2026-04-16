@@ -205,6 +205,29 @@ export interface Database {
           updated_at?: string;
         };
       };
+      permit_requirements: {
+        Row: {
+          id: string;
+          business_type: string;
+          permit_type: string;
+          is_mandatory: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          business_type: string;
+          permit_type: string;
+          is_mandatory?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          business_type?: string;
+          permit_type?: string;
+          is_mandatory?: boolean;
+          created_at?: string;
+        };
+      };
       profiles: {
         Row: {
           id: string;
@@ -264,6 +287,7 @@ export type Location = Database['public']['Tables']['locations']['Row'];
 export type Permit = Database['public']['Tables']['permits']['Row'];
 export type Document = Database['public']['Tables']['documents']['Row'];
 export type PublicLink = Database['public']['Tables']['public_links']['Row'];
+export type PermitRequirement = Database['public']['Tables']['permit_requirements']['Row'];
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 
 export type PermitStatus = Permit['status'];
