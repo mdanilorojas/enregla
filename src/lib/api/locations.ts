@@ -55,13 +55,13 @@ export async function updateLocationRisk(
 
 /**
  * Create a new location
+ * Note: risk_level is set to 'bajo' by default but will be calculated on-demand
  */
 export async function createLocation(data: {
   company_id: string;
   name: string;
   address: string;
   status: 'operando' | 'en_preparacion' | 'cerrado';
-  risk_level: 'bajo' | 'medio' | 'alto' | 'critico';
 }): Promise<Location> {
   const query = supabase.from('locations') as any;
   const { data: location, error } = await query
@@ -70,7 +70,7 @@ export async function createLocation(data: {
       name: data.name,
       address: data.address,
       status: data.status,
-      risk_level: data.risk_level,
+      risk_level: 'bajo', // Default value, actual risk calculated on-demand
     })
     .select()
     .single();
