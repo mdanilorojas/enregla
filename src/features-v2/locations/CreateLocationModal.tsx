@@ -38,7 +38,6 @@ export function CreateLocationModal({
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [status, setStatus] = useState<'operando' | 'en_preparacion' | 'cerrado' | ''>('');
-  const [riskLevel, setRiskLevel] = useState<'bajo' | 'medio' | 'alto' | 'critico' | ''>('');
 
   // State for errors
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -47,7 +46,7 @@ export function CreateLocationModal({
   const [loading, setLoading] = useState(false);
 
   // Check if form has data (for confirmation on close)
-  const hasData = name || address || status || riskLevel;
+  const hasData = name || address || status;
 
   // Validation function
   const validate = (): boolean => {
@@ -72,11 +71,6 @@ export function CreateLocationModal({
       newErrors.status = 'Debes seleccionar un estado';
     }
 
-    // Validate risk level
-    if (!riskLevel) {
-      newErrors.riskLevel = 'Debes seleccionar un nivel de riesgo';
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -95,7 +89,6 @@ export function CreateLocationModal({
         name: name.trim(),
         address: address.trim(),
         status: status as 'operando' | 'en_preparacion' | 'cerrado',
-        risk_level: riskLevel as 'bajo' | 'medio' | 'alto' | 'critico',
       });
 
       toast.success('Sede creada exitosamente', {
@@ -123,7 +116,6 @@ export function CreateLocationModal({
         setName('');
         setAddress('');
         setStatus('');
-        setRiskLevel('');
         setErrors({});
         setLoading(false);
       }, 200);
@@ -228,34 +220,6 @@ export function CreateLocationModal({
             </Select>
             {errors.status && (
               <p className="text-xs text-red-500 mt-1">{errors.status}</p>
-            )}
-          </div>
-
-          {/* Risk level field */}
-          <div className="space-y-2">
-            <label htmlFor="risk-level" className="text-sm font-medium">
-              Nivel de riesgo inicial
-            </label>
-            <Select
-              value={riskLevel}
-              onValueChange={(value) => {
-                setRiskLevel(value as any);
-                clearError('riskLevel');
-              }}
-              disabled={loading}
-            >
-              <SelectTrigger id="risk-level">
-                <SelectValue placeholder="Seleccionar nivel de riesgo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="bajo">🟢 Bajo</SelectItem>
-                <SelectItem value="medio">🟡 Medio</SelectItem>
-                <SelectItem value="alto">🟠 Alto</SelectItem>
-                <SelectItem value="critico">🔴 Crítico</SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.riskLevel && (
-              <p className="text-xs text-red-500 mt-1">{errors.riskLevel}</p>
             )}
           </div>
         </div>
