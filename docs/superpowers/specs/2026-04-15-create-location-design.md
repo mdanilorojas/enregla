@@ -565,8 +565,8 @@ Después de 48h, se asume que la empresa tuvo tiempo suficiente y la falta de do
 ## Próximos Pasos
 
 1. ✅ Diseño aprobado
-2. ⏳ Escribir plan de implementación detallado (writing-plans skill)
-3. ⏳ Ejecutar implementación (subagent-driven-development o executing-plans)
+2. ✅ Escribir plan de implementación detallado (writing-plans skill)
+3. ✅ Ejecutar implementación (subagent-driven-development o executing-plans)
 4. ⏳ Testing manual
 5. ⏳ Code review
 6. ⏳ Merge a main
@@ -1052,3 +1052,21 @@ Not included in this iteration:
 - Bulk import locations via CSV
 
 These can be added later without changing current architecture.
+
+---
+
+## Implementation Notes (2026-04-15)
+
+**Completed:**
+- Database migration with permit_requirements table and trigger
+- Two-stage risk calculation logic in calculateLocationRiskLevel()
+- Integration with useLocations hook
+- Removed manual risk selection from CreateLocationModal
+- All unit tests passing (8/8)
+- Integration testing pending
+
+**Migration applied:** `010_permit_requirements.sql`
+**Tests:** `src/lib/dashboard-metrics.test.ts`
+**Modified files:** 5 files updated
+
+**Next steps:** Manual QA testing in staging, then merge to main.
