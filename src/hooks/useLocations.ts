@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
 import { getCompanyLocations, getLocation } from '@/lib/api/locations';
+import { usePermits } from '@/hooks/usePermits';
+import { calculateLocationRiskLevel } from '@/lib/dashboard-metrics';
 import type { Location } from '@/types/database';
 
 export function useLocations(companyId: string | null | undefined) {
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Get permits for risk calculation
+  const { permits } = usePermits({ companyId });
 
   useEffect(() => {
     if (!companyId) {
@@ -19,7 +24,13 @@ export function useLocations(companyId: string | null | undefined) {
 
     getCompanyLocations(companyId)
       .then((data) => {
-        setLocations(data);
+        // Calculate risk_level on-demand for each location
+        const locationsWithRisk = data.map(location => ({
+          ...location,
+          risk_level: calculateLocationRiskLevel(location, permits),
+        }));
+
+        setLocations(locationsWithRisk);
         setError(null);
       })
       .catch((err) => {
@@ -30,13 +41,19 @@ export function useLocations(companyId: string | null | undefined) {
       .finally(() => {
         setLoading(false);
       });
-  }, [companyId]);
+  }, [companyId, permits]); // Re-calculate when permits change
 
   return { locations, loading, error, refetch: () => {
     if (companyId) {
       setLoading(true);
       getCompanyLocations(companyId)
-        .then(setLocations)
+        .then((data) => {
+          const locationsWithRisk = data.map(location => ({
+            ...location,
+            risk_level: calculateLocationRiskLevel(location, permits),
+          }));
+          setLocations(locationsWithRisk);
+        })
         .catch((err) => setError(err.message))
         .finally(() => setLoading(false));
     }
