@@ -5,6 +5,7 @@ import { ProtectedRoute } from '@/components/Auth';
 import { useAuth } from '@/hooks/useAuth';
 import { UI_VERSION } from '@/config';
 import { LoginView } from '@/features/auth/LoginView';
+import { AuthCallback } from '@/features/auth/AuthCallback';
 import { DashboardView } from '@/features/dashboard/DashboardView';
 import { DashboardView as DashboardViewV2 } from '@/features-v2/dashboard/DashboardView';
 import { LocationListView } from '@/features/locations/LocationListView';
@@ -20,6 +21,7 @@ import { OnboardingWizard } from '@/features/onboarding/OnboardingWizard';
 import { IncrementalWizard } from '@/features-v2/onboarding-incremental/IncrementalWizard';
 import { PublicVerificationPage } from '@/features-v2/public-links/PublicVerificationPage';
 import { NetworkMapPage } from '@/features/network/NetworkMapPage';
+// import { PermitsMapPage } from '@/features-v2/permits-map/PermitsMapPage'; // Temporarily disabled - WIP
 import { DesignSystemView } from '@/features-v2/design-system/DesignSystemView';
 
 function OnboardingRoute() {
@@ -90,6 +92,7 @@ export default function App() {
         {/* Public verification page - no auth required */}
         <Route path="/p/:token" element={<PublicVerificationPage />} />
         <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <LoginView />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
         <Route
           path="/setup"
           element={
@@ -109,6 +112,7 @@ export default function App() {
           <Route path="/sedes" element={UI_VERSION === 'v2' ? <LocationsListViewV2 /> : <LocationListView />} />
           <Route path="/sedes/:id" element={UI_VERSION === 'v2' ? <LocationDetailViewV2 /> : <LocationDetailView />} />
           <Route path="/mapa-red" element={<NetworkMapPage />} />
+          <Route path="/mapa-permisos" element={<PermitsMapPage />} />
           <Route path="/permisos" element={<PermitListView />} />
           <Route path="/permisos/:id" element={<PermitDetailView />} />
           <Route path="/renovaciones" element={<RenewalTimelineView />} />

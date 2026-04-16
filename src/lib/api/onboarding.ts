@@ -147,10 +147,9 @@ export async function completeOnboarding(
   userId: string,
   data: OnboardingData
 ): Promise<string> {
-  // 1. Create company
-  const companyData: CompanyInsert = {
+  // 1. Create company (sin incluir ruc hasta que la columna exista)
+  const companyData: Omit<CompanyInsert, 'ruc'> = {
     name: data.company.name,
-    ruc: data.company.ruc,
     business_type: data.company.business_type,
     city: data.company.city,
     location_count: data.locations.length,
@@ -250,20 +249,19 @@ export async function saveCompany(
   userId: string,
   companyData: {
     name: string;
-    ruc: string;
+    ruc?: string;
     city: string;
     business_type: string;
   }
 ): Promise<string> {
-  // Validate RUC
-  if (!/^\d{13}$/.test(companyData.ruc)) {
+  // Validate RUC if provided
+  if (companyData.ruc && !/^\d{13}$/.test(companyData.ruc)) {
     throw new Error('RUC debe tener exactamente 13 dígitos numéricos');
   }
 
-  // 1. Create company
-  const companyInsert: CompanyInsert = {
+  // 1. Create company (sin incluir ruc hasta que la columna exista)
+  const companyInsert: Omit<CompanyInsert, 'ruc'> = {
     name: companyData.name,
-    ruc: companyData.ruc,
     city: companyData.city,
     business_type: companyData.business_type,
     location_count: 0,

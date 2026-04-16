@@ -36,7 +36,13 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
   const [error, setError] = useState<string | null>(null);
 
   // Track saved data for "Back" navigation
-  const [savedProfile, setSavedProfile] = useState(profile?.full_name || '');
+  // Pre-fill name from Google OAuth if available
+  const googleName = user?.user_metadata?.full_name
+    || user?.user_metadata?.name
+    || (user?.user_metadata?.given_name && user?.user_metadata?.family_name
+        ? `${user.user_metadata.given_name} ${user.user_metadata.family_name}`
+        : '');
+  const [savedProfile, setSavedProfile] = useState(profile?.full_name || googleName);
   const [savedCompany, setSavedCompany] = useState<any>(null);
   const [companyId, setCompanyId] = useState<string | null>(profile?.company_id || null);
 
