@@ -52,19 +52,43 @@ export function calculateDashboardMetrics(
 }
 
 /**
- * Calculate risk level for a location based on its permits
+ * Calculate location risk level based on two stages:
+ * - Stage 1 (0-48h): Time-based risk
+ * - Stage 2 (48h+): Permit-status-based risk
  */
-export function calculateLocationRiskLevel(permits: Permit[]): RiskLevel {
-  const activePermits = permits.filter((p) => p.is_active);
+export function calculateLocationRiskLevel(
+  location: Location,
+  permits: Permit[]
+): RiskLevel {
+  const activePermits = permits.filter((p) => p.is_active && p.location_id === location.id);
+  const hoursSinceCreation = (Date.now() - new Date(location.created_at).getTime()) / (1000 * 60 * 60);
 
-  if (activePermits.length === 0) return 'medio';
+  // STAGE 1: First 48 hours
+  if (hoursSinceCreation <= 48) {
+    const permitsWithDocuments = activePermits.filter(p =>
+      p.status !== 'no_registrado' && p.status !== 'vencido'
+    );
+
+    if (permitsWithDocuments.length === 0) {
+      if (hoursSinceCreation <= 24) {
+        return 'bajo';
+      } else {
+        return 'medio';
+      }
+    }
+    // If documents uploaded, transition to Stage 2
+  }
+
+  // STAGE 2: After 48h OR if documents already uploaded
+  if (activePermits.length === 0) return 'critico';
 
   const hasVencidos = activePermits.some((p) => p.status === 'vencido');
   const hasFaltantes = activePermits.some((p) => p.status === 'no_registrado');
   const hasPorVencer = activePermits.some((p) => p.status === 'por_vencer');
 
-  if (hasVencidos || hasFaltantes) return 'alto';
+  if (hasVencidos || hasFaltantes) return 'critico';
   if (hasPorVencer) return 'medio';
+
   return 'bajo';
 }
 
