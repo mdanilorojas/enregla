@@ -39,21 +39,36 @@ export function useAuth() {
         async (event, session) => {
           console.log('[useAuth] Auth state changed:', event, session ? 'with session' : 'no session');
           if (event === 'SIGNED_IN' && session) {
-            console.log('[useAuth] SIGNED_IN event - setting user immediately');
-            // WORKAROUND: Set user without profile to unblock the app
-            // The profile will be loaded by individual components that need it
-            const mockProfile = {
-              id: session.user.id,
-              company_id: '50707999-f033-41c4-91c9-989966311972', // Demo company ID
-              full_name: session.user.email?.split('@')[0] || 'User',
-              role: 'admin' as const,
-              avatar_url: null,
-              is_active: true,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString(),
-            };
-            console.log('[useAuth] Setting auth with mock profile');
-            setAuth(session.user, mockProfile);
+            console.log('[useAuth] SIGNED_IN event - fetching real profile');
+
+            // Fetch real profile from database
+            try {
+              const { data: profileData, error: profileError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+
+              if (profileError) {
+                console.error('[useAuth] Profile fetch error:', profileError);
+
+                // User doesn't have a profile yet - needs onboarding
+                if (profileError.code === 'PGRST116') {
+                  console.log('[useAuth] No profile found - user needs onboarding');
+                  // Set user without profile to allow redirect to /setup
+                  setAuth(session.user, null);
+                } else {
+                  throw profileError;
+                }
+              } else {
+                console.log('[useAuth] Profile loaded successfully');
+                setAuth(session.user, profileData);
+              }
+            } catch (error) {
+              console.error('[useAuth] Failed to load profile:', error);
+              // On error, set user without profile (allows retry)
+              setAuth(session.user, null);
+            }
           } else if (event === 'SIGNED_OUT') {
             clear();
           }

@@ -1,15 +1,10 @@
 /**
  * Design System Tokens
  *
- * Both Professional and Energetic themes are loaded simultaneously.
- * Theme switching works via data-theme attribute on <html> element.
- * Only ONE data-theme value should be set at a time.
- *
- * Current theme: Set in index.html as data-theme="professional"
- * Toggle: DesignSystemToggle component changes the attribute
+ * Single consolidated theme optimized for daytime office use.
+ * Light mode only - users work during business hours.
  */
-@import './styles/design-tokens-professional.css';
-@import './styles/design-tokens-energetic.css';
+@import './styles/design-tokens.css';
 
 @import "tailwindcss";
 
@@ -19,8 +14,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
-  --font-heading: 'SF Pro Display', 'Inter', -apple-system, sans-serif;
+  --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-heading: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
   --color-enregla-950: #FAFAFA;
   --color-enregla-900: #FFFFFF;
@@ -89,6 +84,21 @@
   --color-text: var(--color-text);
   --color-text-secondary: var(--color-text-secondary);
   --color-text-muted: var(--color-text-muted);
+
+  /* shadcn/ui compatibility tokens */
+  --primary: var(--color-primary);
+  --primary-foreground: #FFFFFF;
+  --secondary: var(--color-secondary);
+  --secondary-foreground: #FFFFFF;
+  --accent: var(--color-accent);
+  --accent-foreground: #FFFFFF;
+  --destructive: var(--color-danger);
+  --destructive-foreground: #FFFFFF;
+  --muted: var(--color-text-muted);
+  --muted-foreground: var(--color-text-secondary);
+  --input: var(--color-border);
+  --ring: var(--color-primary);
+  --foreground: var(--color-text);
 }
 
 body {
@@ -97,7 +107,8 @@ body {
   color: var(--color-legal-ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  letter-spacing: -0.011em;
+  letter-spacing: -0.015em;
+  font-feature-settings: 'kern' 1;
 }
 
 * {
@@ -191,41 +202,24 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.animate-slide-up {
-  animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+@media (prefers-reduced-motion: no-preference) {
+  .animate-slide-up {
+    animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-slide-up-1 { animation-delay: 0ms; }
+  .animate-slide-up-2 { animation-delay: 60ms; }
+  .animate-slide-up-3 { animation-delay: 120ms; }
+  .animate-slide-up-4 { animation-delay: 180ms; }
 }
 
-.animate-slide-up-1 { animation-delay: 0ms; }
-.animate-slide-up-2 { animation-delay: 60ms; }
-.animate-slide-up-3 { animation-delay: 120ms; }
-.animate-slide-up-4 { animation-delay: 180ms; }
-
-/* Login page animations */
-@keyframes login-float {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(15px, -20px) scale(1.05); }
-  66% { transform: translate(-10px, 10px) scale(0.95); }
+@media (prefers-reduced-motion: reduce) {
+  .animate-slide-up {
+    opacity: 1;
+  }
 }
 
-.login-float {
-  animation: login-float 8s ease-in-out infinite;
-}
-
-.login-float-delayed {
-  animation: login-float 10s ease-in-out 2s infinite;
-}
-
-.login-float-slow {
-  animation: login-float 14s ease-in-out 4s infinite;
-}
-
-.login-grid {
-  background-image:
-    linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
-  background-size: 40px 40px;
-}
-
+/* Login page texture */
 .login-grain {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
   background-repeat: repeat;

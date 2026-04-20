@@ -11,10 +11,10 @@ interface RiskBadgeProps {
 type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>['variant']>;
 
 const riskConfig: Record<RiskLevel, { label: string; variant: BadgeVariant }> = {
-  bajo: { label: 'Bajo', variant: 'default' },
-  medio: { label: 'Medio', variant: 'secondary' },
-  alto: { label: 'Alto', variant: 'secondary' },
-  critico: { label: 'Crítico', variant: 'destructive' },
+  bajo: { label: 'Bajo', variant: 'risk-bajo' },
+  medio: { label: 'Medio', variant: 'risk-medio' },
+  alto: { label: 'Alto', variant: 'risk-alto' },
+  critico: { label: 'Crítico', variant: 'risk-critico' },
 };
 
 export function RiskBadge({ level, className }: RiskBadgeProps) {

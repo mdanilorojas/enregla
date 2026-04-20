@@ -16,11 +16,11 @@ interface StatusBadgeProps {
 type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>['variant']>;
 
 const statusConfig: Record<PermitStatus, { label: string; variant: BadgeVariant }> = {
-  vigente: { label: 'Vigente', variant: 'default' },
-  por_vencer: { label: 'Por vencer', variant: 'secondary' },
-  vencido: { label: 'Vencido', variant: 'destructive' },
-  no_registrado: { label: 'No registrado', variant: 'outline' },
-  en_tramite: { label: 'En trámite', variant: 'secondary' },
+  vigente: { label: 'Vigente', variant: 'status-vigente' },
+  por_vencer: { label: 'Por vencer', variant: 'status-por-vencer' },
+  vencido: { label: 'Vencido', variant: 'status-vencido' },
+  no_registrado: { label: 'No registrado', variant: 'status-no-registrado' },
+  en_tramite: { label: 'En trámite', variant: 'status-en-tramite' },
 };
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {

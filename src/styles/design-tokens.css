@@ -1,5 +1,5 @@
-[data-theme="professional"] {
-  /* Colors - Professional (Trust & Authority) */
+:root {
+  /* Colors - Trust & Authority */
   --color-primary: #1E3A8A; /* Deep blue */
   --color-primary-hover: #1E40AF;
   --color-primary-active: #1E3A8A;
@@ -10,7 +10,7 @@
   --color-accent: #0EA5E9; /* Sky blue */
   --color-accent-hover: #0284C7;
 
-  /* Semantic Colors - Muted */
+  /* Semantic Colors */
   --color-success: #059669; /* Emerald */
   --color-success-bg: #D1FAE5;
   --color-success-border: #A7F3D0;
@@ -43,24 +43,29 @@
   --spacing-xl: 2rem;    /* 32px */
   --spacing-2xl: 3rem;   /* 48px */
 
-  /* Typography */
-  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-size-xs: 0.75rem;   /* 12px */
-  --font-size-sm: 0.875rem;  /* 14px */
-  --font-size-base: 1rem;    /* 16px */
-  --font-size-lg: 1.125rem;  /* 18px */
-  --font-size-xl: 1.25rem;   /* 20px */
-  --font-size-2xl: 1.5rem;   /* 24px */
-  --font-size-3xl: 1.875rem; /* 30px */
+  /* Typography - Modular Scale (1.33 ratio - Perfect Fourth) */
+  --font-family-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
+  /* Type Scale - Fixed for App UI */
+  --font-size-xs: 0.75rem;    /* 12px - Captions, metadata */
+  --font-size-sm: 0.875rem;   /* 14px - Secondary text, labels */
+  --font-size-base: 1rem;     /* 16px - Body text, inputs */
+  --font-size-lg: 1.125rem;   /* 18px - Emphasized text */
+  --font-size-xl: 1.33rem;    /* 21px - Card titles, subheadings */
+  --font-size-2xl: 1.77rem;   /* 28px - Section headings */
+  --font-size-3xl: 2.37rem;   /* 38px - Page headings */
+
+  /* Font Weights - Manrope optimized */
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
-  --line-height-tight: 1.25;
-  --line-height-normal: 1.5;
-  --line-height-relaxed: 1.75;
+  /* Line Heights - Context adjusted */
+  --line-height-tight: 1.2;    /* Headings */
+  --line-height-snug: 1.4;     /* Subheadings, labels */
+  --line-height-normal: 1.6;   /* Body text */
+  --line-height-relaxed: 1.75; /* Long-form content */
 
   /* Border Radius */
   --radius-sm: 0.25rem;  /* 4px */
