@@ -15,6 +15,7 @@ import { LocationsListViewV2 } from '@/features-v2/locations/LocationsListViewV2
 import { PermitListView } from '@/features/permits/PermitListView';
 import { PermitDetailView } from '@/features/permits/PermitDetailView';
 import { RenewalTimelineView } from '@/features/renewals/RenewalTimelineView';
+import { RenewalTimelineView as RenewalTimelineViewV2 } from '@/features-v2/renewals/RenewalTimelineView';
 import { TaskBoardView } from '@/features/tasks/TaskBoardView';
 import { LegalReferenceView } from '@/features/legal/LegalReferenceView';
 import { LegalReferenceView as LegalReferenceViewV2 } from '@/features-v2/legal/LegalReferenceView';
@@ -116,7 +117,7 @@ export default function App() {
           {/* <Route path="/mapa-permisos" element={<PermitsMapPage />} /> Temporarily disabled - WIP */}
           <Route path="/permisos" element={<PermitListView />} />
           <Route path="/permisos/:id" element={<PermitDetailView />} />
-          <Route path="/renovaciones" element={<RenewalTimelineView />} />
+          <Route path="/renovaciones" element={UI_VERSION === 'v2' ? <RenewalTimelineViewV2 /> : <RenewalTimelineView />} />
           <Route path="/tareas" element={<TaskBoardView />} />
           <Route path="/marco-legal" element={UI_VERSION === 'v2' ? <LegalReferenceViewV2 /> : <LegalReferenceView />} />
           <Route path="/design-system" element={<DesignSystemView />} />
