@@ -92,6 +92,27 @@ export async function updatePermitStatus(
 }
 
 /**
+ * Update permit with partial data
+ */
+export async function updatePermit(
+  permitId: string,
+  updates: Partial<Permit>
+): Promise<Permit> {
+  const query = supabase.from('permits') as any;
+  const { data, error } = await query
+    .update({
+      ...updates,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', permitId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
  * Renew a permit - creates a new version and archives the old one
  */
 export interface RenewPermitData {

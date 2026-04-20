@@ -5,8 +5,6 @@ import {
   forceManyBody,
   forceCenter,
   forceCollide,
-  forceX,
-  forceY,
   type SimulationNodeDatum,
   type SimulationLinkDatum,
 } from 'd3-force';
@@ -55,39 +53,30 @@ export function useForceLayout({ nodes, edges, onTick }: UseForceLayoutOptions) 
           .distance((link) => {
             const src = link.source as SimNode;
             const tgt = link.target as SimNode;
-            if (src.type === 'company' || tgt.type === 'company') return 280;
-            if (src.type === 'sede' || tgt.type === 'sede') return 150;
-            return 120;
+            // Standard force-directed tree distances
+            if (src.type === 'company' || tgt.type === 'company') return 300;
+            if (src.type === 'sede' && tgt.type === 'permit') return 180;
+            return 150;
           })
-          .strength((link) => {
-            const src = link.source as SimNode;
-            const tgt = link.target as SimNode;
-            if (src.type === 'company' || tgt.type === 'company') return 0.3;
-            return 0.6;
-          }),
+          .strength(0.8), // Strong links keep tree structure
       )
       .force(
         'charge',
         forceManyBody<SimNode>()
-          .strength((d) => {
-            if (d.type === 'company') return -800;
-            if (d.type === 'sede') return -500;
-            return -200;
-          }),
+          .strength(-300) // Moderate repulsion for all nodes
+          .distanceMax(500), // Limit range of repulsion
       )
-      .force('center', forceCenter(0, 0).strength(0.05))
+      .force('center', forceCenter(0, 0).strength(0.1)) // Keep graph centered
       .force(
         'collide',
         forceCollide<SimNode>()
           .radius((d) => {
-            if (d.type === 'company') return 100;
-            if (d.type === 'sede') return 90;
-            return 60;
+            if (d.type === 'company') return 80;
+            if (d.type === 'sede') return 70;
+            return 40; // Permits
           })
-          .strength(0.7),
+          .strength(1), // Strong collision prevention
       )
-      .force('x', forceX(0).strength(0.02))
-      .force('y', forceY(0).strength(0.02))
       .alpha(1)
       .alphaDecay(0.02)
       .velocityDecay(0.3);

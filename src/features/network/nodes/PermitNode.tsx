@@ -12,7 +12,6 @@ const statusStyle: Record<PermitStatus, { bg: string; border: string; text: stri
   por_vencer: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', dot: 'bg-amber-500' },
   vencido: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', dot: 'bg-red-500' },
   no_registrado: { bg: 'bg-gray-50', border: 'border-gray-200', text: 'text-gray-500', dot: 'bg-gray-300' },
-  en_tramite: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', dot: 'bg-blue-500' },
 };
 
 const statusLabels: Record<PermitStatus, string> = {
@@ -20,7 +19,6 @@ const statusLabels: Record<PermitStatus, string> = {
   por_vencer: 'Por vencer',
   vencido: 'Vencido',
   no_registrado: 'Sin registrar',
-  en_tramite: 'En trámite',
 };
 
 export function PermitNode({ data }: NodeProps) {

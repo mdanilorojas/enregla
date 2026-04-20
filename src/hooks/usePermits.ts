@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getCompanyPermits, getLocationPermits } from '@/lib/api/permits';
+import { supabase } from '@/lib/supabase';
 import type { Permit } from '@/types/database';
 
 interface UsePermitsOptions {
@@ -43,24 +44,56 @@ export function usePermits({ companyId, locationId }: UsePermitsOptions) {
       });
   }, [companyId, locationId]);
 
+  const refetch = async () => {
+    if (locationId || companyId) {
+      setLoading(true);
+      const fetchPromise = locationId
+        ? getLocationPermits(locationId)
+        : companyId
+        ? getCompanyPermits(companyId)
+        : Promise.resolve([]);
+
+      return fetchPromise
+        .then(setPermits)
+        .catch((err) => setError(err.message))
+        .finally(() => setLoading(false));
+    }
+  };
+
+  /**
+   * Update a permit record
+   */
+  const updatePermit = async (
+    permitId: string,
+    updates: {
+      issue_date?: string;
+      expiry_date?: string | null;
+      status?: 'vigente' | 'por_vencer' | 'vencido' | 'en_tramite' | 'no_registrado';
+      permit_number?: string | null;
+      notes?: string | null;
+    }
+  ) => {
+    const { error } = await (supabase.from('permits') as any)
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', permitId);
+
+    if (error) {
+      console.error('Error updating permit:', error);
+      throw new Error(`Error al actualizar el permiso: ${error.message}`);
+    }
+
+    // Refresh permits list
+    await refetch();
+  };
+
   return {
     permits,
     loading,
     error,
-    refetch: () => {
-      if (locationId || companyId) {
-        setLoading(true);
-        const fetchPromise = locationId
-          ? getLocationPermits(locationId)
-          : companyId
-          ? getCompanyPermits(companyId)
-          : Promise.resolve([]);
-
-        fetchPromise
-          .then(setPermits)
-          .catch((err) => setError(err.message))
-          .finally(() => setLoading(false));
-      }
-    }
+    refetch,
+    updatePermit,
   };
 }

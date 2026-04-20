@@ -82,8 +82,8 @@ export async function getLocationPublicLink(locationId: string): Promise<PublicL
  * Deactivate a public link
  */
 export async function deactivatePublicLink(linkId: string): Promise<void> {
-  const { error } = await supabase
-    .from('public_links')
+  const { error } = await (supabase
+    .from('public_links') as any)
     .update({
       is_active: false,
       updated_at: new Date().toISOString(),
@@ -106,4 +106,111 @@ export function getPublicUrl(token: string): string {
     : window.location.origin;
 
   return `${baseUrl}/p/${token}`;
+}
+
+export interface PublicLinkData {
+  location: {
+    id: string;
+    name: string;
+    address: string;
+  };
+  permits: Array<{
+    id: string;
+    type: string;
+    issuer: string | null;
+    status: 'vigente' | 'por_vencer' | 'vencido' | 'en_tramite' | 'no_registrado';
+    issue_date: string | null;
+    expiry_date: string | null;
+    has_document: boolean;
+    document_url: string | null;
+  }>;
+}
+
+/**
+ * Get public link data by token for the public verification page
+ * Increments view analytics and returns location with permits
+ */
+export async function getPublicLinkData(token: string): Promise<PublicLinkData | null> {
+  // Fetch public link by token
+  const { data: link, error: linkError } = await (supabase
+    .from('public_links') as any)
+    .select('id, location_id, is_active')
+    .eq('token', token)
+    .single();
+
+  if (linkError || !link || !link.is_active || !link.location_id) {
+    return null;
+  }
+
+  // Increment view analytics - get current view_count first
+  const { data: currentLink } = await (supabase
+    .from('public_links') as any)
+    .select('view_count')
+    .eq('id', link.id)
+    .single();
+
+  const { error: updateError } = await (supabase
+    .from('public_links') as any)
+    .update({
+      view_count: (currentLink?.view_count || 0) + 1,
+      last_viewed_at: new Date().toISOString(),
+    })
+    .eq('id', link.id);
+
+  if (updateError) {
+    console.error('Error updating view analytics:', updateError);
+  }
+
+  // Fetch location data
+  const { data: location, error: locationError } = await (supabase
+    .from('locations') as any)
+    .select('id, name, address')
+    .eq('id', link.location_id)
+    .single();
+
+  if (locationError || !location) {
+    return null;
+  }
+
+  // Fetch permits for the location
+  const { data: permits, error: permitsError } = await (supabase
+    .from('permits') as any)
+    .select(`
+      id,
+      type,
+      issuer,
+      status,
+      issue_date,
+      expiry_date,
+      documents(id, file_path)
+    `)
+    .eq('location_id', link.location_id)
+    .eq('is_active', true);
+
+  if (permitsError) {
+    throw permitsError;
+  }
+
+  // Transform permits with document URLs
+  const transformedPermits = (permits || []).map((p: any) => ({
+    id: p.id,
+    type: p.type,
+    issuer: p.issuer,
+    status: p.status as 'vigente' | 'por_vencer' | 'vencido' | 'en_tramite' | 'no_registrado',
+    issue_date: p.issue_date,
+    expiry_date: p.expiry_date,
+    has_document: p.documents && p.documents.length > 0,
+    document_url: p.documents?.[0]
+      ? supabase.storage.from('permit-documents').getPublicUrl(p.documents[0].file_path).data.publicUrl
+      : null,
+  }));
+
+  return {
+    location: {
+      id: location.id,
+      name: location.name,
+      address: location.address,
+    },
+    permits: transformedPermits,
+  };
 }

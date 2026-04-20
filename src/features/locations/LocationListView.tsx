@@ -27,7 +27,6 @@ const permitDot: Record<PermitStatus, string> = {
   por_vencer: 'bg-amber-400',
   vencido: 'bg-red-400',
   no_registrado: 'bg-gray-200',
-  en_tramite: 'bg-blue-400',
 };
 
 const complianceColor = (pct: number) =>

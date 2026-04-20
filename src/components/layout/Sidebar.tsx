@@ -10,12 +10,14 @@ import {
   ChevronRight,
   Building2,
   Sparkles,
+  Network,
 } from 'lucide-react';
 import { useAppStore } from '@/store';
 
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard', badge: null, color: 'blue' as const },
   { to: '/sedes', icon: MapPin, label: 'Sedes', badge: null, color: 'violet' as const },
+  { to: '/mapa-red', icon: Network, label: 'Mapa Interactivo', badge: null, color: 'sky' as const },
   { to: '/permisos', icon: Shield, label: 'Permisos', badge: null, color: 'emerald' as const },
   { to: '/renovaciones', icon: CalendarClock, label: 'Renovaciones', badge: null, color: 'amber' as const },
   { to: '/tareas', icon: ListChecks, label: 'Tareas', badge: null, color: 'rose' as const },

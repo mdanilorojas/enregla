@@ -13,6 +13,7 @@ export interface Database {
         Row: {
           id: string;
           name: string;
+          ruc: string;
           business_type: string;
           city: string;
           location_count: number;
@@ -23,6 +24,7 @@ export interface Database {
         Insert: {
           id?: string;
           name: string;
+          ruc: string;
           business_type: string;
           city: string;
           location_count?: number;
@@ -33,6 +35,7 @@ export interface Database {
         Update: {
           id?: string;
           name?: string;
+          ruc?: string;
           business_type?: string;
           city?: string;
           location_count?: number;
@@ -79,7 +82,7 @@ export interface Database {
           company_id: string;
           location_id: string;
           type: string;
-          status: 'vigente' | 'por_vencer' | 'vencido' | 'en_tramite' | 'no_registrado';
+          status: 'vigente' | 'por_vencer' | 'vencido' | 'no_registrado';
           permit_number: string | null;
           issue_date: string | null;
           expiry_date: string | null;
@@ -97,7 +100,7 @@ export interface Database {
           company_id: string;
           location_id: string;
           type: string;
-          status: 'vigente' | 'por_vencer' | 'vencido' | 'en_tramite' | 'no_registrado';
+          status: 'vigente' | 'por_vencer' | 'vencido' | 'no_registrado';
           permit_number?: string | null;
           issue_date?: string | null;
           expiry_date?: string | null;
@@ -202,6 +205,29 @@ export interface Database {
           updated_at?: string;
         };
       };
+      permit_requirements: {
+        Row: {
+          id: string;
+          business_type: string;
+          permit_type: string;
+          is_mandatory: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          business_type: string;
+          permit_type: string;
+          is_mandatory?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          business_type?: string;
+          permit_type?: string;
+          is_mandatory?: boolean;
+          created_at?: string;
+        };
+      };
       profiles: {
         Row: {
           id: string;
@@ -261,6 +287,7 @@ export type Location = Database['public']['Tables']['locations']['Row'];
 export type Permit = Database['public']['Tables']['permits']['Row'];
 export type Document = Database['public']['Tables']['documents']['Row'];
 export type PublicLink = Database['public']['Tables']['public_links']['Row'];
+export type PermitRequirement = Database['public']['Tables']['permit_requirements']['Row'];
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 
 export type PermitStatus = Permit['status'];

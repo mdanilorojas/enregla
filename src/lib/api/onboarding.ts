@@ -150,15 +150,16 @@ export async function completeOnboarding(
   // 1. Create company
   const companyData: CompanyInsert = {
     name: data.company.name,
+    ruc: data.company.ruc,
     business_type: data.company.business_type,
     city: data.company.city,
     location_count: data.locations.length,
     regulatory_factors: data.regulatory_factors as any,
   };
 
-  const companyResult: any = await supabase
-    .from('companies')
-    .insert(companyData as any)
+  const companyResult = await (supabase
+    .from('companies') as any)
+    .insert(companyData)
     .select()
     .single();
 
@@ -177,9 +178,9 @@ export async function completeOnboarding(
       risk_level: 'medio', // Initial risk level
     };
 
-    const locationResult: any = await supabase
-      .from('locations')
-      .insert(locationData as any)
+    const locationResult: any = await (supabase
+      .from('locations') as any)
+      .insert(locationData)
       .select()
       .single();
 
@@ -222,4 +223,137 @@ export async function updateProfile(
     .eq('id', userId);
 
   if (result.error) throw result.error;
+}
+
+/**
+ * Step 1: Save user's full name to profile
+ */
+export async function saveProfile(
+  userId: string,
+  fullName: string
+): Promise<void> {
+  const { error } = await (supabase
+    .from('profiles') as any)
+    .update({
+      full_name: fullName,
+      role: 'admin', // Default role for first user
+    })
+    .eq('id', userId);
+
+  if (error) throw error;
+}
+
+/**
+ * Step 2: Create company and link to user profile
+ */
+export async function saveCompany(
+  userId: string,
+  companyData: {
+    name: string;
+    ruc: string;
+    city: string;
+    business_type: string;
+  }
+): Promise<string> {
+  // Validate RUC
+  if (!/^\d{13}$/.test(companyData.ruc)) {
+    throw new Error('RUC debe tener exactamente 13 dígitos numéricos');
+  }
+
+  // 1. Create company
+  const companyInsert: CompanyInsert = {
+    name: companyData.name,
+    ruc: companyData.ruc,
+    city: companyData.city,
+    business_type: companyData.business_type,
+    location_count: 0,
+    regulatory_factors: {
+      alimentos: false,
+      alcohol: false,
+      salud: false,
+      quimicos: false,
+    } as any,
+  };
+
+  const { data: company, error: companyError } = await (supabase
+    .from('companies') as any)
+    .insert(companyInsert)
+    .select()
+    .single();
+
+  if (companyError) throw companyError;
+  if (!company) throw new Error('Failed to create company');
+
+  // 2. Link company to profile
+  const { error: profileError } = await (supabase
+    .from('profiles') as any)
+    .update({ company_id: company.id })
+    .eq('id', userId);
+
+  if (profileError) throw profileError;
+
+  return company.id;
+}
+
+/**
+ * Step 3: Save single location and auto-generate permits based on regulatory factors
+ */
+export async function saveLocationWithPermits(
+  companyId: string,
+  locationData: {
+    name: string;
+    address: string;
+    status: 'operando' | 'en_preparacion' | 'cerrado';
+    regulatory: {
+      alimentos: boolean;
+      alcohol: boolean;
+      salud: boolean;
+      quimicos: boolean;
+    };
+  }
+): Promise<string> {
+  // 1. Create location
+  const locationInsert: LocationInsert = {
+    company_id: companyId,
+    name: locationData.name,
+    address: locationData.address,
+    status: locationData.status,
+    risk_level: 'medio',
+  };
+
+  const { data: location, error: locationError } = await (supabase
+    .from('locations') as any)
+    .insert(locationInsert)
+    .select()
+    .single();
+
+  if (locationError) throw locationError;
+  if (!location) throw new Error('Failed to create location');
+
+  // 2. Generate permits using existing helper
+  try {
+    await generateInitialPermits(companyId, location.id, locationData.regulatory);
+  } catch (error) {
+    // Rollback: delete the location if permit creation failed
+    await supabase.from('locations').delete().eq('id', location.id);
+    throw error;
+  }
+
+  return location.id;
+}
+
+/**
+ * Check if company has any locations
+ */
+export async function checkHasLocations(
+  companyId: string
+): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('locations')
+    .select('id')
+    .eq('company_id', companyId)
+    .limit(1);
+
+  if (error) throw error;
+  return (data?.length ?? 0) > 0;
 }

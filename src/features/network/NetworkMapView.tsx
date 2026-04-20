@@ -34,7 +34,6 @@ const statusEdgeColor: Record<PermitStatus, string> = {
   por_vencer: '#eab308',
   vencido: '#ef4444',
   no_registrado: '#d1d5db',
-  en_tramite: '#3b82f6',
 };
 
 const riskColor: Record<RiskLevel, string> = {

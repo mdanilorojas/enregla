@@ -12,7 +12,6 @@ const statusDotColors: Record<PermitStatus, string> = {
   por_vencer: 'bg-yellow-500',
   vencido: 'bg-red-500',
   no_registrado: 'bg-gray-400',
-  en_tramite: 'bg-blue-500',
 };
 
 interface StatusDotProps {

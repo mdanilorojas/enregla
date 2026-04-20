@@ -4,7 +4,6 @@ const statusRiskWeight: Record<PermitStatus, number> = {
   vencido: 4,
   no_registrado: 3,
   por_vencer: 2,
-  en_tramite: 1,
   vigente: 0,
 };
 
@@ -28,7 +27,7 @@ export function calculateCompanyRisk(locations: Location[]): RiskLevel {
 
 export function calculateCompliancePercentage(permits: Permit[]): number {
   if (permits.length === 0) return 0;
-  const compliant = permits.filter(p => p.status === 'vigente' || p.status === 'en_tramite').length;
+  const compliant = permits.filter(p => p.status === 'vigente').length;
   return Math.round((compliant / permits.length) * 100);
 }
 
