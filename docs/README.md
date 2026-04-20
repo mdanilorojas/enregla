@@ -4,49 +4,75 @@ Welcome to the EnRegla documentation. This directory contains all product, techn
 
 ---
 
+## 🏆 **START HERE: [Core Documentation](./core/README.md)**
+
+**La carpeta `core/` contiene ÚNICAMENTE documentación esencial (oro puro):**
+- **PRODUCT.md** - La biblia del producto
+- **ROADMAP.md** - Plan de releases Q2-Q4 2026
+- **BACKLOG.md** - User stories priorizadas (RICE)
+- **CODE-REVIEW-FINDINGS.md** - Audit técnico
+- **PM-DOCUMENTATION-AUDIT.md** - Audit de PM (8.5/10)
+- **DESIGN-CONTEXT.md** - Principios de diseño & brand
+
+**👉 Si eres nuevo, empieza por [docs/core/](./core/README.md)**
+
+---
+
 ## 📁 Documentation Structure
 
 ```
 docs/
 ├── README.md                    # This file - Documentation index
-├── product/                     # Product strategy & planning
+│
+├── core/ 🏆                     # ORO PURO - Essential docs only
+│   ├── README.md               # Guide to core documentation
 │   ├── PRODUCT.md              # Product vision, features, metrics
 │   ├── ROADMAP.md              # Release roadmap (Phases 1-4)
-│   └── BACKLOG.md              # Prioritized user stories (RICE)
+│   ├── BACKLOG.md              # Prioritized user stories (RICE)
+│   ├── CODE-REVIEW-FINDINGS.md # Technical audit
+│   ├── PM-DOCUMENTATION-AUDIT.md # PM frameworks audit
+│   └── DESIGN-CONTEXT.md       # Design principles & brand
 │
-├── architecture/                # Technical architecture & design
-│   └── .impeccable.md          # Design principles & brand identity
+├── product/                     # Product strategy (source files)
+│   ├── PRODUCT.md
+│   ├── ROADMAP.md
+│   └── BACKLOG.md
 │
-├── project/                     # Project management & status
-│   ├── status-2026-04-14.md    # Project status snapshots
-│   ├── CODE-REVIEW-FINDINGS.md # Audit results & recommendations
-│   ├── UI-V2-INVENTORY.md      # Feature migration status
-│   ├── UI-V2-MERGE-PLAN.md     # Merge strategy & checklists
-│   └── PR-DESCRIPTION.md       # Pull request templates
+├── architecture/                # Technical architecture
+│   └── .impeccable.md
 │
-├── guides/                      # How-to guides (empty - to be filled)
-│   ├── user/                   # End-user guides
-│   └── developer/              # Developer guides
+├── project/                     # Project management & WIP
+│   ├── CODE-REVIEW-FINDINGS.md
+│   ├── PM-DOCUMENTATION-AUDIT.md
+│   ├── UI-V2-INVENTORY.md
+│   ├── status-*.md
+│   └── (cleanup plans, reorganization docs)
 │
-├── superpowers/                 # Feature specs & implementations
-│   ├── specs/                  # Feature design documents
-│   ├── plans/                  # Implementation plans
-│   └── testing/                # Test reports & checklists
+├── guides/                      # How-to guides (future)
+│   ├── user/
+│   └── developer/
+│
+├── superpowers/                 # Feature specs & plans
+│   ├── specs/
+│   ├── plans/
+│   └── testing/
 │
 └── legacy/                      # Archived documentation
-    ├── SUPABASE_SETUP.md       # Original Supabase guide
-    ├── DESIGN_SYSTEM.md        # Original design system docs
-    └── deep-research-report.md # Historical research
+    └── (old design docs, research)
 ```
 
 ---
 
 ## 📚 Quick Links
 
-### Product Documentation
-- **[Product Overview](./product/PRODUCT.md)** - Complete product vision, strategy, features, and metrics
-- **[Roadmap](./product/ROADMAP.md)** - Release timeline and planned features (Q2-Q4 2026)
-- **[Backlog](./product/BACKLOG.md)** - Prioritized user stories with RICE scoring
+### 🏆 Core Documentation (START HERE)
+- **[Core Docs Index](./core/README.md)** - Essential documentation guide
+- **[Product Overview](./core/PRODUCT.md)** - Complete product vision, strategy, features
+- **[Roadmap](./core/ROADMAP.md)** - Release timeline Q2-Q4 2026
+- **[Backlog](./core/BACKLOG.md)** - Prioritized user stories (RICE)
+- **[Code Review](./core/CODE-REVIEW-FINDINGS.md)** - Technical audit (6/10 → Production-ready)
+- **[PM Audit](./core/PM-DOCUMENTATION-AUDIT.md)** - Documentation audit (8.5/10)
+- **[Design Context](./core/DESIGN-CONTEXT.md)** - Brand identity & design principles
 
 ### Technical Documentation
 - **[Design Context](./architecture/.impeccable.md)** - Design principles, brand identity, aesthetic direction
