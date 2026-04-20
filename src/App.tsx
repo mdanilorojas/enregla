@@ -17,6 +17,7 @@ import { PermitDetailView } from '@/features/permits/PermitDetailView';
 import { RenewalTimelineView } from '@/features/renewals/RenewalTimelineView';
 import { TaskBoardView } from '@/features/tasks/TaskBoardView';
 import { LegalReferenceView } from '@/features/legal/LegalReferenceView';
+import { LegalReferenceView as LegalReferenceViewV2 } from '@/features-v2/legal/LegalReferenceView';
 import { OnboardingWizard } from '@/features/onboarding/OnboardingWizard';
 import { IncrementalWizard } from '@/features-v2/onboarding-incremental/IncrementalWizard';
 import { PublicVerificationPage } from '@/features-v2/public-links/PublicVerificationPage';
@@ -117,7 +118,7 @@ export default function App() {
           <Route path="/permisos/:id" element={<PermitDetailView />} />
           <Route path="/renovaciones" element={<RenewalTimelineView />} />
           <Route path="/tareas" element={<TaskBoardView />} />
-          <Route path="/marco-legal" element={<LegalReferenceView />} />
+          <Route path="/marco-legal" element={UI_VERSION === 'v2' ? <LegalReferenceViewV2 /> : <LegalReferenceView />} />
           <Route path="/design-system" element={<DesignSystemView />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
