@@ -1,19 +1,39 @@
-import { NetworkMapView } from './NetworkMapView';
-import { NetworkMapViewV2 } from '@/features-v2/network/NetworkMapViewV2';
-import { UI_VERSION } from '@/config';
+import { useState } from 'react';
+import { NetworkMapViewV2 } from './NetworkMapViewV2';
+import { NetworkMapV3 } from './NetworkMapV3';
 
 export function NetworkMapPage() {
+  const [useV3, setUseV3] = useState(true);
+
   return (
-    <div className="fixed inset-0 left-[256px] top-[64px]">
-      <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-sm rounded-xl border border-gray-200/80 shadow-lg px-4 py-3">
-        <h2 className="text-lg font-bold text-gray-900 mb-0.5">Mapa de Red</h2>
-        <p className="text-xs text-gray-500">Vista interactiva de sedes y permisos</p>
+    <div className="relative h-full">
+      {/* Version toggle (top-right, temporary for testing) */}
+      <div className="absolute top-4 right-4 z-20 flex items-center gap-2 bg-white rounded-lg shadow-lg px-3 py-2 border border-gray-200">
+        <span className="text-xs font-medium text-gray-600">Versión:</span>
+        <button
+          onClick={() => setUseV3(false)}
+          className={`px-2 py-1 text-xs rounded ${
+            !useV3
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          V2
+        </button>
+        <button
+          onClick={() => setUseV3(true)}
+          className={`px-2 py-1 text-xs rounded ${
+            useV3
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          V3
+        </button>
       </div>
-      {UI_VERSION === 'v2' ? (
-        <NetworkMapViewV2 embedded={false} />
-      ) : (
-        <NetworkMapView embedded={false} />
-      )}
+
+      {/* Render selected version */}
+      {useV3 ? <NetworkMapV3 /> : <NetworkMapViewV2 />}
     </div>
   );
 }
