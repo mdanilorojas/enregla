@@ -21,4 +21,45 @@ describe('useStaticLayout', () => {
     expect(companyNode?.type).toBe('company');
     expect(companyNode?.data.name).toBe('Test Company');
   });
+
+  it('distributes sedes in circle with radius 350px', () => {
+    const mockLocations = [
+      {
+        id: 'loc-1',
+        name: 'Sede 1',
+        address: 'Calle 1',
+        risk_level: 'bajo',
+        company_id: 'comp-1',
+        is_active: true,
+        created_at: '2024-01-01',
+      },
+      {
+        id: 'loc-2',
+        name: 'Sede 2',
+        address: 'Calle 2',
+        risk_level: 'medio',
+        company_id: 'comp-1',
+        is_active: true,
+        created_at: '2024-01-01',
+      },
+    ];
+
+    const { result } = renderHook(() =>
+      useStaticLayout({
+        locations: mockLocations,
+        permits: [],
+        isDesktop: true,
+        companyName: 'Test',
+      })
+    );
+
+    const sedeNodes = result.current.nodes.filter(n => n.type === 'sede');
+
+    expect(sedeNodes).toHaveLength(2);
+
+    sedeNodes.forEach(sede => {
+      const distance = Math.sqrt(sede.position.x ** 2 + sede.position.y ** 2);
+      expect(distance).toBeCloseTo(350, 1);
+    });
+  });
 });
