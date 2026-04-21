@@ -41,6 +41,14 @@ export function useStaticLayout({
       bajo: '#22c55e',
     };
 
+    // Permit status colors
+    const statusEdgeColor: Record<string, string> = {
+      vigente: '#22c55e',
+      por_vencer: '#eab308',
+      vencido: '#ef4444',
+      no_registrado: '#d1d5db',
+    };
+
     // Calculate compliance
     function calculateCompliance(permits: Permit[]): number {
       const active = permits.filter(p => p.is_active);
@@ -111,6 +119,48 @@ export function useStaticLayout({
         },
         animated: loc.risk_level === 'critico',
       });
+
+      // Permits around each sede (only on desktop)
+      if (isDesktop) {
+        locPermits.forEach((permit, j) => {
+          // Dynamic radius based on permit count: 120px min, 240px max
+          const permitRadius = Math.max(120, Math.min(240, 80 + locPermits.length * 12));
+
+          // Distribute in arc aligned with sede's angle
+          const permitAngle = (2 * Math.PI * j / locPermits.length) + angle;
+          const permitPos = {
+            x: sedePos.x + Math.cos(permitAngle) * permitRadius,
+            y: sedePos.y + Math.sin(permitAngle) * permitRadius,
+          };
+
+          nodes.push({
+            id: permit.id,
+            type: 'permit',
+            position: permitPos,
+            data: {
+              label: permit.type,
+              status: permit.status,
+              issuer: permit.issuer || 'N/A',
+            },
+          });
+
+          // Edge: Sede → Permit
+          const permitHandles = getHandlePair(sedePos.x, sedePos.y, permitPos.x, permitPos.y);
+          edges.push({
+            id: `${loc.id}-${permit.id}`,
+            source: loc.id,
+            target: permit.id,
+            sourceHandle: `s-${permitHandles.sourceHandle}`,
+            targetHandle: permitHandles.targetHandle,
+            style: {
+              stroke: statusEdgeColor[permit.status] || '#d1d5db',
+              strokeWidth: (permit.status === 'vencido' || permit.status === 'no_registrado') ? 2.5 : 1.5,
+              opacity: permit.status === 'no_registrado' ? 0.35 : 0.6,
+            },
+            animated: permit.status === 'vencido',
+          });
+        });
+      }
     });
 
     return { nodes, edges };
