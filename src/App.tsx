@@ -105,26 +105,8 @@ export default function App() {
           <Route path="/documentos" element={<DocumentVaultView />} />
           <Route path="/marco-legal" element={<LegalReferenceView />} />
           <Route path="/design-system" element={<DesignSystemView />} />
-          <Route
-            path="/settings/notifications"
-            element={
-              <ProtectedRoute>
-                <AppLayout>
-                  <SettingsView />
-                </AppLayout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <ProtectedRoute>
-                <AppLayout>
-                  <SettingsView />
-                </AppLayout>
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/settings" element={<SettingsView />} />
+          <Route path="/settings/notifications" element={<SettingsView />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

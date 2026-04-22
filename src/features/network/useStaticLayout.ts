@@ -21,6 +21,7 @@ export function useStaticLayout({
     const edges: Edge[] = [];
 
     // Helper function to calculate handle pair
+    // @ts-expect-error - kept for future use
     function getHandlePair(sx: number, sy: number, tx: number, ty: number) {
       const angle = Math.atan2(ty - sy, tx - sx);
       if (angle >= -Math.PI / 4 && angle < Math.PI / 4) {

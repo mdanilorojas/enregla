@@ -24,7 +24,7 @@ export function useNotificationPreferences(userId: string | undefined) {
         const { data, error } = await supabase
           .from('notification_preferences')
           .select('email_enabled, expiry_alerts_enabled, digest_enabled')
-          .eq('user_id', userId)
+          .eq('user_id', userId as string)
           .single();
 
         if (error) throw error;
@@ -47,8 +47,8 @@ export function useNotificationPreferences(userId: string | undefined) {
     if (!userId) return;
 
     try {
-      const { error } = await supabase
-        .from('notification_preferences')
+      const query = supabase.from('notification_preferences') as any;
+      const { error } = await query
         .update(updates)
         .eq('user_id', userId);
 

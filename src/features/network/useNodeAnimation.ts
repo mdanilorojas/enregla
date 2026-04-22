@@ -27,7 +27,7 @@ export function useNodeAnimation(nodes: Node[]): Set<string> {
       });
 
       // Stagger animation: 50ms delay between each node
-      const timers: NodeJS.Timeout[] = [];
+      const timers: ReturnType<typeof setTimeout>[] = [];
       sortedNew.forEach((id, index) => {
         const timer = setTimeout(() => {
           setAnimatedNodes(prev => new Set([...prev, id]));

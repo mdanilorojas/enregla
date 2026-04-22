@@ -43,27 +43,26 @@ export function useAuth() {
             setAuth(session.user, null);
 
             // Fetch profile in background (non-blocking)
-            supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single()
-              .then(({ data: profileData, error: profileError }) => {
+            (async () => {
+              try {
+                const { data: profileData, error: profileError } = await supabase
+                  .from('profiles')
+                  .select('*')
+                  .eq('id', session.user.id)
+                  .single();
+
                 console.log('[useAuth] Profile query result - Data:', profileData ? 'EXISTS' : 'NULL', 'Error:', profileError?.message || 'NONE');
 
                 if (profileError) {
                   console.error('[useAuth] Profile fetch error:', profileError);
-                  // Keep user set, profile stays null
                 } else if (profileData) {
                   console.log('[useAuth] Profile loaded successfully:', profileData);
-                  // Update with profile data
                   setAuth(session.user, profileData);
                 }
-              })
-              .catch((error) => {
+              } catch (error) {
                 console.error('[useAuth] Profile fetch failed:', error);
-                // User is still set, profile stays null
-              });
+              }
+            })();
           } else if (event === 'SIGNED_OUT') {
             clear();
           }

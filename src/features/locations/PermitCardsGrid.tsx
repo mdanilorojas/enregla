@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { FileText, AlertCircle, Clock, FileX, Upload, Trash2, Eye, FileCheck } from 'lucide-react';
-import { uploadPermitDocument, getDocumentUrl } from '@/lib/api/documents';
+import { uploadPermitDocument } from '@/lib/api/documents';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

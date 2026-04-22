@@ -1,5 +1,5 @@
 // src/features/network/NetworkMapV3.tsx
-import { useCallback, useMemo, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ReactFlow,
@@ -8,6 +8,7 @@ import {
   useNodesState,
   useEdgesState,
   type Node,
+  type Edge,
   type NodeTypes,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -41,11 +42,11 @@ export function NetworkMapV3() {
     locations,
     permits,
     isDesktop,
-    companyName: profile?.company_name || 'Empresa',
+    companyName: 'Empresa',
   });
 
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
 
   // Sync nodes and edges when layout changes
   useEffect(() => {

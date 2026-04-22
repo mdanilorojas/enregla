@@ -64,11 +64,6 @@ export function LocationDetailView() {
     );
   }
 
-  const handleRenewPermit = (permit: Permit) => {
-    setSelectedPermit(permit);
-    setRenewModalOpen(true);
-  };
-
   const handleViewPermitDetails = (permitId: string) => {
     navigate(`/permisos/${permitId}`);
   };
