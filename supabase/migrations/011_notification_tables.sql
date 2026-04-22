@@ -5,22 +5,43 @@
 -- Table: notification_logs
 -- Purpose: Audit trail of all sent notifications
 CREATE TABLE notification_logs (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) NOT NULL,
   permit_id UUID REFERENCES permits(id) NOT NULL,
   notification_type TEXT NOT NULL CHECK (notification_type IN ('expiry_30d', 'expiry_15d', 'expiry_7d')),
-  sent_at TIMESTAMP DEFAULT NOW(),
+  sent_at TIMESTAMPTZ DEFAULT NOW(),
   email_status TEXT NOT NULL CHECK (email_status IN ('sent', 'failed', 'bounced')),
   error_message TEXT,
   resend_message_id TEXT,
-  created_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Enable Row Level Security
+ALTER TABLE notification_logs ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policy: Users can read logs for their own company's permits
+CREATE POLICY "Users can read own company notification logs"
+ON notification_logs FOR SELECT
+USING (
+  EXISTS (
+    SELECT 1 FROM permits
+    WHERE permits.id = notification_logs.permit_id
+    AND permits.company_id = public.user_company_id()
+  )
+);
+
+-- Note: INSERT policy not needed - only system/background jobs should write to this table
 
 -- Indexes for performance
 CREATE INDEX idx_notification_logs_user_permit
   ON notification_logs(user_id, permit_id, notification_type);
 CREATE INDEX idx_notification_logs_sent_at
   ON notification_logs(sent_at);
+
+-- Partial index for failed notifications monitoring
+CREATE INDEX idx_notification_logs_failed
+  ON notification_logs(email_status, sent_at)
+  WHERE email_status IN ('failed', 'bounced');
 
 -- Comments
 COMMENT ON TABLE notification_logs IS 'Audit trail of email notifications sent to users';
