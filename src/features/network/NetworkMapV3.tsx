@@ -1,5 +1,5 @@
 // src/features/network/NetworkMapV3.tsx
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ReactFlow,
@@ -19,13 +19,12 @@ import { usePermits } from '@/hooks/usePermits';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useStaticLayout } from './useStaticLayout';
 import { CompanyNode } from './nodes/CompanyNode';
-import { SedeNode } from './nodes/SedeNode';
-import { PermitNode } from './nodes/PermitNode';
+import { LocationNode } from './nodes/LocationNode';
+import { supabase } from '@/lib/supabase';
 
 const nodeTypes: NodeTypes = {
   company: CompanyNode,
-  sede: SedeNode,
-  permit: PermitNode,
+  location: LocationNode,
 };
 
 export function NetworkMapV3() {
@@ -37,12 +36,25 @@ export function NetworkMapV3() {
   const { permits, loading: permitsLoading, error: permitsError } = usePermits({ companyId });
   const isDesktop = useMediaQuery('(min-width: 1024px)');
 
+  // Fetch company name
+  const [companyName, setCompanyName] = useState('Empresa Matriz');
+  useEffect(() => {
+    if (!companyId) return;
+    (supabase.from('companies') as any)
+      .select('name')
+      .eq('id', companyId)
+      .single()
+      .then(({ data }: { data: { name: string } | null }) => {
+        if (data?.name) setCompanyName(data.name);
+      });
+  }, [companyId]);
+
   // Static layout
   const { nodes: layoutNodes, edges: layoutEdges } = useStaticLayout({
     locations,
     permits,
     isDesktop,
-    companyName: 'Empresa',
+    companyName,
   });
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
@@ -57,10 +69,8 @@ export function NetworkMapV3() {
   // Node click handler
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: Node) => {
-      if (node.type === 'sede') {
+      if (node.type === 'location') {
         navigate(`/locations/${node.id}`);
-      } else if (node.type === 'permit') {
-        navigate(`/permits/${node.id}`);
       }
     },
     [navigate]
@@ -69,10 +79,10 @@ export function NetworkMapV3() {
   // Loading state
   if (locationsLoading || permitsLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-screen items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-primary border-t-transparent" />
-          <p className="text-sm text-neutral-600">Cargando mapa de red...</p>
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#1E3A8A] border-t-transparent" />
+          <p className="text-sm text-gray-600">Cargando mapa de red...</p>
         </div>
       </div>
     );
@@ -81,11 +91,11 @@ export function NetworkMapV3() {
   // Error state
   if (locationsError || permitsError) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-screen items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center gap-4 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-status-error/10">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
             <svg
-              className="h-6 w-6 text-status-error"
+              className="h-6 w-6 text-red-500"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -99,16 +109,16 @@ export function NetworkMapV3() {
             </svg>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-neutral-900">
+            <h3 className="text-lg font-semibold text-gray-900">
               Error al cargar datos
             </h3>
-            <p className="mt-1 text-sm text-neutral-600">
+            <p className="mt-1 text-sm text-gray-600">
               {locationsError || permitsError}
             </p>
           </div>
           <button
             onClick={() => window.location.reload()}
-            className="mt-2 rounded-lg bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:bg-brand-primary/90"
+            className="mt-2 rounded-lg bg-[#1E3A8A] px-4 py-2 text-sm font-medium text-white hover:bg-[#1E3A8A]/90"
           >
             Reintentar
           </button>
@@ -120,11 +130,11 @@ export function NetworkMapV3() {
   // Empty state
   if (locations.length === 0) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-screen items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center gap-4 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
             <svg
-              className="h-8 w-8 text-neutral-400"
+              className="h-8 w-8 text-gray-400"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -144,16 +154,16 @@ export function NetworkMapV3() {
             </svg>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-neutral-900">
+            <h3 className="text-lg font-semibold text-gray-900">
               No hay sedes registradas
             </h3>
-            <p className="mt-1 text-sm text-neutral-600">
+            <p className="mt-1 text-sm text-gray-600">
               Agrega tu primera sede para comenzar a visualizar tu red de compliance
             </p>
           </div>
           <button
             onClick={() => navigate('/locations/new')}
-            className="mt-2 rounded-lg bg-brand-primary px-4 py-2 text-sm font-medium text-white hover:bg-brand-primary/90"
+            className="mt-2 rounded-lg bg-[#1E3A8A] px-4 py-2 text-sm font-medium text-white hover:bg-[#1E3A8A]/90"
           >
             Agregar sede
           </button>
@@ -165,10 +175,10 @@ export function NetworkMapV3() {
   // Mobile view (list instead of network map)
   if (!isDesktop) {
     return (
-      <div className="flex h-screen flex-col bg-neutral-50">
+      <div className="flex h-screen flex-col bg-gray-50">
         <div className="border-b bg-white px-4 py-4">
-          <h1 className="text-xl font-semibold text-neutral-900">Red de Sedes</h1>
-          <p className="mt-1 text-sm text-neutral-600">
+          <h1 className="text-xl font-semibold text-gray-900">Red de Sedes</h1>
+          <p className="mt-1 text-sm text-gray-600">
             {locations.length} {locations.length === 1 ? 'sede' : 'sedes'} registradas
           </p>
         </div>
@@ -178,60 +188,55 @@ export function NetworkMapV3() {
               const locPermits = permits.filter(
                 p => p.location_id === location.id && p.is_active
               );
-              const compliance = locPermits.length
-                ? Math.round(
-                    (locPermits.filter(p => p.status === 'vigente').length /
-                      locPermits.length) *
-                      100
-                  )
-                : 0;
-              const critical = locPermits.filter(
+              const expired = locPermits.filter(
                 p => p.status === 'vencido' || p.status === 'no_registrado'
+              ).length;
+              const expiringSoon = locPermits.filter(
+                p => p.status === 'por_vencer'
               ).length;
 
               return (
                 <button
                   key={location.id}
                   onClick={() => navigate(`/locations/${location.id}`)}
-                  className="w-full rounded-lg border bg-white p-4 text-left transition-shadow hover:shadow-md"
+                  className="w-full rounded-xl border border-gray-200 bg-white p-4 text-left transition-shadow hover:shadow-md"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h3 className="font-medium text-neutral-900">
+                      <h3 className="font-medium text-gray-900">
                         {location.name}
                       </h3>
-                      <p className="mt-1 text-sm text-neutral-600">
+                      <p className="mt-1 text-sm text-gray-600">
                         {location.address}
                       </p>
                     </div>
                     <span
                       className={`rounded-full px-2 py-1 text-xs font-medium ${
                         location.risk_level === 'critico'
-                          ? 'bg-status-error/10 text-status-error'
+                          ? 'bg-red-50 text-red-700'
                           : location.risk_level === 'alto'
-                            ? 'bg-status-warning/10 text-status-warning'
+                            ? 'bg-orange-50 text-orange-700'
                             : location.risk_level === 'medio'
-                              ? 'bg-yellow-100 text-yellow-700'
-                              : 'bg-status-success/10 text-status-success'
+                              ? 'bg-amber-50 text-amber-700'
+                              : 'bg-emerald-50 text-emerald-700'
                       }`}
                     >
                       {location.risk_level}
                     </span>
                   </div>
                   <div className="mt-3 flex items-center gap-4 text-sm">
-                    <div>
-                      <span className="text-neutral-600">Cumplimiento: </span>
-                      <span className="font-medium text-neutral-900">
-                        {compliance}%
+                    <span className="text-gray-600">
+                      {locPermits.length} permisos
+                    </span>
+                    {expiringSoon > 0 && (
+                      <span className="text-amber-600 font-medium">
+                        {expiringSoon} por vencer
                       </span>
-                    </div>
-                    {critical > 0 && (
-                      <div>
-                        <span className="text-neutral-600">Críticos: </span>
-                        <span className="font-medium text-status-error">
-                          {critical}
-                        </span>
-                      </div>
+                    )}
+                    {expired > 0 && (
+                      <span className="text-red-600 font-medium">
+                        {expired} vencidos
+                      </span>
                     )}
                   </div>
                 </button>
@@ -243,9 +248,9 @@ export function NetworkMapV3() {
     );
   }
 
-  // Success state - Network map (Unify dark theme)
+  // Desktop: Network map with light theme
   return (
-    <div className="h-screen w-full bg-[#1a1a1a]">
+    <div className="h-screen w-full bg-gray-50">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -255,9 +260,9 @@ export function NetworkMapV3() {
         nodeTypes={nodeTypes}
         fitView
         fitViewOptions={{
-          padding: 0.2,
+          padding: 0.3,
           maxZoom: 1,
-          minZoom: 0.5,
+          minZoom: 0.4,
         }}
         minZoom={0.3}
         maxZoom={1.5}
@@ -265,14 +270,14 @@ export function NetworkMapV3() {
         proOptions={{ hideAttribution: true }}
       >
         <Background
-          color="#404040"
-          gap={16}
+          color="#CBD5E1"
+          gap={24}
           size={1}
-          className="opacity-30"
+          className="opacity-40"
         />
         <Controls
           showInteractive={false}
-          className="!bg-[#2a2a2a] !border-white/10 [&_button]:!bg-[#2a2a2a] [&_button]:!border-white/10 [&_button]:!text-white"
+          className="!bg-white !border-gray-200 !shadow-md [&_button]:!bg-white [&_button]:!border-gray-200 [&_button]:!text-gray-600 [&_button:hover]:!bg-gray-50"
         />
       </ReactFlow>
     </div>
