@@ -31,6 +31,7 @@ export function RiskBadge({ level, className }: RiskBadgeProps) {
 
   return (
     <Badge variant={config.variant} className={className}>
+      <span className="w-1.5 h-1.5 rounded-full bg-current flex-shrink-0" />
       {config.label}
     </Badge>
   );

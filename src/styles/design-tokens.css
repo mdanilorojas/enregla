@@ -9,7 +9,7 @@
   /* ========================================
    * Typography
    * ======================================== */
-  --font-family-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
   /* Type Scale - Fixed for App UI (1.33 ratio - Perfect Fourth) */
   --font-size-xs: 0.75rem;    /* 12px - Captions, metadata */
@@ -20,7 +20,7 @@
   --font-size-2xl: 1.77rem;   /* 28px - Section headings */
   --font-size-3xl: 2.37rem;   /* 38px - Page headings */
 
-  /* Font Weights - Manrope optimized */
+  /* Font Weights - DM Sans optimized */
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
@@ -75,18 +75,52 @@
    * Risk Levels (Compliance-specific)
    * ======================================== */
   --color-risk-critico: #EF4444;
+  --color-risk-critico-text: #991B1B;
+  --color-risk-critico-bg: #FEE2E2;
+  --color-risk-critico-border: #FCA5A5;
+
   --color-risk-alto: #F97316;
+  --color-risk-alto-text: #9A3412;
+  --color-risk-alto-bg: #FFF7ED;
+  --color-risk-alto-border: #FDBA74;
+
   --color-risk-medio: #EAB308;
+  --color-risk-medio-text: #713F12;
+  --color-risk-medio-bg: #FEFCE8;
+  --color-risk-medio-border: #FDE047;
+
   --color-risk-bajo: #22C55E;
+  --color-risk-bajo-text: #14532D;
+  --color-risk-bajo-bg: #DCFCE7;
+  --color-risk-bajo-border: #86EFAC;
 
   /* ========================================
    * Status Colors (Permit-specific)
    * ======================================== */
-  --color-status-vigente: #22C55E;
-  --color-status-por-vencer: #EAB308;
-  --color-status-vencido: #EF4444;
-  --color-status-no-registrado: #9CA3AF;
-  --color-status-en-tramite: #3B82F6;
+  --color-status-vigente: #059669;
+  --color-status-vigente-text: #065F46;
+  --color-status-vigente-bg: #D1FAE5;
+  --color-status-vigente-border: #6EE7B7;
+
+  --color-status-por-vencer: #D97706;
+  --color-status-por-vencer-text: #9A3412;
+  --color-status-por-vencer-bg: #FFF7ED;
+  --color-status-por-vencer-border: #FDBA74;
+
+  --color-status-vencido: #DC2626;
+  --color-status-vencido-text: #991B1B;
+  --color-status-vencido-bg: #FEE2E2;
+  --color-status-vencido-border: #FCA5A5;
+
+  --color-status-en-tramite: #0284C7;
+  --color-status-en-tramite-text: #075985;
+  --color-status-en-tramite-bg: #E0F2FE;
+  --color-status-en-tramite-border: #7DD3FC;
+
+  --color-status-no-registrado: #94A3B8;
+  --color-status-no-registrado-text: #475569;
+  --color-status-no-registrado-bg: #F1F5F9;
+  --color-status-no-registrado-border: #94A3B8;
 
   /* ========================================
    * Neutral Colors (EnRegla scale)
