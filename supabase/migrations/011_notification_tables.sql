@@ -114,3 +114,39 @@ CREATE TRIGGER notification_preferences_update_updated_at
 
 COMMENT ON FUNCTION public.create_default_notification_preferences() IS 'Auto-creates notification preferences when user signs up';
 COMMENT ON FUNCTION public.update_notification_preferences_updated_at() IS 'Auto-updates the updated_at timestamp when notification preferences are modified';
+
+-- =============================================
+-- Function: get_expiring_permits
+-- Purpose: Get all permits expiring in 30, 15, or 7 days
+-- =============================================
+CREATE OR REPLACE FUNCTION public.get_expiring_permits()
+RETURNS TABLE (
+  permit_id UUID,
+  type TEXT,
+  expiry_date DATE,
+  location_name TEXT,
+  notification_type TEXT,
+  company_id UUID
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    p.id as permit_id,
+    p.type,
+    p.expiry_date,
+    l.name as location_name,
+    CASE
+      WHEN (p.expiry_date - CURRENT_DATE) = 30 THEN 'expiry_30d'
+      WHEN (p.expiry_date - CURRENT_DATE) = 15 THEN 'expiry_15d'
+      WHEN (p.expiry_date - CURRENT_DATE) = 7 THEN 'expiry_7d'
+    END::TEXT as notification_type,
+    p.company_id
+  FROM permits p
+  JOIN locations l ON p.location_id = l.id
+  WHERE p.is_active = true
+    AND p.expiry_date IS NOT NULL
+    AND (p.expiry_date - CURRENT_DATE) IN (30, 15, 7);
+END;
+$$ LANGUAGE plpgsql;
+
+COMMENT ON FUNCTION public.get_expiring_permits() IS 'Returns permits expiring in 30, 15, or 7 days';
