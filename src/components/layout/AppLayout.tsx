@@ -15,7 +15,8 @@ import {
   Workflow,
   FolderOpen,
   Menu,
-  X
+  X,
+  Settings
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -56,6 +57,11 @@ const menuItems = [
     icon: FolderOpen,
   },
   {
+    title: 'Configuración',
+    url: '/settings',
+    icon: Settings,
+  },
+  {
     title: 'Marco Legal',
     url: '/marco-legal',
     icon: Scale,
@@ -76,6 +82,8 @@ const pageNames: Record<string, string> = {
   '/renovaciones': 'Renovaciones',
   '/tareas': 'Tareas',
   '/documentos': 'Documentos',
+  '/settings': 'Configuración',
+  '/settings/notifications': 'Notificaciones',
   '/marco-legal': 'Marco Legal',
   '/mapa-permisos': 'Mapa de Permisos',
 };
@@ -88,6 +96,8 @@ const pageDescriptions: Record<string, string> = {
   '/renovaciones': 'Línea de tiempo de renovaciones',
   '/tareas': 'Acciones pendientes',
   '/documentos': 'Repositorio de documentación',
+  '/settings': 'Preferencias y configuración',
+  '/settings/notifications': 'Preferencias de notificaciones',
   '/marco-legal': 'Normativa y regulaciones',
   '/mapa-permisos': 'Visualiza permisos por tipo de comercio',
 };
