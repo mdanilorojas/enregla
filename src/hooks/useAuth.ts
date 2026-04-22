@@ -20,10 +20,17 @@ export function useAuth() {
     authInitialized = true;
     console.log('[useAuth] First initialization - relying on auth state change events...');
 
+    // Safety timeout: if loading doesn't resolve in 5s, force it off
+    const safetyTimeout = setTimeout(() => {
+      console.warn('[useAuth] Safety timeout triggered - forcing loading=false');
+      setAuth(null, null);
+    }, 5000);
+
     // Check initial session immediately
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) {
         console.log('[useAuth] No initial session found');
+        clearTimeout(safetyTimeout);
         clear();
         return;
       }
@@ -41,11 +48,18 @@ export function useAuth() {
           console.error('[useAuth] Initial profile fetch error:', profileError);
         }
 
+        console.log('[useAuth] Profile loaded:', profileData ? 'EXISTS' : 'NULL');
+        clearTimeout(safetyTimeout);
         setAuth(session.user, profileData || null);
       } catch (error) {
         console.error('[useAuth] Initial profile fetch failed:', error);
+        clearTimeout(safetyTimeout);
         setAuth(session.user, null);
       }
+    }).catch(error => {
+      console.error('[useAuth] getSession failed:', error);
+      clearTimeout(safetyTimeout);
+      clear();
     });
 
     // Listen for auth changes (only once)
@@ -66,6 +80,9 @@ export function useAuth() {
                 .single();
 
               console.log('[useAuth] Profile query result - Data:', profileData ? 'EXISTS' : 'NULL', 'Error:', profileError?.message || 'NONE');
+              if (profileData) {
+                console.log('[useAuth] Profile company_id:', profileData.company_id);
+              }
 
               if (profileError && profileError.code !== 'PGRST116') {
                 console.error('[useAuth] Profile fetch error:', profileError);
