@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getCompanyLocations, getLocation } from '@/lib/api/locations';
 import { usePermits } from '@/hooks/usePermits';
 import { calculateLocationRiskLevel } from '@/lib/dashboard-metrics';
@@ -24,13 +24,7 @@ export function useLocations(companyId: string | null | undefined) {
 
     getCompanyLocations(companyId)
       .then((data) => {
-        // Calculate risk_level on-demand for each location
-        const locationsWithRisk = data.map(location => ({
-          ...location,
-          risk_level: calculateLocationRiskLevel(location, permits),
-        }));
-
-        setLocations(locationsWithRisk);
+        setLocations(data);
         setError(null);
       })
       .catch((err) => {
@@ -41,23 +35,30 @@ export function useLocations(companyId: string | null | undefined) {
       .finally(() => {
         setLoading(false);
       });
-  }, [companyId, permits]); // Re-calculate when permits change
+  }, [companyId]); // Only re-fetch when companyId changes
 
-  return { locations, loading, error, refetch: () => {
-    if (companyId) {
-      setLoading(true);
-      getCompanyLocations(companyId)
-        .then((data) => {
-          const locationsWithRisk = data.map(location => ({
-            ...location,
-            risk_level: calculateLocationRiskLevel(location, permits),
-          }));
-          setLocations(locationsWithRisk);
-        })
-        .catch((err) => setError(err.message))
-        .finally(() => setLoading(false));
+  // Memoize risk calculation to avoid re-computing on every render
+  const locationsWithRisk = useMemo(() => {
+    return locations.map(location => ({
+      ...location,
+      risk_level: calculateLocationRiskLevel(location, permits),
+    }));
+  }, [locations, permits]); // Re-calculate only when locations or permits change
+
+  return {
+    locations: locationsWithRisk,
+    loading,
+    error,
+    refetch: () => {
+      if (companyId) {
+        setLoading(true);
+        getCompanyLocations(companyId)
+          .then(setLocations)
+          .catch((err) => setError(err.message))
+          .finally(() => setLoading(false));
+      }
     }
-  }};
+  };
 }
 
 export function useLocation(locationId: string | null | undefined) {

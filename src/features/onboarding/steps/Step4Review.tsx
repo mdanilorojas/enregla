@@ -1,4 +1,7 @@
 import { Building2, MapPin, Shield, CheckCircle2 } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 interface CompanyData {
   name: string;
@@ -56,132 +59,131 @@ export function Step4Review({ company, regulatory, locations }: Props) {
   ].filter((f): f is string => Boolean(f));
 
   return (
-    <div>
-      <h2 className="text-xl font-semibold text-gray-900 mb-1 tracking-tight">
-        Revisar y confirmar
-      </h2>
-      <p className="text-[13px] text-gray-500 mb-8">
-        Verifica que toda la información sea correcta. Paso 4 de 4
-      </p>
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-2xl font-semibold text-text mb-2">
+          Revisar y confirmar
+        </h2>
+        <p className="text-sm text-text-secondary">
+          Verifica que toda la información sea correcta. Paso 4 de 4
+        </p>
+      </div>
 
       <div className="space-y-6">
         {/* Company Info */}
-        <div className="border border-gray-200 rounded-xl bg-white p-5 shadow-[0_1px_3px_0_rgba(0,0,0,0.04)]">
+        <Card className="p-5">
           <div className="flex items-center gap-2 mb-4">
-            <Building2 size={18} className="text-gray-700" />
-            <h3 className="text-[15px] font-semibold text-gray-900">
+            <Building2 className="h-5 w-5 text-primary" />
+            <h3 className="text-base font-semibold text-text">
               Empresa
             </h3>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-[13px] text-gray-500">Nombre:</span>
-              <span className="text-[13px] font-medium text-gray-900">
+              <span className="text-sm text-text-secondary">Nombre:</span>
+              <span className="text-sm font-medium text-text">
                 {company.name}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[13px] text-gray-500">RUC:</span>
-              <span className="text-[13px] font-medium text-gray-900">
+              <span className="text-sm text-text-secondary">RUC:</span>
+              <span className="text-sm font-medium text-text">
                 {company.ruc}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[13px] text-gray-500">Ciudad:</span>
-              <span className="text-[13px] font-medium text-gray-900">
+              <span className="text-sm text-text-secondary">Ciudad:</span>
+              <span className="text-sm font-medium text-text">
                 {company.city}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[13px] text-gray-500">Tipo:</span>
-              <span className="text-[13px] font-medium text-gray-900">
+              <span className="text-sm text-text-secondary">Tipo:</span>
+              <span className="text-sm font-medium text-text">
                 {company.business_type}
               </span>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Regulatory Factors */}
-        <div className="border border-gray-200 rounded-xl bg-white p-5 shadow-[0_1px_3px_0_rgba(0,0,0,0.04)]">
+        <Card className="p-5">
           <div className="flex items-center gap-2 mb-4">
-            <Shield size={18} className="text-gray-700" />
-            <h3 className="text-[15px] font-semibold text-gray-900">
+            <Shield className="h-5 w-5 text-primary" />
+            <h3 className="text-base font-semibold text-text">
               Factores regulatorios
             </h3>
           </div>
           {activeFactors.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {activeFactors.map((factor) => (
-                <span
-                  key={factor}
-                  className="px-3 py-1.5 bg-gray-900 text-white text-[12px] font-medium rounded-lg"
-                >
+                <Badge key={factor} variant="secondary">
                   {factor}
-                </span>
+                </Badge>
               ))}
             </div>
           ) : (
-            <p className="text-[13px] text-gray-500">
+            <p className="text-sm text-text-secondary">
               No se seleccionaron factores especiales
             </p>
           )}
-        </div>
+        </Card>
 
         {/* Locations */}
-        <div className="border border-gray-200 rounded-xl bg-white p-5 shadow-[0_1px_3px_0_rgba(0,0,0,0.04)]">
+        <Card className="p-5">
           <div className="flex items-center gap-2 mb-4">
-            <MapPin size={18} className="text-gray-700" />
-            <h3 className="text-[15px] font-semibold text-gray-900">
+            <MapPin className="h-5 w-5 text-primary" />
+            <h3 className="text-base font-semibold text-text">
               Locales ({locations.length})
             </h3>
           </div>
           <div className="space-y-3">
             {locations.map((location, index) => (
-              <div
-                key={index}
-                className="p-3 bg-gray-50 rounded-lg border border-gray-100"
-              >
-                <div className="flex items-start justify-between mb-1">
-                  <span className="text-[13px] font-medium text-gray-900">
-                    {location.name}
-                  </span>
-                  <span className="text-[11px] px-2 py-0.5 bg-gray-200 text-gray-700 rounded font-medium">
-                    {STATUS_LABELS[location.status]}
-                  </span>
+              <div key={index}>
+                {index > 0 && <Separator className="my-3" />}
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between">
+                    <span className="text-sm font-medium text-text">
+                      {location.name}
+                    </span>
+                    <Badge variant="outline" className="text-xs">
+                      {STATUS_LABELS[location.status]}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-text-secondary">{location.address}</p>
                 </div>
-                <p className="text-[12px] text-gray-500">{location.address}</p>
               </div>
             ))}
           </div>
-        </div>
+        </Card>
 
         {/* Permits Preview */}
-        <div className="border border-gray-200 rounded-xl bg-white p-5 shadow-[0_1px_3px_0_rgba(0,0,0,0.04)]">
+        <Card className="p-5">
           <div className="flex items-center gap-2 mb-4">
-            <CheckCircle2 size={18} className="text-gray-700" />
-            <h3 className="text-[15px] font-semibold text-gray-900">
+            <CheckCircle2 className="h-5 w-5 text-success" />
+            <h3 className="text-base font-semibold text-text">
               Permisos a generar
             </h3>
           </div>
-          <p className="text-[13px] text-gray-500 mb-3">
+          <p className="text-sm text-text-secondary mb-3">
             Se crearán {permitsToGenerate.length} permisos por cada local:
           </p>
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             {permitsToGenerate.map((permit) => (
               <div
                 key={permit}
-                className="flex items-center gap-2 text-[13px] text-gray-700"
+                className="flex items-center gap-2 text-sm text-text"
               >
-                <div className="w-1.5 h-1.5 bg-gray-400 rounded-full" />
+                <div className="w-1.5 h-1.5 bg-primary rounded-full" />
                 {permit}
               </div>
             ))}
           </div>
-        </div>
+        </Card>
 
         {/* Info Box */}
-        <div className="p-4 bg-blue-50 border border-blue-100 rounded-lg">
-          <p className="text-[13px] text-blue-900 leading-relaxed">
+        <div className="rounded-lg border border-info-border bg-info-bg p-4">
+          <p className="text-sm text-text leading-relaxed">
             <strong>Al activar el sistema:</strong> Se crearán {locations.length}{' '}
             {locations.length === 1 ? 'local' : 'locales'} con{' '}
             {permitsToGenerate.length * locations.length} permisos totales en

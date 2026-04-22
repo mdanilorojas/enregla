@@ -1,131 +1,136 @@
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import React, { useState } from 'react';
+import { FileText } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { PermitUploadForm } from '@/features/permits/PermitUploadForm';
 import type { Permit } from '@/types/database';
-import { Badge } from '@/components/ui';
-import { PERMIT_TYPE_LABELS, PERMIT_STATUS_LABELS } from '@/types';
-import { formatDate } from '@/lib/dates';
-import { Eye, RefreshCw } from 'lucide-react';
 
 interface PermitsTableProps {
   permits: Permit[];
-  onRenew?: (permitId: string) => void;
+  onRenewPermit: (permit: Permit) => void;
+  onViewDetails: (permitId: string) => void;
+  updatePermit: (
+    permitId: string,
+    updates: {
+      issue_date?: string;
+      expiry_date?: string | null;
+      status?: 'vigente' | 'por_vencer' | 'vencido' | 'en_tramite' | 'no_registrado';
+      permit_number?: string | null;
+      notes?: string | null;
+    }
+  ) => Promise<void>;
+  refetch: () => Promise<void> | undefined;
 }
 
-export function PermitsTable({ permits, onRenew }: PermitsTableProps) {
-  const navigate = useNavigate();
-  const { role } = useAuth();
-  const canEdit = role === 'admin' || role === 'operator';
-
-  const handleViewDetails = (permitId: string) => {
-    navigate(`/permisos/${permitId}`);
-  };
+export function PermitsTable({
+  permits,
+  onRenewPermit: _onRenewPermit,
+  onViewDetails: _onViewDetails,
+  updatePermit,
+  refetch
+}: PermitsTableProps) {
+  const [expandedPermitId, setExpandedPermitId] = useState<string | null>(null);
 
   if (permits.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200 shadow-md p-8">
-        <div className="text-center">
-          <p className="text-sm text-gray-500 mb-4">No hay permisos registrados.</p>
-          {canEdit && (
-            <p className="text-sm text-gray-400">Agrega el primer permiso →</p>
-          )}
-        </div>
+      <div className="text-center py-12 text-text-secondary">
+        <p>No hay permisos registrados para esta sede</p>
       </div>
     );
   }
 
+  const formatDate = (date: string | null) => {
+    if (!date) return '-';
+    return new Date(date).toLocaleDateString('es-EC', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-md overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Tipo
-              </th>
-              <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Estado
-              </th>
-              <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Número
-              </th>
-              <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Fecha Vencimiento
-              </th>
-              <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Emisor
-              </th>
-              {canEdit && (
-                <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                  Acciones
-                </th>
-              )}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {permits.map((permit) => (
-              <tr key={permit.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-5 py-4 text-sm font-medium text-gray-900">
-                  {PERMIT_TYPE_LABELS[permit.type as keyof typeof PERMIT_TYPE_LABELS] || permit.type}
-                </td>
-                <td className="px-5 py-4">
-                  <Badge
-                    variant="status"
-                    status={permit.status}
-                    pulse={permit.status === 'vencido'}
-                  >
-                    {PERMIT_STATUS_LABELS[permit.status]}
-                  </Badge>
-                </td>
-                <td className="px-5 py-4 text-sm text-gray-600">
-                  {permit.permit_number || (
-                    <span className="text-gray-400 italic">Sin asignar</span>
-                  )}
-                </td>
-                <td className="px-5 py-4 text-sm text-gray-600">
-                  {permit.expiry_date ? (
-                    <span className={
-                      permit.status === 'vencido' ? 'text-red-600 font-semibold' :
-                      permit.status === 'por_vencer' ? 'text-amber-600 font-semibold' :
-                      ''
-                    }>
-                      {formatDate(permit.expiry_date)}
-                    </span>
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Tipo de Permiso</TableHead>
+            <TableHead>Número</TableHead>
+            <TableHead>Estado</TableHead>
+            <TableHead>Fecha Emisión</TableHead>
+            <TableHead>Fecha Vencimiento</TableHead>
+            <TableHead className="w-[70px]"></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {permits.map((permit) => (
+            <React.Fragment key={permit.id}>
+              {/* Main row */}
+              <TableRow className="hover:bg-gray-50 transition-colors">
+                <TableCell className="font-medium">{permit.type}</TableCell>
+                <TableCell>{permit.permit_number || '-'}</TableCell>
+                <TableCell>
+                  <StatusBadge status={permit.status} />
+                </TableCell>
+                <TableCell>{formatDate(permit.issue_date)}</TableCell>
+                <TableCell>
+                  {permit.expiry_date
+                    ? formatDate(permit.expiry_date)
+                    : permit.status === 'no_registrado'
+                    ? '-'
+                    : 'Indefinido'}
+                </TableCell>
+                <TableCell>
+                  {permit.status === 'no_registrado' ? (
+                    <button
+                      onClick={() => setExpandedPermitId(expandedPermitId === permit.id ? null : permit.id)}
+                      className="text-blue-900 hover:text-blue-800 font-medium transition-colors"
+                    >
+                      {expandedPermitId === permit.id ? 'Cancelar' : 'Subir documento'}
+                    </button>
                   ) : (
-                    <span className="text-gray-400 italic">N/A</span>
-                  )}
-                </td>
-                <td className="px-5 py-4 text-sm text-gray-600">
-                  {permit.issuer || (
-                    <span className="text-gray-400 italic">N/A</span>
-                  )}
-                </td>
-                {canEdit && (
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-2">
-                      {permit.status === 'por_vencer' && onRenew && (
-                        <button
-                          onClick={() => onRenew(permit.id)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-semibold transition-colors border border-amber-200"
-                        >
-                          <RefreshCw size={12} />
-                          Renovar
-                        </button>
-                      )}
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1.5 text-gray-600">
+                        <FileText className="h-4 w-4" />
+                        <span className="text-xs">Documento</span>
+                      </div>
                       <button
-                        onClick={() => handleViewDetails(permit.id)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold transition-colors border border-blue-200"
+                        onClick={() => setExpandedPermitId(expandedPermitId === permit.id ? null : permit.id)}
+                        className="text-gray-700 hover:text-gray-900 text-sm transition-colors"
                       >
-                        <Eye size={12} />
-                        Ver Detalles
+                        {expandedPermitId === permit.id ? 'Cancelar' : 'Reemplazar'}
                       </button>
                     </div>
-                  </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  )}
+                </TableCell>
+              </TableRow>
+
+              {/* Expanded row with upload form */}
+              {expandedPermitId === permit.id && (
+                <TableRow>
+                  <TableCell colSpan={6} className="p-0">
+                    <PermitUploadForm
+                      permit={permit}
+                      updatePermit={updatePermit}
+                      onSuccess={() => {
+                        setExpandedPermitId(null);
+                        refetch();
+                      }}
+                      onCancel={() => setExpandedPermitId(null)}
+                    />
+                  </TableCell>
+                </TableRow>
+              )}
+            </React.Fragment>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }

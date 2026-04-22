@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Card } from '@/components/ui';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { PERMIT_TYPE_LABELS, type PermitType } from '@/types';
 import { getAllLegalReferences } from '@/data/legal-references';
 import {
@@ -15,6 +17,7 @@ import {
   Clock,
   Info,
   Building2,
+  Search,
 } from 'lucide-react';
 
 const SCOPE_LABELS: Record<string, string> = {
@@ -35,114 +38,183 @@ const SOURCE_TYPE_LABELS: Record<string, string> = {
 export function LegalReferenceView() {
   const references = getAllLegalReferences();
   const [expandedType, setExpandedType] = useState<PermitType | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const toggleType = (type: PermitType) => {
     setExpandedType(expandedType === type ? null : type);
   };
 
+  // Filter references by search query
+  const filteredReferences = references.filter((ref) => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      PERMIT_TYPE_LABELS[ref.permitType]?.toLowerCase().includes(query) ||
+      ref.description.toLowerCase().includes(query) ||
+      ref.sources.some((s) => s.name.toLowerCase().includes(query))
+    );
+  });
+
   return (
-    <div>
-      <div className="mb-8">
-        <div className="flex items-center gap-2.5 mb-1">
-          <Scale size={20} className="text-gray-400" />
-          <h2 className="text-xl font-semibold text-gray-900 tracking-tight">Marco Legal</h2>
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center">
+            <Scale size={20} className="text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+              Marco Legal
+            </h1>
+            <p className="text-sm text-gray-500 mt-0.5">
+              Referencia normativa de cada obligación regulatoria
+            </p>
+          </div>
         </div>
-        <p className="text-[13px] text-gray-500 mt-1">
-          Referencia normativa de cada obligación regulatoria. Consulta las fuentes, artículos y periodicidad.
-        </p>
       </div>
 
-      <div className="flex items-start gap-3 px-5 py-4 rounded-xl bg-yellow-50 border border-yellow-200/60 mb-8">
-        <Info size={16} className="text-yellow-600 mt-0.5 shrink-0" />
-        <div className="text-[13px] text-yellow-800 leading-relaxed">
-          <span className="font-semibold">Aviso importante:</span> Esta información se proporciona como referencia operativa, no como asesoría legal.
-          Las normativas pueden actualizarse y las ordenanzas municipales varían por cantón.
-        </div>
+      {/* Info Banner */}
+      <Card className="border-amber-200 bg-amber-50">
+        <CardContent className="flex items-start gap-3 pt-6">
+          <Info size={18} className="text-amber-600 shrink-0 mt-0.5" />
+          <div className="text-sm text-amber-900 leading-relaxed">
+            <span className="font-semibold">Aviso importante:</span> Esta
+            información se proporciona como referencia operativa, no como
+            asesoría legal. Las normativas pueden actualizarse y las ordenanzas
+            municipales varían por cantón.
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Search */}
+      <div className="relative">
+        <Search
+          size={18}
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+        />
+        <Input
+          type="text"
+          placeholder="Buscar por tipo de permiso, normativa o entidad..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-11 h-12"
+        />
       </div>
 
-      <div className="space-y-3">
-        {references.map((ref) => {
+      {/* Results count */}
+      {searchQuery && (
+        <div className="text-sm text-gray-500">
+          {filteredReferences.length === 0 ? (
+            <span>No se encontraron resultados para "{searchQuery}"</span>
+          ) : (
+            <span>
+              {filteredReferences.length}{' '}
+              {filteredReferences.length === 1 ? 'resultado' : 'resultados'}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* References List */}
+      <div className="space-y-4">
+        {filteredReferences.map((ref) => {
           const isExpanded = expandedType === ref.permitType;
 
           return (
-            <Card key={ref.permitType} padding="none" className={isExpanded ? '!border-gray-300' : ''}>
+            <Card
+              key={ref.permitType}
+              className={`transition-all ${
+                isExpanded ? 'ring-2 ring-gray-200' : ''
+              }`}
+            >
+              {/* Collapsed Header */}
               <button
                 onClick={() => toggleType(ref.permitType)}
-                className="w-full flex items-center gap-4 px-5 py-5 text-left hover:bg-gray-50/50 transition-colors"
+                className="w-full"
               >
-                <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
-                  <Scale size={18} className="text-gray-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-[14px] font-semibold text-gray-900">
-                    {PERMIT_TYPE_LABELS[ref.permitType]}
-                  </span>
-                  <p className="text-[12px] text-gray-400 mt-0.5 line-clamp-1">
-                    {ref.description.slice(0, 120)}…
-                  </p>
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-[12px] text-gray-400 px-2 py-0.5 rounded-full bg-gray-50 border border-gray-100">
-                    {ref.sources.length} {ref.sources.length === 1 ? 'fuente' : 'fuentes'}
-                  </span>
-                  {isExpanded ? (
-                    <ChevronUp size={16} className="text-gray-400" />
-                  ) : (
-                    <ChevronDown size={16} className="text-gray-400" />
-                  )}
-                </div>
+                <CardHeader className="hover:bg-gray-50 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
+                      <Scale size={20} className="text-gray-600" />
+                    </div>
+                    <div className="flex-1 text-left min-w-0">
+                      <h3 className="text-base font-semibold text-gray-900">
+                        {PERMIT_TYPE_LABELS[ref.permitType]}
+                      </h3>
+                      <p className="text-sm text-gray-500 mt-0.5 line-clamp-1">
+                        {ref.description.slice(0, 120)}…
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <Badge variant="secondary">
+                        {ref.sources.length}{' '}
+                        {ref.sources.length === 1 ? 'fuente' : 'fuentes'}
+                      </Badge>
+                      {isExpanded ? (
+                        <ChevronUp size={20} className="text-gray-400" />
+                      ) : (
+                        <ChevronDown size={20} className="text-gray-400" />
+                      )}
+                    </div>
+                  </div>
+                </CardHeader>
               </button>
 
+              {/* Expanded Content */}
               {isExpanded && (
-                <div className="border-t border-gray-100 animate-fade-in">
-                  <div className="px-5 py-4 border-b border-gray-50">
-                    <p className="text-[13px] text-gray-600 leading-relaxed">{ref.description}</p>
+                <CardContent className="space-y-6 animate-in fade-in duration-200">
+                  {/* Description */}
+                  <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      {ref.description}
+                    </p>
                   </div>
 
                   {/* Legal Sources */}
-                  <div className="px-5 py-4 border-b border-gray-50">
-                    <div className="flex items-center gap-2 mb-3">
-                      <BookOpen size={14} className="text-gray-400" />
-                      <span className="text-[12px] font-semibold text-gray-500 uppercase tracking-wider">
+                  <div>
+                    <div className="flex items-center gap-2 mb-4">
+                      <BookOpen size={16} className="text-gray-600" />
+                      <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
                         Fuentes Normativas
-                      </span>
+                      </h4>
                     </div>
                     <div className="space-y-3">
                       {ref.sources.map((source, i) => (
                         <div
                           key={i}
-                          className="rounded-xl border border-gray-100 bg-gray-50/50 p-4"
+                          className="p-4 rounded-lg border border-gray-100 bg-white space-y-3"
                         >
-                          <div className="flex items-start justify-between gap-3 mb-2">
-                            <span className="text-[13px] font-medium text-gray-900">
+                          <div className="flex items-start justify-between gap-3">
+                            <h5 className="text-sm font-semibold text-gray-900">
                               {source.name}
-                            </span>
+                            </h5>
                             {source.url && (
                               <a
                                 href={source.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-1 text-[12px] text-gray-400 hover:text-gray-700 transition-colors shrink-0 font-medium"
+                                className="flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-800 transition-colors shrink-0 font-medium"
                               >
-                                <ExternalLink size={11} />
+                                <ExternalLink size={12} />
                                 Ver fuente
                               </a>
                             )}
                           </div>
-                          <div className="flex flex-wrap items-center gap-2 mb-2">
-                            <span className="text-[11px] px-2 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Badge variant="secondary">
                               {SOURCE_TYPE_LABELS[source.type] || source.type}
-                            </span>
-                            <span className="text-[11px] px-2 py-0.5 rounded-full bg-white border border-gray-200 text-gray-500">
+                            </Badge>
+                            <Badge variant="secondary">
                               {SCOPE_LABELS[source.scope] || source.scope}
-                            </span>
-                            <div className="flex items-center gap-1 text-[11px] text-gray-400">
-                              <Building2 size={11} />
+                            </Badge>
+                            <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                              <Building2 size={12} />
                               {source.entity}
                             </div>
                           </div>
                           {source.articles && (
-                            <p className="text-[12px] text-gray-500 leading-relaxed bg-white rounded-lg px-3 py-2 border border-gray-100">
+                            <p className="text-sm text-gray-600 leading-relaxed p-3 bg-gray-50 rounded-md">
                               {source.articles}
                             </p>
                           )}
@@ -152,102 +224,118 @@ export function LegalReferenceView() {
                   </div>
 
                   {/* Frequency Basis */}
-                  <div className="px-5 py-4 border-b border-gray-50">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Clock size={14} className="text-gray-400" />
-                      <span className="text-[12px] font-semibold text-gray-500 uppercase tracking-wider">
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <Clock size={16} className="text-gray-600" />
+                      <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
                         Periodicidad y Base Legal
-                      </span>
+                      </h4>
                     </div>
-                    <p className="text-[13px] text-gray-600 leading-relaxed bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
-                      {ref.frequencyBasis}
-                    </p>
+                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
+                      <p className="text-sm text-blue-900 leading-relaxed">
+                        {ref.frequencyBasis}
+                      </p>
+                    </div>
                   </div>
 
                   {/* Consequences */}
-                  <div className="px-5 py-4 border-b border-gray-50">
+                  <div>
                     <div className="flex items-center gap-2 mb-3">
-                      <AlertTriangle size={14} className="text-red-400" />
-                      <span className="text-[12px] font-semibold text-gray-500 uppercase tracking-wider">
+                      <AlertTriangle size={16} className="text-red-600" />
+                      <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
                         Consecuencias por Incumplimiento
-                      </span>
+                      </h4>
                     </div>
-                    <ul className="space-y-2">
+                    <div className="p-4 bg-red-50 rounded-lg border border-red-100 space-y-2">
                       {ref.consequences.map((c, i) => (
-                        <li key={i} className="flex items-start gap-2.5 text-[13px] text-gray-600">
-                          <span className="text-red-400 mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full bg-red-400" />
-                          {c}
-                        </li>
+                        <div key={i} className="flex items-start gap-3">
+                          <div className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 mt-2" />
+                          <p className="text-sm text-red-900">{c}</p>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   </div>
 
                   {/* Required Documents */}
-                  <div className="px-5 py-4 border-b border-gray-50">
+                  <div>
                     <div className="flex items-center gap-2 mb-3">
-                      <FileCheck size={14} className="text-gray-400" />
-                      <span className="text-[12px] font-semibold text-gray-500 uppercase tracking-wider">
+                      <FileCheck size={16} className="text-gray-600" />
+                      <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
                         Documentos Requeridos
-                      </span>
+                      </h4>
                     </div>
-                    <ul className="space-y-2">
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-100 space-y-2">
                       {ref.requiredDocuments.map((d, i) => (
-                        <li key={i} className="flex items-start gap-2.5 text-[13px] text-gray-600">
-                          <span className="text-gray-400 font-medium shrink-0 w-5 text-right tabular-nums">{i + 1}.</span>
-                          {d}
-                        </li>
+                        <div key={i} className="flex items-start gap-3">
+                          <span className="text-sm font-medium text-gray-500 shrink-0 w-6 text-right tabular-nums">
+                            {i + 1}.
+                          </span>
+                          <p className="text-sm text-gray-700">{d}</p>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   </div>
 
                   {/* Typical Process */}
-                  <div className="px-5 py-4 border-b border-gray-50">
+                  <div>
                     <div className="flex items-center gap-2 mb-3">
-                      <ListOrdered size={14} className="text-gray-400" />
-                      <span className="text-[12px] font-semibold text-gray-500 uppercase tracking-wider">
+                      <ListOrdered size={16} className="text-gray-600" />
+                      <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wider">
                         Proceso Típico
-                      </span>
+                      </h4>
                     </div>
-                    <div className="space-y-2.5">
+                    <div className="space-y-3">
                       {ref.typicalProcess.map((step, i) => (
-                        <div key={i} className="flex items-start gap-3">
-                          <div className="w-6 h-6 rounded-full bg-gray-900 flex items-center justify-center shrink-0 mt-0.5">
-                            <span className="text-[11px] text-white font-medium">{i + 1}</span>
+                        <div key={i} className="flex items-start gap-4">
+                          <div className="w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center shrink-0">
+                            <span className="text-sm text-white font-semibold">
+                              {i + 1}
+                            </span>
                           </div>
-                          <span className="text-[13px] text-gray-600 pt-0.5">{step}</span>
+                          <p className="text-sm text-gray-700 pt-1.5">{step}</p>
                         </div>
                       ))}
                     </div>
                   </div>
 
                   {/* Cost & Disclaimer */}
-                  <div className="px-5 py-4">
+                  <div className="space-y-4">
                     {ref.estimatedCost && (
-                      <div className="flex items-start gap-2.5 mb-4">
-                        <DollarSign size={14} className="text-gray-400 mt-0.5 shrink-0" />
+                      <div className="flex items-start gap-3">
+                        <DollarSign size={16} className="text-gray-600 mt-0.5 shrink-0" />
                         <div>
-                          <span className="text-[12px] font-semibold text-gray-500 uppercase tracking-wider">
+                          <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">
                             Costo Estimado
-                          </span>
-                          <p className="text-[13px] text-gray-600 mt-1">{ref.estimatedCost}</p>
+                          </h4>
+                          <p className="text-sm text-gray-700">{ref.estimatedCost}</p>
                         </div>
                       </div>
                     )}
                     {ref.disclaimer && (
-                      <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl bg-gray-50 border border-gray-100">
-                        <Info size={13} className="text-gray-400 mt-0.5 shrink-0" />
-                        <p className="text-[12px] text-gray-400 leading-relaxed italic">
+                      <div className="flex items-start gap-3 p-4 rounded-lg bg-gray-50 border border-gray-100">
+                        <Info size={14} className="text-gray-500 mt-0.5 shrink-0" />
+                        <p className="text-xs text-gray-600 leading-relaxed italic">
                           {ref.disclaimer}
                         </p>
                       </div>
                     )}
                   </div>
-                </div>
+                </CardContent>
               )}
             </Card>
           );
         })}
       </div>
+
+      {/* No results */}
+      {filteredReferences.length === 0 && (
+        <div className="text-center py-12">
+          <Scale size={48} className="text-gray-300 mx-auto mb-4" />
+          <p className="text-gray-500">
+            No se encontraron referencias legales que coincidan con tu búsqueda.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

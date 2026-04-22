@@ -4,45 +4,62 @@ import { supabase } from '../supabase';
  * Upload a document file for a permit to Supabase Storage
  */
 export async function uploadPermitDocument(permitId: string, file: File): Promise<string> {
+  console.log('[uploadPermitDocument] Starting upload:', { permitId, fileName: file.name, fileSize: file.size });
+
   // Generate unique file name
   const fileExt = file.name.split('.').pop();
   const fileName = `${permitId}-${Date.now()}.${fileExt}`;
   const filePath = `permits/${permitId}/${fileName}`;
 
+  console.log('[uploadPermitDocument] Generated path:', filePath);
+
   // Upload to Supabase Storage
-  const { error: uploadError } = await supabase.storage
+  const { data: uploadData, error: uploadError } = await supabase.storage
     .from('permit-documents')
     .upload(filePath, file);
 
   if (uploadError) {
+    console.error('[uploadPermitDocument] Storage upload error:', uploadError);
     throw new Error(`Error al subir el archivo: ${uploadError.message}`);
   }
+
+  console.log('[uploadPermitDocument] Storage upload successful:', uploadData);
 
   // Get current user
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError) {
-    console.error('Error getting user:', userError);
+    console.error('[uploadPermitDocument] Error getting user:', userError);
   }
 
+  console.log('[uploadPermitDocument] Current user:', user?.id);
+
   // Create document record in database
+  const documentData = {
+    permit_id: permitId,
+    file_path: filePath,
+    file_name: file.name,
+    file_size: file.size,
+    file_type: file.type,
+    uploaded_by: user?.id || null,
+  };
+
+  console.log('[uploadPermitDocument] Inserting document record:', documentData);
+
   const query = supabase.from('documents') as any;
-  const { error: dbError } = await query
-    .insert({
-      permit_id: permitId,
-      file_path: filePath,
-      file_name: file.name,
-      file_size: file.size,
-      file_type: file.type,
-      uploaded_by: user?.id || null,
-    });
+  const { data: insertData, error: dbError } = await query
+    .insert(documentData)
+    .select();
 
   if (dbError) {
+    console.error('[uploadPermitDocument] Database insert error:', dbError);
     // Try to clean up the uploaded file if database insert fails
     await supabase.storage
       .from('permit-documents')
       .remove([filePath]);
     throw new Error(`Error al registrar el documento: ${dbError.message}`);
   }
+
+  console.log('[uploadPermitDocument] Database insert successful:', insertData);
 
   return filePath;
 }

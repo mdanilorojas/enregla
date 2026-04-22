@@ -4,8 +4,8 @@ import { login } from '@/lib/api/auth';
 import { signInWithGoogle } from '@/lib/auth';
 import { useAuthStore } from '@/store/authStore';
 import { Shield, Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
-import { Input } from '@/components/ui-v2';
-import { Button } from '@/components/ui-v2';
+import { Input } from '@/components/ui';
+import { Button } from '@/components/ui';
 
 const FEATURES = [
   'Control centralizado de permisos',

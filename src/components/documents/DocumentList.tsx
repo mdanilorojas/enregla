@@ -61,7 +61,7 @@ export function DocumentList({ documents, onDocumentDeleted }: DocumentListProps
 
   if (documents.length === 0) {
     return (
-      <div className="border border-gray-200 rounded-xl p-8 text-center bg-gray-50">
+      <div className="border border-gray-100 rounded-xl p-8 text-center bg-gray-50">
         <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
           <FileText size={20} className="text-gray-400" />
         </div>
@@ -90,7 +90,7 @@ export function DocumentList({ documents, onDocumentDeleted }: DocumentListProps
         return (
           <div
             key={doc.id}
-            className={`border border-gray-200 rounded-xl p-4 bg-white transition-opacity ${
+            className={`border border-gray-100 rounded-xl p-4 bg-white transition-opacity ${
               isDeleting ? 'opacity-50' : ''
             }`}
           >

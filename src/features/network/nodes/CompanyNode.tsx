@@ -13,12 +13,28 @@ export function CompanyNode({ data }: NodeProps) {
       <Handle type="source" position={Position.Left} id="left" className="!opacity-0 !w-3 !h-3" />
       <Handle type="source" position={Position.Right} id="right" className="!opacity-0 !w-3 !h-3" />
 
-      <div className="px-5 py-4 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-xl shadow-blue-500/20 border border-blue-500/30 min-w-[180px] text-center cursor-grab active:cursor-grabbing">
-        <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-2.5">
-          <Building2 size={18} className="text-white" strokeWidth={1.8} />
+      <div className="relative w-[280px] bg-gradient-to-br from-[#0066FF] to-[#0052CC] rounded-3xl shadow-2xl border-4 border-white cursor-grab active:cursor-grabbing transition-all duration-300 hover:scale-105 hover:shadow-[0_20px_60px_rgba(0,102,255,0.4)]">
+        <div className="px-6 py-6 flex flex-col items-center gap-4">
+          {/* Icon container - Grande y prominente */}
+          <div className="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center ring-4 ring-white/30">
+            <Building2 size={40} className="text-white drop-shadow-lg" strokeWidth={2.5} />
+          </div>
+
+          {/* Content */}
+          <div className="text-center">
+            <h3 className="text-xl font-bold text-white leading-tight mb-2 drop-shadow-md">
+              {name}
+            </h3>
+
+            {/* Badge - Branded */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg">
+              <div className="w-2 h-2 rounded-full bg-[#0066FF] animate-pulse" />
+              <span className="text-sm font-bold text-[#0052CC]">
+                {locationCount} {locationCount === 1 ? 'SEDE' : 'SEDES'}
+              </span>
+            </div>
+          </div>
         </div>
-        <p className="text-[14px] font-bold text-white tracking-tight">{name}</p>
-        <p className="text-[11px] text-blue-200/70 font-medium mt-0.5">{locationCount} sedes</p>
       </div>
     </>
   );

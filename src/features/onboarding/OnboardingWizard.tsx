@@ -5,7 +5,9 @@ import { Step1Company } from './steps/Step1Company';
 import { Step2Regulatory } from './steps/Step2Regulatory';
 import { Step3Locations } from './steps/Step3Locations';
 import { Step4Review } from './steps/Step4Review';
+import { Button } from '@/components/ui/button';
 import { Building2, Shield, MapPin, CheckCircle2, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const STEPS = [
   { id: 'company', label: 'Empresa', icon: Building2 },
@@ -94,7 +96,7 @@ export function OnboardingWizard() {
   const canProceed = (): boolean => {
     if (step === 0) {
       return (
-        data.company.name.trim().length > 0 &&
+        data.company.name.trim().length >= 2 &&
         data.company.ruc.length === 13 &&
         /^\d+$/.test(data.company.ruc)
       );
@@ -109,14 +111,14 @@ export function OnboardingWizard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] flex">
+    <div className="min-h-screen bg-background flex">
       {/* Sidebar */}
-      <div className="w-[280px] bg-white border-r border-gray-200/80 p-6 flex flex-col shrink-0">
+      <div className="w-[280px] bg-surface border-r border-border p-6 flex flex-col shrink-0">
         <div className="flex items-center gap-2.5 mb-10">
-          <div className="w-8 h-8 rounded-lg bg-gray-900 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
             <span className="text-white font-bold text-[11px]">PM</span>
           </div>
-          <span className="text-[15px] font-semibold text-gray-900 tracking-tight">
+          <span className="text-[15px] font-semibold text-text tracking-tight">
             PermitOps
           </span>
         </div>
@@ -129,24 +131,22 @@ export function OnboardingWizard() {
             return (
               <div
                 key={s.id}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all ${
-                  isActive
-                    ? 'bg-gray-900 text-white'
-                    : isDone
-                    ? 'text-gray-500'
-                    : 'text-gray-400'
-                }`}
+                className={cn(
+                  'flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all',
+                  isActive && 'bg-primary text-white',
+                  !isActive && isDone && 'text-text-secondary',
+                  !isActive && !isDone && 'text-text-muted'
+                )}
               >
                 <div
-                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium shrink-0 ${
-                    isActive
-                      ? 'bg-white text-gray-900'
-                      : isDone
-                      ? 'bg-gray-100 text-gray-500'
-                      : 'bg-gray-100 text-gray-400'
-                  }`}
+                  className={cn(
+                    'w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium shrink-0',
+                    isActive && 'bg-white text-primary',
+                    !isActive && isDone && 'bg-surface text-text-secondary',
+                    !isActive && !isDone && 'bg-surface text-text-muted'
+                  )}
                 >
-                  {isDone ? <CheckCircle2 size={14} /> : <Icon size={14} />}
+                  {isDone ? <CheckCircle2 className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
                 </div>
                 <span className="text-[13px] font-medium">{s.label}</span>
               </div>
@@ -155,7 +155,7 @@ export function OnboardingWizard() {
         </div>
 
         <div className="mt-auto pt-6">
-          <p className="text-[12px] text-gray-400 leading-relaxed">
+          <p className="text-[12px] text-text-muted leading-relaxed">
             Configura tu empresa y genera automáticamente los permisos necesarios para cada local.
           </p>
         </div>
@@ -184,45 +184,43 @@ export function OnboardingWizard() {
 
             {/* Error Message */}
             {error && (
-              <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-[13px] text-red-900">{error}</p>
+              <div className="mt-6 p-4 bg-danger-bg border border-danger-border rounded-lg">
+                <p className="text-sm text-danger">{error}</p>
               </div>
             )}
           </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="border-t border-gray-200/80 px-8 py-4 flex items-center justify-between bg-white/80 backdrop-blur-xl">
-          <button
+        <div className="border-t border-border px-8 py-4 flex items-center justify-between bg-surface/80 backdrop-blur-xl">
+          <Button
+            variant="ghost"
             onClick={handleBack}
             disabled={step === 0 || loading}
-            className="text-[13px] text-gray-500 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-medium"
           >
             Atrás
-          </button>
+          </Button>
           {step < 3 ? (
-            <button
+            <Button
               onClick={handleNext}
               disabled={!canProceed() || loading}
-              className="px-5 py-2.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm"
             >
               Siguiente
-            </button>
+            </Button>
           ) : (
-            <button
+            <Button
               onClick={handleComplete}
               disabled={loading}
-              className="px-5 py-2.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg hover:bg-gray-800 disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm flex items-center gap-2"
             >
               {loading ? (
                 <>
-                  <Loader2 size={14} className="animate-spin" />
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Activando...
                 </>
               ) : (
                 'Activar Sistema'
               )}
-            </button>
+            </Button>
           )}
         </div>
       </div>

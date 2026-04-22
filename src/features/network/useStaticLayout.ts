@@ -33,20 +33,20 @@ export function useStaticLayout({
       return { sourceHandle: 'left', targetHandle: 'right' };
     }
 
-    // Color mapping for risk levels
+    // Color mapping for risk levels - Brighter for dark bg
     const riskColor: Record<string, string> = {
-      critico: '#ef4444',
-      alto: '#f97316',
-      medio: '#eab308',
-      bajo: '#22c55e',
+      critico: '#f87171',
+      alto: '#fb923c',
+      medio: '#facc15',
+      bajo: '#4ade80',
     };
 
-    // Permit status colors
+    // Permit status colors - Vibrant for dark bg
     const statusEdgeColor: Record<string, string> = {
-      vigente: '#22c55e',
-      por_vencer: '#eab308',
-      vencido: '#ef4444',
-      no_registrado: '#d1d5db',
+      vigente: '#4ade80',
+      por_vencer: '#facc15',
+      vencido: '#f87171',
+      no_registrado: '#6b7280',
     };
 
     // Calculate compliance
@@ -64,8 +64,15 @@ export function useStaticLayout({
       ).length;
     }
 
-    // Company node at origin
-    const companyPos = { x: 0, y: 0 };
+    // Hierarchical layout: empresa arriba, sedes en fila, permisos debajo
+    const SEDE_Y_OFFSET = 280; // Distancia vertical empresa → sedes
+    const SEDE_SPACING = 320;  // Espaciado horizontal entre sedes
+    const PERMIT_Y_OFFSET = 220; // Distancia vertical sede → permisos
+    const PERMIT_SPACING = 200; // Espaciado horizontal entre permisos
+
+    // Company node at top center
+    const totalWidth = (locations.length - 1) * SEDE_SPACING;
+    const companyPos = { x: totalWidth / 2, y: 0 };
     nodes.push({
       id: 'company',
       type: 'company',
@@ -76,14 +83,11 @@ export function useStaticLayout({
       },
     });
 
-    // Sedes in circle (radius 350px)
-    const SEDE_RADIUS = 350;
-
+    // Sedes in horizontal row
     locations.forEach((loc, i) => {
-      const angle = (2 * Math.PI * i / locations.length) - Math.PI / 2; // Start at top
       const sedePos = {
-        x: Math.cos(angle) * SEDE_RADIUS,
-        y: Math.sin(angle) * SEDE_RADIUS,
+        x: i * SEDE_SPACING,
+        y: SEDE_Y_OFFSET,
       };
 
       const locPermits = permits.filter(p => p.location_id === loc.id && p.is_active);
@@ -104,33 +108,31 @@ export function useStaticLayout({
         },
       });
 
-      // Edge: Company → Sede
-      const handles = getHandlePair(companyPos.x, companyPos.y, sedePos.x, sedePos.y);
+      // Edge: Company → Sede (vertical straight line)
       edges.push({
         id: `company-${loc.id}`,
         source: 'company',
         target: loc.id,
-        sourceHandle: handles.sourceHandle,
-        targetHandle: handles.targetHandle,
+        sourceHandle: 'bottom',
+        targetHandle: 'top',
         style: {
-          stroke: riskColor[loc.risk_level] || '#9ca3af',
-          strokeWidth: 2,
-          opacity: 0.35,
+          stroke: riskColor[loc.risk_level] || '#6b7280',
+          strokeWidth: 3,
+          opacity: 0.7,
         },
         animated: loc.risk_level === 'critico',
+        type: 'straight',
       });
 
-      // Permits around each sede (only on desktop)
+      // Permits below each sede in horizontal row (only on desktop)
       if (isDesktop) {
-        locPermits.forEach((permit, j) => {
-          // Dynamic radius based on permit count: 120px min, 240px max
-          const permitRadius = Math.max(120, Math.min(240, 80 + locPermits.length * 12));
+        const permitRowWidth = (locPermits.length - 1) * PERMIT_SPACING;
+        const permitStartX = sedePos.x - permitRowWidth / 2;
 
-          // Distribute in arc aligned with sede's angle
-          const permitAngle = (2 * Math.PI * j / locPermits.length) + angle;
+        locPermits.forEach((permit, j) => {
           const permitPos = {
-            x: sedePos.x + Math.cos(permitAngle) * permitRadius,
-            y: sedePos.y + Math.sin(permitAngle) * permitRadius,
+            x: permitStartX + j * PERMIT_SPACING,
+            y: sedePos.y + PERMIT_Y_OFFSET,
           };
 
           nodes.push({
@@ -144,20 +146,20 @@ export function useStaticLayout({
             },
           });
 
-          // Edge: Sede → Permit
-          const permitHandles = getHandlePair(sedePos.x, sedePos.y, permitPos.x, permitPos.y);
+          // Edge: Sede → Permit (vertical straight line)
           edges.push({
             id: `${loc.id}-${permit.id}`,
             source: loc.id,
             target: permit.id,
-            sourceHandle: `s-${permitHandles.sourceHandle}`,
-            targetHandle: permitHandles.targetHandle,
+            sourceHandle: 's-bottom',
+            targetHandle: 'top',
             style: {
-              stroke: statusEdgeColor[permit.status] || '#d1d5db',
-              strokeWidth: (permit.status === 'vencido' || permit.status === 'no_registrado') ? 2.5 : 1.5,
-              opacity: permit.status === 'no_registrado' ? 0.35 : 0.6,
+              stroke: statusEdgeColor[permit.status] || '#6b7280',
+              strokeWidth: (permit.status === 'vencido' || permit.status === 'no_registrado') ? 3 : 2.5,
+              opacity: permit.status === 'no_registrado' ? 0.3 : 0.6,
             },
             animated: permit.status === 'vencido',
+            type: 'straight',
           });
         });
       }

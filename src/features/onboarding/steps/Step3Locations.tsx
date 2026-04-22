@@ -1,4 +1,15 @@
 import { Plus, Trash2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 interface LocationInput {
   name: string;
@@ -38,99 +49,97 @@ export function Step3Locations({ locations, onUpdate }: Props) {
   };
 
   return (
-    <div>
-      <h2 className="text-xl font-semibold text-gray-900 mb-1 tracking-tight">
-        Locales / Sedes
-      </h2>
-      <p className="text-[13px] text-gray-500 mb-8">
-        Agrega todos los locales de tu empresa. Paso 3 de 4
-      </p>
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-2xl font-semibold text-text mb-2">
+          Locales / Sedes
+        </h2>
+        <p className="text-sm text-text-secondary">
+          Agrega todos los locales de tu empresa. Paso 3 de 4
+        </p>
+      </div>
 
       <div className="space-y-4">
         {locations.map((location, index) => (
-          <div
-            key={index}
-            className="border border-gray-200 rounded-xl bg-white p-5 shadow-[0_1px_3px_0_rgba(0,0,0,0.04)]"
-          >
+          <Card key={index} className="p-5">
             <div className="flex items-start justify-between mb-4">
-              <h3 className="text-[14px] font-semibold text-gray-900">
+              <h3 className="text-sm font-semibold text-text">
                 Local {index + 1}
               </h3>
               {locations.length > 1 && (
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => removeLocation(index)}
-                  className="text-gray-400 hover:text-red-600 transition-colors"
-                  title="Eliminar local"
+                  className="h-8 w-8 p-0 text-text-secondary hover:text-danger"
                 >
-                  <Trash2 size={16} />
-                </button>
+                  <Trash2 className="h-4 w-4" />
+                  <span className="sr-only">Eliminar local</span>
+                </Button>
               )}
             </div>
 
             <div className="space-y-4">
-              <div>
-                <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
-                  Nombre del local
-                </label>
-                <input
+              <div className="space-y-2">
+                <Label htmlFor={`location-name-${index}`}>Nombre del local</Label>
+                <Input
+                  id={`location-name-${index}`}
                   type="text"
                   value={location.name}
                   onChange={(e) => updateLocation(index, { name: e.target.value })}
                   placeholder="Ej: Sucursal La Mariscal"
-                  className="w-full bg-white border border-gray-200 rounded-lg px-3.5 py-2.5 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-300 transition-all"
                 />
               </div>
 
-              <div>
-                <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
-                  Dirección
-                </label>
-                <input
+              <div className="space-y-2">
+                <Label htmlFor={`location-address-${index}`}>Dirección</Label>
+                <Input
+                  id={`location-address-${index}`}
                   type="text"
                   value={location.address}
                   onChange={(e) =>
                     updateLocation(index, { address: e.target.value })
                   }
                   placeholder="Dirección completa"
-                  className="w-full bg-white border border-gray-200 rounded-lg px-3.5 py-2.5 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-300 transition-all"
                 />
               </div>
 
-              <div>
-                <label className="block text-[13px] font-medium text-gray-700 mb-2">
-                  Estado
-                </label>
-                <div className="flex gap-2">
-                  {STATUS_OPTIONS.map(({ value, label }) => (
-                    <button
-                      key={value}
-                      onClick={() => updateLocation(index, { status: value })}
-                      className={`px-3.5 py-2 rounded-lg text-[13px] font-medium transition-all ${
-                        location.status === value
-                          ? 'bg-gray-900 text-white shadow-sm'
-                          : 'bg-gray-50 text-gray-500 hover:bg-gray-100 border border-gray-200'
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor={`location-status-${index}`}>Estado</Label>
+                <Select
+                  value={location.status}
+                  onValueChange={(value: LocationInput['status']) =>
+                    updateLocation(index, { status: value })
+                  }
+                >
+                  <SelectTrigger id={`location-status-${index}`}>
+                    <SelectValue placeholder="Selecciona estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STATUS_OPTIONS.map(({ value, label }) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
 
-      <button
+      <Button
         onClick={addLocation}
-        className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-dashed border-gray-300 rounded-xl text-[13px] font-medium text-gray-600 hover:border-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-all"
+        variant="outline"
+        className="w-full"
       >
-        <Plus size={16} />
+        <Plus className="h-4 w-4 mr-2" />
         Agregar otra sede
-      </button>
+      </Button>
 
       {locations.length === 0 && (
-        <p className="mt-2 text-[12px] text-red-600">
+        <p className="text-sm text-danger">
           Debes agregar al menos un local
         </p>
       )}

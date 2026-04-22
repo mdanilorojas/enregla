@@ -192,7 +192,7 @@ export function DocumentUpload({ permitId, onUploadSuccess }: DocumentUploadProp
 
       {/* Selected File Preview */}
       {file && !success && (
-        <div className="border border-gray-200 rounded-xl p-4 bg-white">
+        <div className="border border-gray-100 rounded-xl p-4 bg-white">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
               <File size={18} className="text-blue-600" />

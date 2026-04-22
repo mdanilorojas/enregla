@@ -1,3 +1,6 @@
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+
 interface RegulatoryFactors {
   alimentos: boolean;
   alcohol: boolean;
@@ -35,65 +38,46 @@ const FACTORS = [
 
 export function Step2Regulatory({ data, onUpdate }: Props) {
   return (
-    <div>
-      <h2 className="text-xl font-semibold text-gray-900 mb-1 tracking-tight">
-        Factores regulatorios
-      </h2>
-      <p className="text-[13px] text-gray-500 mb-8">
-        Selecciona las actividades que aplican a tu negocio. Paso 2 de 4
-      </p>
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-2xl font-semibold text-text mb-2">
+          Factores regulatorios
+        </h2>
+        <p className="text-sm text-text-secondary">
+          Selecciona las actividades que aplican a tu negocio. Paso 2 de 4
+        </p>
+      </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {FACTORS.map(({ key, label, description }) => {
           const isActive = data[key];
           return (
-            <button
+            <div
               key={key}
-              onClick={() => onUpdate({ [key]: !isActive })}
-              className={`w-full flex items-start gap-4 p-4 rounded-xl border-2 transition-all text-left ${
-                isActive
-                  ? 'border-gray-900 bg-gray-50'
-                  : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50/50'
-              }`}
+              className="flex items-start space-x-3 rounded-lg border border-border p-4 transition-all hover:border-primary/50 hover:bg-surface"
             >
-              <div
-                className={`w-5 h-5 rounded border-2 flex items-center justify-center mt-0.5 shrink-0 transition-all ${
-                  isActive
-                    ? 'bg-gray-900 border-gray-900'
-                    : 'border-gray-300 bg-white'
-                }`}
-              >
-                {isActive && (
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    className="text-white"
-                  >
-                    <path
-                      d="M2 6L5 9L10 3"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                )}
-              </div>
-              <div className="flex-1">
-                <div className="text-[14px] font-semibold text-gray-900 mb-0.5">
+              <Checkbox
+                id={key}
+                checked={isActive}
+                onCheckedChange={(checked) => onUpdate({ [key]: checked === true })}
+                className="mt-0.5"
+              />
+              <div className="space-y-1 flex-1">
+                <Label
+                  htmlFor={key}
+                  className="text-sm font-semibold text-text cursor-pointer"
+                >
                   {label}
-                </div>
-                <div className="text-[13px] text-gray-500">{description}</div>
+                </Label>
+                <p className="text-xs text-text-secondary">{description}</p>
               </div>
-            </button>
+            </div>
           );
         })}
       </div>
 
-      <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-lg">
-        <p className="text-[13px] text-blue-900">
+      <div className="rounded-lg border border-info-border bg-info-bg p-4">
+        <p className="text-sm text-text">
           <strong>Nota:</strong> Estos factores determinan qué permisos se
           auto-generarán para tus locales. Puedes ajustarlos después si es
           necesario.

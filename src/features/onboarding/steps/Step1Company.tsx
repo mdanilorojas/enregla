@@ -1,3 +1,13 @@
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
 interface CompanyData {
   name: string;
   ruc: string;
@@ -14,6 +24,9 @@ const CITIES = [
   { value: 'Quito', label: 'Quito' },
   { value: 'Guayaquil', label: 'Guayaquil' },
   { value: 'Cuenca', label: 'Cuenca' },
+  { value: 'Manta', label: 'Manta' },
+  { value: 'Santo Domingo', label: 'Santo Domingo' },
+  { value: 'Machala', label: 'Machala' },
 ];
 
 const BUSINESS_TYPES = [
@@ -33,33 +46,32 @@ export function Step1Company({ data, onUpdate }: Props) {
   const showRucError = data.ruc.length > 0 && !isRucValid;
 
   return (
-    <div>
-      <h2 className="text-xl font-semibold text-gray-900 mb-1 tracking-tight">
-        Datos de la empresa
-      </h2>
-      <p className="text-[13px] text-gray-500 mb-8">
-        Información básica de tu empresa. Paso 1 de 4
-      </p>
+    <div className="space-y-8">
+      <div>
+        <h2 className="text-2xl font-semibold text-text mb-2">
+          Datos de la empresa
+        </h2>
+        <p className="text-sm text-text-secondary">
+          Información básica de tu empresa. Paso 1 de 4
+        </p>
+      </div>
 
-      <div className="space-y-5">
-        <div>
-          <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
-            Nombre de la empresa
-          </label>
-          <input
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <Label htmlFor="company-name">Nombre de la empresa</Label>
+          <Input
+            id="company-name"
             type="text"
             value={data.name}
             onChange={(e) => onUpdate({ name: e.target.value })}
             placeholder="Ej: Supermaxi S.A."
-            className="w-full bg-white border border-gray-200 rounded-lg px-3.5 py-2.5 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-300 transition-all"
           />
         </div>
 
-        <div>
-          <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
-            RUC
-          </label>
-          <input
+        <div className="space-y-2">
+          <Label htmlFor="ruc">RUC</Label>
+          <Input
+            id="ruc"
             type="text"
             value={data.ruc}
             onChange={(e) => {
@@ -68,51 +80,48 @@ export function Step1Company({ data, onUpdate }: Props) {
             }}
             placeholder="13 dígitos"
             maxLength={13}
-            className={`w-full bg-white border rounded-lg px-3.5 py-2.5 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-all ${
-              showRucError
-                ? 'border-red-300 focus:ring-red-900/10 focus:border-red-400'
-                : 'border-gray-200 focus:ring-gray-900/10 focus:border-gray-300'
-            }`}
+            className={showRucError ? 'border-danger' : ''}
           />
           {showRucError && (
-            <p className="mt-1.5 text-[12px] text-red-600">
+            <p className="text-xs text-danger">
               El RUC debe tener exactamente 13 dígitos
             </p>
           )}
         </div>
 
-        <div>
-          <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
-            Ciudad principal
-          </label>
-          <select
-            value={data.city}
-            onChange={(e) => onUpdate({ city: e.target.value })}
-            className="w-full bg-white border border-gray-200 rounded-lg px-3.5 py-2.5 text-[14px] text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-300 transition-all"
-          >
-            {CITIES.map(({ value, label }) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
+        <div className="space-y-2">
+          <Label htmlFor="city">Ciudad principal</Label>
+          <Select value={data.city} onValueChange={(value) => onUpdate({ city: value })}>
+            <SelectTrigger id="city">
+              <SelectValue placeholder="Selecciona una ciudad" />
+            </SelectTrigger>
+            <SelectContent>
+              {CITIES.map(({ value, label }) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
-        <div>
-          <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
-            Tipo de negocio
-          </label>
-          <select
+        <div className="space-y-2">
+          <Label htmlFor="business-type">Tipo de negocio</Label>
+          <Select
             value={data.business_type}
-            onChange={(e) => onUpdate({ business_type: e.target.value })}
-            className="w-full bg-white border border-gray-200 rounded-lg px-3.5 py-2.5 text-[14px] text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-300 transition-all"
+            onValueChange={(value) => onUpdate({ business_type: value })}
           >
-            {BUSINESS_TYPES.map(({ value, label }) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger id="business-type">
+              <SelectValue placeholder="Selecciona el tipo de negocio" />
+            </SelectTrigger>
+            <SelectContent>
+              {BUSINESS_TYPES.map(({ value, label }) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </div>

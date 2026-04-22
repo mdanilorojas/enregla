@@ -1,10 +1,20 @@
 import { useState, useMemo } from 'react';
 import { useAppStore } from '@/store';
-import { Card, Badge, EmptyState } from '@/components/ui';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { PERMIT_TYPE_LABELS } from '@/types';
 import type { Document } from '@/types';
 import { formatDate } from '@/lib/dates';
-import { FileText, Upload, AlertTriangle, FolderOpen } from 'lucide-react';
+import {
+  FileText,
+  Upload,
+  AlertTriangle,
+  FolderOpen,
+  Building2,
+  Calendar,
+  CheckCircle2,
+} from 'lucide-react';
 
 type GroupMode = 'sede' | 'permiso';
 
@@ -52,100 +62,227 @@ export function DocumentVaultView() {
     }
   }, [documents, locations, permits, groupBy]);
 
+  const stats = useMemo(() => {
+    const total = documents.length;
+    const vigentes = documents.filter((d) => d.status === 'vigente').length;
+    const vencidos = documents.filter((d) => d.status === 'vencido').length;
+    const missing = missingDocs.length;
+
+    return { total, vigentes, vencidos, missing };
+  }, [documents, missingDocs]);
+
+  const getDocumentStatusVariant = (status: string): 'success' | 'destructive' | 'secondary' => {
+    if (status === 'vigente') return 'success';
+    if (status === 'vencido') return 'destructive';
+    return 'secondary';
+  };
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h2 className="text-[28px] font-semibold text-[--color-legal-ink] tracking-tight">Documentos</h2>
-          <p className="text-[14px] font-medium text-slate-500 mt-1">{documents.length} documentos registrados</p>
-        </div>
-        <div className="flex items-center gap-0.5 bg-gray-100 rounded-lg p-0.5">
-          <button
-            onClick={() => setGroupBy('sede')}
-            className={`px-3 py-1.5 rounded-md text-[13px] font-medium transition-all ${
-              groupBy === 'sede' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Por sede
-          </button>
-          <button
-            onClick={() => setGroupBy('permiso')}
-            className={`px-3 py-1.5 rounded-md text-[13px] font-medium transition-all ${
-              groupBy === 'permiso' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Por permiso
-          </button>
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
+            <FileText size={20} className="text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+              Documentos
+            </h1>
+            <p className="text-sm text-gray-500 mt-0.5">
+              {stats.total} documentos registrados
+            </p>
+          </div>
         </div>
       </div>
 
+      {/* Stats Dashboard */}
+      <div className="grid grid-cols-4 gap-4">
+        <Card className="border-gray-100">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">
+                  Total
+                </p>
+                <p className="text-3xl font-bold text-gray-900">
+                  {stats.total}
+                </p>
+              </div>
+              <FileText size={32} className="text-gray-400" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-emerald-200 bg-emerald-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-emerald-600 uppercase tracking-wider mb-1">
+                  Vigentes
+                </p>
+                <p className="text-3xl font-bold text-emerald-700">
+                  {stats.vigentes}
+                </p>
+              </div>
+              <CheckCircle2 size={32} className="text-emerald-400" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-red-600 uppercase tracking-wider mb-1">
+                  Vencidos
+                </p>
+                <p className="text-3xl font-bold text-red-700">
+                  {stats.vencidos}
+                </p>
+              </div>
+              <AlertTriangle size={32} className="text-red-400" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-amber-200 bg-amber-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-amber-600 uppercase tracking-wider mb-1">
+                  Faltantes
+                </p>
+                <p className="text-3xl font-bold text-amber-700">
+                  {stats.missing}
+                </p>
+              </div>
+              <Upload size={32} className="text-amber-400" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Missing Documents Alert */}
       {missingDocs.length > 0 && (
-        <Card padding="none" className="mb-6 !border-orange-200">
-          <div className="flex items-center gap-2.5 px-6 py-4 border-b border-orange-100 bg-orange-50/50 rounded-t-2xl">
-            <AlertTriangle size={18} className="text-[#FF5A1F]" strokeWidth={1.5} />
-            <span className="text-[14px] font-semibold text-orange-900">Documentos faltantes</span>
-            <Badge variant="risk" risk="alto" className="ml-auto">{missingDocs.length}</Badge>
-          </div>
-          <div className="divide-y divide-gray-50">
+        <Card className="border-amber-200 bg-amber-50">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <AlertTriangle size={20} className="text-amber-600" />
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-amber-900">
+                  Documentos faltantes
+                </h3>
+                <p className="text-xs text-amber-700 mt-0.5">
+                  {missingDocs.length} {missingDocs.length === 1 ? 'permiso requiere' : 'permisos requieren'} documentación
+                </p>
+              </div>
+              <Badge variant="warning">{missingDocs.length}</Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-2">
             {missingDocs.map((item) => (
-              <div key={item.id} className="flex items-center justify-between px-5 py-3">
+              <div
+                key={item.id}
+                className="flex items-center justify-between p-3 bg-white rounded-lg border border-amber-100"
+              >
                 <div>
-                  <p className="text-[13px] font-medium text-gray-900">{item.permitType}</p>
-                  <p className="text-[12px] text-gray-400">{item.locationName}</p>
+                  <p className="text-sm font-medium text-gray-900">{item.permitType}</p>
+                  <p className="text-xs text-gray-500">{item.locationName}</p>
                 </div>
-                <button className="flex items-center gap-1.5 text-[13px] text-gray-600 hover:text-gray-900 transition-colors px-3 py-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 border border-gray-200 font-medium">
-                  <Upload size={13} />
+                <Button variant="outline" size="sm">
+                  <Upload size={14} className="mr-1.5" />
                   Subir
-                </button>
+                </Button>
               </div>
             ))}
-          </div>
+          </CardContent>
         </Card>
       )}
 
+      {/* Group By Toggle */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium text-gray-700">
+          Agrupar por:
+        </p>
+        <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+          <Button
+            variant={groupBy === 'sede' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setGroupBy('sede')}
+            className={groupBy === 'sede' ? '' : 'bg-transparent'}
+          >
+            <Building2 size={14} className="mr-1.5" />
+            Sede
+          </Button>
+          <Button
+            variant={groupBy === 'permiso' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => setGroupBy('permiso')}
+            className={groupBy === 'permiso' ? '' : 'bg-transparent'}
+          >
+            <FileText size={14} className="mr-1.5" />
+            Permiso
+          </Button>
+        </div>
+      </div>
+
+      {/* Grouped Documents */}
       <div className="space-y-6">
         {grouped.map(([key, { label, docs }]) => (
           <div key={key}>
-            <div className="flex items-center gap-2.5 mb-4 px-2">
-              <FolderOpen size={18} className="text-slate-400" strokeWidth={1.5} />
-              <h3 className="text-[15px] font-semibold text-[--color-legal-ink]">{label}</h3>
-              <span className="text-[12px] font-medium text-slate-500 px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200/50">{docs.length}</span>
+            {/* Group Header */}
+            <div className="flex items-center gap-3 mb-4">
+              <FolderOpen size={18} className="text-gray-600" />
+              <h3 className="text-base font-semibold text-gray-900">{label}</h3>
+              <Badge variant="secondary">{docs.length}</Badge>
             </div>
-            <div className="space-y-2">
+
+            {/* Document List */}
+            <div className="space-y-3">
               {docs.map((doc) => {
                 const loc = locations.find((l) => l.id === doc.locationId);
                 const permit = doc.permitId ? permits.find((p) => p.id === doc.permitId) : null;
 
                 return (
-                  <Card key={doc.id} padding="sm" hover className="border border-slate-100 rounded-2xl shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] transition-all duration-300">
-                    <div className="flex items-center gap-4">
-                      <div className="w-11 h-11 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
-                        <FileText size={20} className="text-slate-400" strokeWidth={1.5} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[14px] font-semibold text-[--color-legal-ink] truncate">{doc.name}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          {groupBy !== 'sede' && (
-                            <span className="text-[13px] font-medium text-slate-500">{loc?.name}</span>
-                          )}
-                          {groupBy !== 'permiso' && permit && (
-                            <span className="text-[13px] font-medium text-slate-500">{PERMIT_TYPE_LABELS[permit.type]}</span>
-                          )}
-                          <span className="text-slate-300">·</span>
-                          <span className="text-[13px] font-medium text-slate-500">{formatDate(doc.uploadedAt)}</span>
+                  <Card
+                    key={doc.id}
+                    className="transition-all hover:shadow-md"
+                  >
+                    <CardContent className="pt-6">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
+                          <FileText size={20} className="text-gray-600" />
                         </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-semibold text-gray-900 truncate">
+                            {doc.name}
+                          </h4>
+                          <div className="flex items-center gap-3 flex-wrap text-xs text-gray-500 mt-1">
+                            {groupBy !== 'sede' && loc && (
+                              <div className="flex items-center gap-1.5">
+                                <Building2 size={12} />
+                                {loc.name}
+                              </div>
+                            )}
+                            {groupBy !== 'permiso' && permit && (
+                              <>
+                                {groupBy !== 'sede' && <span className="text-gray-300">•</span>}
+                                <span>{PERMIT_TYPE_LABELS[permit.type]}</span>
+                              </>
+                            )}
+                            <span className="text-gray-300">•</span>
+                            <div className="flex items-center gap-1.5">
+                              <Calendar size={12} />
+                              {formatDate(doc.uploadedAt)}
+                            </div>
+                          </div>
+                        </div>
+                        <Badge variant={getDocumentStatusVariant(doc.status)}>
+                          {doc.status === 'vigente' ? 'Vigente' : doc.status === 'vencido' ? 'Vencido' : doc.status}
+                        </Badge>
                       </div>
-                      <Badge
-                        variant="status"
-                        status={
-                          doc.status === 'vigente' ? 'vigente' :
-                          doc.status === 'vencido' ? 'vencido' :
-                          'no_registrado'
-                        }
-                      >
-                        {doc.status}
-                      </Badge>
-                    </div>
+                    </CardContent>
                   </Card>
                 );
               })}
@@ -153,8 +290,17 @@ export function DocumentVaultView() {
           </div>
         ))}
 
+        {/* Empty State */}
         {grouped.length === 0 && (
-          <EmptyState message="Sin documentos registrados. Sube documentos desde la vista de cada sede." />
+          <div className="text-center py-12">
+            <FileText size={48} className="text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500 mb-2">
+              No hay documentos registrados
+            </p>
+            <p className="text-sm text-gray-400">
+              Sube documentos desde la vista de cada sede
+            </p>
+          </div>
         )}
       </div>
     </div>

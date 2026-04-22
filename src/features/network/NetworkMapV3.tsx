@@ -1,5 +1,5 @@
 // src/features/network/NetworkMapV3.tsx
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ReactFlow,
@@ -8,7 +8,6 @@ import {
   useNodesState,
   useEdgesState,
   type Node,
-  type Edge,
   type NodeTypes,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -18,7 +17,6 @@ import { useLocations } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useStaticLayout } from './useStaticLayout';
-import { useNodeAnimation } from './useNodeAnimation';
 import { CompanyNode } from './nodes/CompanyNode';
 import { SedeNode } from './nodes/SedeNode';
 import { PermitNode } from './nodes/PermitNode';
@@ -32,8 +30,10 @@ const nodeTypes: NodeTypes = {
 export function NetworkMapV3() {
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const { locations, loading: locationsLoading, error: locationsError } = useLocations();
-  const { permits, loading: permitsLoading, error: permitsError } = usePermits();
+  const companyId = profile?.company_id;
+
+  const { locations, loading: locationsLoading, error: locationsError } = useLocations(companyId);
+  const { permits, loading: permitsLoading, error: permitsError } = usePermits({ companyId });
   const isDesktop = useMediaQuery('(min-width: 1024px)');
 
   // Static layout
@@ -44,19 +44,14 @@ export function NetworkMapV3() {
     companyName: profile?.company_name || 'Empresa',
   });
 
-  // Animated nodes
-  const animatedNodes = useNodeAnimation(layoutNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 
-  // Apply animation class to nodes
-  const nodesWithAnimation = useMemo(() => {
-    return layoutNodes.map(node => ({
-      ...node,
-      className: animatedNodes.has(node.id) ? 'animate-fadeIn' : 'opacity-0',
-    }));
-  }, [layoutNodes, animatedNodes]);
-
-  const [nodes, , onNodesChange] = useNodesState(nodesWithAnimation);
-  const [edges, , onEdgesChange] = useEdgesState(layoutEdges);
+  // Sync nodes and edges when layout changes
+  useEffect(() => {
+    setNodes(layoutNodes);
+    setEdges(layoutEdges);
+  }, [layoutNodes, layoutEdges, setNodes, setEdges]);
 
   // Node click handler
   const onNodeClick = useCallback(
@@ -247,9 +242,9 @@ export function NetworkMapV3() {
     );
   }
 
-  // Success state - Network map
+  // Success state - Network map (Unify dark theme)
   return (
-    <div className="h-screen w-full">
+    <div className="h-screen w-full bg-[#1a1a1a]">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -268,8 +263,16 @@ export function NetworkMapV3() {
         defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
         proOptions={{ hideAttribution: true }}
       >
-        <Background />
-        <Controls showInteractive={false} />
+        <Background
+          color="#404040"
+          gap={16}
+          size={1}
+          className="opacity-30"
+        />
+        <Controls
+          showInteractive={false}
+          className="!bg-[#2a2a2a] !border-white/10 [&_button]:!bg-[#2a2a2a] [&_button]:!border-white/10 [&_button]:!text-white"
+        />
       </ReactFlow>
     </div>
   );

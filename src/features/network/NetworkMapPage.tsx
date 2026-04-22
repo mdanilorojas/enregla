@@ -8,7 +8,7 @@ export function NetworkMapPage() {
   return (
     <div className="relative h-full">
       {/* Version toggle (top-right, temporary for testing) */}
-      <div className="absolute top-4 right-4 z-20 flex items-center gap-2 bg-white rounded-lg shadow-lg px-3 py-2 border border-gray-200">
+      <div className="absolute top-4 right-4 z-20 flex items-center gap-2 bg-white rounded-lg shadow-lg px-3 py-2 border border-gray-100">
         <span className="text-xs font-medium text-gray-600">Versión:</span>
         <button
           onClick={() => setUseV3(false)}
