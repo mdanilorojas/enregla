@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocations } from '@/hooks/useLocations';
@@ -6,12 +6,16 @@ import { usePermits } from '@/hooks/usePermits';
 import { RiskOverviewCard } from './RiskOverviewCard';
 import { MetricsGrid } from './MetricsGrid';
 import { SedeCard } from './SedeCard';
+import { CreateLocationModal } from '@/features/locations/CreateLocationModal';
+import { MapPin, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export function DashboardView() {
   const navigate = useNavigate();
   const { companyId } = useAuth();
-  const { locations, loading: loadingLocations, error: locationsError } = useLocations(companyId);
+  const { locations, loading: loadingLocations, error: locationsError, refetch } = useLocations(companyId);
   const { permits, loading: loadingPermits, error: permitsError } = usePermits({ companyId });
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   // Guard: redirect or show message if no companyId
   if (!companyId) {
@@ -114,10 +118,27 @@ export function DashboardView() {
           </div>
 
           {locations.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-[var(--color-border)] bg-white py-12 text-center">
-              <p className="text-sm text-[var(--color-text-secondary)]">
-                No hay sedes registradas
-              </p>
+            <div className="rounded-lg border border-dashed border-[var(--color-border)] bg-white py-16 text-center">
+              <div className="flex flex-col items-center gap-4 max-w-sm mx-auto">
+                <div className="w-14 h-14 rounded-full bg-[var(--color-surface)] flex items-center justify-center">
+                  <MapPin className="w-7 h-7 text-[var(--color-text-muted)]" />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-[var(--color-text)] mb-1">
+                    No hay sedes
+                  </h3>
+                  <p className="text-sm text-[var(--color-text-secondary)]">
+                    Comienza creando tu primera sede
+                  </p>
+                </div>
+                <Button
+                  onClick={() => setShowCreateModal(true)}
+                  className="mt-2"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Crear Primera Sede
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -133,6 +154,19 @@ export function DashboardView() {
           )}
         </div>
       </div>
+
+      {/* Create Location Modal */}
+      {companyId && (
+        <CreateLocationModal
+          open={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onSuccess={(locationId) => {
+            refetch();
+            navigate(`/sedes/${locationId}`);
+          }}
+          companyId={companyId}
+        />
+      )}
     </div>
   );
 }
