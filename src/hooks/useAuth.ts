@@ -6,11 +6,18 @@ import { supabase } from '@/lib/supabase';
 // Global flag to ensure auth check only happens once
 let authInitialized = false;
 let authSubscription: any = null;
+let initializationPromise: Promise<void> | null = null;
 
 export function useAuth() {
   const { user, profile, loading, setAuth, clear } = useAuthStore();
 
   useEffect(() => {
+    // If already initializing, wait for that to complete
+    if (initializationPromise) {
+      console.log('[useAuth] Waiting for existing initialization...');
+      return;
+    }
+
     // Only initialize auth once for the entire app
     if (authInitialized) {
       console.log('[useAuth] Already initialized, skipping');
@@ -24,42 +31,61 @@ export function useAuth() {
     const safetyTimeout = setTimeout(() => {
       console.warn('[useAuth] Safety timeout triggered - forcing loading=false');
       setAuth(null, null);
+      initializationPromise = null;
     }, 5000);
 
-    // Check initial session immediately
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) {
-        console.log('[useAuth] No initial session found');
-        clearTimeout(safetyTimeout);
-        clear();
-        return;
-      }
-
-      // Load profile for existing session
-      console.log('[useAuth] Initial session found, loading profile...');
+    // Create single initialization promise to prevent race conditions
+    initializationPromise = (async () => {
       try {
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
+        // Check initial session immediately
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-        if (profileError && profileError.code !== 'PGRST116') {
-          console.error('[useAuth] Initial profile fetch error:', profileError);
+        if (sessionError) {
+          console.error('[useAuth] getSession failed:', sessionError);
+          clearTimeout(safetyTimeout);
+          clear();
+          return;
         }
 
-        console.log('[useAuth] Profile loaded:', profileData ? 'EXISTS' : 'NULL');
-        clearTimeout(safetyTimeout);
-        setAuth(session.user, profileData || null);
+        if (!session) {
+          console.log('[useAuth] No initial session found');
+          clearTimeout(safetyTimeout);
+          clear();
+          return;
+        }
+
+        // Load profile for existing session
+        console.log('[useAuth] Initial session found, loading profile...');
+        try {
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+
+          if (profileError && profileError.code !== 'PGRST116') {
+            console.error('[useAuth] Initial profile fetch error:', profileError);
+          }
+
+          console.log('[useAuth] Profile loaded:', profileData ? 'EXISTS' : 'NULL');
+          clearTimeout(safetyTimeout);
+          setAuth(session.user, profileData || null);
+        } catch (error) {
+          console.error('[useAuth] Initial profile fetch failed:', error);
+          clearTimeout(safetyTimeout);
+          setAuth(session.user, null);
+        }
       } catch (error) {
-        console.error('[useAuth] Initial profile fetch failed:', error);
+        console.error('[useAuth] Initialization failed:', error);
         clearTimeout(safetyTimeout);
-        setAuth(session.user, null);
+        clear();
+      } finally {
+        initializationPromise = null;
       }
-    }).catch(error => {
-      console.error('[useAuth] getSession failed:', error);
-      clearTimeout(safetyTimeout);
-      clear();
+    })();
+
+    initializationPromise.catch(err => {
+      console.error('[useAuth] Unhandled initialization error:', err);
     });
 
     // Listen for auth changes (only once)
