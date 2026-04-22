@@ -63,9 +63,6 @@ CREATE TABLE notification_preferences (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Index for fast user lookup
-CREATE INDEX idx_notification_preferences_user
-  ON notification_preferences(user_id);
 
 -- Enable Row Level Security
 ALTER TABLE notification_preferences ENABLE ROW LEVEL SECURITY;
@@ -84,7 +81,7 @@ COMMENT ON COLUMN notification_preferences.digest_enabled IS 'Toggle for weekly 
 -- =============================================
 -- Trigger: Auto-create preferences for new users
 -- =============================================
-CREATE OR REPLACE FUNCTION create_default_notification_preferences()
+CREATE OR REPLACE FUNCTION public.create_default_notification_preferences()
 RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO notification_preferences (user_id)
@@ -92,11 +89,28 @@ BEGIN
   ON CONFLICT (user_id) DO NOTHING;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE TRIGGER on_auth_user_created
+CREATE TRIGGER on_auth_user_created_notification_prefs
   AFTER INSERT ON auth.users
   FOR EACH ROW
-  EXECUTE FUNCTION create_default_notification_preferences();
+  EXECUTE FUNCTION public.create_default_notification_preferences();
 
-COMMENT ON FUNCTION create_default_notification_preferences() IS 'Auto-creates notification preferences when user signs up';
+-- =============================================
+-- Trigger: Auto-update updated_at column
+-- =============================================
+CREATE OR REPLACE FUNCTION public.update_notification_preferences_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER notification_preferences_update_updated_at
+  BEFORE UPDATE ON notification_preferences
+  FOR EACH ROW
+  EXECUTE FUNCTION public.update_notification_preferences_updated_at();
+
+COMMENT ON FUNCTION public.create_default_notification_preferences() IS 'Auto-creates notification preferences when user signs up';
+COMMENT ON FUNCTION public.update_notification_preferences_updated_at() IS 'Auto-updates the updated_at timestamp when notification preferences are modified';
