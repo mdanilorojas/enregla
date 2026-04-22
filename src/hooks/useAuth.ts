@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { logout } from '@/lib/api/auth';
 import { supabase } from '@/lib/supabase';
+import type { Profile } from '@/types/database';
 
 // Global flag to ensure auth check only happens once
 let authInitialized = false;
@@ -61,7 +62,7 @@ export function useAuth() {
             .from('profiles')
             .select('*')
             .eq('id', session.user.id)
-            .single();
+            .single<Profile>();
 
           if (profileError && profileError.code !== 'PGRST116') {
             console.error('[useAuth] Initial profile fetch error:', profileError);
@@ -103,7 +104,7 @@ export function useAuth() {
                 .from('profiles')
                 .select('*')
                 .eq('id', session.user.id)
-                .single();
+                .single<Profile>();
 
               console.log('[useAuth] Profile query result - Data:', profileData ? 'EXISTS' : 'NULL', 'Error:', profileError?.message || 'NONE');
               if (profileData) {
