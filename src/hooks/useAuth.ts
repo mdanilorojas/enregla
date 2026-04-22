@@ -21,11 +21,30 @@ export function useAuth() {
     console.log('[useAuth] First initialization - relying on auth state change events...');
 
     // Check initial session immediately
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) {
-        // Only clear if there's genuinely no session
         console.log('[useAuth] No initial session found');
         clear();
+        return;
+      }
+
+      // Load profile for existing session
+      console.log('[useAuth] Initial session found, loading profile...');
+      try {
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profileError && profileError.code !== 'PGRST116') {
+          console.error('[useAuth] Initial profile fetch error:', profileError);
+        }
+
+        setAuth(session.user, profileData || null);
+      } catch (error) {
+        console.error('[useAuth] Initial profile fetch failed:', error);
+        setAuth(session.user, null);
       }
     });
 
@@ -36,35 +55,33 @@ export function useAuth() {
           console.log('[useAuth] Auth state changed:', event, session ? 'with session' : 'no session');
 
           if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
-            console.log('[useAuth] SIGNED_IN event - user:', session.user.id);
+            console.log('[useAuth] Auth event - user:', session.user.id);
 
-            // Set user immediately, don't wait for profile
-            console.log('[useAuth] Setting auth with user, will fetch profile...');
-            setAuth(session.user, null);
+            // Fetch profile BEFORE setting auth state to prevent redirect loops
+            try {
+              const { data: profileData, error: profileError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
 
-            // Fetch profile in background (non-blocking)
-            (async () => {
-              try {
-                const { data: profileData, error: profileError } = await supabase
-                  .from('profiles')
-                  .select('*')
-                  .eq('id', session.user.id)
-                  .single();
+              console.log('[useAuth] Profile query result - Data:', profileData ? 'EXISTS' : 'NULL', 'Error:', profileError?.message || 'NONE');
 
-                console.log('[useAuth] Profile query result - Data:', profileData ? 'EXISTS' : 'NULL', 'Error:', profileError?.message || 'NONE');
-
-                if (profileError) {
-                  console.error('[useAuth] Profile fetch error:', profileError);
-                } else if (profileData) {
-                  console.log('[useAuth] Profile loaded successfully:', profileData);
-                  setAuth(session.user, profileData);
-                }
-              } catch (error) {
-                console.error('[useAuth] Profile fetch failed:', error);
+              if (profileError && profileError.code !== 'PGRST116') {
+                console.error('[useAuth] Profile fetch error:', profileError);
               }
-            })();
+
+              // Set auth with whatever we have (profile or null for new users)
+              setAuth(session.user, profileData || null);
+            } catch (error) {
+              console.error('[useAuth] Profile fetch failed:', error);
+              setAuth(session.user, null);
+            }
           } else if (event === 'SIGNED_OUT') {
             clear();
+          } else if (event === 'TOKEN_REFRESHED' && session) {
+            // Don't reset profile on token refresh - just keep existing state
+            console.log('[useAuth] Token refreshed, keeping existing profile');
           }
         }
       );
