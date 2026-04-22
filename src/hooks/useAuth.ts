@@ -34,37 +34,36 @@ export function useAuth() {
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
         async (event, session) => {
           console.log('[useAuth] Auth state changed:', event, session ? 'with session' : 'no session');
-          if (event === 'SIGNED_IN' && session) {
-            console.log('[useAuth] SIGNED_IN event - fetching real profile');
 
-            // Fetch real profile from database
-            try {
-              const { data: profileData, error: profileError } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', session.user.id)
-                .single();
+          if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
+            console.log('[useAuth] SIGNED_IN event - user:', session.user.id);
 
-              if (profileError) {
-                console.error('[useAuth] Profile fetch error:', profileError);
+            // Set user immediately, don't wait for profile
+            console.log('[useAuth] Setting auth with user, will fetch profile...');
+            setAuth(session.user, null);
 
-                // User doesn't have a profile yet - needs onboarding
-                if (profileError.code === 'PGRST116') {
-                  console.log('[useAuth] No profile found - user needs onboarding');
-                  // Set user without profile to allow redirect to /setup
-                  setAuth(session.user, null);
-                } else {
-                  throw profileError;
+            // Fetch profile in background (non-blocking)
+            supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single()
+              .then(({ data: profileData, error: profileError }) => {
+                console.log('[useAuth] Profile query result - Data:', profileData ? 'EXISTS' : 'NULL', 'Error:', profileError?.message || 'NONE');
+
+                if (profileError) {
+                  console.error('[useAuth] Profile fetch error:', profileError);
+                  // Keep user set, profile stays null
+                } else if (profileData) {
+                  console.log('[useAuth] Profile loaded successfully:', profileData);
+                  // Update with profile data
+                  setAuth(session.user, profileData);
                 }
-              } else {
-                console.log('[useAuth] Profile loaded successfully');
-                setAuth(session.user, profileData);
-              }
-            } catch (error) {
-              console.error('[useAuth] Failed to load profile:', error);
-              // On error, set user without profile (allows retry)
-              setAuth(session.user, null);
-            }
+              })
+              .catch((error) => {
+                console.error('[useAuth] Profile fetch failed:', error);
+                // User is still set, profile stays null
+              });
           } else if (event === 'SIGNED_OUT') {
             clear();
           }

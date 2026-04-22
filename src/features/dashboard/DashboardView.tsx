@@ -94,24 +94,33 @@ export function DashboardView() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-8">
-        <div className="max-w-7xl mx-auto space-y-8">
-          {/* Page Header */}
-          <div>
-            <h1 className="text-3xl font-bold text-text">Dashboard</h1>
-            <p className="text-text-secondary mt-1">Resumen general de cumplimiento</p>
+    <div className="min-h-screen bg-[var(--color-surface)] p-6 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Risk Overview */}
+        <RiskOverviewCard metrics={metrics} />
+
+        {/* Metrics Grid */}
+        <MetricsGrid metrics={metrics} />
+
+        {/* Sedes Section */}
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-lg font-semibold text-[var(--color-text)]">Sedes</h2>
+              <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
+                {locations.length} {locations.length === 1 ? 'sede registrada' : 'sedes registradas'}
+              </p>
+            </div>
           </div>
 
-          {/* Risk Overview */}
-          <RiskOverviewCard metrics={metrics} />
-
-          {/* Metrics Grid */}
-          <MetricsGrid metrics={metrics} />
-
-          {/* Sedes Grid */}
-          <div>
-            <h2 className="text-2xl font-semibold text-text mb-4">Sedes</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {locations.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-[var(--color-border)] bg-white py-12 text-center">
+              <p className="text-sm text-[var(--color-text-secondary)]">
+                No hay sedes registradas
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {locations.map(location => (
                 <SedeCard
                   key={location.id}
@@ -121,8 +130,9 @@ export function DashboardView() {
                 />
               ))}
             </div>
-          </div>
+          )}
         </div>
       </div>
+    </div>
   );
 }
