@@ -82,6 +82,7 @@ export function CreateLocationModal({
       return;
     }
 
+    console.log('[CreateLocationModal] Submitting with companyId:', companyId);
     setLoading(true);
     try {
       const newLocation = await createLocation({
@@ -91,6 +92,7 @@ export function CreateLocationModal({
         status: status as 'operando' | 'en_preparacion' | 'cerrado',
       });
 
+      console.log('[CreateLocationModal] Location created:', newLocation);
       toast.success('Sede creada exitosamente', {
         duration: 3000,
       });
@@ -98,7 +100,7 @@ export function CreateLocationModal({
       onSuccess(newLocation.id);
       onClose();
     } catch (error: any) {
-      console.error('Error creating location:', error);
+      console.error('[CreateLocationModal] Error creating location:', error);
       const errorMessage = error.message || 'Intenta nuevamente';
       toast.error(`Error al crear sede: ${errorMessage}`, {
         duration: 5000,

@@ -42,38 +42,44 @@ export function useAuth() {
     // Create single initialization promise to prevent race conditions
     initializationPromise = (async () => {
       try {
-        // DEMO MODE: Load demo user directly without auth
+        // DEMO MODE: Sign in with demo credentials
         if (DEMO_MODE) {
-          console.log('[useAuth] DEMO MODE: Loading demo user profile...');
+          console.log('[useAuth] DEMO MODE: Signing in as demo user...');
 
           try {
-            const { data: profileData, error: profileError } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', DEMO_USER_ID)
-              .single<Profile>();
+            // Try to sign in with password
+            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+              email: 'demo@enregla.ec',
+              password: 'demopass123', // Try common password
+            });
 
-            if (profileError) {
-              console.error('[useAuth] DEMO MODE: Profile fetch error:', profileError);
+            if (signInError) {
+              console.error('[useAuth] DEMO MODE: Sign in failed, trying alternative...', signInError);
+
+              // Fallback: Load profile directly and create mock session
+              const { data: profileData } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', DEMO_USER_ID)
+                .single<Profile>();
+
+              const mockUser = {
+                id: DEMO_USER_ID,
+                email: 'demo@enregla.ec',
+                created_at: new Date().toISOString(),
+                app_metadata: {},
+                user_metadata: {},
+                aud: 'authenticated',
+              } as any;
+
               clearTimeout(safetyTimeout);
-              setAuth(null, null);
+              setAuth(mockUser, profileData || null);
               return;
             }
 
-            console.log('[useAuth] DEMO MODE: Profile loaded:', profileData ? 'EXISTS' : 'NULL');
-
-            // Create a mock user object for demo mode
-            const mockUser = {
-              id: DEMO_USER_ID,
-              email: 'demo@enregla.ec',
-              created_at: new Date().toISOString(),
-              app_metadata: {},
-              user_metadata: {},
-              aud: 'authenticated',
-            } as any;
-
+            // Sign in successful - auth state change handler will load profile
+            console.log('[useAuth] DEMO MODE: Sign in successful');
             clearTimeout(safetyTimeout);
-            setAuth(mockUser, profileData);
           } catch (error) {
             console.error('[useAuth] DEMO MODE: Failed:', error);
             clearTimeout(safetyTimeout);

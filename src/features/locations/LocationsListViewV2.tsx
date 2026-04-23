@@ -12,6 +12,9 @@ export function LocationsListViewV2() {
   const { profile } = useAuth();
   const companyId = profile?.company_id;
 
+  console.log('[LocationsListViewV2] Profile:', profile);
+  console.log('[LocationsListViewV2] CompanyId:', companyId);
+
   const { locations, loading: loadingLocations, error: locationsError } = useLocations(companyId);
   const { permits, loading: loadingPermits, error: permitsError } = usePermits({ companyId });
 
@@ -84,12 +87,21 @@ export function LocationsListViewV2() {
               Comienza creando tu primera sede
             </p>
             <Button
-              onClick={() => setCreateModalOpen(true)}
+              onClick={() => {
+                console.log('[LocationsListViewV2] Button clicked, companyId:', companyId);
+                setCreateModalOpen(true);
+              }}
               className="mt-6 bg-blue-900 hover:bg-blue-800"
+              disabled={!companyId}
             >
               <Plus size={16} />
               Crear Primera Sede
             </Button>
+            {!companyId && (
+              <p className="mt-2 text-xs text-red-500">
+                Error: No se pudo cargar la información de la empresa
+              </p>
+            )}
           </div>
         </div>
       </div>
