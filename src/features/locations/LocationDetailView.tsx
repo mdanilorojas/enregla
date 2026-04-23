@@ -42,6 +42,40 @@ export function LocationDetailView() {
     return { vigentes, total, compliance };
   }, [locationPermits]);
 
+  // Fetch documents for all permits
+  const fetchAllDocuments = useCallback(async () => {
+    const newMap = new Map<string, Document[]>();
+
+    await Promise.all(
+      locationPermits.map(async (permit) => {
+        try {
+          const docs = await getPermitDocuments(permit.id);
+          if (docs.length > 0) {
+            newMap.set(permit.id, docs);
+          }
+        } catch (error) {
+          console.error(`Error fetching documents for permit ${permit.id}:`, error);
+        }
+      })
+    );
+
+    setDocumentsMap(newMap);
+  }, [locationPermits]);
+
+  const handleDocumentUpdated = useCallback(() => {
+    // Refetch permits to get updated document info
+    refetch();
+    // Refetch documents for all permits
+    fetchAllDocuments();
+  }, [refetch, fetchAllDocuments]);
+
+  // Fetch documents when permits change
+  useEffect(() => {
+    if (locationPermits.length > 0) {
+      fetchAllDocuments();
+    }
+  }, [locationPermits, fetchAllDocuments]);
+
   if (loadingLocations || loadingPermits) {
     return (
       <div className="min-h-screen bg-background p-8">
@@ -84,40 +118,6 @@ export function LocationDetailView() {
   const handleViewPublicLink = () => {
     // TODO: Implement in Milestone 4
   };
-
-  // Fetch documents for all permits
-  const fetchAllDocuments = useCallback(async () => {
-    const newMap = new Map<string, Document[]>();
-
-    await Promise.all(
-      locationPermits.map(async (permit) => {
-        try {
-          const docs = await getPermitDocuments(permit.id);
-          if (docs.length > 0) {
-            newMap.set(permit.id, docs);
-          }
-        } catch (error) {
-          console.error(`Error fetching documents for permit ${permit.id}:`, error);
-        }
-      })
-    );
-
-    setDocumentsMap(newMap);
-  }, [locationPermits]);
-
-  const handleDocumentUpdated = useCallback(() => {
-    // Refetch permits to get updated document info
-    refetch();
-    // Refetch documents for all permits
-    fetchAllDocuments();
-  }, [refetch, fetchAllDocuments]);
-
-  // Fetch documents when permits change
-  useEffect(() => {
-    if (locationPermits.length > 0) {
-      fetchAllDocuments();
-    }
-  }, [locationPermits, fetchAllDocuments]);
 
   return (
     <div className="min-h-screen bg-background p-8">
