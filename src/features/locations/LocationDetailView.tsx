@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Share2 } from 'lucide-react';
 import { useLocations } from '@/hooks/useLocations';
@@ -85,15 +85,8 @@ export function LocationDetailView() {
     // TODO: Implement in Milestone 4
   };
 
-  const handleDocumentUpdated = () => {
-    // Refetch permits to get updated document info
-    refetch();
-    // Refetch documents for all permits
-    fetchAllDocuments();
-  };
-
   // Fetch documents for all permits
-  const fetchAllDocuments = async () => {
+  const fetchAllDocuments = useCallback(async () => {
     const newMap = new Map<string, Document[]>();
 
     await Promise.all(
@@ -110,14 +103,21 @@ export function LocationDetailView() {
     );
 
     setDocumentsMap(newMap);
-  };
+  }, [locationPermits]);
+
+  const handleDocumentUpdated = useCallback(() => {
+    // Refetch permits to get updated document info
+    refetch();
+    // Refetch documents for all permits
+    fetchAllDocuments();
+  }, [refetch, fetchAllDocuments]);
 
   // Fetch documents when permits change
   useEffect(() => {
     if (locationPermits.length > 0) {
       fetchAllDocuments();
     }
-  }, [locationPermits]);
+  }, [locationPermits, fetchAllDocuments]);
 
   return (
     <div className="min-h-screen bg-background p-8">
