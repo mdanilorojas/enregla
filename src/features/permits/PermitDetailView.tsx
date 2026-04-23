@@ -1,9 +1,11 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAppStore } from '@/store';
+import { useAuth } from '@/hooks/useAuth';
+import { usePermits } from '@/hooks/usePermits';
+import { useLocations } from '@/hooks/useLocations';
+import { getPermitDocuments } from '@/lib/api/documents';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { PERMIT_TYPE_LABELS } from '@/types';
 import { formatDate, formatDateRelative, daysUntil } from '@/lib/dates';
 import {
   ArrowLeft,
@@ -15,6 +17,8 @@ import {
   Building2,
   Clock,
 } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import type { Document } from '@/types/database';
 
 const PERMIT_STATUS_LABELS: Record<string, string> = {
   vigente: 'Vigente',
@@ -26,11 +30,48 @@ const PERMIT_STATUS_LABELS: Record<string, string> = {
 export function PermitDetailView() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { permits, locations, documents } = useAppStore();
+  const { profile } = useAuth();
+  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
 
-  const permit = permits.find((p) => p.id === id);
-  const location = permit ? locations.find((l) => l.id === permit.locationId) : null;
-  const permitDocs = documents.filter((d) => d.permitId === id);
+  const companyId = isDemoMode
+    ? '50707999-f033-41c4-91c9-989966311972'
+    : profile?.company_id;
+
+  const { permits, loading: loadingPermits } = usePermits({ companyId });
+  const { locations, loading: loadingLocations } = useLocations(companyId);
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [loadingDocs, setLoadingDocs] = useState(false);
+
+  const permit = useMemo(() => permits.find((p) => p.id === id), [permits, id]);
+  const location = useMemo(
+    () => (permit ? locations.find((l) => l.id === permit.location_id) : null),
+    [permit, locations]
+  );
+
+  useEffect(() => {
+    if (id) {
+      setLoadingDocs(true);
+      getPermitDocuments(id)
+        .then(setDocuments)
+        .catch(console.error)
+        .finally(() => setLoadingDocs(false));
+    }
+  }, [id]);
+
+  const loading = loadingPermits || loadingLocations;
+
+  if (loading) {
+    return (
+      <div className="space-y-6 max-w-4xl">
+        <div className="h-10 bg-gray-200 rounded animate-pulse w-40" />
+        <div className="h-16 bg-gray-200 rounded animate-pulse" />
+        <div className="grid grid-cols-2 gap-6">
+          <div className="h-64 bg-gray-200 rounded animate-pulse" />
+          <div className="h-64 bg-gray-200 rounded animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
   if (!permit) {
     return (
@@ -55,7 +96,7 @@ export function PermitDetailView() {
   }
 
   const isRisk = permit.status === 'vencido' || permit.status === 'no_registrado';
-  const daysRemaining = permit.expiryDate ? daysUntil(permit.expiryDate) : null;
+  const daysRemaining = permit.expiry_date ? daysUntil(permit.expiry_date) : null;
 
   const getStatusVariant = (status: string): 'success' | 'destructive' | 'warning' | 'secondary' => {
     if (status === 'vigente') return 'success';
@@ -84,7 +125,7 @@ export function PermitDetailView() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-              {PERMIT_TYPE_LABELS[permit.type]}
+              {permit.type}
             </h1>
             <p className="text-sm text-gray-500 mt-0.5">
               {permit.issuer || 'Sin emisor'}
@@ -148,17 +189,17 @@ export function PermitDetailView() {
               )}
             </div>
 
-            {permit.issuedDate && (
+            {permit.issued_date && (
               <div>
                 <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
                   <Calendar size={12} />
                   <span className="uppercase tracking-wider font-medium">Fecha de Emisión</span>
                 </div>
-                <p className="text-sm text-gray-700">{formatDate(permit.issuedDate)}</p>
+                <p className="text-sm text-gray-700">{formatDate(permit.issued_date)}</p>
               </div>
             )}
 
-            {permit.expiryDate && (
+            {permit.expiry_date && (
               <div>
                 <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
                   <Clock size={12} />
@@ -173,10 +214,10 @@ export function PermitDetailView() {
                       : 'text-gray-900'
                   }`}
                 >
-                  {formatDate(permit.expiryDate)}
+                  {formatDate(permit.expiry_date)}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  {formatDateRelative(permit.expiryDate)}
+                  {formatDateRelative(permit.expiry_date)}
                 </p>
               </div>
             )}
@@ -192,9 +233,14 @@ export function PermitDetailView() {
             </h3>
           </CardHeader>
           <CardContent>
-            {permitDocs.length > 0 ? (
+            {loadingDocs ? (
+              <div className="text-center py-8">
+                <div className="w-8 h-8 border-4 border-gray-200 border-t-gray-600 rounded-full animate-spin mx-auto mb-2" />
+                <p className="text-sm text-gray-500">Cargando documentos...</p>
+              </div>
+            ) : documents.length > 0 ? (
               <div className="space-y-3">
-                {permitDocs.map((doc) => (
+                {documents.map((doc) => (
                   <div
                     key={doc.id}
                     className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100"
@@ -204,23 +250,12 @@ export function PermitDetailView() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">
-                        {doc.name}
+                        {doc.file_name}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {formatDate(doc.uploadedAt)}
+                        {formatDate(doc.uploaded_at)}
                       </p>
                     </div>
-                    <Badge
-                      variant={
-                        doc.status === 'vigente'
-                          ? 'success'
-                          : doc.status === 'vencido'
-                          ? 'destructive'
-                          : 'secondary'
-                      }
-                    >
-                      {doc.status}
-                    </Badge>
                   </div>
                 ))}
               </div>
