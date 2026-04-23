@@ -16,8 +16,12 @@ import {
   FileText,
   Building2,
   Clock,
+  Upload,
 } from 'lucide-react';
-import { useState, useEffect, useMemo } from 'react';
+import { cn } from '@/lib/utils';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { uploadPermitDocument } from '@/lib/api/documents';
+import toast from 'react-hot-toast';
 import type { Document } from '@/types/database';
 
 const PERMIT_STATUS_LABELS: Record<string, string> = {
@@ -41,6 +45,8 @@ export function PermitDetailView() {
   const { locations, loading: loadingLocations } = useLocations(companyId);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loadingDocs, setLoadingDocs] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
 
   const permit = useMemo(() => permits.find((p) => p.id === id), [permits, id]);
   const location = useMemo(
@@ -48,7 +54,7 @@ export function PermitDetailView() {
     [permit, locations]
   );
 
-  useEffect(() => {
+  const fetchDocuments = useCallback(() => {
     if (id) {
       setLoadingDocs(true);
       getPermitDocuments(id)
@@ -57,6 +63,91 @@ export function PermitDetailView() {
         .finally(() => setLoadingDocs(false));
     }
   }, [id]);
+
+  useEffect(() => {
+    fetchDocuments();
+  }, [fetchDocuments]);
+
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+  const ACCEPTED_TYPES = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg'];
+
+  const validateFile = (file: File): string | null => {
+    if (!ACCEPTED_TYPES.includes(file.type)) {
+      return 'Tipo no permitido. Solo PDF, PNG, JPG';
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      return 'Archivo muy grande. Máximo 5MB';
+    }
+    return null;
+  };
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(false);
+
+    if (!id) return;
+
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length === 0) return;
+
+    const file = files[0];
+    const validationError = validateFile(file);
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
+
+    setUploading(true);
+    try {
+      await uploadPermitDocument(id, file);
+      toast.success('Documento subido exitosamente');
+      fetchDocuments();
+    } catch (err) {
+      console.error('Upload error:', err);
+      toast.error(err instanceof Error ? err.message : 'Error al subir');
+    } finally {
+      setUploading(false);
+    }
+  }, [id, fetchDocuments]);
+
+  const handleFileInput = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!id) return;
+
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    const validationError = validateFile(file);
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
+
+    setUploading(true);
+    try {
+      await uploadPermitDocument(id, file);
+      toast.success('Documento subido exitosamente');
+      fetchDocuments();
+    } catch (err) {
+      console.error('Upload error:', err);
+      toast.error(err instanceof Error ? err.message : 'Error al subir');
+    } finally {
+      setUploading(false);
+    }
+  }, [id, fetchDocuments]);
 
   const loading = loadingPermits || loadingLocations;
 
@@ -238,31 +329,76 @@ export function PermitDetailView() {
                 <div className="w-8 h-8 border-4 border-gray-200 border-t-gray-600 rounded-full animate-spin mx-auto mb-2" />
                 <p className="text-sm text-gray-500">Cargando documentos...</p>
               </div>
-            ) : documents.length > 0 ? (
-              <div className="space-y-3">
-                {documents.map((doc) => (
-                  <div
-                    key={doc.id}
-                    className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100"
-                  >
-                    <div className="w-10 h-10 rounded-lg bg-white border border-gray-100 flex items-center justify-center shrink-0">
-                      <FileText size={16} className="text-gray-600" />
+            ) : (
+              <div className="space-y-4">
+                {/* Upload zone */}
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={cn(
+                    "relative border-2 border-dashed rounded-lg p-6 transition-all",
+                    dragOver ? "border-primary bg-primary/5" : "border-gray-200 hover:border-gray-300",
+                    uploading && "opacity-50 pointer-events-none"
+                  )}
+                >
+                  <label className="flex flex-col items-center justify-center cursor-pointer">
+                    <input
+                      type="file"
+                      accept={ACCEPTED_TYPES.join(',')}
+                      className="hidden"
+                      onChange={handleFileInput}
+                      disabled={uploading}
+                    />
+                    {uploading ? (
+                      <>
+                        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-2" />
+                        <p className="text-sm text-gray-600">Subiendo...</p>
+                      </>
+                    ) : (
+                      <>
+                        <Upload size={24} className="text-gray-400 mb-2" />
+                        <p className="text-sm font-medium text-gray-700">Arrastra documento aquí</p>
+                        <p className="text-xs text-gray-500 mt-1">o haz clic para seleccionar</p>
+                        <p className="text-xs text-gray-400 mt-2">PDF, PNG, JPG (máx. 5MB)</p>
+                      </>
+                    )}
+                  </label>
+                  {dragOver && (
+                    <div className="absolute inset-0 border-4 border-dashed border-primary bg-primary/10 rounded-lg flex items-center justify-center pointer-events-none">
+                      <div className="text-primary font-semibold">Suelta aquí</div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {doc.file_name}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {formatDate(doc.uploaded_at)}
-                      </p>
+                  )}
+                </div>
+
+                {/* Documents list */}
+                {documents.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Documentos subidos ({documents.length})
+                    </p>
+                    <div className="space-y-2">
+                      {documents.map((doc) => (
+                        <div
+                          key={doc.id}
+                          className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100"
+                        >
+                          <div className="w-10 h-10 rounded-lg bg-white border border-gray-100 flex items-center justify-center shrink-0">
+                            <FileText size={16} className="text-gray-600" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {doc.file_name}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {formatDate(doc.uploaded_at)}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <FileText size={32} className="text-gray-300 mx-auto mb-2" />
-                <p className="text-sm text-gray-500">Sin documentos adjuntos</p>
+                )}
               </div>
             )}
           </CardContent>
