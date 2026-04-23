@@ -32,21 +32,17 @@ export function useAuth() {
     authInitialized = true;
     console.log('[useAuth] First initialization - relying on auth state change events...');
 
-    // Safety timeout: if loading doesn't resolve in 5s, force it off
-    const safetyTimeout = setTimeout(() => {
-      console.warn('[useAuth] Safety timeout triggered - forcing loading=false');
-      setAuth(null, null);
-      initializationPromise = null;
-    }, 5000);
-
     // Create single initialization promise to prevent race conditions
     initializationPromise = (async () => {
       try {
         // DEMO MODE: Create mock session without auth
         if (DEMO_MODE) {
-          console.log('[useAuth] DEMO MODE: Loading demo user directly...');
+          console.log('[useAuth] DEMO MODE: Clearing any existing session and loading demo user...');
 
           try {
+            // Clear any existing session first
+            await supabase.auth.signOut({ scope: 'local' });
+
             // Load profile from database (RLS allows demo company access)
             const { data: profileData, error: profileError } = await supabase
               .from('profiles')
@@ -70,16 +66,21 @@ export function useAuth() {
               aud: 'authenticated',
             } as any;
 
-            clearTimeout(safetyTimeout);
             setAuth(mockUser, profileData || null);
             console.log('[useAuth] DEMO MODE: Auth set successfully');
           } catch (error) {
             console.error('[useAuth] DEMO MODE: Failed:', error);
-            clearTimeout(safetyTimeout);
             setAuth(null, null);
           }
           return;
         }
+
+        // NORMAL MODE: Safety timeout
+        const safetyTimeout = setTimeout(() => {
+          console.warn('[useAuth] Safety timeout triggered - forcing loading=false');
+          setAuth(null, null);
+          initializationPromise = null;
+        }, 5000);
 
         // NORMAL MODE: Check initial session immediately
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -136,8 +137,8 @@ export function useAuth() {
       console.error('[useAuth] Unhandled initialization error:', err);
     });
 
-    // Listen for auth changes (only once)
-    if (!authSubscription) {
+    // Listen for auth changes (only once) - skip in demo mode
+    if (!authSubscription && !DEMO_MODE) {
       console.log('[useAuth] Setting up auth state listener (should happen once)');
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
         async (event, session) => {
