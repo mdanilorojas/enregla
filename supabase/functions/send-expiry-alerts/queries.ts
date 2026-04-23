@@ -26,7 +26,7 @@ export async function getExpiringPermits(): Promise<PermitAlert[]> {
 export async function getCompanyUsers(companyId: string): Promise<UserProfile[]> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, email, full_name, company_id')
+    .select('id, full_name, company_id')
     .eq('company_id', companyId)
     .eq('is_active', true);
 
@@ -35,9 +35,23 @@ export async function getCompanyUsers(companyId: string): Promise<UserProfile[]>
     throw new Error(`Database error: ${error.message}`);
   }
 
-  return (data || []).map(row => ({
+  if (!data || data.length === 0) {
+    return [];
+  }
+
+  // Get emails from auth.users
+  const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
+
+  if (authError) {
+    console.error(`[queries] Error fetching auth users:`, authError);
+    throw new Error(`Database error: ${authError.message}`);
+  }
+
+  const emailMap = new Map(authData.users.map(u => [u.id, u.email]));
+
+  return data.map(row => ({
     user_id: row.id,
-    email: row.email,
+    email: emailMap.get(row.id) || '',
     full_name: row.full_name,
     company_id: row.company_id,
   }));

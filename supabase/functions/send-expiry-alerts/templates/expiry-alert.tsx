@@ -1,3 +1,4 @@
+import React from 'https://esm.sh/react@18.2.0';
 import { Html, Head, Body, Container, Section, Text, Button, Hr } from 'https://esm.sh/@react-email/components@0.0.14';
 import type { PermitAlert } from '../types.ts';
 
