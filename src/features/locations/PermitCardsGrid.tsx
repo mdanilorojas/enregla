@@ -1,10 +1,11 @@
 import { useState, useCallback } from 'react';
 import { FileText, AlertCircle, Clock, FileX, Upload, Trash2, Eye, FileCheck } from 'lucide-react';
-import { uploadPermitDocument } from '@/lib/api/documents';
+import { uploadPermitDocument, deleteDocument } from '@/lib/api/documents';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import toast from 'react-hot-toast';
 import type { Permit, Document } from '@/types/database';
 import type { PermitStatus } from '@/types';
 
@@ -164,10 +165,21 @@ export function PermitCardsGrid({
     }
   }, [onDocumentUpdated]);
 
-  const handleRemoveDocument = useCallback(async (permitId: string) => {
-    // TODO: Implementar eliminación de documento
-    console.log('Remove document:', permitId);
-  }, []);
+  const handleRemoveDocument = useCallback(async (documentId: string, filePath: string) => {
+    if (!confirm('¿Seguro que deseas eliminar este documento? Esta acción no se puede deshacer.')) {
+      return;
+    }
+
+    try {
+      console.log('[PermitCardsGrid] Deleting document:', documentId, filePath);
+      await deleteDocument(documentId, filePath);
+      toast.success('Documento eliminado exitosamente');
+      onDocumentUpdated();
+    } catch (error) {
+      console.error('[PermitCardsGrid] Delete error:', error);
+      toast.error(error instanceof Error ? error.message : 'Error al eliminar documento');
+    }
+  }, [onDocumentUpdated]);
 
   const handleViewDocument = useCallback((filePath: string) => {
     // Construct Supabase public URL
@@ -235,14 +247,19 @@ export function PermitCardsGrid({
                         <Eye size={18} />
                       </Button>
                     )}
-                    <Button
-                      size="icon"
-                      variant="destructive"
-                      onClick={() => handleRemoveDocument(permit.id)}
-                      title="Eliminar"
-                    >
-                      <Trash2 size={18} />
-                    </Button>
+                    {firstDocument && (
+                      <Button
+                        size="icon"
+                        variant="destructive"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveDocument(firstDocument.id, firstDocument.file_path);
+                        }}
+                        title="Eliminar"
+                      >
+                        <Trash2 size={18} />
+                      </Button>
+                    )}
                   </div>
                 </div>
               ) : (
