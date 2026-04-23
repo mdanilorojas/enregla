@@ -10,10 +10,16 @@ import { CreateLocationModal } from './CreateLocationModal';
 
 export function LocationsListViewV2() {
   const { profile } = useAuth();
-  const companyId = profile?.company_id;
+  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
+
+  // In demo mode, hardcode the demo company ID
+  const companyId = isDemoMode
+    ? '50707999-f033-41c4-91c9-989966311972'
+    : profile?.company_id;
 
   console.log('[LocationsListViewV2] Profile:', profile);
   console.log('[LocationsListViewV2] CompanyId:', companyId);
+  console.log('[LocationsListViewV2] Demo mode:', isDemoMode);
 
   const { locations, loading: loadingLocations, error: locationsError } = useLocations(companyId);
   const { permits, loading: loadingPermits, error: permitsError } = usePermits({ companyId });
