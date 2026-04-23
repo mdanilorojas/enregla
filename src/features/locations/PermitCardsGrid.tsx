@@ -231,78 +231,84 @@ export function PermitCardsGrid({
             </div>
 
             {/* Document preview or upload zone */}
-            <div
-              onDragOver={(e) => handleDragOver(e, permit.id)}
-              onDragLeave={handleDragLeave}
-              onDrop={(e) => handleDrop(e, permit.id)}
-              className="relative h-48 bg-muted"
-            >
+            <div className="relative h-48 bg-muted">
               {hasDocument ? (
-                // Document preview
-                <div className="relative w-full h-full group">
-                  <div className="flex items-center justify-center h-full bg-muted">
+                // Document preview with always-visible actions
+                <div className="relative w-full h-full flex flex-col">
+                  <div className="flex-1 flex items-center justify-center bg-muted">
                     <FileText size={48} className="text-muted-foreground" />
                   </div>
 
-                  {/* Hover actions */}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  {/* Always visible action buttons */}
+                  <div className="absolute bottom-0 inset-x-0 bg-black/80 p-3 flex items-center justify-center gap-2">
                     {firstDocument && (
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        onClick={() => handleViewDocument(firstDocument.file_path)}
-                        title="Ver documento"
-                      >
-                        <Eye size={18} />
-                      </Button>
-                    )}
-                    {firstDocument && (
-                      <Button
-                        size="icon"
-                        variant="destructive"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveDocument(permit.id, firstDocument.id, firstDocument.file_path);
-                        }}
-                        title="Eliminar"
-                      >
-                        <Trash2 size={18} />
-                      </Button>
+                      <>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => handleViewDocument(firstDocument.file_path)}
+                          title="Ver documento"
+                        >
+                          <Eye size={16} className="mr-1.5" />
+                          Ver
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveDocument(permit.id, firstDocument.id, firstDocument.file_path);
+                          }}
+                          title="Eliminar"
+                        >
+                          <Trash2 size={16} className="mr-1.5" />
+                          Eliminar
+                        </Button>
+                      </>
                     )}
                   </div>
                 </div>
               ) : (
-                // Upload zone
-                <label className={cn(
-                  "flex flex-col items-center justify-center h-full cursor-pointer transition-colors",
-                  isDragOver ? "bg-primary/10" : "hover:bg-muted/50"
-                )}>
-                  <input
-                    type="file"
-                    accept={ACCEPTED_TYPES.join(',')}
-                    className="hidden"
-                    onChange={(e) => handleFileInput(e, permit.id)}
-                    disabled={isUploading}
-                  />
-                  {isUploading ? (
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-                      <p className="text-sm text-muted-foreground">Subiendo...</p>
-                    </div>
-                  ) : (
-                    <>
-                      <Upload size={32} className="text-muted-foreground mb-2" />
-                      <p className="text-sm font-medium text-foreground">Arrastra documento</p>
-                      <p className="text-xs text-muted-foreground mt-1">o haz clic para seleccionar</p>
-                    </>
+                // Upload zone with dashed border (like detail view)
+                <div
+                  onDragOver={(e) => handleDragOver(e, permit.id)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, permit.id)}
+                  className={cn(
+                    "relative h-full border-2 border-dashed rounded-lg flex items-center justify-center transition-all",
+                    isDragOver ? "border-primary bg-primary/5" : "border-gray-300",
+                    isUploading && "opacity-50 pointer-events-none"
                   )}
-                </label>
-              )}
+                >
+                  <label className="flex flex-col items-center justify-center cursor-pointer p-6">
+                    <input
+                      type="file"
+                      accept={ACCEPTED_TYPES.join(',')}
+                      className="hidden"
+                      onChange={(e) => handleFileInput(e, permit.id)}
+                      disabled={isUploading}
+                    />
+                    {isUploading ? (
+                      <>
+                        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-2" />
+                        <p className="text-sm text-muted-foreground">Subiendo...</p>
+                      </>
+                    ) : (
+                      <>
+                        <Upload size={24} className="text-gray-400 mb-2" />
+                        <p className="text-sm font-medium text-gray-700">Arrastra documento aquí</p>
+                        <p className="text-xs text-gray-500 mt-1">o haz clic para seleccionar</p>
+                        <p className="text-xs text-gray-400 mt-2">PDF, PNG, JPG (máx. 5MB)</p>
+                      </>
+                    )}
+                  </label>
 
-              {/* Drag over indicator */}
-              {isDragOver && (
-                <div className="absolute inset-0 border-4 border-dashed border-primary bg-primary/10 flex items-center justify-center pointer-events-none">
-                  <div className="text-primary font-semibold">Suelta aquí</div>
+                  {/* Drag over indicator */}
+                  {isDragOver && (
+                    <div className="absolute inset-0 border-4 border-dashed border-primary bg-primary/10 rounded-lg flex items-center justify-center pointer-events-none">
+                      <div className="text-primary font-semibold">Suelta aquí</div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

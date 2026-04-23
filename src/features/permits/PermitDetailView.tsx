@@ -17,8 +17,11 @@ import {
   Building2,
   Clock,
   Upload,
+  Eye,
+  Trash2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/lib/supabase';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { uploadPermitDocument } from '@/lib/api/documents';
 import toast from 'react-hot-toast';
@@ -393,6 +396,39 @@ export function PermitDetailView() {
                             <p className="text-xs text-gray-500">
                               {formatDate(doc.uploaded_at)}
                             </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => {
+                                const { data } = supabase.storage
+                                  .from('permit-documents')
+                                  .getPublicUrl(doc.file_path);
+                                window.open(data.publicUrl, '_blank');
+                              }}
+                              title="Ver documento"
+                            >
+                              <Eye size={16} />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={async () => {
+                                if (!confirm('¿Eliminar este documento?')) return;
+                                try {
+                                  await deleteDocument(doc.id, doc.file_path);
+                                  toast.success('Documento eliminado');
+                                  fetchDocuments();
+                                } catch (error) {
+                                  toast.error('Error al eliminar');
+                                }
+                              }}
+                              title="Eliminar"
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 size={16} />
+                            </Button>
                           </div>
                         </div>
                       ))}
