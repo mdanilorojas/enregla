@@ -142,67 +142,60 @@ export function LocationDetailView() {
 
         {/* Location header */}
         <Card>
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary">
-                  <MapPin className="h-6 w-6 text-white" />
-                </div>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-2 gap-8">
+              {/* Columna izquierda: Información de la sede */}
+              <div className="space-y-4">
                 <div>
-                  <CardTitle className="text-2xl mb-1">{location.name}</CardTitle>
-                  <p className="text-text-secondary">{location.address}</p>
+                  <h1 className="text-2xl font-bold text-gray-900 mb-2">{location.name}</h1>
+                  <p className="text-sm text-text-secondary mb-4">{location.address}</p>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge color={stats.compliance >= 80 ? 'green' : stats.compliance >= 60 ? 'yellow' : 'red'}>
-                  {stats.compliance}% Cumplimiento
-                </Badge>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShareModalOpen(true)}
-                >
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Compartir
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Stats */}
-            <div className="flex gap-6">
-              <div>
-                <p className="text-sm text-text-secondary">Estado</p>
-                <p className="text-lg font-semibold capitalize">{location.status}</p>
-              </div>
-              <div>
-                <p className="text-sm text-text-secondary">Nivel de Riesgo</p>
-                <p className="text-lg font-semibold capitalize">{location.risk_level}</p>
-              </div>
-              <div>
-                <p className="text-sm text-text-secondary">Permisos Vigentes</p>
-                <p className="text-lg font-semibold">{stats.vigentes} de {stats.total}</p>
-              </div>
-            </div>
 
-            {/* Public link section */}
-            <div className="border-t pt-6">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-900 mb-1">
-                    Genera un QR público
-                  </h3>
-                  <p className="text-sm text-text-secondary">
-                    Permite que terceros verifiquen estados de permisos
-                  </p>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs text-text-secondary mb-1">Estado</p>
+                    <p className="text-sm font-semibold capitalize">{location.status}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-text-secondary mb-1">Nivel de Riesgo</p>
+                    <p className="text-sm font-semibold capitalize">{location.risk_level}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-text-secondary mb-1">Permisos Vigentes</p>
+                    <p className="text-sm font-semibold">{stats.vigentes} de {stats.total}</p>
+                  </div>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShareModalOpen(true)}
-                >
-                  Generar enlace
-                </Button>
+              </div>
+
+              {/* Columna derecha: Cumplimiento y QR */}
+              <div className="space-y-6 flex flex-col items-end">
+                <div className="w-full flex justify-end">
+                  <Badge color={stats.compliance >= 80 ? 'green' : stats.compliance >= 60 ? 'yellow' : 'red'}>
+                    {stats.compliance}% Cumplimiento
+                  </Badge>
+                </div>
+
+                <div className="w-full">
+                  <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                        Genera un QR público
+                      </h3>
+                      <p className="text-xs text-text-secondary">
+                        Permite que terceros verifiquen estados de permisos
+                      </p>
+                    </div>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => setShareModalOpen(true)}
+                      className="w-full"
+                    >
+                      <Share2 className="mr-2 h-4 w-4" />
+                      Generar QR
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           </CardContent>
