@@ -38,8 +38,46 @@
 - **Auth**: Google OAuth (implemented)
 - **Backend**: Supabase (PostgreSQL + Auth + Storage)
 
+## Database Management
+
+**CRITICAL**: All database changes must be handled by Claude with production-grade quality.
+
+### Requirements
+1. **Always use migrations** - Never make ad-hoc database changes
+2. **Production-ready RLS policies** - Every policy must work for:
+   - Demo mode (no authentication)
+   - Production mode (authenticated users with proper company isolation)
+3. **Storage policies included** - Don't forget storage.objects RLS for file uploads
+4. **Test security boundaries** - Verify users can't access other companies' data
+5. **Use mcp__supabase__execute_sql and mcp__supabase__apply_migration tools** - You have direct access
+
+### Demo Mode Support
+- Demo company ID: `50707999-f033-41c4-91c9-989966311972`
+- All RLS policies must allow operations on this company without authentication
+- Storage policies must allow uploads to `permits/` folder without auth
+- Keep production security intact - demo mode is additive, not a bypass
+
+### Policy Pattern
+```sql
+-- Example: Table RLS policy supporting both demo and production
+CREATE POLICY "policy_name" ON table_name
+FOR operation
+USING (
+  -- Demo company (no auth required)
+  company_id = '50707999-f033-41c4-91c9-989966311972'
+  OR
+  -- Production (authenticated users for their company)
+  (
+    auth.uid() IS NOT NULL
+    AND company_id IN (
+      SELECT company_id FROM profiles WHERE id = auth.uid()
+    )
+  )
+);
+```
+
 ## Current Work
 
-- **Active Branch**: `feature/ui-v2`
-- **Status**: Implementing new design system (UI-v2)
-- **Focus**: Consolidating design tokens, removing dual theme system
+- **Active Branch**: `main`
+- **Status**: Core features implementation
+- **Focus**: Real-time data from Supabase, document uploads, demo mode
