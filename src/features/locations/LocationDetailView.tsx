@@ -168,7 +168,8 @@ export function LocationDetailView() {
               </div>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-6">
+            {/* Stats */}
             <div className="flex gap-6">
               <div>
                 <p className="text-sm text-text-secondary">Estado</p>
@@ -183,16 +184,29 @@ export function LocationDetailView() {
                 <p className="text-lg font-semibold">{stats.vigentes} de {stats.total}</p>
               </div>
             </div>
+
+            {/* Public link section */}
+            <div className="border-t pt-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-1">
+                    Genera un QR público
+                  </h3>
+                  <p className="text-sm text-text-secondary">
+                    Permite que terceros verifiquen estados de permisos
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShareModalOpen(true)}
+                >
+                  Generar enlace
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
-
-        {/* Public link banner */}
-        <PublicLinkBanner
-          locationId={location.id}
-          hasPublicLink={false}
-          onGenerateLink={handleGeneratePublicLink}
-          onViewLink={handleViewPublicLink}
-        />
 
         {/* Permits cards grid */}
         <Card>
