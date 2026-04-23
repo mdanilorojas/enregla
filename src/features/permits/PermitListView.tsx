@@ -1,13 +1,11 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppStore } from '@/store';
+import { useAuth } from '@/hooks/useAuth';
+import { useLocations } from '@/hooks/useLocations';
+import { usePermits } from '@/hooks/usePermits';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  PERMIT_TYPE_LABELS,
-  PERMIT_STATUS_LABELS,
-} from '@/types';
 import { formatDateRelative, daysUntil } from '@/lib/dates';
 import {
   Filter,
@@ -21,15 +19,23 @@ import {
 } from 'lucide-react';
 
 export function PermitListView() {
-  const { permits, locations } = useAppStore();
   const navigate = useNavigate();
+  const { profile } = useAuth();
+  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
+
+  const companyId = isDemoMode
+    ? '50707999-f033-41c4-91c9-989966311972'
+    : profile?.company_id;
+
+  const { locations, loading: loadingLocations } = useLocations(companyId);
+  const { permits, loading: loadingPermits } = usePermits({ companyId });
   const [filterSede, setFilterSede] = useState<string>('all');
   const [filterTipo, setFilterTipo] = useState<string>('all');
   const [filterEstado, setFilterEstado] = useState<string>('all');
 
   const filtered = useMemo(() => {
     return permits.filter((p) => {
-      if (filterSede !== 'all' && p.locationId !== filterSede) return false;
+      if (filterSede !== 'all' && p.location_id !== filterSede) return false;
       if (filterTipo !== 'all' && p.type !== filterTipo) return false;
       if (filterEstado !== 'all' && p.status !== filterEstado) return false;
       return true;
@@ -40,8 +46,8 @@ export function PermitListView() {
     const vigentes = permits.filter((p) => p.status === 'vigente').length;
     const vencidos = permits.filter((p) => p.status === 'vencido').length;
     const porVencer = permits.filter((p) => {
-      if (!p.expiryDate || p.status === 'vencido') return false;
-      return daysUntil(p.expiryDate) <= 30;
+      if (!p.expiry_date || p.status === 'vencido') return false;
+      return daysUntil(p.expiry_date) <= 30;
     }).length;
     const noRegistrados = permits.filter((p) => p.status === 'no_registrado').length;
 
@@ -50,6 +56,27 @@ export function PermitListView() {
 
   const uniqueTypes = [...new Set(permits.map((p) => p.type))];
   const uniqueStatuses = [...new Set(permits.map((p) => p.status))];
+
+  const loading = loadingLocations || loadingPermits;
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-20 bg-gray-200 rounded animate-pulse" />
+        <div className="grid grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-24 bg-gray-200 rounded animate-pulse" />
+          ))}
+        </div>
+        <div className="h-16 bg-gray-200 rounded animate-pulse" />
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-20 bg-gray-200 rounded animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   const getStatusVariant = (status: string): 'success' | 'destructive' | 'warning' | 'secondary' => {
     if (status === 'vigente') return 'success';
@@ -169,7 +196,7 @@ export function PermitListView() {
             >
               <option value="all">Todos los tipos</option>
               {uniqueTypes.map((t) => (
-                <option key={t} value={t}>{PERMIT_TYPE_LABELS[t]}</option>
+                <option key={t} value={t}>{t}</option>
               ))}
             </select>
 
@@ -180,7 +207,7 @@ export function PermitListView() {
             >
               <option value="all">Todos los estados</option>
               {uniqueStatuses.map((s) => (
-                <option key={s} value={s}>{PERMIT_STATUS_LABELS[s]}</option>
+                <option key={s} value={s}>{s}</option>
               ))}
             </select>
 
@@ -210,9 +237,9 @@ export function PermitListView() {
       {/* Permits List */}
       <div className="space-y-3">
         {filtered.map((permit) => {
-          const loc = locations.find((l) => l.id === permit.locationId);
+          const loc = locations.find((l) => l.id === permit.location_id);
           const isRisk = permit.status === 'vencido' || permit.status === 'no_registrado';
-          const daysRemaining = permit.expiryDate ? daysUntil(permit.expiryDate) : null;
+          const daysRemaining = permit.expiry_date ? daysUntil(permit.expiry_date) : null;
 
           return (
             <Card
@@ -238,10 +265,10 @@ export function PermitListView() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="text-sm font-semibold text-gray-900">
-                        {PERMIT_TYPE_LABELS[permit.type]}
+                        {permit.type}
                       </h3>
                       <Badge variant={getStatusVariant(permit.status)}>
-                        {PERMIT_STATUS_LABELS[permit.status]}
+                        {permit.status}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-3 flex-wrap text-xs text-gray-500">
@@ -251,7 +278,7 @@ export function PermitListView() {
                       </div>
                       <span className="text-gray-300">•</span>
                       <span>{permit.issuer}</span>
-                      {permit.expiryDate && (
+                      {permit.expiry_date && (
                         <>
                           <span className="text-gray-300">•</span>
                           <span
@@ -263,7 +290,7 @@ export function PermitListView() {
                                 : ''
                             }`}
                           >
-                            {formatDateRelative(permit.expiryDate)}
+                            {formatDateRelative(permit.expiry_date)}
                           </span>
                         </>
                       )}
