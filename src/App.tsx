@@ -70,14 +70,33 @@ function ProtectedOnboardingRoute() {
 }
 
 export default function App() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
+  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
 
   return (
     <BrowserRouter>
       <Routes>
         {/* Public verification page - no auth required */}
         <Route path="/p/:token" element={<PublicVerificationPage />} />
-        <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <LoginView />} />
+        <Route
+          path="/login"
+          element={
+            isDemoMode ? (
+              loading ? (
+                <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+                    <p className="text-sm text-gray-600 font-medium">Modo Demo - Cargando...</p>
+                  </div>
+                </div>
+              ) : (
+                <Navigate to="/" replace />
+              )
+            ) : (
+              isAuthenticated ? <Navigate to="/" replace /> : <LoginView />
+            )
+          }
+        />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route
           path="/setup"

@@ -9,6 +9,11 @@ let authInitialized = false;
 let authSubscription: any = null;
 let initializationPromise: Promise<void> | null = null;
 
+// Demo mode configuration
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true';
+const DEMO_EMAIL = import.meta.env.VITE_DEMO_EMAIL || 'demo@enregla.ec';
+const DEMO_PASSWORD = import.meta.env.VITE_DEMO_PASSWORD || 'Demo123!';
+
 export function useAuth() {
   const { user, profile, loading, setAuth, clear } = useAuthStore();
 
@@ -38,7 +43,43 @@ export function useAuth() {
     // Create single initialization promise to prevent race conditions
     initializationPromise = (async () => {
       try {
-        // Check initial session immediately
+        // DEMO MODE: Auto-login as demo user
+        if (DEMO_MODE) {
+          console.log('[useAuth] DEMO MODE: Auto-logging in as', DEMO_EMAIL);
+
+          const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+            email: DEMO_EMAIL,
+            password: DEMO_PASSWORD,
+          });
+
+          if (loginError) {
+            console.error('[useAuth] DEMO MODE: Login failed:', loginError);
+            clearTimeout(safetyTimeout);
+            setAuth(null, null);
+            return;
+          }
+
+          console.log('[useAuth] DEMO MODE: Login successful, loading profile...');
+
+          if (loginData.session) {
+            const { data: profileData, error: profileError } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', loginData.session.user.id)
+              .single<Profile>();
+
+            if (profileError && profileError.code !== 'PGRST116') {
+              console.error('[useAuth] DEMO MODE: Profile fetch error:', profileError);
+            }
+
+            console.log('[useAuth] DEMO MODE: Profile loaded:', profileData ? 'EXISTS' : 'NULL');
+            clearTimeout(safetyTimeout);
+            setAuth(loginData.session.user, profileData || null);
+          }
+          return;
+        }
+
+        // NORMAL MODE: Check initial session immediately
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
         if (sessionError) {
