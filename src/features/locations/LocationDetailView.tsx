@@ -63,11 +63,19 @@ export function LocationDetailView() {
   }, [locationPermits]);
 
   const handleDocumentUpdated = useCallback(() => {
-    // Refetch permits to get updated document info
-    refetch();
-    // Refetch documents for all permits
+    // Only refetch documents, not permits (avoids full page reload)
     fetchAllDocuments();
-  }, [refetch, fetchAllDocuments]);
+  }, [fetchAllDocuments]);
+
+  const handleDocumentDeleted = useCallback((permitId: string, documentId: string) => {
+    // Remove document from local state without refetching
+    setDocumentsMap(prev => {
+      const newMap = new Map(prev);
+      const docs = newMap.get(permitId) || [];
+      newMap.set(permitId, docs.filter(d => d.id !== documentId));
+      return newMap;
+    });
+  }, []);
 
   // Fetch documents when permits change
   useEffect(() => {
@@ -196,6 +204,7 @@ export function LocationDetailView() {
               permits={locationPermits}
               documentsMap={documentsMap}
               onDocumentUpdated={handleDocumentUpdated}
+              onDocumentDeleted={handleDocumentDeleted}
               onViewDetails={handleViewPermitDetails}
             />
           </CardContent>

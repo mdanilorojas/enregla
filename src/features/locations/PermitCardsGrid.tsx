@@ -13,6 +13,7 @@ interface PermitCardsGridProps {
   permits: Permit[];
   documentsMap: Map<string, Document[]>;
   onDocumentUpdated: () => void;
+  onDocumentDeleted?: (permitId: string, documentId: string) => void;
   onViewDetails: (permitId: string) => void;
 }
 
@@ -51,6 +52,7 @@ export function PermitCardsGrid({
   permits,
   documentsMap,
   onDocumentUpdated,
+  onDocumentDeleted,
   onViewDetails,
 }: PermitCardsGridProps) {
   const [dragOverId, setDragOverId] = useState<string | null>(null);
@@ -165,7 +167,7 @@ export function PermitCardsGrid({
     }
   }, [onDocumentUpdated]);
 
-  const handleRemoveDocument = useCallback(async (documentId: string, filePath: string) => {
+  const handleRemoveDocument = useCallback(async (permitId: string, documentId: string, filePath: string) => {
     if (!confirm('¿Seguro que deseas eliminar este documento? Esta acción no se puede deshacer.')) {
       return;
     }
@@ -173,13 +175,20 @@ export function PermitCardsGrid({
     try {
       console.log('[PermitCardsGrid] Deleting document:', documentId, filePath);
       await deleteDocument(documentId, filePath);
-      toast.success('Documento eliminado exitosamente');
-      onDocumentUpdated();
+      toast.success('Documento eliminado');
+
+      // Update local state without refetching
+      if (onDocumentDeleted) {
+        onDocumentDeleted(permitId, documentId);
+      } else {
+        // Fallback to full refetch if callback not provided
+        onDocumentUpdated();
+      }
     } catch (error) {
       console.error('[PermitCardsGrid] Delete error:', error);
       toast.error(error instanceof Error ? error.message : 'Error al eliminar documento');
     }
-  }, [onDocumentUpdated]);
+  }, [onDocumentUpdated, onDocumentDeleted]);
 
   const handleViewDocument = useCallback((filePath: string) => {
     // Construct Supabase public URL
@@ -253,7 +262,7 @@ export function PermitCardsGrid({
                         variant="destructive"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleRemoveDocument(firstDocument.id, firstDocument.file_path);
+                          handleRemoveDocument(permit.id, firstDocument.id, firstDocument.file_path);
                         }}
                         title="Eliminar"
                       >
