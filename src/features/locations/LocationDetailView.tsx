@@ -1,9 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Share2 } from 'lucide-react';
 import { useLocations } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
 import { useAuth } from '@/hooks/useAuth';
+import { getPermitDocuments } from '@/lib/api/documents';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +12,7 @@ import { PermitCardsGrid } from './PermitCardsGrid';
 import { PublicLinkBanner } from './PublicLinkBanner';
 import { RenewPermitModal } from './RenewPermitModal';
 import { ShareLocationModal } from '@/features/public-links/ShareLocationModal';
-import type { Permit } from '@/types/database';
+import type { Permit, Document } from '@/types/database';
 
 export function LocationDetailView() {
   const { id } = useParams<{ id: string }>();
@@ -23,6 +24,7 @@ export function LocationDetailView() {
   const [selectedPermit, setSelectedPermit] = useState<Permit | null>(null);
   const [renewModalOpen, setRenewModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [documentsMap, setDocumentsMap] = useState<Map<string, Document[]>>(new Map());
 
   const location = useMemo(() => {
     return locations.find(loc => loc.id === id);
@@ -86,7 +88,36 @@ export function LocationDetailView() {
   const handleDocumentUpdated = () => {
     // Refetch permits to get updated document info
     refetch();
+    // Refetch documents for all permits
+    fetchAllDocuments();
   };
+
+  // Fetch documents for all permits
+  const fetchAllDocuments = async () => {
+    const newMap = new Map<string, Document[]>();
+
+    await Promise.all(
+      locationPermits.map(async (permit) => {
+        try {
+          const docs = await getPermitDocuments(permit.id);
+          if (docs.length > 0) {
+            newMap.set(permit.id, docs);
+          }
+        } catch (error) {
+          console.error(`Error fetching documents for permit ${permit.id}:`, error);
+        }
+      })
+    );
+
+    setDocumentsMap(newMap);
+  };
+
+  // Fetch documents when permits change
+  useEffect(() => {
+    if (locationPermits.length > 0) {
+      fetchAllDocuments();
+    }
+  }, [locationPermits]);
 
   return (
     <div className="min-h-screen bg-background p-8">
@@ -163,6 +194,7 @@ export function LocationDetailView() {
           <CardContent>
             <PermitCardsGrid
               permits={locationPermits}
+              documentsMap={documentsMap}
               onDocumentUpdated={handleDocumentUpdated}
               onViewDetails={handleViewPermitDetails}
             />

@@ -1,14 +1,16 @@
 import { useState, useCallback } from 'react';
 import { FileText, AlertCircle, Clock, FileX, Upload, Trash2, Eye, FileCheck } from 'lucide-react';
 import { uploadPermitDocument } from '@/lib/api/documents';
+import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import type { Permit } from '@/types/database';
+import type { Permit, Document } from '@/types/database';
 import type { PermitStatus } from '@/types';
 
 interface PermitCardsGridProps {
   permits: Permit[];
+  documentsMap: Map<string, Document[]>;
   onDocumentUpdated: () => void;
   onViewDetails: (permitId: string) => void;
 }
@@ -46,6 +48,7 @@ const statusConfig: Record<PermitStatus, {
 
 export function PermitCardsGrid({
   permits,
+  documentsMap,
   onDocumentUpdated,
   onViewDetails,
 }: PermitCardsGridProps) {
@@ -166,8 +169,13 @@ export function PermitCardsGrid({
     console.log('Remove document:', permitId);
   }, []);
 
-  const handleViewDocument = useCallback((documentUrl: string) => {
-    window.open(documentUrl, '_blank');
+  const handleViewDocument = useCallback((filePath: string) => {
+    // Construct Supabase public URL
+    const { data } = supabase.storage
+      .from('permit-documents')
+      .getPublicUrl(filePath);
+
+    window.open(data.publicUrl, '_blank');
   }, []);
 
   return (
@@ -179,8 +187,10 @@ export function PermitCardsGrid({
         const isDragOver = dragOverId === permit.id;
         const error = errors.get(permit.id);
 
-        // Determinar si tiene documentos (buscar en tabla documents o usar campo legacy)
-        const hasDocument = false; // TODO: Implementar lookup de documentos
+        // Get documents for this permit
+        const permitDocuments = documentsMap.get(permit.id) || [];
+        const hasDocument = permitDocuments.length > 0;
+        const firstDocument = permitDocuments[0];
 
         return (
           <div
@@ -215,14 +225,16 @@ export function PermitCardsGrid({
 
                   {/* Hover actions */}
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      onClick={() => handleViewDocument('')}
-                      title="Ver documento"
-                    >
-                      <Eye size={18} />
-                    </Button>
+                    {firstDocument && (
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        onClick={() => handleViewDocument(firstDocument.file_path)}
+                        title="Ver documento"
+                      >
+                        <Eye size={18} />
+                      </Button>
+                    )}
                     <Button
                       size="icon"
                       variant="destructive"
