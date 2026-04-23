@@ -49,6 +49,7 @@ function OnboardingRoute() {
 
 function ProtectedOnboardingRoute() {
   const { profile, loading } = useAuth();
+  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
 
   if (loading) {
     return (
@@ -59,6 +60,11 @@ function ProtectedOnboardingRoute() {
         </div>
       </div>
     );
+  }
+
+  // In demo mode, skip onboarding check and go straight to app
+  if (isDemoMode) {
+    return <AppLayout />;
   }
 
   // If user doesn't have a company, redirect to onboarding
