@@ -25,13 +25,14 @@ export async function uploadPermitDocument(permitId: string, file: File): Promis
 
   console.log('[uploadPermitDocument] Storage upload successful:', uploadData);
 
-  // Get current user
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError) {
-    console.error('[uploadPermitDocument] Error getting user:', userError);
+  // Get current user (may be null in demo mode)
+  let user = null;
+  try {
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  } catch (error) {
+    // Expected in demo mode - just continue with null user
   }
-
-  console.log('[uploadPermitDocument] Current user:', user?.id);
 
   // Create document record in database
   const documentData = {
@@ -61,6 +62,26 @@ export async function uploadPermitDocument(permitId: string, file: File): Promis
 
   console.log('[uploadPermitDocument] Database insert successful:', insertData);
 
+  // Update permit status to 'vigente' if it's currently 'no_registrado'
+  const { data: permitData } = await supabase
+    .from('permits')
+    .select('status')
+    .eq('id', permitId)
+    .single();
+
+  if (permitData?.status === 'no_registrado') {
+    console.log('[uploadPermitDocument] Updating permit status to vigente');
+    const { error: updateError } = await supabase
+      .from('permits')
+      .update({ status: 'vigente' })
+      .eq('id', permitId);
+
+    if (updateError) {
+      console.error('[uploadPermitDocument] Failed to update permit status:', updateError);
+      // Don't throw - document was uploaded successfully, this is just a status update
+    }
+  }
+
   return filePath;
 }
 
@@ -79,6 +100,15 @@ export async function getDocumentUrl(filePath: string): Promise<string> {
  * Delete a document file from storage and database
  */
 export async function deleteDocument(documentId: string, filePath: string): Promise<void> {
+  // Get permit_id before deleting
+  const { data: docData } = await supabase
+    .from('documents')
+    .select('permit_id')
+    .eq('id', documentId)
+    .single();
+
+  const permitId = docData?.permit_id;
+
   // Delete from storage
   const { error: storageError } = await supabase.storage
     .from('permit-documents')
@@ -97,6 +127,27 @@ export async function deleteDocument(documentId: string, filePath: string): Prom
   if (dbError) {
     throw new Error(`Error al eliminar el registro: ${dbError.message}`);
   }
+
+  // If this was the last document for the permit, update status to 'no_registrado'
+  if (permitId) {
+    const { data: remainingDocs } = await supabase
+      .from('documents')
+      .select('id')
+      .eq('permit_id', permitId);
+
+    if (!remainingDocs || remainingDocs.length === 0) {
+      console.log('[deleteDocument] No documents remaining, updating permit status to no_registrado');
+      const { error: updateError } = await supabase
+        .from('permits')
+        .update({ status: 'no_registrado' })
+        .eq('id', permitId);
+
+      if (updateError) {
+        console.error('[deleteDocument] Failed to update permit status:', updateError);
+        // Don't throw - document was deleted successfully
+      }
+    }
+  }
 }
 
 /**
@@ -111,6 +162,33 @@ export async function getPermitDocuments(permitId: string) {
 
   if (error) {
     throw new Error(`Error al obtener documentos: ${error.message}`);
+  }
+
+  return data || [];
+}
+
+/**
+ * Get all documents for a company (joined via permits)
+ */
+export async function getCompanyDocuments(companyId: string) {
+  const { data, error } = await supabase
+    .from('documents')
+    .select(`
+      *,
+      permits!inner (
+        id,
+        type,
+        status,
+        company_id,
+        location_id,
+        expiry_date
+      )
+    `)
+    .eq('permits.company_id', companyId)
+    .order('uploaded_at', { ascending: false });
+
+  if (error) {
+    throw new Error(`Error al obtener documentos de la empresa: ${error.message}`);
   }
 
   return data || [];

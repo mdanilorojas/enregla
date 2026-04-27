@@ -72,27 +72,36 @@ export function RiskOverviewCard({ metrics }: RiskOverviewCardProps) {
           />
         </div>
 
-        <div className="flex flex-wrap gap-4 pt-1 text-xs text-[var(--color-text-secondary)]">
-          <span className="flex items-center gap-1.5">
+        <div className="flex flex-wrap gap-6 pt-2">
+          <span className="flex items-center gap-2">
             <span
-              className="w-1.5 h-1.5 rounded-full"
+              className="w-3 h-3 rounded-full"
               style={{ backgroundColor: 'var(--color-status-vigente)' }}
             />
-            <strong className="text-[var(--color-text)] font-semibold">{metrics.vigentes}</strong> vigentes
+            <span className="text-sm">
+              <strong className="text-[var(--color-text)] font-bold text-base">{metrics.vigentes}</strong>
+              <span className="text-[var(--color-text-secondary)] ml-1">vigentes</span>
+            </span>
           </span>
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-2">
             <span
-              className="w-1.5 h-1.5 rounded-full"
+              className="w-3 h-3 rounded-full"
               style={{ backgroundColor: 'var(--color-status-por-vencer)' }}
             />
-            <strong className="text-[var(--color-text)] font-semibold">{metrics.porVencer}</strong> por vencer
+            <span className="text-sm">
+              <strong className="text-[var(--color-text)] font-bold text-base">{metrics.porVencer}</strong>
+              <span className="text-[var(--color-text-secondary)] ml-1">por vencer</span>
+            </span>
           </span>
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-2">
             <span
-              className="w-1.5 h-1.5 rounded-full"
+              className="w-3 h-3 rounded-full"
               style={{ backgroundColor: 'var(--color-status-vencido)' }}
             />
-            <strong className="text-[var(--color-text)] font-semibold">{metrics.faltantes}</strong> faltantes
+            <span className="text-sm">
+              <strong className="text-[var(--color-text)] font-bold text-base">{metrics.faltantes}</strong>
+              <span className="text-[var(--color-text-secondary)] ml-1">faltantes</span>
+            </span>
           </span>
         </div>
       </CardContent>

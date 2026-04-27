@@ -7,15 +7,13 @@ import { Building2, Plus } from 'lucide-react';
 import { LocationCardV2 } from './LocationCardV2';
 import { Card, CardContent, Button } from '@/components/ui';
 import { CreateLocationModal } from './CreateLocationModal';
+import { DEMO_COMPANY_ID } from '@/lib/constants';
 
 export function LocationsListViewV2() {
   const { profile } = useAuth();
   const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
 
-  // In demo mode, hardcode the demo company ID
-  const companyId = isDemoMode
-    ? '50707999-f033-41c4-91c9-989966311972'
-    : profile?.company_id;
+  const companyId = isDemoMode ? DEMO_COMPANY_ID : profile?.company_id;
 
   console.log('[LocationsListViewV2] Profile:', profile);
   console.log('[LocationsListViewV2] CompanyId:', companyId);

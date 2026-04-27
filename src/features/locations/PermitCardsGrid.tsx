@@ -1,24 +1,15 @@
-import { useState, useCallback } from 'react';
-import { FileText, AlertCircle, Clock, FileX, Upload, Trash2, Eye, FileCheck } from 'lucide-react';
-import { uploadPermitDocument, deleteDocument } from '@/lib/api/documents';
-import { supabase } from '@/lib/supabase';
-import { cn } from '@/lib/utils';
+import { FileCheck, Clock, AlertCircle, FileX } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import toast from 'react-hot-toast';
-import type { Permit, Document } from '@/types/database';
+import { PermitDocumentsSection } from '@/features/permits/PermitDocumentsSection';
+import type { Permit } from '@/types/database';
 import type { PermitStatus } from '@/types';
 
 interface PermitCardsGridProps {
   permits: Permit[];
-  documentsMap: Map<string, Document[]>;
-  onDocumentUpdated: () => void;
-  onDocumentDeleted?: (permitId: string, documentId: string) => void;
   onViewDetails: (permitId: string) => void;
+  onPermitChange?: () => void | Promise<void>;
 }
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_TYPES = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg'];
 
 // Status configuration siguiendo tu sistema
 const statusConfig: Record<PermitStatus, {
@@ -50,301 +41,52 @@ const statusConfig: Record<PermitStatus, {
 
 export function PermitCardsGrid({
   permits,
-  documentsMap,
-  onDocumentUpdated,
-  onDocumentDeleted,
   onViewDetails,
+  onPermitChange,
 }: PermitCardsGridProps) {
-  const [dragOverId, setDragOverId] = useState<string | null>(null);
-  const [uploadingIds, setUploadingIds] = useState<Set<string>>(new Set());
-  const [errors, setErrors] = useState<Map<string, string>>(new Map());
-
-  const validateFile = (file: File): string | null => {
-    if (!ACCEPTED_TYPES.includes(file.type)) {
-      return 'Tipo no permitido. Solo PDF, PNG, JPG';
-    }
-    if (file.size > MAX_FILE_SIZE) {
-      return 'Archivo muy grande. Máximo 5MB';
-    }
-    return null;
-  };
-
-  const handleDragOver = useCallback((e: React.DragEvent, permitId: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragOverId(permitId);
-  }, []);
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragOverId(null);
-  }, []);
-
-  const handleDrop = useCallback(async (e: React.DragEvent, permitId: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragOverId(null);
-
-    const files = Array.from(e.dataTransfer.files);
-    if (files.length === 0) return;
-
-    const file = files[0];
-    console.log('[PermitCardsGrid] File dropped:', file.name, file.type, file.size);
-
-    const validationError = validateFile(file);
-    if (validationError) {
-      console.error('[PermitCardsGrid] Validation error:', validationError);
-      setErrors(prev => new Map(prev).set(permitId, validationError));
-      return;
-    }
-
-    setErrors(prev => {
-      const next = new Map(prev);
-      next.delete(permitId);
-      return next;
-    });
-    setUploadingIds(prev => new Set(prev).add(permitId));
-
-    try {
-      console.log('[PermitCardsGrid] Starting upload for permit:', permitId);
-      const result = await uploadPermitDocument(permitId, file);
-      console.log('[PermitCardsGrid] Upload successful:', result);
-      onDocumentUpdated();
-    } catch (err) {
-      console.error('[PermitCardsGrid] Upload error:', err);
-      setErrors(prev => new Map(prev).set(
-        permitId,
-        err instanceof Error ? err.message : 'Error al subir'
-      ));
-    } finally {
-      setUploadingIds(prev => {
-        const next = new Set(prev);
-        next.delete(permitId);
-        return next;
-      });
-    }
-  }, [onDocumentUpdated]);
-
-  const handleFileInput = useCallback(async (e: React.ChangeEvent<HTMLInputElement>, permitId: string) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    const file = files[0];
-    console.log('[PermitCardsGrid] File selected:', file.name, file.type, file.size);
-
-    const validationError = validateFile(file);
-    if (validationError) {
-      console.error('[PermitCardsGrid] Validation error:', validationError);
-      setErrors(prev => new Map(prev).set(permitId, validationError));
-      return;
-    }
-
-    setErrors(prev => {
-      const next = new Map(prev);
-      next.delete(permitId);
-      return next;
-    });
-    setUploadingIds(prev => new Set(prev).add(permitId));
-
-    try {
-      console.log('[PermitCardsGrid] Starting upload for permit:', permitId);
-      const result = await uploadPermitDocument(permitId, file);
-      console.log('[PermitCardsGrid] Upload successful:', result);
-      onDocumentUpdated();
-    } catch (err) {
-      console.error('[PermitCardsGrid] Upload error:', err);
-      setErrors(prev => new Map(prev).set(
-        permitId,
-        err instanceof Error ? err.message : 'Error al subir'
-      ));
-    } finally {
-      setUploadingIds(prev => {
-        const next = new Set(prev);
-        next.delete(permitId);
-        return next;
-      });
-    }
-  }, [onDocumentUpdated]);
-
-  const handleRemoveDocument = useCallback(async (permitId: string, documentId: string, filePath: string) => {
-    if (!confirm('¿Seguro que deseas eliminar este documento? Esta acción no se puede deshacer.')) {
-      return;
-    }
-
-    try {
-      console.log('[PermitCardsGrid] Deleting document:', documentId, filePath);
-      await deleteDocument(documentId, filePath);
-      toast.success('Documento eliminado');
-
-      // Update local state without refetching
-      if (onDocumentDeleted) {
-        onDocumentDeleted(permitId, documentId);
-      } else {
-        // Fallback to full refetch if callback not provided
-        onDocumentUpdated();
-      }
-    } catch (error) {
-      console.error('[PermitCardsGrid] Delete error:', error);
-      toast.error(error instanceof Error ? error.message : 'Error al eliminar documento');
-    }
-  }, [onDocumentUpdated, onDocumentDeleted]);
-
-  const handleViewDocument = useCallback((filePath: string) => {
-    // Construct Supabase public URL
-    const { data } = supabase.storage
-      .from('permit-documents')
-      .getPublicUrl(filePath);
-
-    window.open(data.publicUrl, '_blank');
-  }, []);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {permits.map(permit => {
         const config = statusConfig[permit.status];
         const Icon = config.icon;
-        const isUploading = uploadingIds.has(permit.id);
-        const isDragOver = dragOverId === permit.id;
-        const error = errors.get(permit.id);
-
-        // Get documents for this permit
-        const permitDocuments = documentsMap.get(permit.id) || [];
-        const hasDocument = permitDocuments.length > 0;
-        const firstDocument = permitDocuments[0];
 
         return (
           <div
             key={permit.id}
-            className={cn(
-              "relative bg-card rounded-lg border shadow-sm overflow-hidden transition-all duration-200",
-              isDragOver && "border-primary shadow-lg scale-[1.02]",
-              error && "border-destructive"
-            )}
+            className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow overflow-hidden"
           >
-            {/* Status badge */}
-            <div className="absolute top-3 right-3 z-10">
-              <Badge color={config.color} className="flex items-center gap-1.5">
-                <Icon size={12} strokeWidth={2.5} />
-                {config.label}
-              </Badge>
-            </div>
-
-            {/* Document preview or upload zone */}
-            <div className="relative h-48 bg-muted">
-              {hasDocument ? (
-                // Document preview with always-visible actions
-                <div className="relative w-full h-full flex flex-col">
-                  <div className="flex-1 flex items-center justify-center bg-muted">
-                    <FileText size={48} className="text-muted-foreground" />
-                  </div>
-
-                  {/* Always visible action buttons */}
-                  <div className="absolute bottom-0 inset-x-0 bg-black/80 p-3 flex items-center justify-center gap-2">
-                    {firstDocument && (
-                      <>
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => handleViewDocument(firstDocument.file_path)}
-                          title="Ver documento"
-                        >
-                          <Eye size={16} className="mr-1.5" />
-                          Ver
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveDocument(permit.id, firstDocument.id, firstDocument.file_path);
-                          }}
-                          title="Eliminar"
-                        >
-                          <Trash2 size={16} className="mr-1.5" />
-                          Eliminar
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                // Upload zone with dashed border (like detail view)
-                <div
-                  onDragOver={(e) => handleDragOver(e, permit.id)}
-                  onDragLeave={handleDragLeave}
-                  onDrop={(e) => handleDrop(e, permit.id)}
-                  className={cn(
-                    "relative h-full border-2 border-dashed rounded-lg flex items-center justify-center transition-all",
-                    isDragOver ? "border-primary bg-primary/5" : "border-gray-300",
-                    isUploading && "opacity-50 pointer-events-none"
-                  )}
+            {/* Permit info header */}
+            <div className="p-4 bg-gray-50 border-b border-gray-100">
+              <div className="flex items-start justify-between gap-3 mb-2">
+                <Button
+                  variant="ghost"
+                  className="flex-1 justify-start p-0 h-auto hover:bg-transparent text-left"
+                  onClick={() => onViewDetails(permit.id)}
                 >
-                  <label className="flex flex-col items-center justify-center cursor-pointer p-6">
-                    <input
-                      type="file"
-                      accept={ACCEPTED_TYPES.join(',')}
-                      className="hidden"
-                      onChange={(e) => handleFileInput(e, permit.id)}
-                      disabled={isUploading}
-                    />
-                    {isUploading ? (
-                      <>
-                        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-2" />
-                        <p className="text-sm text-muted-foreground">Subiendo...</p>
-                      </>
-                    ) : (
-                      <>
-                        <Upload size={24} className="text-gray-400 mb-2" />
-                        <p className="text-sm font-medium text-gray-700">Arrastra documento aquí</p>
-                        <p className="text-xs text-gray-500 mt-1">o haz clic para seleccionar</p>
-                        <p className="text-xs text-gray-400 mt-2">PDF, PNG, JPG (máx. 5MB)</p>
-                      </>
-                    )}
-                  </label>
-
-                  {/* Drag over indicator */}
-                  {isDragOver && (
-                    <div className="absolute inset-0 border-4 border-dashed border-primary bg-primary/10 rounded-lg flex items-center justify-center pointer-events-none">
-                      <div className="text-primary font-semibold">Suelta aquí</div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Error message */}
-            {error && (
-              <div className="px-4 py-2 bg-destructive/10 border-t border-destructive/20">
-                <p className="text-xs text-destructive flex items-center gap-1.5">
-                  <AlertCircle size={12} />
-                  {error}
-                </p>
-              </div>
-            )}
-
-            {/* Permit info */}
-            <div className="p-4">
-              <Button
-                variant="ghost"
-                className="w-full justify-start p-0 h-auto hover:bg-transparent"
-                onClick={() => onViewDetails(permit.id)}
-              >
-                <div className="text-left">
-                  <h3 className="text-sm font-semibold text-foreground hover:text-primary transition-colors mb-1">
+                  <h3 className="text-sm font-semibold text-foreground hover:text-primary transition-colors">
                     {permit.type}
                   </h3>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span>{permit.issuer || 'Sin emisor'}</span>
-                    {permit.expiry_date && (
-                      <>
-                        <span>•</span>
-                        <span>Vence: {new Date(permit.expiry_date).toLocaleDateString('es-CL')}</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </Button>
+                </Button>
+                <Badge color={config.color} className="flex items-center gap-1.5 shrink-0">
+                  <Icon size={12} strokeWidth={2.5} />
+                  {config.label}
+                </Badge>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span>{permit.issuer || 'Sin emisor'}</span>
+                {permit.expiry_date && (
+                  <>
+                    <span>•</span>
+                    <span>Vence: {new Date(permit.expiry_date).toLocaleDateString('es-CL')}</span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Document section - using shared component */}
+            <div className="p-4">
+              <PermitDocumentsSection permitId={permit.id} onDocumentChange={onPermitChange} />
             </div>
           </div>
         );

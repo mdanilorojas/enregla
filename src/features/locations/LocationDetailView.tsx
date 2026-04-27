@@ -1,10 +1,9 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Share2 } from 'lucide-react';
 import { useLocations } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
 import { useAuth } from '@/hooks/useAuth';
-import { getPermitDocuments } from '@/lib/api/documents';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +11,7 @@ import { PermitCardsGrid } from './PermitCardsGrid';
 import { PublicLinkBanner } from './PublicLinkBanner';
 import { RenewPermitModal } from './RenewPermitModal';
 import { ShareLocationModal } from '@/features/public-links/ShareLocationModal';
-import type { Permit, Document } from '@/types/database';
+import type { Permit } from '@/types/database';
 
 export function LocationDetailView() {
   const { id } = useParams<{ id: string }>();
@@ -24,7 +23,6 @@ export function LocationDetailView() {
   const [selectedPermit, setSelectedPermit] = useState<Permit | null>(null);
   const [renewModalOpen, setRenewModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
-  const [documentsMap, setDocumentsMap] = useState<Map<string, Document[]>>(new Map());
 
   const location = useMemo(() => {
     return locations.find(loc => loc.id === id);
@@ -42,47 +40,6 @@ export function LocationDetailView() {
     return { vigentes, total, compliance };
   }, [locationPermits]);
 
-  // Fetch documents for all permits
-  const fetchAllDocuments = useCallback(async () => {
-    const newMap = new Map<string, Document[]>();
-
-    await Promise.all(
-      locationPermits.map(async (permit) => {
-        try {
-          const docs = await getPermitDocuments(permit.id);
-          if (docs.length > 0) {
-            newMap.set(permit.id, docs);
-          }
-        } catch (error) {
-          console.error(`Error fetching documents for permit ${permit.id}:`, error);
-        }
-      })
-    );
-
-    setDocumentsMap(newMap);
-  }, [locationPermits]);
-
-  const handleDocumentUpdated = useCallback(() => {
-    // Only refetch documents, not permits (avoids full page reload)
-    fetchAllDocuments();
-  }, [fetchAllDocuments]);
-
-  const handleDocumentDeleted = useCallback((permitId: string, documentId: string) => {
-    // Remove document from local state without refetching
-    setDocumentsMap(prev => {
-      const newMap = new Map(prev);
-      const docs = newMap.get(permitId) || [];
-      newMap.set(permitId, docs.filter(d => d.id !== documentId));
-      return newMap;
-    });
-  }, []);
-
-  // Fetch documents when permits change
-  useEffect(() => {
-    if (locationPermits.length > 0) {
-      fetchAllDocuments();
-    }
-  }, [locationPermits, fetchAllDocuments]);
 
   if (loadingLocations || loadingPermits) {
     return (
@@ -209,10 +166,8 @@ export function LocationDetailView() {
           <CardContent>
             <PermitCardsGrid
               permits={locationPermits}
-              documentsMap={documentsMap}
-              onDocumentUpdated={handleDocumentUpdated}
-              onDocumentDeleted={handleDocumentDeleted}
               onViewDetails={handleViewPermitDetails}
+              onPermitChange={refetch}
             />
           </CardContent>
         </Card>

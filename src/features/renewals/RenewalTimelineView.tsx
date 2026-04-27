@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppStore } from '@/store';
+import { useAuth } from '@/hooks/useAuth';
+import { usePermits } from '@/hooks/usePermits';
+import { useLocations } from '@/hooks/useLocations';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { PERMIT_TYPE_LABELS } from '@/types';
 import { formatDateRelative, daysUntil, getMonthName } from '@/lib/dates';
 import { parseISO } from 'date-fns';
 import {
@@ -18,9 +19,27 @@ import {
 } from 'lucide-react';
 
 export function RenewalTimelineView() {
-  const { renewals, permits, locations } = useAppStore();
   const navigate = useNavigate();
+  const { companyId } = useAuth();
+  const { permits, loading: loadingPermits } = usePermits({ companyId });
+  const { locations, loading: loadingLocations } = useLocations(companyId);
   const [selectedRenewals, setSelectedRenewals] = useState<Set<string>>(new Set());
+
+  const loading = loadingPermits || loadingLocations;
+
+  // Transform permits with expiry dates into "renewals"
+  const renewals = useMemo(() => {
+    return permits
+      .filter(p => p.expiry_date && p.is_active)
+      .map(p => ({
+        id: p.id,
+        permitId: p.id,
+        locationId: p.location_id,
+        dueDate: p.expiry_date!,
+        status: p.status,
+        owner: p.issuer || undefined,
+      }));
+  }, [permits]);
 
   const grouped = useMemo(() => {
     const sorted = [...renewals].sort(
@@ -76,6 +95,24 @@ export function RenewalTimelineView() {
     if (days <= 30) return 'Por vencer';
     return 'Próximo';
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-20 bg-gray-200 rounded animate-pulse" />
+        <div className="grid grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-24 bg-gray-200 rounded animate-pulse" />
+          ))}
+        </div>
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-32 bg-gray-200 rounded animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -222,11 +259,12 @@ export function RenewalTimelineView() {
                       : days <= 30
                       ? 'bg-amber-400'
                       : 'bg-emerald-400';
+                  const permit = permits.find((p) => p.id === r.permitId);
                   return (
                     <div
                       key={r.id}
                       className={`flex-1 ${color} first:rounded-l-full last:rounded-r-full`}
-                      title={`${PERMIT_TYPE_LABELS[permits.find((p) => p.id === r.permitId)?.type || 'ruc']} - ${days} días`}
+                      title={`${permit?.type || 'Permiso'} - ${days} días`}
                     />
                   );
                 })}
@@ -276,9 +314,7 @@ export function RenewalTimelineView() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                               <h3 className="text-sm font-semibold text-gray-900">
-                                {permit
-                                  ? PERMIT_TYPE_LABELS[permit.type]
-                                  : 'Renovación'}
+                                {permit?.type || 'Renovación'}
                               </h3>
                               <Badge variant={getBadgeVariant(days)}>
                                 {getBadgeLabel(days)}

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocations } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
+import { calculateDashboardMetrics } from '@/lib/dashboard-metrics';
 import { RiskOverviewCard } from './RiskOverviewCard';
 import { MetricsGrid } from './MetricsGrid';
 import { SedeCard } from './SedeCard';
@@ -31,24 +32,28 @@ export function DashboardView() {
     );
   }
 
-  // Calculate dashboard metrics
+  // Calculate dashboard metrics using centralized function
   const metrics = useMemo(() => {
-    const vigentes = permits.filter(p => p.status === 'vigente' && p.is_active).length;
-    const porVencer = permits.filter(p => p.status === 'por_vencer' && p.is_active).length;
-    const faltantes = permits.filter(p => p.status === 'no_registrado' && p.is_active).length;
-    const total = permits.filter(p => p.is_active).length;
-    const compliance = total > 0 ? (vigentes / total) * 100 : 0;
-
-    return { vigentes, porVencer, faltantes, compliance };
-  }, [permits]);
+    return calculateDashboardMetrics(permits, locations);
+  }, [permits, locations]);
 
   // Calculate permit counts per location
   const locationPermitCounts = useMemo(() => {
     const counts: Record<string, { vigentes: number; total: number }> = {};
 
+    console.log('[DashboardView] Calculating permit counts. Locations:', locations.length, 'Permits:', permits.length);
+
     locations.forEach(location => {
       const locationPermits = permits.filter(p => p.location_id === location.id && p.is_active);
       const vigentes = locationPermits.filter(p => p.status === 'vigente').length;
+
+      console.log(`[DashboardView] Location ${location.name}:`, {
+        locationId: location.id,
+        totalPermits: locationPermits.length,
+        vigentes,
+        permits: locationPermits.map(p => ({ type: p.type, status: p.status, is_active: p.is_active }))
+      });
+
       counts[location.id] = {
         vigentes,
         total: locationPermits.length,
@@ -102,9 +107,6 @@ export function DashboardView() {
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Risk Overview */}
         <RiskOverviewCard metrics={metrics} />
-
-        {/* Metrics Grid */}
-        <MetricsGrid metrics={metrics} />
 
         {/* Sedes Section */}
         <div>

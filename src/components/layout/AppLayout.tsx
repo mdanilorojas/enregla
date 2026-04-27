@@ -66,11 +66,6 @@ const menuItems = [
     url: '/marco-legal',
     icon: Scale,
   },
-  {
-    title: 'Mapa de Permisos',
-    url: '/mapa-permisos',
-    icon: Workflow,
-  },
 ];
 
 
@@ -85,7 +80,6 @@ const pageNames: Record<string, string> = {
   '/settings': 'Configuración',
   '/settings/notifications': 'Notificaciones',
   '/marco-legal': 'Marco Legal',
-  '/mapa-permisos': 'Mapa de Permisos',
 };
 
 const pageDescriptions: Record<string, string> = {
@@ -99,7 +93,6 @@ const pageDescriptions: Record<string, string> = {
   '/settings': 'Preferencias y configuración',
   '/settings/notifications': 'Preferencias de notificaciones',
   '/marco-legal': 'Normativa y regulaciones',
-  '/mapa-permisos': 'Visualiza permisos por tipo de comercio',
 };
 
 export function AppLayout() {

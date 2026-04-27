@@ -7,6 +7,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatDateRelative, daysUntil } from '@/lib/dates';
+import { calculateDashboardMetrics } from '@/lib/dashboard-metrics';
+import { DEMO_COMPANY_ID } from '@/lib/constants';
 import {
   Filter,
   ChevronRight,
@@ -23,9 +25,7 @@ export function PermitListView() {
   const { profile } = useAuth();
   const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
 
-  const companyId = isDemoMode
-    ? '50707999-f033-41c4-91c9-989966311972'
-    : profile?.company_id;
+  const companyId = isDemoMode ? DEMO_COMPANY_ID : profile?.company_id;
 
   const { locations, loading: loadingLocations } = useLocations(companyId);
   const { permits, loading: loadingPermits } = usePermits({ companyId });
@@ -42,17 +42,19 @@ export function PermitListView() {
     });
   }, [permits, filterSede, filterTipo, filterEstado]);
 
-  const stats = useMemo(() => {
-    const vigentes = permits.filter((p) => p.status === 'vigente').length;
-    const vencidos = permits.filter((p) => p.status === 'vencido').length;
-    const porVencer = permits.filter((p) => {
-      if (!p.expiry_date || p.status === 'vencido') return false;
-      return daysUntil(p.expiry_date) <= 30;
-    }).length;
-    const noRegistrados = permits.filter((p) => p.status === 'no_registrado').length;
+  // Use centralized metrics calculation
+  const metrics = useMemo(() => {
+    return calculateDashboardMetrics(permits, locations);
+  }, [permits, locations]);
 
-    return { vigentes, vencidos, porVencer, noRegistrados };
-  }, [permits]);
+  const stats = useMemo(() => {
+    return {
+      vigentes: metrics.vigentes,
+      vencidos: metrics.vencidos,
+      porVencer: metrics.porVencer,
+      noRegistrados: metrics.faltantes,
+    };
+  }, [metrics]);
 
   const uniqueTypes = [...new Set(permits.map((p) => p.type))];
   const uniqueStatuses = [...new Set(permits.map((p) => p.status))];

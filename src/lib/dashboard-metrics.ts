@@ -15,6 +15,7 @@ export interface DashboardMetrics {
 
 /**
  * Calculate metrics for dashboard from permits
+ * Uses date-based calculation for "por vencer" (expiring within 30 days)
  */
 export function calculateDashboardMetrics(
   permits: Permit[],
@@ -22,8 +23,16 @@ export function calculateDashboardMetrics(
 ): DashboardMetrics {
   const activePermits = permits.filter((p) => p.is_active);
 
+  // Date-based calculation: consider permit "por vencer" if expires within 30 days
+  // BUT only count permits that actually exist (vigente or por_vencer status)
   const vigentes = activePermits.filter((p) => p.status === 'vigente').length;
-  const porVencer = activePermits.filter((p) => p.status === 'por_vencer').length;
+  const porVencer = activePermits.filter((p) => {
+    if (!p.expiry_date) return false;
+    // Exclude permits that don't exist yet (no_registrado) or are already expired (vencido)
+    if (p.status === 'vencido' || p.status === 'no_registrado') return false;
+    const days = daysUntil(p.expiry_date);
+    return days >= 0 && days <= 30;
+  }).length;
   const faltantes = activePermits.filter((p) => p.status === 'no_registrado').length;
   const vencidos = activePermits.filter((p) => p.status === 'vencido').length;
   const enTramite = 0; // Status 'en_tramite' was removed from the system
@@ -149,12 +158,19 @@ export function getUpcomingRenewals(
 
 /**
  * Get permit count by status for a location
+ * Uses date-based calculation for "por vencer" (expiring within 30 days)
  */
 export function getLocationPermitStats(permits: Permit[]) {
   const activePermits = permits.filter((p) => p.is_active);
   const total = activePermits.length;
   const vigentes = activePermits.filter((p) => p.status === 'vigente').length;
-  const porVencer = activePermits.filter((p) => p.status === 'por_vencer').length;
+  const porVencer = activePermits.filter((p) => {
+    if (!p.expiry_date) return false;
+    // Exclude permits that don't exist yet (no_registrado) or are already expired (vencido)
+    if (p.status === 'vencido' || p.status === 'no_registrado') return false;
+    const days = daysUntil(p.expiry_date);
+    return days >= 0 && days <= 30;
+  }).length;
   const vencidos = activePermits.filter((p) => p.status === 'vencido').length;
   const faltantes = activePermits.filter((p) => p.status === 'no_registrado').length;
 
