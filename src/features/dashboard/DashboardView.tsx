@@ -7,6 +7,7 @@ import { RiskOverviewCard } from './RiskOverviewCard';
 import { MetricsGrid } from './MetricsGrid';
 import { SedeCard } from './SedeCard';
 import { CreateLocationModal } from '@/features/locations/CreateLocationModal';
+import { SkeletonList, SkeletonCard } from '@/components/ui/skeleton';
 import { MapPin, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -86,15 +87,15 @@ export function DashboardView() {
   // Loading state
   if (loadingLocations || loadingPermits) {
     return (
-      <div className="min-h-screen bg-background p-8">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <div className="h-8 w-64 bg-gray-200 rounded animate-pulse" />
-          <div className="h-48 bg-gray-200 rounded animate-pulse" />
-          <div className="grid grid-cols-3 gap-6">
-            <div className="h-32 bg-gray-200 rounded animate-pulse" />
-            <div className="h-32 bg-gray-200 rounded animate-pulse" />
-            <div className="h-32 bg-gray-200 rounded animate-pulse" />
+      <div className="min-h-screen bg-[var(--color-surface)] p-6 md:p-8">
+        <div className="max-w-7xl mx-auto space-y-6 animate-fade-in">
+          <SkeletonCard lines={1} />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <SkeletonCard lines={2} />
+            <SkeletonCard lines={2} />
+            <SkeletonCard lines={2} />
           </div>
+          <SkeletonList count={6} />
         </div>
       </div>
     );
@@ -121,24 +122,25 @@ export function DashboardView() {
           </div>
 
           {locations.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-[var(--color-border)] bg-white py-16 text-center">
-              <div className="flex flex-col items-center gap-4 max-w-sm mx-auto">
-                <div className="w-14 h-14 rounded-full bg-[var(--color-surface)] flex items-center justify-center">
-                  <MapPin className="w-7 h-7 text-[var(--color-text-muted)]" />
+            <div className="rounded-xl border-2 border-dashed border-[var(--color-border)] bg-white py-20 text-center transition-all hover:border-[var(--color-text-muted)]">
+              <div className="flex flex-col items-center gap-5 max-w-md mx-auto px-6">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--color-surface)] to-[var(--color-border)] flex items-center justify-center shadow-[var(--shadow-sm)]">
+                  <MapPin className="w-8 h-8 text-[var(--color-primary)]" />
                 </div>
-                <div>
-                  <h3 className="text-base font-semibold text-[var(--color-text)] mb-1">
-                    No hay sedes
+                <div className="space-y-2">
+                  <h3 className="text-lg font-semibold text-[var(--color-text)]">
+                    No hay sedes registradas
                   </h3>
-                  <p className="text-sm text-[var(--color-text-secondary)]">
-                    Comienza creando tu primera sede
+                  <p className="text-[var(--font-size-sm)] text-[var(--color-text-secondary)] leading-relaxed">
+                    Comienza creando tu primera sede para gestionar permisos y cumplimiento normativo
                   </p>
                 </div>
                 <Button
                   onClick={() => setShowCreateModal(true)}
                   className="mt-2"
+                  size="lg"
                 >
-                  <Plus className="w-4 h-4 mr-2" />
+                  <Plus className="w-4 h-4" />
                   Crear Primera Sede
                 </Button>
               </div>
