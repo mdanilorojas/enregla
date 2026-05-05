@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, Share2 } from 'lucide-react';
+import { ArrowLeft, Share2 } from 'lucide-react';
 import { useLocations } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
 import { useAuth } from '@/hooks/useAuth';
@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PermitCardsGrid } from './PermitCardsGrid';
-import { PublicLinkBanner } from './PublicLinkBanner';
 import { RenewPermitModal } from './RenewPermitModal';
 import { ShareLocationModal } from '@/features/public-links/ShareLocationModal';
 import type { Permit, Document } from '@/types/database';
@@ -19,7 +18,7 @@ export function LocationDetailView() {
   const navigate = useNavigate();
   const { companyId } = useAuth();
   const { locations, loading: loadingLocations } = useLocations(companyId);
-  const { permits, loading: loadingPermits, updatePermit, refetch } = usePermits({ companyId, locationId: id });
+  const { permits, loading: loadingPermits, updatePermit } = usePermits({ companyId, locationId: id });
 
   const [selectedPermit, setSelectedPermit] = useState<Permit | null>(null);
   const [renewModalOpen, setRenewModalOpen] = useState(false);
@@ -117,14 +116,6 @@ export function LocationDetailView() {
       expiry_date: newExpiryDate,
       status: 'vigente',
     });
-  };
-
-  const handleGeneratePublicLink = () => {
-    // TODO: Implement in Milestone 4
-  };
-
-  const handleViewPublicLink = () => {
-    // TODO: Implement in Milestone 4
   };
 
   return (

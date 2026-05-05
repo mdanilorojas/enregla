@@ -17,22 +17,9 @@ export function DashboardView() {
   const { permits, loading: loadingPermits, error: permitsError } = usePermits({ companyId });
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  // Guard: redirect or show message if no companyId
-  if (!companyId) {
-    return (
-      <div className="min-h-screen bg-background p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-semibold text-text mb-2">No Company Found</h2>
-            <p className="text-text-secondary">Please complete your company setup to access the dashboard.</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // Calculate dashboard metrics
   const metrics = useMemo(() => {
+    if (!companyId || !permits.length) return { vigentes: 0, porVencer: 0, faltantes: 0, compliance: 0 };
     const vigentes = permits.filter(p => p.status === 'vigente' && p.is_active).length;
     const porVencer = permits.filter(p => p.status === 'por_vencer' && p.is_active).length;
     const faltantes = permits.filter(p => p.status === 'no_registrado' && p.is_active).length;
@@ -46,6 +33,8 @@ export function DashboardView() {
   const locationPermitCounts = useMemo(() => {
     const counts: Record<string, { vigentes: number; total: number }> = {};
 
+    if (!locations.length || !permits.length) return counts;
+
     locations.forEach(location => {
       const locationPermits = permits.filter(p => p.location_id === location.id && p.is_active);
       const vigentes = locationPermits.filter(p => p.status === 'vigente').length;
@@ -57,6 +46,20 @@ export function DashboardView() {
 
     return counts;
   }, [locations, permits]);
+
+  // Guard: redirect or show message if no companyId
+  if (!companyId) {
+    return (
+      <div className="min-h-screen bg-background p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-12">
+            <h2 className="text-2xl font-semibold text-text mb-2">No Company Found</h2>
+            <p className="text-text-secondary">Please complete your company setup to access the dashboard.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Error state
   if (locationsError || permitsError) {

@@ -76,59 +76,66 @@ export function useAuth() {
         }
 
         // NORMAL MODE: Safety timeout
-        const safetyTimeout = setTimeout(() => {
-          console.warn('[useAuth] Safety timeout triggered - forcing loading=false');
-          setAuth(null, null);
-          initializationPromise = null;
-        }, 5000);
+        let safetyTimeout: ReturnType<typeof setTimeout> | undefined;
 
-        // NORMAL MODE: Check initial session immediately
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-        if (sessionError) {
-          console.error('[useAuth] getSession failed:', sessionError);
-          clearTimeout(safetyTimeout);
-          clear();
-          return;
-        }
-
-        if (!session) {
-          console.log('[useAuth] No initial session found');
-          clearTimeout(safetyTimeout);
-          clear();
-          return;
-        }
-
-        // Load profile for existing session
-        console.log('[useAuth] Initial session found, loading profile...');
         try {
-          console.log('[useAuth] Starting initial profile query...');
-          const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single<Profile>();
+          safetyTimeout = setTimeout(() => {
+            console.warn('[useAuth] Safety timeout triggered - forcing loading=false');
+            setAuth(null, null);
+            initializationPromise = null;
+          }, 5000);
 
-          console.log('[useAuth] Initial profile query completed');
-          if (profileError && profileError.code !== 'PGRST116') {
-            console.error('[useAuth] Initial profile fetch error:', profileError);
+          // NORMAL MODE: Check initial session immediately
+          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+          if (sessionError) {
+            console.error('[useAuth] getSession failed:', sessionError);
+            clearTimeout(safetyTimeout);
+            clear();
+            return;
           }
 
-          console.log('[useAuth] Profile loaded:', profileData ? 'EXISTS' : 'NULL');
-          clearTimeout(safetyTimeout);
-          console.log('[useAuth] About to call setAuth (initial load)...');
-          setAuth(session.user, profileData || null);
-          console.log('[useAuth] setAuth completed (initial load)');
+          if (!session) {
+            console.log('[useAuth] No initial session found');
+            clearTimeout(safetyTimeout);
+            clear();
+            return;
+          }
+
+          // Load profile for existing session
+          console.log('[useAuth] Initial session found, loading profile...');
+          try {
+            console.log('[useAuth] Starting initial profile query...');
+            const { data: profileData, error: profileError } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single<Profile>();
+
+            console.log('[useAuth] Initial profile query completed');
+            if (profileError && profileError.code !== 'PGRST116') {
+              console.error('[useAuth] Initial profile fetch error:', profileError);
+            }
+
+            console.log('[useAuth] Profile loaded:', profileData ? 'EXISTS' : 'NULL');
+            clearTimeout(safetyTimeout);
+            console.log('[useAuth] About to call setAuth (initial load)...');
+            setAuth(session.user, profileData || null);
+            console.log('[useAuth] setAuth completed (initial load)');
+          } catch (error) {
+            console.error('[useAuth] Initial profile fetch failed:', error);
+            clearTimeout(safetyTimeout);
+            setAuth(session.user, null);
+          }
         } catch (error) {
-          console.error('[useAuth] Initial profile fetch failed:', error);
-          clearTimeout(safetyTimeout);
-          setAuth(session.user, null);
+          console.error('[useAuth] Initialization failed:', error);
+          if (safetyTimeout) clearTimeout(safetyTimeout);
+          clear();
+        } finally {
+          initializationPromise = null;
         }
       } catch (error) {
-        console.error('[useAuth] Initialization failed:', error);
-        clearTimeout(safetyTimeout);
-        clear();
-      } finally {
+        console.error('[useAuth] Top-level initialization error:', error);
         initializationPromise = null;
       }
     })();

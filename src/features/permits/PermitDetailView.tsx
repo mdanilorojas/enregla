@@ -23,7 +23,7 @@ import {
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { uploadPermitDocument } from '@/lib/api/documents';
+import { uploadPermitDocument, deleteDocument } from '@/lib/api/documents';
 import toast from 'react-hot-toast';
 import type { Document } from '@/types/database';
 
@@ -283,13 +283,13 @@ export function PermitDetailView() {
               )}
             </div>
 
-            {permit.issued_date && (
+            {permit.issue_date && (
               <div>
                 <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
                   <Calendar size={12} />
                   <span className="uppercase tracking-wider font-medium">Fecha de Emisión</span>
                 </div>
-                <p className="text-sm text-gray-700">{formatDate(permit.issued_date)}</p>
+                <p className="text-sm text-gray-700">{formatDate(permit.issue_date)}</p>
               </div>
             )}
 

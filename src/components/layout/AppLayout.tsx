@@ -137,9 +137,12 @@ export function AppLayout() {
 
   useEffect(() => {
     // Cerrar sidebar al navegar en móvil
-    if (window.innerWidth < 1024) {
-      setSidebarOpen(false);
-    }
+    const handlePathChange = () => {
+      if (window.innerWidth < 1024) {
+        setSidebarOpen(false);
+      }
+    };
+    handlePathChange();
   }, [location.pathname]);
 
   return (
