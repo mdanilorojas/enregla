@@ -4,17 +4,17 @@ import { supabase } from '../supabase';
  * Upload a document file for a permit to Supabase Storage
  */
 export async function uploadPermitDocument(permitId: string, file: File): Promise<string> {
-  console.log('[uploadPermitDocument] Starting upload:', { permitId, fileName: file.name, fileSize: file.size });
+  // console.log('[uploadPermitDocument] Starting upload:', { permitId, fileName: file.name, fileSize: file.size });
 
   // Generate unique file name
   const fileExt = file.name.split('.').pop();
   const fileName = `${permitId}-${Date.now()}.${fileExt}`;
   const filePath = `permits/${permitId}/${fileName}`;
 
-  console.log('[uploadPermitDocument] Generated path:', filePath);
+  // console.log('[uploadPermitDocument] Generated path:', filePath);
 
   // Upload to Supabase Storage
-  const { data: uploadData, error: uploadError } = await supabase.storage
+  const { error: uploadError } = await supabase.storage
     .from('permit-documents')
     .upload(filePath, file);
 
@@ -23,7 +23,7 @@ export async function uploadPermitDocument(permitId: string, file: File): Promis
     throw new Error(`Error al subir el archivo: ${uploadError.message}`);
   }
 
-  console.log('[uploadPermitDocument] Storage upload successful:', uploadData);
+  // console.log('[uploadPermitDocument] Storage upload successful');
 
   // Get current user
   const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -31,7 +31,7 @@ export async function uploadPermitDocument(permitId: string, file: File): Promis
     console.error('[uploadPermitDocument] Error getting user:', userError);
   }
 
-  console.log('[uploadPermitDocument] Current user:', user?.id);
+  // console.log('[uploadPermitDocument] Current user:', user?.id);
 
   // Create document record in database
   const documentData = {
@@ -43,10 +43,10 @@ export async function uploadPermitDocument(permitId: string, file: File): Promis
     uploaded_by: user?.id || null,
   };
 
-  console.log('[uploadPermitDocument] Inserting document record:', documentData);
+  // console.log('[uploadPermitDocument] Inserting document record:', documentData);
 
   const query = supabase.from('documents') as any;
-  const { data: insertData, error: dbError } = await query
+  const { error: dbError } = await query
     .insert(documentData)
     .select();
 
@@ -59,7 +59,7 @@ export async function uploadPermitDocument(permitId: string, file: File): Promis
     throw new Error(`Error al registrar el documento: ${dbError.message}`);
   }
 
-  console.log('[uploadPermitDocument] Database insert successful:', insertData);
+  // console.log('[uploadPermitDocument] Database insert successful');
 
   return filePath;
 }

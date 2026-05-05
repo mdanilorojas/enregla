@@ -27,7 +27,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
   const config = statusConfig[status];
 
   if (!config) {
-    console.warn(`Unknown permit status: ${status}`);
+    // console.warn(`Unknown permit status: ${status}`);
     return (
       <Badge variant="outline" className={className}>
         {status}

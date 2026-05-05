@@ -95,9 +95,7 @@ export function calculateExpiryDate(
 
   if (!duration) {
     // Fallback: assume 1 year calendar if permit type not found
-    console.warn(
-      `Unknown permit type: ${permitType}, defaulting to 1 year`
-    );
+    // console.warn(`Unknown permit type: ${permitType}, defaulting to 1 year`);
     const expiry = new Date(issueDate);
     expiry.setFullYear(expiry.getFullYear() + 1);
     return expiry;

@@ -19,5 +19,9 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // Prevent console.log/warn/info/debug in production code (only console.error allowed)
+      'no-console': ['error', { allow: ['error'] }],
+    },
   },
 ])

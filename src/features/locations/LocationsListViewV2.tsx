@@ -17,9 +17,9 @@ export function LocationsListViewV2() {
     ? '50707999-f033-41c4-91c9-989966311972'
     : profile?.company_id;
 
-  console.log('[LocationsListViewV2] Profile:', profile);
-  console.log('[LocationsListViewV2] CompanyId:', companyId);
-  console.log('[LocationsListViewV2] Demo mode:', isDemoMode);
+  // console.log('[LocationsListViewV2] Profile:', profile);
+  // console.log('[LocationsListViewV2] CompanyId:', companyId);
+  // console.log('[LocationsListViewV2] Demo mode:', isDemoMode);
 
   const { locations, loading: loadingLocations, error: locationsError } = useLocations(companyId);
   const { permits, loading: loadingPermits, error: permitsError } = usePermits({ companyId });
@@ -94,7 +94,7 @@ export function LocationsListViewV2() {
             </p>
             <Button
               onClick={() => {
-                console.log('[LocationsListViewV2] Button clicked, companyId:', companyId);
+                // console.log('[LocationsListViewV2] Button clicked, companyId:', companyId);
                 setCreateModalOpen(true);
               }}
               className="mt-6 bg-blue-900 hover:bg-blue-800"

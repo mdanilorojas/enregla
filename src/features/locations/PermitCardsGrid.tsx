@@ -90,7 +90,7 @@ export function PermitCardsGrid({
     if (files.length === 0) return;
 
     const file = files[0];
-    console.log('[PermitCardsGrid] File dropped:', file.name, file.type, file.size);
+    // console.log('[PermitCardsGrid] File dropped:', file.name, file.type, file.size);
 
     const validationError = validateFile(file);
     if (validationError) {
@@ -107,9 +107,9 @@ export function PermitCardsGrid({
     setUploadingIds(prev => new Set(prev).add(permitId));
 
     try {
-      console.log('[PermitCardsGrid] Starting upload for permit:', permitId);
-      const result = await uploadPermitDocument(permitId, file);
-      console.log('[PermitCardsGrid] Upload successful:', result);
+      // console.log('[PermitCardsGrid] Starting upload for permit:', permitId);
+      await uploadPermitDocument(permitId, file);
+      // console.log('[PermitCardsGrid] Upload successful');
       onDocumentUpdated();
     } catch (err) {
       console.error('[PermitCardsGrid] Upload error:', err);
@@ -131,7 +131,7 @@ export function PermitCardsGrid({
     if (!files || files.length === 0) return;
 
     const file = files[0];
-    console.log('[PermitCardsGrid] File selected:', file.name, file.type, file.size);
+    // console.log('[PermitCardsGrid] File selected:', file.name, file.type, file.size);
 
     const validationError = validateFile(file);
     if (validationError) {
@@ -148,9 +148,9 @@ export function PermitCardsGrid({
     setUploadingIds(prev => new Set(prev).add(permitId));
 
     try {
-      console.log('[PermitCardsGrid] Starting upload for permit:', permitId);
-      const result = await uploadPermitDocument(permitId, file);
-      console.log('[PermitCardsGrid] Upload successful:', result);
+      // console.log('[PermitCardsGrid] Starting upload for permit:', permitId);
+      await uploadPermitDocument(permitId, file);
+      // console.log('[PermitCardsGrid] Upload successful');
       onDocumentUpdated();
     } catch (err) {
       console.error('[PermitCardsGrid] Upload error:', err);
@@ -173,7 +173,7 @@ export function PermitCardsGrid({
     }
 
     try {
-      console.log('[PermitCardsGrid] Deleting document:', documentId, filePath);
+      // console.log('[PermitCardsGrid] Deleting document:', documentId, filePath);
       await deleteDocument(documentId, filePath);
       toast.success('Documento eliminado');
 

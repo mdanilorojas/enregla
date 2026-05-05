@@ -16,11 +16,11 @@ export function AuthCallback() {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        console.log('[AuthCallback] Iniciando procesamiento...');
+        // console.log('[AuthCallback] Iniciando procesamiento...');
 
         // Obtener la sesión del hash de la URL
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        console.log('[AuthCallback] Sesión obtenida:', session ? 'Sí' : 'No', sessionError);
+        // console.log('[AuthCallback] Sesión obtenida:', session ? 'Sí' : 'No', sessionError);
 
         if (sessionError) {
           throw sessionError;
@@ -31,7 +31,7 @@ export function AuthCallback() {
         }
 
         const user = session.user;
-        console.log('[AuthCallback] Usuario:', user.email);
+        // console.log('[AuthCallback] Usuario:', user.email);
 
         // Verificar si el usuario ya tiene un perfil
         const { data: existingProfile, error: profileError } = await supabase
@@ -40,7 +40,7 @@ export function AuthCallback() {
           .eq('id', user.id)
           .maybeSingle();
 
-        console.log('[AuthCallback] Perfil existente:', existingProfile ? 'Sí' : 'No', profileError);
+        // console.log('[AuthCallback] Perfil existente:', existingProfile ? 'Sí' : 'No', profileError);
 
         if (profileError && profileError.code !== 'PGRST116') {
           throw profileError;
@@ -48,12 +48,12 @@ export function AuthCallback() {
 
         if (existingProfile) {
           // Usuario existente, actualizar el store y redirigir
-          console.log('[AuthCallback] Redirigiendo a dashboard...');
+          // console.log('[AuthCallback] Redirigiendo a dashboard...');
           setAuth(user, existingProfile as Database['public']['Tables']['profiles']['Row']);
           navigate('/', { replace: true });
         } else {
           // Nuevo usuario de Google - necesita completar onboarding
-          console.log('[AuthCallback] Nuevo usuario, redirigiendo a onboarding...');
+          // console.log('[AuthCallback] Nuevo usuario, redirigiendo a onboarding...');
           setAuth(user, null);
           navigate('/setup', { replace: true, state: { fromOAuth: true } });
         }

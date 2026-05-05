@@ -23,25 +23,27 @@ describe('useStaticLayout', () => {
     expect(companyNode?.data.name).toBe('Test Company');
   });
 
-  it('distributes sedes in circle with radius 350px', () => {
-    const mockLocations = [
+  it('distributes sedes in horizontal row', () => {
+    const mockLocations: Location[] = [
       {
         id: 'loc-1',
         name: 'Sede 1',
         address: 'Calle 1',
         risk_level: 'bajo',
+        status: 'operando',
         company_id: 'comp-1',
-        is_active: true,
         created_at: '2024-01-01',
+        updated_at: '2024-01-01',
       },
       {
         id: 'loc-2',
         name: 'Sede 2',
         address: 'Calle 2',
         risk_level: 'medio',
+        status: 'operando',
         company_id: 'comp-1',
-        is_active: true,
         created_at: '2024-01-01',
+        updated_at: '2024-01-01',
       },
     ];
 
@@ -54,25 +56,30 @@ describe('useStaticLayout', () => {
       })
     );
 
-    const sedeNodes = result.current.nodes.filter(n => n.type === 'sede');
+    const locationNodes = result.current.nodes.filter(n => n.type === 'location');
 
-    expect(sedeNodes).toHaveLength(2);
+    expect(locationNodes).toHaveLength(2);
 
-    sedeNodes.forEach(sede => {
-      const distance = Math.sqrt(sede.position.x ** 2 + sede.position.y ** 2);
-      expect(distance).toBeCloseTo(350, 1);
+    // Locations should be positioned horizontally with SEDE_SPACING (320px)
+    expect(locationNodes[0].position.x).toBe(0);
+    expect(locationNodes[1].position.x).toBe(320);
+
+    // All at same Y position
+    locationNodes.forEach(node => {
+      expect(node.position.y).toBe(280);
     });
   });
 
-  it('positions permits around sede with dynamic radius based on count', () => {
+  it('does not show individual permit nodes in static layout', () => {
     const mockLocation: Location = {
       id: 'loc-1',
       name: 'Sede Test',
       address: 'Test Address',
       risk_level: 'bajo',
+      status: 'operando',
       company_id: 'comp-1',
-      is_active: true,
       created_at: '2024-01-01',
+      updated_at: '2024-01-01',
     };
 
     const mockPermits: Permit[] = Array.from({ length: 5 }, (_, i) => ({
@@ -83,7 +90,15 @@ describe('useStaticLayout', () => {
       company_id: 'comp-1',
       is_active: true,
       issuer: 'Test',
+      permit_number: null,
+      issue_date: null,
+      expiry_date: null,
+      notes: null,
+      version: 1,
+      superseded_by: null,
+      archived_at: null,
       created_at: '2024-01-01',
+      updated_at: '2024-01-01',
     }));
 
     const { result } = renderHook(() =>
@@ -95,33 +110,27 @@ describe('useStaticLayout', () => {
       })
     );
 
+    // Static layout doesn't create individual permit nodes
+    // Permits are aggregated inside location node data
     const permitNodes = result.current.nodes.filter(n => n.type === 'permit');
+    expect(permitNodes).toHaveLength(0);
 
-    expect(permitNodes).toHaveLength(5);
-
-    // Expected radius for 5 permits: Math.max(120, Math.min(240, 80 + 5 * 12)) = 140px
-    const expectedRadius = 140;
-
-    permitNodes.forEach(permit => {
-      // Calculate distance from sede (at angle -90° = top, x=0, y=-350)
-      const sedePos = { x: 0, y: -350 };
-      const dx = permit.position.x - sedePos.x;
-      const dy = permit.position.y - sedePos.y;
-      const distance = Math.sqrt(dx ** 2 + dy ** 2);
-
-      expect(distance).toBeCloseTo(expectedRadius, 1);
-    });
+    // But permit data should be in location node
+    const locationNode = result.current.nodes.find(n => n.type === 'location');
+    expect(locationNode?.data.totalPermits).toBe(5);
+    expect(locationNode?.data.permits).toHaveLength(5);
   });
 
-  it('hides permits when isDesktop is false', () => {
+  it('shows location nodes on mobile', () => {
     const mockLocation: Location = {
       id: 'loc-1',
       name: 'Sede Test',
       address: 'Test',
       risk_level: 'bajo',
+      status: 'operando',
       company_id: 'comp-1',
-      is_active: true,
       created_at: '2024-01-01',
+      updated_at: '2024-01-01',
     };
 
     const mockPermits: Permit[] = [
@@ -133,7 +142,15 @@ describe('useStaticLayout', () => {
         company_id: 'comp-1',
         is_active: true,
         issuer: 'Test',
+        permit_number: null,
+        issue_date: null,
+        expiry_date: null,
+        notes: null,
+        version: 1,
+        superseded_by: null,
+        archived_at: null,
         created_at: '2024-01-01',
+        updated_at: '2024-01-01',
       },
     ];
 
@@ -146,6 +163,11 @@ describe('useStaticLayout', () => {
       })
     );
 
+    // On mobile, locations should still be shown
+    const locationNodes = result.current.nodes.filter(n => n.type === 'location');
+    expect(locationNodes).toHaveLength(1);
+
+    // Static layout never creates separate permit nodes
     const permitNodes = result.current.nodes.filter(n => n.type === 'permit');
     expect(permitNodes).toHaveLength(0);
   });

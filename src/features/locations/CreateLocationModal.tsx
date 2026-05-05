@@ -82,7 +82,7 @@ export function CreateLocationModal({
       return;
     }
 
-    console.log('[CreateLocationModal] Submitting with companyId:', companyId);
+    // console.log('[CreateLocationModal] Submitting with companyId:', companyId);
     setLoading(true);
     try {
       const newLocation = await createLocation({
@@ -92,7 +92,7 @@ export function CreateLocationModal({
         status: status as 'operando' | 'en_preparacion' | 'cerrado',
       });
 
-      console.log('[CreateLocationModal] Location created:', newLocation);
+      // console.log('[CreateLocationModal] Location created:', newLocation);
       toast.success('Sede creada exitosamente', {
         duration: 3000,
       });

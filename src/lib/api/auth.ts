@@ -79,25 +79,25 @@ export async function logout() {
 
 export async function getCurrentUser() {
   try {
-    console.log('[getCurrentUser] Step 1: Starting...');
-    console.log('[getCurrentUser] Step 2: Calling supabase.auth.getSession()...');
+    // console.log('[getCurrentUser] Step 1: Starting...');
+    // console.log('[getCurrentUser] Step 2: Calling supabase.auth.getSession()...');
 
     // Use getSession() instead of getUser() - more reliable
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    console.log('[getCurrentUser] Step 3: Session response received');
+    // console.log('[getCurrentUser] Step 3: Session response received');
 
     if (sessionError) {
       console.error('[getCurrentUser] Session fetch error:', sessionError);
       throw sessionError;
     }
     if (!session) {
-      console.log('[getCurrentUser] No active session found');
+      // console.log('[getCurrentUser] No active session found');
       return null;
     }
 
     const user = session.user;
-    console.log('[getCurrentUser] Step 4: User found from session:', user.email, 'ID:', user.id);
-    console.log('[getCurrentUser] Step 5: Fetching profile...');
+    // console.log('[getCurrentUser] Step 4: User found from session:', user.email, 'ID:', user.id);
+    // console.log('[getCurrentUser] Step 5: Fetching profile...');
 
     // Use limit(1) instead of maybeSingle() to handle duplicates
     const profilePromise = supabase
@@ -106,21 +106,21 @@ export async function getCurrentUser() {
       .eq('id', user.id)
       .limit(1);
 
-    console.log('[getCurrentUser] Step 6: Waiting for profile response...');
+    // console.log('[getCurrentUser] Step 6: Waiting for profile response...');
     const { data: profiles, error: profileError } = await profilePromise;
-    console.log('[getCurrentUser] Step 7: Profile response received');
+    // console.log('[getCurrentUser] Step 7: Profile response received');
 
     if (profileError) {
       console.error('[getCurrentUser] Profile fetch error:', profileError);
       throw profileError;
     }
     if (!profiles || profiles.length === 0) {
-      console.warn('[getCurrentUser] No profile found for user:', user.id);
+      // console.warn('[getCurrentUser] No profile found for user:', user.id);
       return null;
     }
 
     const profile = profiles[0] as Database['public']['Tables']['profiles']['Row'];
-    console.log('[getCurrentUser] Step 8: SUCCESS - Profile found:', user.email, 'Company:', profile.company_id);
+    // console.log('[getCurrentUser] Step 8: SUCCESS - Profile found:', user.email, 'Company:', profile.company_id);
 
     return {
       user,

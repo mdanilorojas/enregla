@@ -5,9 +5,9 @@ import type { Database } from '@/types/database';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-console.log('[Supabase] Initializing client...');
-console.log('[Supabase] URL:', supabaseUrl ? 'SET' : 'MISSING');
-console.log('[Supabase] Key:', supabaseAnonKey ? 'SET' : 'MISSING');
+// console.log('[Supabase] Initializing client...');
+// console.log('[Supabase] URL:', supabaseUrl ? 'SET' : 'MISSING');
+// console.log('[Supabase] Key:', supabaseAnonKey ? 'SET' : 'MISSING');
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error('[Supabase] Missing environment variables!');
@@ -16,7 +16,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-console.log('[Supabase] Client created successfully');
+// console.log('[Supabase] Client created successfully');
 
 // Create a single supabase client for interacting with your database
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
