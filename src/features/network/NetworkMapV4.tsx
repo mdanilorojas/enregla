@@ -1,11 +1,10 @@
 import React, { useState, useCallback, useRef } from 'react';
 import {
-  Shield, ArrowRightLeft, Layout, Network, Server,
-  Database, Zap, Layers, HardDrive, Activity, Key,
-  Plus, X, Cpu, ServerCrash, CheckCircle2, ChevronRight,
+  Shield, Database, HardDrive, Key,
+  Plus, X, ServerCrash, CheckCircle2, ChevronRight,
   ZoomIn, ZoomOut, Maximize, GitCommit, ArrowRight,
-  Minus, MoreHorizontal, Waves, Zap as ZapIcon, MapPin,
-  FileText, Building2, AlertTriangle
+  Minus, MoreHorizontal, Waves, MapPin,
+  FileText, Building2, AlertTriangle, Zap
 } from 'lucide-react';
 
 // --- ENREGLA LIGHT MODE STYLES ---
@@ -821,7 +820,7 @@ export default function NetworkMapV4() {
                     }`}
                   >
                     <div className={`p-2 rounded-md ${activeEdge.animStyle === 'pulse' ? 'bg-primary-500/10 text-primary-500' : 'bg-gray-100 text-gray-600'}`}>
-                      <ZapIcon size={18} />
+                      <Zap size={18} />
                     </div>
                     <div>
                       <div className="text-sm font-semibold text-gray-900">Pulso de Energía</div>
