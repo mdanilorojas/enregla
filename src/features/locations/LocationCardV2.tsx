@@ -117,21 +117,24 @@ export function LocationCardV2({ location, permits }: LocationCardV2Props) {
 
   return (
     <Card
+      interactive
       role="button"
       tabIndex={0}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
-      className="cursor-pointer hover:shadow-lg transition-shadow duration-200"
+      className="group"
     >
       {/* Card Header - Icon, Name, and Code */}
       <CardHeader className="pb-3">
         <div className="flex items-start gap-3">
-          <Building2 size={20} className="text-gray-500 mt-0.5" />
+          <div className="w-10 h-10 rounded-lg bg-[var(--color-surface)] flex items-center justify-center shrink-0 group-hover:bg-[var(--color-primary)] transition-colors duration-200">
+            <Building2 className="w-5 h-5 text-[var(--color-primary)] group-hover:text-white transition-colors duration-200" />
+          </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold text-gray-900 truncate">
+            <h3 className="text-[var(--font-size-base)] font-semibold text-[var(--color-text)] truncate group-hover:text-[var(--color-primary)] transition-colors duration-200">
               {location.name}
             </h3>
-            <p className="text-xs text-gray-500 mt-0.5">
+            <p className="text-[var(--font-size-xs)] text-[var(--color-text-muted)] mt-0.5 font-mono">
               {locationCode}
             </p>
           </div>
@@ -171,7 +174,7 @@ export function LocationCardV2({ location, permits }: LocationCardV2Props) {
           {(() => {
             const riskConfig = getRiskLevelConfig(location.risk_level || 'bajo');
             return (
-              <Badge variant={riskConfig.variant}>
+              <Badge variant={riskConfig.variant} dot>
                 {riskConfig.label}
               </Badge>
             );

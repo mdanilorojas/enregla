@@ -6,6 +6,7 @@ import { usePermits } from '@/hooks/usePermits';
 import { Building2, Plus } from 'lucide-react';
 import { LocationCardV2 } from './LocationCardV2';
 import { Card, CardContent, Button } from '@/components/ui';
+import { SkeletonList, SkeletonCard } from '@/components/ui/skeleton';
 import { CreateLocationModal } from './CreateLocationModal';
 
 export function LocationsListViewV2() {
@@ -39,23 +40,15 @@ export function LocationsListViewV2() {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-4 md:p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <div className="h-8 bg-gray-200 rounded animate-pulse w-32 mb-2" />
-            <div className="h-4 bg-gray-200 rounded animate-pulse w-64" />
+      <div className="min-h-screen bg-[var(--color-surface)] p-6 md:p-8">
+        <div className="max-w-7xl mx-auto space-y-6 animate-fade-in">
+          <div className="flex items-start justify-between mb-8">
+            <div className="space-y-2">
+              <SkeletonCard lines={1} className="h-8 w-32" />
+              <SkeletonCard lines={1} className="h-4 w-64" />
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[1, 2, 3, 4].map((i) => (
-              <Card key={i}>
-                <CardContent className="p-6 space-y-4">
-                  <div className="h-6 bg-gray-200 rounded animate-pulse" />
-                  <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4" />
-                  <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <SkeletonList count={6} />
         </div>
       </div>
     );
@@ -84,30 +77,36 @@ export function LocationsListViewV2() {
   // Empty state
   if (locations.length === 0) {
     return (
-      <div className="min-h-screen bg-background p-4 md:p-8">
+      <div className="min-h-screen bg-[var(--color-surface)] p-6 md:p-8">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center py-12">
-            <Building2 className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-4 text-lg font-semibold">No hay sedes</h3>
-            <p className="mt-2 text-sm text-gray-500">
-              Comienza creando tu primera sede
-            </p>
-            <Button
-              onClick={() => {
-                // console.log('[LocationsListViewV2] Button clicked, companyId:', companyId);
-                setCreateModalOpen(true);
-              }}
-              className="mt-6 bg-blue-900 hover:bg-blue-800"
-              disabled={!companyId}
-            >
-              <Plus size={16} />
-              Crear Primera Sede
-            </Button>
-            {!companyId && (
-              <p className="mt-2 text-xs text-red-500">
-                Error: No se pudo cargar la información de la empresa
-              </p>
-            )}
+          <div className="rounded-xl border-2 border-dashed border-[var(--color-border)] bg-white py-20 text-center transition-all hover:border-[var(--color-text-muted)]">
+            <div className="flex flex-col items-center gap-5 max-w-md mx-auto px-6">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--color-surface)] to-[var(--color-border)] flex items-center justify-center shadow-[var(--shadow-sm)]">
+                <Building2 className="w-8 h-8 text-[var(--color-primary)]" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold text-[var(--color-text)]">
+                  No hay sedes registradas
+                </h3>
+                <p className="text-[var(--font-size-sm)] text-[var(--color-text-secondary)] leading-relaxed">
+                  Comienza creando tu primera sede para gestionar permisos y cumplimiento normativo
+                </p>
+              </div>
+              <Button
+                onClick={() => setCreateModalOpen(true)}
+                className="mt-2"
+                size="lg"
+                disabled={!companyId}
+              >
+                <Plus className="w-4 h-4" />
+                Crear Primera Sede
+              </Button>
+              {!companyId && (
+                <p className="text-[var(--font-size-xs)] text-[var(--color-danger)] mt-2">
+                  Error: No se pudo cargar la información de la empresa
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -120,21 +119,21 @@ export function LocationsListViewV2() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-[var(--color-surface)] p-6 md:p-8">
+      <div className="max-w-7xl mx-auto animate-fade-in">
         {/* Header */}
         <div className="flex items-start justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Sedes</h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Gestión de sedes y ubicaciones de tu empresa
+          <div className="space-y-1">
+            <h1 className="text-[var(--font-size-3xl)] font-bold text-[var(--color-text)] leading-tight">Sedes</h1>
+            <p className="text-[var(--font-size-sm)] text-[var(--color-text-secondary)]">
+              {locations.length} {locations.length === 1 ? 'sede registrada' : 'sedes registradas'}
             </p>
           </div>
           <Button
             onClick={() => setCreateModalOpen(true)}
-            className="bg-blue-900 hover:bg-blue-800"
+            size="lg"
           >
-            <Plus size={16} />
+            <Plus className="w-4 h-4" />
             Crear Sede
           </Button>
         </div>
