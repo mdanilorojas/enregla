@@ -11,8 +11,9 @@ const Card = React.forwardRef<
     className={cn(
       "rounded-lg border border-[var(--color-border)] bg-white text-[var(--color-text)]",
       "shadow-[var(--shadow-sm)]",
-      "transition-all duration-200 ease-[var(--ease-out)]",
+      "transition-[box-shadow,transform] duration-200 ease-[var(--ease-out)]",
       interactive && "hover:shadow-[var(--shadow-hover)] hover:-translate-y-0.5 cursor-pointer",
+      interactive && "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2",
       className
     )}
     {...props}
