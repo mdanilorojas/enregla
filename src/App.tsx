@@ -17,6 +17,7 @@ import { DocumentVaultView } from '@/features/documents/DocumentVaultView';
 import { LegalReferenceView } from '@/features/legal/LegalReferenceView';
 import { NetworkMapPage } from '@/features/network/NetworkMapPage';
 import { DesignSystemView } from '@/features/design-system/DesignSystemView';
+import { DesignSystemShowcase } from '@/features/design-system/DesignSystemShowcase';
 import { SettingsView } from '@/features/settings/SettingsView';
 
 function OnboardingRoute() {
@@ -130,6 +131,7 @@ export default function App() {
           <Route path="/documentos" element={<DocumentVaultView />} />
           <Route path="/marco-legal" element={<LegalReferenceView />} />
           <Route path="/design-system" element={<DesignSystemView />} />
+          <Route path="/design-system-showcase" element={<DesignSystemShowcase />} />
           <Route path="/settings" element={<SettingsView />} />
           <Route path="/settings/notifications" element={<SettingsView />} />
         </Route>
