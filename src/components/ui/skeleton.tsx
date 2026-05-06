@@ -7,13 +7,16 @@ interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
 function Skeleton({ className, variant = 'default', ...props }: SkeletonProps) {
   return (
     <div
+      role="status"
+      aria-label="Cargando..."
+      aria-live="polite"
       className={cn(
-        "animate-pulse bg-gradient-to-r from-[var(--color-surface)] via-[var(--color-border)] to-[var(--color-surface)] bg-[length:200%_100%]",
+        "animate-pulse bg-gradient-to-r from-[var(--ds-neutral-100)] via-[var(--ds-border)] to-[var(--ds-neutral-100)] bg-[length:200%_100%]",
         "animate-shimmer",
         {
-          'rounded-full': variant === 'circular',
-          'rounded-md': variant === 'rectangular' || variant === 'default',
-          'h-4 rounded': variant === 'text',
+          'rounded-[var(--ds-radius-round)]': variant === 'circular',
+          'rounded-[var(--ds-radius-200)]': variant === 'rectangular' || variant === 'default',
+          'h-4 rounded-[var(--ds-radius-100)]': variant === 'text',
         },
         className
       )}
@@ -31,7 +34,7 @@ interface SkeletonCardProps {
 
 function SkeletonCard({ lines = 3 }: SkeletonCardProps) {
   return (
-    <div className="rounded-lg border border-[var(--color-border)] bg-white p-5 space-y-4">
+    <div className="rounded-[var(--ds-radius-300)] border border-[var(--ds-border)] bg-[var(--ds-neutral-0)] p-[var(--ds-space-250)] space-y-[var(--ds-space-200)]">
       <div className="flex items-start gap-3">
         <Skeleton variant="circular" className="w-10 h-10 shrink-0" />
         <div className="flex-1 space-y-2">

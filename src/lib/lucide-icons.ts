@@ -71,6 +71,7 @@ export {
   BellOff,
   Shield,
   Lock,
+  QrCode,
 
   // Misc
   Loader2,
