@@ -3,23 +3,21 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePermits } from '@/hooks/usePermits';
 import { useLocations } from '@/hooks/useLocations';
 import { getPermitDocuments } from '@/lib/api/documents';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { formatDate, formatDateRelative, daysUntil } from '@/lib/dates';
+import { Banner } from '@/components/ui/banner';
+import { PermitTimeline, type TimelineEvent } from './PermitTimeline';
+import { formatDate } from '@/lib/dates';
 import {
-  ArrowLeft,
-  Shield,
-  AlertTriangle,
-  MapPin,
-  Calendar,
-  FileText,
-  Building2,
-  Clock,
-  Upload,
-  Eye,
+  Edit,
   Trash2,
-} from 'lucide-react';
+  Upload,
+  FileText,
+  Eye,
+  MapPin,
+} from '@/lib/lucide-icons';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect, useMemo, useCallback } from 'react';
@@ -31,6 +29,7 @@ const PERMIT_STATUS_LABELS: Record<string, string> = {
   vigente: 'Vigente',
   por_vencer: 'Por Vencer',
   vencido: 'Vencido',
+  en_tramite: 'En Trámite',
   no_registrado: 'No Registrado',
 };
 
@@ -154,14 +153,42 @@ export function PermitDetailView() {
 
   const loading = loadingPermits || loadingLocations;
 
+  const timeline = useMemo<TimelineEvent[]>(() => {
+    if (!permit) return [];
+    const events: TimelineEvent[] = [];
+
+    if (permit.issue_date) {
+      events.push({
+        id: 'issued',
+        type: 'issued',
+        date: permit.issue_date,
+        description: 'Permiso emitido',
+      });
+    }
+
+    if (permit.expiry_date) {
+      const isExpired = new Date(permit.expiry_date) < new Date();
+      events.push({
+        id: 'expires',
+        type: isExpired ? 'expired' : 'expires',
+        date: permit.expiry_date,
+        description: isExpired ? 'Permiso vencido' : 'Fecha de vencimiento',
+      });
+    }
+
+    return events;
+  }, [permit]);
+
   if (loading) {
     return (
-      <div className="space-y-6 max-w-4xl">
-        <div className="h-10 bg-gray-200 rounded animate-pulse w-40" />
-        <div className="h-16 bg-gray-200 rounded animate-pulse" />
-        <div className="grid grid-cols-2 gap-6">
-          <div className="h-64 bg-gray-200 rounded animate-pulse" />
-          <div className="h-64 bg-gray-200 rounded animate-pulse" />
+      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
+        <div className="max-w-7xl mx-auto space-y-[var(--ds-space-300)]">
+          <div className="h-10 bg-[var(--ds-neutral-100)] rounded animate-pulse w-40" />
+          <div className="h-16 bg-[var(--ds-neutral-100)] rounded animate-pulse" />
+          <div className="grid grid-cols-2 gap-6">
+            <div className="h-64 bg-[var(--ds-neutral-100)] rounded animate-pulse" />
+            <div className="h-64 bg-[var(--ds-neutral-100)] rounded animate-pulse" />
+          </div>
         </div>
       </div>
     );
@@ -169,291 +196,282 @@ export function PermitDetailView() {
 
   if (!permit) {
     return (
-      <div className="space-y-6">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate('/permisos')}
-        >
-          <ArrowLeft size={16} className="mr-1.5" />
-          Volver a permisos
-        </Button>
-        <div className="text-center py-12">
-          <Shield size={48} className="text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500 mb-2">Permiso no encontrado</p>
-          <p className="text-sm text-gray-400">
-            El permiso que buscas no existe o fue eliminado
-          </p>
+      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
+        <div className="max-w-7xl mx-auto space-y-[var(--ds-space-300)]">
+          <Breadcrumb
+            items={[
+              { label: 'Inicio', href: '/' },
+              { label: 'Permisos', href: '/permisos' },
+              { label: 'No encontrado' },
+            ]}
+          />
+          <Card className="p-[var(--ds-space-400)]">
+            <div className="text-center py-8">
+              <p className="text-[var(--ds-text-subtle)] mb-2">Permiso no encontrado</p>
+              <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtlest)]">
+                El permiso que buscas no existe o fue eliminado
+              </p>
+            </div>
+          </Card>
         </div>
       </div>
     );
   }
 
-  const isRisk = permit.status === 'vencido' || permit.status === 'no_registrado';
-  const daysRemaining = permit.expiry_date ? daysUntil(permit.expiry_date) : null;
+  const statusVariant =
+    ({
+      vigente: 'status-vigente' as const,
+      por_vencer: 'status-por-vencer' as const,
+      vencido: 'status-vencido' as const,
+      en_tramite: 'status-en-tramite' as const,
+      no_registrado: 'status-no-registrado' as const,
+    }[permit.status as string]) ?? ('status-no-registrado' as const);
 
-  const getStatusVariant = (status: string): 'success' | 'destructive' | 'warning' | 'secondary' => {
-    if (status === 'vigente') return 'success';
-    if (status === 'vencido') return 'destructive';
-    if (status === 'no_registrado') return 'warning';
-    return 'secondary';
-  };
+  const isExpired = permit.status === 'vencido';
+  const isExpiring = permit.status === 'por_vencer';
+
+  const permitType = permit.type ?? 'Permiso';
+  const permitNumber = permit.permit_number ?? '-';
+  const authority = permit.issuer ?? '-';
+  const statusLabel = PERMIT_STATUS_LABELS[permit.status] ?? (permit.status as string).replace('_', ' ');
 
   return (
-    <div className="space-y-6 max-w-4xl">
-      {/* Back Button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => navigate('/permisos')}
-      >
-        <ArrowLeft size={16} className="mr-1.5" />
-        Volver a permisos
-      </Button>
+    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
+      <div className="max-w-7xl mx-auto space-y-[var(--ds-space-300)]">
+        <Breadcrumb
+          items={[
+            { label: 'Inicio', href: '/' },
+            { label: 'Permisos', href: '/permisos' },
+            { label: permitType },
+          ]}
+        />
 
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center">
-            <Shield size={24} className="text-white" />
-          </div>
+        <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-              {permit.type}
+            <h1 className="text-[var(--ds-font-size-500)] font-bold text-[var(--ds-text)]">
+              {permitType}
             </h1>
-            <p className="text-sm text-gray-500 mt-0.5">
-              {permit.issuer || 'Sin emisor'}
+            <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)] font-mono mt-[var(--ds-space-050)]">
+              {permitNumber}
             </p>
           </div>
+          <div className="flex gap-[var(--ds-space-100)]">
+            <Button variant="outline">
+              <Edit className="w-4 h-4" />
+              Editar
+            </Button>
+            <Button variant="destructive">
+              <Trash2 className="w-4 h-4" />
+              Eliminar
+            </Button>
+          </div>
         </div>
-        <Badge
-          variant={getStatusVariant(permit.status)}
-          className={permit.status === 'vencido' ? 'animate-pulse' : ''}
-        >
-          {PERMIT_STATUS_LABELS[permit.status]}
-        </Badge>
-      </div>
 
-      {/* Risk Alert */}
-      {isRisk && (
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="flex items-center gap-3 pt-6">
-            <AlertTriangle size={20} className="text-red-600 shrink-0" />
-            <div className="text-sm text-red-900">
-              {permit.status === 'vencido' ? (
-                <>
-                  <span className="font-semibold">Permiso vencido</span> — Actividad regulada sin autorización vigente
-                </>
-              ) : (
-                <>
-                  <span className="font-semibold">Permiso no registrado</span> — Riesgo operativo activo
-                </>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+        {isExpired && (
+          <Banner variant="error" title="Permiso vencido">
+            Este permiso ha caducado. Es necesario renovarlo inmediatamente.
+          </Banner>
+        )}
+        {isExpiring && (
+          <Banner variant="warning" title="Próximo a vencer">
+            Este permiso vence pronto. Planifica la renovación.
+          </Banner>
+        )}
 
-      {/* Details Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Main Details */}
-        <Card>
-          <CardHeader>
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
-              Detalles del Permiso
-            </h3>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
-                <Building2 size={12} />
-                <span className="uppercase tracking-wider font-medium">Sede</span>
-              </div>
-              {location ? (
-                <Button
-                  variant="link"
-                  size="sm"
-                  onClick={() => navigate(`/sedes/${location.id}`)}
-                  className="h-auto p-0 text-blue-600 hover:text-blue-700"
-                >
-                  {location.name}
-                </Button>
-              ) : (
-                <p className="text-sm text-gray-700">—</p>
-              )}
-            </div>
-
-            {permit.issue_date && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-[var(--ds-space-300)]">
+          <Card className="p-[var(--ds-space-300)]">
+            <h2 className="text-[var(--ds-font-size-300)] font-semibold mb-[var(--ds-space-200)]">
+              Información
+            </h2>
+            <dl className="space-y-[var(--ds-space-200)]">
               <div>
-                <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
-                  <Calendar size={12} />
-                  <span className="uppercase tracking-wider font-medium">Fecha de Emisión</span>
-                </div>
-                <p className="text-sm text-gray-700">{formatDate(permit.issue_date)}</p>
+                <dt className="text-[var(--ds-font-size-075)] uppercase text-[var(--ds-text-subtle)]">
+                  Estado
+                </dt>
+                <dd className="mt-[var(--ds-space-050)]">
+                  <Badge variant={statusVariant}>{statusLabel}</Badge>
+                </dd>
               </div>
-            )}
-
-            {permit.expiry_date && (
               <div>
-                <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
-                  <Clock size={12} />
-                  <span className="uppercase tracking-wider font-medium">Vencimiento</span>
-                </div>
-                <p
-                  className={`text-sm font-semibold ${
-                    daysRemaining !== null && daysRemaining < 0
-                      ? 'text-red-600'
-                      : daysRemaining !== null && daysRemaining <= 30
-                      ? 'text-amber-600'
-                      : 'text-gray-900'
-                  }`}
-                >
-                  {formatDate(permit.expiry_date)}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {formatDateRelative(permit.expiry_date)}
-                </p>
+                <dt className="text-[var(--ds-font-size-075)] uppercase text-[var(--ds-text-subtle)]">
+                  Autoridad
+                </dt>
+                <dd className="mt-[var(--ds-space-050)] text-[var(--ds-font-size-100)]">
+                  {authority}
+                </dd>
               </div>
-            )}
-
-          </CardContent>
-        </Card>
-
-        {/* Documents */}
-        <Card>
-          <CardHeader>
-            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
-              Documentos
-            </h3>
-          </CardHeader>
-          <CardContent>
-            {loadingDocs ? (
-              <div className="text-center py-8">
-                <div className="w-8 h-8 border-4 border-gray-200 border-t-gray-600 rounded-full animate-spin mx-auto mb-2" />
-                <p className="text-sm text-gray-500">Cargando documentos...</p>
+              <div>
+                <dt className="text-[var(--ds-font-size-075)] uppercase text-[var(--ds-text-subtle)]">
+                  Sede
+                </dt>
+                <dd className="mt-[var(--ds-space-050)] text-[var(--ds-font-size-100)]">
+                  {location ? (
+                    <Button
+                      variant="link"
+                      size="sm"
+                      onClick={() => navigate(`/sedes/${location.id}`)}
+                      className="h-auto p-0"
+                    >
+                      <MapPin className="w-4 h-4" />
+                      {location.name}
+                    </Button>
+                  ) : (
+                    '-'
+                  )}
+                </dd>
               </div>
-            ) : (
-              <div className="space-y-4">
-                {/* Upload zone */}
-                <div
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  className={cn(
-                    "relative border-2 border-dashed rounded-lg p-6 transition-all",
-                    dragOver ? "border-primary bg-primary/5" : "border-gray-200 hover:border-gray-300",
-                    uploading && "opacity-50 pointer-events-none"
-                  )}
-                >
-                  <label className="flex flex-col items-center justify-center cursor-pointer">
-                    <input
-                      type="file"
-                      accept={ACCEPTED_TYPES.join(',')}
-                      className="hidden"
-                      onChange={handleFileInput}
-                      disabled={uploading}
-                    />
-                    {uploading ? (
-                      <>
-                        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-2" />
-                        <p className="text-sm text-gray-600">Subiendo...</p>
-                      </>
-                    ) : (
-                      <>
-                        <Upload size={24} className="text-gray-400 mb-2" />
-                        <p className="text-sm font-medium text-gray-700">Arrastra documento aquí</p>
-                        <p className="text-xs text-gray-500 mt-1">o haz clic para seleccionar</p>
-                        <p className="text-xs text-gray-400 mt-2">PDF, PNG, JPG (máx. 5MB)</p>
-                      </>
-                    )}
-                  </label>
-                  {dragOver && (
-                    <div className="absolute inset-0 border-4 border-dashed border-primary bg-primary/10 rounded-lg flex items-center justify-center pointer-events-none">
-                      <div className="text-primary font-semibold">Suelta aquí</div>
-                    </div>
-                  )}
+              {permit.issue_date && (
+                <div>
+                  <dt className="text-[var(--ds-font-size-075)] uppercase text-[var(--ds-text-subtle)]">
+                    Fecha de Emisión
+                  </dt>
+                  <dd className="mt-[var(--ds-space-050)] text-[var(--ds-font-size-100)]">
+                    {formatDate(permit.issue_date)}
+                  </dd>
                 </div>
+              )}
+              {permit.expiry_date && (
+                <div>
+                  <dt className="text-[var(--ds-font-size-075)] uppercase text-[var(--ds-text-subtle)]">
+                    Vencimiento
+                  </dt>
+                  <dd className="mt-[var(--ds-space-050)] text-[var(--ds-font-size-100)]">
+                    {formatDate(permit.expiry_date)}
+                  </dd>
+                </div>
+              )}
+            </dl>
+          </Card>
 
-                {/* Documents list */}
-                {documents.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Documentos subidos ({documents.length})
-                    </p>
-                    <div className="space-y-2">
-                      {documents.map((doc) => (
-                        <div
-                          key={doc.id}
-                          className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100"
-                        >
-                          <div className="w-10 h-10 rounded-lg bg-white border border-gray-100 flex items-center justify-center shrink-0">
-                            <FileText size={16} className="text-gray-600" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">
-                              {doc.file_name}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {formatDate(doc.uploaded_at)}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              onClick={() => {
-                                const { data } = supabase.storage
-                                  .from('permit-documents')
-                                  .getPublicUrl(doc.file_path);
-                                window.open(data.publicUrl, '_blank');
-                              }}
-                              title="Ver documento"
-                            >
-                              <Eye size={16} />
-                            </Button>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              onClick={async () => {
-                                if (!confirm('¿Eliminar este documento?')) return;
-                                try {
-                                  await deleteDocument(doc.id, doc.file_path);
-                                  toast.success('Documento eliminado');
-                                  fetchDocuments();
-                                } catch (error) {
-                                  toast.error('Error al eliminar');
-                                }
-                              }}
-                              title="Eliminar"
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 size={16} />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+          <Card className="p-[var(--ds-space-300)]">
+            <h2 className="text-[var(--ds-font-size-300)] font-semibold mb-[var(--ds-space-200)]">
+              Timeline
+            </h2>
+            <PermitTimeline events={timeline} />
+          </Card>
+        </div>
+
+        <Card className="p-[var(--ds-space-300)]">
+          <h2 className="text-[var(--ds-font-size-300)] font-semibold mb-[var(--ds-space-200)]">
+            Documentos
+          </h2>
+          {loadingDocs ? (
+            <div className="text-center py-8">
+              <div className="w-8 h-8 border-4 border-[var(--ds-neutral-200)] border-t-[var(--ds-text)] rounded-full animate-spin mx-auto mb-2" />
+              <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)]">
+                Cargando documentos...
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-[var(--ds-space-200)]">
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={cn(
+                  'relative border-2 border-dashed rounded-[var(--ds-radius-100)] p-[var(--ds-space-300)] transition-all',
+                  dragOver
+                    ? 'border-[var(--ds-background-brand)] bg-[var(--ds-blue-50)]'
+                    : 'border-[var(--ds-border)] hover:border-[var(--ds-text-subtle)]',
+                  uploading && 'opacity-50 pointer-events-none'
                 )}
+              >
+                <label className="flex flex-col items-center justify-center cursor-pointer">
+                  <input
+                    type="file"
+                    accept={ACCEPTED_TYPES.join(',')}
+                    className="hidden"
+                    onChange={handleFileInput}
+                    disabled={uploading}
+                  />
+                  {uploading ? (
+                    <>
+                      <div className="w-8 h-8 border-4 border-[var(--ds-blue-100)] border-t-[var(--ds-background-brand)] rounded-full animate-spin mb-2" />
+                      <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)]">
+                        Subiendo...
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-6 h-6 text-[var(--ds-text-subtle)] mb-2" />
+                      <p className="text-[var(--ds-font-size-100)] font-medium text-[var(--ds-text)]">
+                        Arrastra documento aquí
+                      </p>
+                      <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mt-1">
+                        o haz clic para seleccionar
+                      </p>
+                      <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtlest)] mt-2">
+                        PDF, PNG, JPG (máx. 5MB)
+                      </p>
+                    </>
+                  )}
+                </label>
               </div>
-            )}
-          </CardContent>
+
+              {documents.length > 0 && (
+                <div className="space-y-[var(--ds-space-100)]">
+                  <p className="text-[var(--ds-font-size-075)] font-medium text-[var(--ds-text-subtle)] uppercase tracking-wider">
+                    Documentos subidos ({documents.length})
+                  </p>
+                  <div className="space-y-[var(--ds-space-100)]">
+                    {documents.map((doc) => (
+                      <div
+                        key={doc.id}
+                        className="flex items-center gap-[var(--ds-space-150)] p-[var(--ds-space-150)] bg-[var(--ds-neutral-50)] rounded-[var(--ds-radius-100)] border border-[var(--ds-border)]"
+                      >
+                        <div className="w-10 h-10 rounded-[var(--ds-radius-100)] bg-white border border-[var(--ds-border)] flex items-center justify-center shrink-0">
+                          <FileText className="w-4 h-4 text-[var(--ds-text-subtle)]" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[var(--ds-font-size-100)] font-medium text-[var(--ds-text)] truncate">
+                            {doc.file_name}
+                          </p>
+                          <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)]">
+                            {formatDate(doc.uploaded_at)}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-[var(--ds-space-050)]">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => {
+                              const { data } = supabase.storage
+                                .from('permit-documents')
+                                .getPublicUrl(doc.file_path);
+                              window.open(data.publicUrl, '_blank');
+                            }}
+                            title="Ver documento"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={async () => {
+                              if (!confirm('¿Eliminar este documento?')) return;
+                              try {
+                                await deleteDocument(doc.id, doc.file_path);
+                                toast.success('Documento eliminado');
+                                fetchDocuments();
+                              } catch (error) {
+                                toast.error('Error al eliminar');
+                              }
+                            }}
+                            title="Eliminar"
+                            className="text-[var(--ds-text-danger)] hover:text-[var(--ds-text-danger)]"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </Card>
       </div>
-
-
-      {/* Actions */}
-      {location && (
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            onClick={() => navigate(`/sedes/${location.id}`)}
-          >
-            <MapPin size={16} className="mr-1.5" />
-            Ver sede {location.name}
-          </Button>
-        </div>
-      )}
     </div>
   );
 }
