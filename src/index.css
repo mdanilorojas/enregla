@@ -4,7 +4,7 @@
  * Single consolidated theme optimized for daytime office use.
  * Light mode only - users work during business hours.
  */
-@import './styles/design-tokens.css';
+@import './styles/atlassian-tokens.css';
 
 @import "tailwindcss";
 
