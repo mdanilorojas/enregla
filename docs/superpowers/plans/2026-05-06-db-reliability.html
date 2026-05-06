@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DB Reliability — Implementation Plan</title>
+<style>
+  :root {
+    --blue: #0f265c;
+    --blue-50: #eff3fb;
+    --blue-100: #dbe5f3;
+    --orange: #ff7043;
+    --ink: #0b1220;
+    --muted: #5b6476;
+    --paper: #ffffff;
+    --cream: #fafafb;
+    --border: #e5e8ef;
+    --green: #1f9854;
+    --red: #d13438;
+    --yellow: #e09b00;
+    --radius: 12px;
+    --shadow-sm: 0 1px 2px rgba(15,38,92,.04), 0 1px 4px rgba(15,38,92,.06);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--cream); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.6; }
+  .shell { max-width: 1040px; margin: 0 auto; padding: 48px 32px 120px; }
+  header.hero { background: linear-gradient(135deg, var(--blue) 0%, #1c3a7a 100%); color: white; padding: 44px 40px; border-radius: 16px; margin-bottom: 40px; position: relative; overflow: hidden; }
+  header.hero::after { content: ""; position: absolute; right: -60px; top: -60px; width: 260px; height: 260px; background: rgba(255,112,67,.15); border-radius: 50%; }
+  header.hero .eyebrow { text-transform: uppercase; letter-spacing: .12em; font-size: 12px; opacity: .75; margin-bottom: 8px; }
+  header.hero h1 { margin: 0 0 10px; font-size: 32px; font-weight: 700; letter-spacing: -.01em; }
+  header.hero .sub { font-size: 16px; opacity: .9; max-width: 680px; }
+  header.hero .meta { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+  header.hero .chip { background: rgba(255,255,255,.12); padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 500; border: 1px solid rgba(255,255,255,.2); }
+
+  h2 { font-size: 22px; font-weight: 700; margin: 40px 0 14px; padding-bottom: 10px; border-bottom: 2px solid var(--border); }
+  h3 { font-size: 17px; font-weight: 600; margin: 24px 0 8px; color: var(--blue); }
+  code { font-family: "SF Mono", "JetBrains Mono", Menlo, monospace; font-size: 13px; background: var(--blue-50); color: var(--blue); padding: 1px 6px; border-radius: 4px; }
+  pre { background: var(--ink); color: #e8edf7; padding: 16px 18px; border-radius: 10px; overflow-x: auto; font-size: 12px; line-height: 1.55; }
+  pre code { background: transparent; color: inherit; padding: 0; }
+  p { margin: 0 0 12px; }
+  .muted { color: var(--muted); }
+
+  .toc { background: var(--blue-50); border: 1px solid var(--blue-100); border-radius: var(--radius); padding: 18px 22px; margin-bottom: 32px; }
+  .toc h3 { margin: 0 0 10px; color: var(--blue); font-size: 13px; text-transform: uppercase; letter-spacing: .08em; }
+  .toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 32px; }
+  .toc li { margin: 4px 0; font-size: 14px; }
+  .toc a { color: var(--blue); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  @media (max-width: 600px) { .toc ol { columns: 1; } }
+
+  .phase-card { background: var(--paper); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 26px; margin: 16px 0; box-shadow: var(--shadow-sm); }
+  .phase-card.phase-1 { border-left: 4px solid #6366f1; }
+  .phase-card.phase-2 { border-left: 4px solid var(--blue); }
+  .phase-card.phase-3 { border-left: 4px solid var(--orange); }
+  .phase-card.phase-4 { border-left: 4px solid var(--green); }
+  .phase-card.phase-5 { border-left: 4px solid var(--yellow); }
+  .phase-card h3 { margin-top: 0; display: flex; align-items: center; gap: 10px; }
+  .phase-card .tasks { margin: 10px 0 0; padding-left: 0; list-style: none; }
+  .phase-card .tasks li { padding: 6px 0 6px 28px; position: relative; font-size: 14px; }
+  .phase-card .tasks li::before { content: ""; position: absolute; left: 6px; top: 13px; width: 6px; height: 6px; background: var(--blue); border-radius: 50%; }
+  .phase-card .tasks strong { color: var(--ink); }
+  .phase-card .meta { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  .flow-wrap { background: var(--paper); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin: 20px 0; overflow-x: auto; box-shadow: var(--shadow-sm); }
+  .flow-wrap svg { width: 100%; height: auto; max-width: 100%; }
+
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; background: var(--paper); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+  thead { background: var(--blue-50); }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
+  th { font-weight: 600; color: var(--blue); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .chip { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; }
+  .chip.new { background: #e4f5ec; color: var(--green); }
+  .chip.mod { background: var(--blue-50); color: var(--blue); }
+  .chip.del { background: #fde7e7; color: var(--red); }
+
+  .file-table code { font-size: 12px; }
+
+  details.collapse { background: var(--paper); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 20px; margin: 10px 0; }
+  details.collapse > summary { cursor: pointer; font-weight: 600; color: var(--blue); list-style: none; padding-right: 24px; position: relative; font-size: 14px; }
+  details.collapse > summary::after { content: "▸"; position: absolute; right: 0; top: 0; transition: transform .2s; }
+  details.collapse[open] > summary::after { transform: rotate(90deg); }
+  details.collapse[open] > summary { margin-bottom: 12px; }
+
+  footer { margin-top: 60px; padding: 24px 0; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<header class="hero">
+  <div class="eyebrow">Implementation Plan · 2026-05-06</div>
+  <h1>DB Reliability & Client Hardening</h1>
+  <div class="sub">25 tareas en 5 fases. Todo con código completo, paso por paso. Apto para ejecución con subagents en paralelo.</div>
+  <div class="meta">
+    <span class="chip">25 tasks</span>
+    <span class="chip">~1.5-2 días</span>
+    <span class="chip">Subagent-driven</span>
+    <span class="chip">Branch: feature/atlassian-ds-migration</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <h3>Contenido</h3>
+  <ol>
+    <li><a href="#flow">Flujo de ejecución (user flow)</a></li>
+    <li><a href="#files">Archivos impactados</a></li>
+    <li><a href="#phase1">Fase 1 — Foundation</a></li>
+    <li><a href="#phase2">Fase 2 — TanStack Query core</a></li>
+    <li><a href="#phase3">Fase 3 — Error UX + Sentry</a></li>
+    <li><a href="#phase4">Fase 4 — Code-splitting</a></li>
+    <li><a href="#phase5">Fase 5 — Validación</a></li>
+  </ol>
+</nav>
+
+<h2 id="flow">Flujo de ejecución</h2>
+
+<p>Así se ejecutan las 5 fases. Las tareas dentro de la misma fase son paralelizables cuando no comparten archivos; las fases son secuenciales.</p>
+
+<div class="flow-wrap">
+<svg viewBox="0 0 1000 540" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0f265c" />
+    </marker>
+    <marker id="arr-g" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1f9854" />
+    </marker>
+  </defs>
+
+  <!-- Start -->
+  <rect x="420" y="20" width="160" height="40" rx="20" fill="#0f265c" />
+  <text x="500" y="45" text-anchor="middle" fill="white" font-size="13" font-weight="600">Plan approved</text>
+
+  <!-- Phase 1 -->
+  <rect x="80" y="100" width="240" height="110" rx="10" fill="#eef0ff" stroke="#6366f1" stroke-width="2" />
+  <text x="200" y="125" text-anchor="middle" fill="#4338ca" font-size="13" font-weight="700">FASE 1 · Foundation</text>
+  <text x="95" y="150" fill="#5b6476" font-size="11">• T1 Limpieza env/artefactos</text>
+  <text x="95" y="166" fill="#5b6476" font-size="11">• T2 Migration 015 (índices)</text>
+  <text x="95" y="182" fill="#5b6476" font-size="11">• T3 Migration 016 (STABLE)</text>
+  <text x="95" y="198" fill="#5b6476" font-size="11">• T4–T6 Types, CI, vercel.json</text>
+
+  <line x1="500" y1="60" x2="200" y2="100" stroke="#0f265c" stroke-width="1.5" marker-end="url(#arr)" />
+
+  <!-- Phase 2 -->
+  <rect x="360" y="100" width="280" height="170" rx="10" fill="#eff3fb" stroke="#0f265c" stroke-width="2" />
+  <text x="500" y="125" text-anchor="middle" fill="#0f265c" font-size="13" font-weight="700">FASE 2 · TanStack Query core</text>
+  <text x="375" y="150" fill="#5b6476" font-size="11">• T7 Instalar paquetes</text>
+  <text x="375" y="166" fill="#5b6476" font-size="11">• T8 queryClient + withTimeout</text>
+  <text x="375" y="182" fill="#5b6476" font-size="11">• T9 Wire Provider en main.tsx</text>
+  <text x="375" y="198" fill="#5b6476" font-size="11">• T10 Migrar useLocations</text>
+  <text x="375" y="214" fill="#5b6476" font-size="11">• T11 Migrar usePermits</text>
+  <text x="375" y="230" fill="#5b6476" font-size="11">• T12–T14 usePermit, useDocs, prefs</text>
+  <text x="375" y="246" fill="#5b6476" font-size="11">• T15 Simplificar useAuth</text>
+  <text x="375" y="262" fill="#5b6476" font-size="11">• T16 renewPermit → useMutation</text>
+
+  <line x1="500" y1="60" x2="500" y2="100" stroke="#0f265c" stroke-width="1.5" marker-end="url(#arr)" />
+
+  <!-- Phase 3 -->
+  <rect x="680" y="100" width="240" height="130" rx="10" fill="#fff4f0" stroke="#ff7043" stroke-width="2" />
+  <text x="800" y="125" text-anchor="middle" fill="#d94d1e" font-size="13" font-weight="700">FASE 3 · Error UX + Sentry</text>
+  <text x="695" y="150" fill="#5b6476" font-size="11">• T17 classifyError + tests</text>
+  <text x="695" y="166" fill="#5b6476" font-size="11">• T18 DataErrorBanner</text>
+  <text x="695" y="182" fill="#5b6476" font-size="11">• T19 Global ErrorBoundary</text>
+  <text x="695" y="198" fill="#5b6476" font-size="11">• T20–T21 Sentry init + wire</text>
+  <text x="695" y="214" fill="#5b6476" font-size="11">• T22 Reemplazar skeleton-on-error</text>
+
+  <line x1="500" y1="60" x2="800" y2="100" stroke="#0f265c" stroke-width="1.5" marker-end="url(#arr)" />
+
+  <!-- Phase 4 -->
+  <rect x="250" y="320" width="240" height="80" rx="10" fill="#e4f5ec" stroke="#1f9854" stroke-width="2" />
+  <text x="370" y="345" text-anchor="middle" fill="#14703c" font-size="13" font-weight="700">FASE 4 · Code-splitting</text>
+  <text x="265" y="370" fill="#5b6476" font-size="11">• T23 React.lazy() por ruta</text>
+  <text x="265" y="386" fill="#5b6476" font-size="11">  + Suspense wrapper</text>
+
+  <line x1="500" y1="270" x2="370" y2="320" stroke="#0f265c" stroke-width="1.5" marker-end="url(#arr)" />
+  <line x1="200" y1="210" x2="300" y2="320" stroke="#0f265c" stroke-width="1.5" marker-end="url(#arr)" />
+  <line x1="800" y1="230" x2="420" y2="320" stroke="#0f265c" stroke-width="1.5" marker-end="url(#arr)" />
+
+  <!-- Phase 5 -->
+  <rect x="550" y="320" width="240" height="80" rx="10" fill="#fff9e6" stroke="#e09b00" stroke-width="2" />
+  <text x="670" y="345" text-anchor="middle" fill="#a06f00" font-size="13" font-weight="700">FASE 5 · Validación</text>
+  <text x="565" y="370" fill="#5b6476" font-size="11">• T24 Env vars doc</text>
+  <text x="565" y="386" fill="#5b6476" font-size="11">• T25 Smoke test + checklist</text>
+
+  <line x1="490" y1="360" x2="550" y2="360" stroke="#0f265c" stroke-width="1.5" marker-end="url(#arr)" />
+
+  <!-- Done -->
+  <rect x="420" y="450" width="160" height="44" rx="22" fill="#1f9854" />
+  <text x="500" y="477" text-anchor="middle" fill="white" font-size="13" font-weight="600">Ready for merge</text>
+
+  <line x1="670" y1="400" x2="500" y2="450" stroke="#1f9854" stroke-width="2" marker-end="url(#arr-g)" />
+</svg>
+</div>
+
+<h2 id="files">Archivos impactados</h2>
+
+<div class="file-table">
+<table>
+  <thead><tr><th>Tipo</th><th>Archivo</th><th>Responsabilidad</th></tr></thead>
+  <tbody>
+    <tr><td><span class="chip new">nuevo</span></td><td><code>.github/workflows/ci.yml</code></td><td>Typecheck + lint + build + tests en cada PR</td></tr>
+    <tr><td><span class="chip new">nuevo</span></td><td><code>supabase/migrations/015_add_missing_indexes.sql</code></td><td>Índices en documents.permit_id, profiles.company_id, permits.superseded_by</td></tr>
+    <tr><td><span class="chip new">nuevo</span></td><td><code>supabase/migrations/016_mark_rls_helpers_stable.sql</code></td><td>ALTER user_company_id, user_role STABLE</td></tr>
+    <tr><td><span class="chip new">nuevo</span></td><td><code>src/lib/queryClient.ts</code></td><td>QueryClient config + withTimeout wrapper</td></tr>
+    <tr><td><span class="chip new">nuevo</span></td><td><code>src/lib/errors.ts</code></td><td>classifyError — offline/timeout/auth/forbidden/server/unknown</td></tr>
+    <tr><td><span class="chip new">nuevo</span></td><td><code>src/lib/sentry.ts</code></td><td>initSentry guarded por VITE_SENTRY_DSN</td></tr>
+    <tr><td><span class="chip new">nuevo</span></td><td><code>src/components/ui/DataErrorBanner.tsx</code></td><td>Banner con retry + detalles colapsables</td></tr>
+    <tr><td><span class="chip new">nuevo</span></td><td><code>src/components/ErrorBoundary.tsx</code></td><td>Global fallback para errores de render</td></tr>
+    <tr><td><span class="chip new">nuevo</span></td><td><code>docs/deployment/environment-variables.md</code></td><td>Referencia de cada VITE_ var</td></tr>
+    <tr><td><span class="chip mod">edit</span></td><td><code>src/main.tsx</code></td><td>Provider + ErrorBoundary + initSentry</td></tr>
+    <tr><td><span class="chip mod">edit</span></td><td><code>src/App.tsx</code></td><td>React.lazy() por ruta, Suspense wrapper</td></tr>
+    <tr><td><span class="chip mod">edit</span></td><td><code>src/hooks/useAuth.ts</code></td><td>Eliminar authInitialized + safety timeout + init promise; useQuery para profile</td></tr>
+    <tr><td><span class="chip mod">edit</span></td><td><code>src/hooks/use{Locations,Permits,Permit,Documents,NotificationPreferences}.ts</code></td><td>Migrar a useQuery + useMutation</td></tr>
+    <tr><td><span class="chip mod">edit</span></td><td><code>src/types/database.ts</code></td><td>Regenerar con notification_logs, notification_preferences</td></tr>
+    <tr><td><span class="chip mod">edit</span></td><td><code>vercel.json</code></td><td>Security headers + asset cache-control</td></tr>
+    <tr><td><span class="chip mod">edit</span></td><td><code>.env.example</code></td><td>Quitar flags muertos, agregar VITE_SENTRY_DSN</td></tr>
+    <tr><td><span class="chip mod">edit</span></td><td><code>package.json</code></td><td>+@tanstack/react-query +devtools +@sentry/react</td></tr>
+    <tr><td><span class="chip del">delete</span></td><td><code>.env.local.template</code></td><td>Redundante con .env.example</td></tr>
+    <tr><td><span class="chip del">delete</span></td><td><code>reset-demo-user.sql</code></td><td>bcrypt hash hardcodeado</td></tr>
+    <tr><td><span class="chip del">delete</span></td><td><code>scripts/create-demo-data.sql</code></td><td>Referencia tabla dropped user_profiles</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="phase1">Fase 1 — Foundation</h2>
+
+<div class="phase-card phase-1">
+  <h3>1 · Base, sin riesgo · paralelizable</h3>
+  <p class="muted">6 tareas que se pueden correr en paralelo (distintos archivos). Total ~30 min.</p>
+  <ul class="tasks">
+    <li><strong>T1</strong> Limpieza de .env.example y artefactos muertos</li>
+    <li><strong>T2</strong> Migration 015 — índices en documents, profiles, permits</li>
+    <li><strong>T3</strong> Migration 016 — helpers RLS marcados STABLE</li>
+    <li><strong>T4</strong> Regenerar src/types/database.ts (incluye notification_logs + prefs)</li>
+    <li><strong>T5</strong> Workflow de GitHub Actions (lint + typecheck + build + test)</li>
+    <li><strong>T6</strong> vercel.json con security headers y asset cache immutable</li>
+  </ul>
+</div>
+
+<h2 id="phase2">Fase 2 — TanStack Query core</h2>
+
+<div class="phase-card phase-2">
+  <h3>2 · Núcleo · secuencial al inicio, paralelizable al migrar hooks</h3>
+  <p class="muted">10 tareas. T7–T9 secuenciales (cada hook necesita el provider ya puesto). T10–T16 paralelizables con subagents, un hook por agente.</p>
+  <ul class="tasks">
+    <li><strong>T7</strong> Instalar @tanstack/react-query y devtools</li>
+    <li><strong>T8</strong> Crear queryClient.ts con TimeoutError y withTimeout (TDD)</li>
+    <li><strong>T9</strong> Wire QueryClientProvider en main.tsx, devtools en dev-only</li>
+    <li><strong>T10</strong> useLocations + useLocation → useQuery</li>
+    <li><strong>T11</strong> usePermits → useQuery + updatePermit vía useMutation</li>
+    <li><strong>T12</strong> usePermit + history → useQuery</li>
+    <li><strong>T13</strong> useDocuments → useQuery + upload/delete useMutation</li>
+    <li><strong>T14</strong> useNotificationPreferences → useQuery</li>
+    <li><strong>T15</strong> useAuth simplificado: remove 3 band-aids, profile vía useQuery</li>
+    <li><strong>T16</strong> renewPermit exportado como useRenewPermit() con invalidation</li>
+  </ul>
+</div>
+
+<details class="collapse">
+  <summary>Ver config de QueryClient (task 8)</summary>
+<pre><code>queries: {
+  staleTime: 5 min,
+  gcTime: 30 min,
+  retry: 2 (backoff exponencial 1s, 2s),
+  networkMode: 'online',
+  refetchOnWindowFocus: true,
+  refetchOnReconnect: true,
+},
+mutations: {
+  retry: 0,
+  networkMode: 'online',
+}
+
++ withTimeout(fetcher, 10_000) envuelve cada queryFn
++ TimeoutError custom class, propaga errores del fetcher sin tocar</code></pre>
+</details>
+
+<h2 id="phase3">Fase 3 — Error UX + Sentry</h2>
+
+<div class="phase-card phase-3">
+  <h3>3 · Visibilidad de errores</h3>
+  <p class="muted">6 tareas. T17 y T18 paralelizables. T19–T21 secuenciales (ErrorBoundary y Sentry se tocan en main.tsx).</p>
+  <ul class="tasks">
+    <li><strong>T17</strong> src/lib/errors.ts con classifyError (TDD, 6 tests)</li>
+    <li><strong>T18</strong> DataErrorBanner con retry + detalles técnicos colapsables</li>
+    <li><strong>T19</strong> ErrorBoundary global con fallback por defecto</li>
+    <li><strong>T20</strong> Instalar @sentry/react, crear src/lib/sentry.ts guarded</li>
+    <li><strong>T21</strong> Wire SentryBoundary en main.tsx, init antes de render</li>
+    <li><strong>T22</strong> Reemplazar skeleton-on-error en 5 views principales</li>
+  </ul>
+</div>
+
+<table>
+  <thead><tr><th>Error kind</th><th>UI</th><th>Retryable</th></tr></thead>
+  <tbody>
+    <tr><td><code>offline</code></td><td>Banner naranja: "Sin conexión"</td><td>Sí (espera online)</td></tr>
+    <tr><td><code>timeout</code></td><td>Banner rojo + Reintentar</td><td>Sí</td></tr>
+    <tr><td><code>auth</code> (401)</td><td>Redirect a /login (sin banner)</td><td>No</td></tr>
+    <tr><td><code>forbidden</code> (403 + RLS)</td><td>Banner amarillo: "Sin permisos"</td><td>No</td></tr>
+    <tr><td><code>server</code> (500)</td><td>Banner rojo + Reintentar</td><td>Sí (auto x2)</td></tr>
+    <tr><td><code>unknown</code></td><td>Banner rojo + Reintentar</td><td>Sí</td></tr>
+  </tbody>
+</table>
+
+<h2 id="phase4">Fase 4 — Code-splitting</h2>
+
+<div class="phase-card phase-4">
+  <h3>4 · Bundle performance</h3>
+  <p class="muted">1 tarea, 1 archivo. Cambio mecánico pero necesita validación del build.</p>
+  <ul class="tasks">
+    <li><strong>T23</strong> Convertir ~18 imports en src/App.tsx a React.lazy() con Suspense wrapper</li>
+  </ul>
+  <p class="muted" style="margin-top: 12px;"><strong>Esperado:</strong> ≥ 5 chunks en dist/assets/, bundle inicial < 400 KB.</p>
+</div>
+
+<h2 id="phase5">Fase 5 — Validación</h2>
+
+<div class="phase-card phase-5">
+  <h3>5 · Gate de merge</h3>
+  <ul class="tasks">
+    <li><strong>T24</strong> Crear docs/deployment/environment-variables.md</li>
+    <li><strong>T25</strong> Checklist de smoke test (7 escenarios) + typecheck + build + tests</li>
+  </ul>
+</div>
+
+<h3>Smoke test checklist (T25)</h3>
+<table>
+  <thead><tr><th>#</th><th>Acción</th><th>Resultado esperado</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Abrir /</td><td>Dashboard en < 2s</td></tr>
+    <tr><td>2</td><td>Nav /sedes → / → /sedes</td><td>2da visita instantánea</td></tr>
+    <tr><td>3</td><td>DevTools → Throttle Offline → refresh</td><td>DataErrorBanner "Sin conexión"</td></tr>
+    <tr><td>4</td><td>Restore net → click Reintentar</td><td>Datos cargan</td></tr>
+    <tr><td>5</td><td>Abrir TanStack devtools</td><td>Queries cacheadas visibles</td></tr>
+    <tr><td>6</td><td>Logout → login</td><td>Sin stuck loaders</td></tr>
+    <tr><td>7</td><td>Idle 6 min → volver</td><td>Stale data + revalidación en bg</td></tr>
+  </tbody>
+</table>
+
+<footer>
+  Plan generado el 2026-05-06 · 25 tareas · ~1.5-2 días · Spec: docs/superpowers/specs/2026-05-06-db-reliability-design.md
+</footer>
+
+</div>
+</body>
+</html>
