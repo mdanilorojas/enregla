@@ -10,6 +10,7 @@ import {
   saveLocationWithPermits,
 } from '@/lib/api/onboarding';
 import { ProgressStepper } from './components/ProgressStepper';
+import { Stepper } from './Stepper';
 import { ProfileStep } from './steps/ProfileStep';
 import { CompanyStep } from './steps/CompanyStep';
 import { LocationsStep } from './steps/LocationsStep';
@@ -160,6 +161,17 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
       <div className="flex-1 flex flex-col">
         <div className="flex-1 flex items-start justify-center overflow-y-auto py-12 px-8">
           <div className="w-full max-w-2xl">
+            <div className="max-w-2xl mx-auto mb-[var(--ds-space-400)]">
+              <Stepper
+                steps={[
+                  { id: 'profile', label: 'Perfil' },
+                  { id: 'company', label: 'Empresa' },
+                  { id: 'locations', label: 'Sedes' },
+                ]}
+                currentStepId={currentStep}
+              />
+            </div>
+
             {currentStep === 'profile' && (
               <ProfileStep
                 initialName={savedProfile}
