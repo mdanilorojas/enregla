@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronDown, ChevronUp, Calendar } from '@/lib/lucide-icons'
 import { Card } from '@/components/ui/card'
@@ -20,29 +20,40 @@ export interface MonthCardProps {
   renewals: MonthRenewal[]
 }
 
-export function MonthCard({ month, year, renewals }: MonthCardProps) {
+function MonthCardComponent({ month, year, renewals }: MonthCardProps) {
   const [expanded, setExpanded] = useState(false)
+  const panelId = `month-panel-${year}-${month}`
 
   return (
     <Card className="p-[var(--ds-space-300)]">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between text-left"
+        aria-expanded={expanded}
+        aria-controls={panelId}
+        className="w-full flex items-center justify-between text-left rounded-[var(--ds-radius-100)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ds-background-brand)] focus-visible:ring-offset-2"
       >
         <div>
           <div className="flex items-center gap-[var(--ds-space-100)]">
-            <Calendar className="w-4 h-4 text-[var(--ds-text-subtle)]" />
+            <Calendar className="w-4 h-4 text-[var(--ds-text-subtle)]" aria-hidden="true" />
             <h3 className="text-[var(--ds-font-size-300)] font-semibold">{MONTHS[month]}</h3>
           </div>
           <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)]">
             {year} • {renewals.length} {renewals.length === 1 ? 'permiso' : 'permisos'}
           </p>
         </div>
-        {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        {expanded
+          ? <ChevronUp className="w-4 h-4" aria-hidden="true" />
+          : <ChevronDown className="w-4 h-4" aria-hidden="true" />
+        }
       </button>
 
       {expanded && (
-        <div className="mt-[var(--ds-space-200)] pt-[var(--ds-space-200)] border-t border-[var(--ds-border)] space-y-[var(--ds-space-100)]">
+        <div
+          id={panelId}
+          role="region"
+          aria-label={`Permisos en ${MONTHS[month]} ${year}`}
+          className="mt-[var(--ds-space-200)] pt-[var(--ds-space-200)] border-t border-[var(--ds-border)] space-y-[var(--ds-space-100)]"
+        >
           {renewals.map(r => {
             const variant = {
               vigente: 'status-vigente' as const,
@@ -53,7 +64,7 @@ export function MonthCard({ month, year, renewals }: MonthCardProps) {
               <Link
                 key={r.permitId}
                 to={`/permisos/${r.permitId}`}
-                className="block p-[var(--ds-space-150)] rounded-[var(--ds-radius-100)] hover:bg-[var(--ds-neutral-50)]"
+                className="block p-[var(--ds-space-150)] rounded-[var(--ds-radius-100)] hover:bg-[var(--ds-neutral-50)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ds-background-brand)] focus-visible:ring-offset-2"
               >
                 <div className="flex justify-between items-start">
                   <div>
@@ -73,3 +84,5 @@ export function MonthCard({ month, year, renewals }: MonthCardProps) {
     </Card>
   )
 }
+
+export const MonthCard = memo(MonthCardComponent)

@@ -134,23 +134,35 @@ export function AppLayout() {
 
   return (
     <div className="flex min-h-screen w-full bg-[var(--ds-neutral-50)]">
+      {/* Skip-to-content link for keyboard users */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-[var(--ds-space-200)] focus:py-[var(--ds-space-100)] focus:bg-[var(--ds-background-brand)] focus:text-white focus:rounded-[var(--ds-radius-200)] focus:shadow-[var(--ds-shadow-overlay)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ds-background-brand)] focus-visible:ring-offset-2"
+      >
+        Saltar al contenido
+      </a>
+
       {/* Overlay móvil con blur */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 lg:hidden transition-all duration-300"
           onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
         />
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 h-screen bg-[var(--ds-neutral-0)] border-r border-[var(--ds-border)] flex flex-col z-40 transition-all duration-300 ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-      } w-64 lg:w-64`}>
+      <aside
+        aria-label="Navegación principal"
+        className={`fixed left-0 top-0 h-screen bg-[var(--ds-neutral-0)] border-r border-[var(--ds-border)] flex flex-col z-40 transition-all duration-300 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        } w-64 lg:w-64`}
+      >
         {/* Header */}
         <div className="flex items-center justify-between gap-[var(--ds-space-150)] px-[var(--ds-space-200)] h-16 border-b border-[var(--ds-border)]">
           <div className="flex items-center gap-[var(--ds-space-150)]">
             <div className="w-10 h-10 rounded-[var(--ds-radius-200)] bg-gradient-to-br from-blue-900 to-blue-800 flex items-center justify-center">
-              <Building2 size={20} className="text-white" />
+              <Building2 size={20} className="text-white" aria-hidden="true" />
             </div>
             <div>
               <p className="text-[var(--ds-font-size-100)] font-semibold text-[var(--ds-text)]">EnRegla</p>
@@ -164,39 +176,43 @@ export function AppLayout() {
             className={`lg:hidden p-[var(--ds-space-100)] hover:bg-[var(--ds-neutral-100)] rounded-[var(--ds-radius-200)] transition-colors ${focusRing}`}
             aria-label="Cerrar menú"
           >
-            <X size={20} className="text-[var(--ds-text-subtle)]" />
+            <X size={20} className="text-[var(--ds-text-subtle)]" aria-hidden="true" />
           </button>
         </div>
 
         {/* Menu */}
-        <nav className="flex-1 p-[var(--ds-space-150)] overflow-y-auto">
-          <p className="text-[var(--ds-font-size-075)] font-semibold text-[var(--ds-text-subtlest)] uppercase mb-2 px-[var(--ds-space-150)]">
+        <nav aria-label="Secciones de la aplicación" className="flex-1 p-[var(--ds-space-150)] overflow-y-auto">
+          <p id="menu-heading" className="text-[var(--ds-font-size-075)] font-semibold text-[var(--ds-text-subtlest)] uppercase mb-2 px-[var(--ds-space-150)]">
             Menú principal
           </p>
-          {menuItems.map((item) => {
-            const isActive = location.pathname === item.url;
-            return (
-              <Link
-                key={item.url}
-                to={item.url}
-                className={`flex items-center gap-[var(--ds-space-150)] px-[var(--ds-space-150)] py-2.5 rounded-[var(--ds-radius-200)] mb-1 transition-colors ${focusRing} ${
-                  isActive
-                    ? 'bg-[var(--ds-blue-50)] text-[var(--ds-text-brand)] font-medium'
-                    : 'text-[var(--ds-text-subtle)] hover:bg-[var(--ds-neutral-50)] hover:text-[var(--ds-text)]'
-                }`}
-              >
-                <item.icon size={20} />
-                <span className="text-[var(--ds-font-size-100)]">{item.title}</span>
-              </Link>
-            );
-          })}
+          <ul aria-labelledby="menu-heading" className="list-none p-0 m-0">
+            {menuItems.map((item) => {
+              const isActive = location.pathname === item.url;
+              return (
+                <li key={item.url}>
+                  <Link
+                    to={item.url}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`flex items-center gap-[var(--ds-space-150)] px-[var(--ds-space-150)] py-2.5 rounded-[var(--ds-radius-200)] mb-1 transition-colors ${focusRing} ${
+                      isActive
+                        ? 'bg-[var(--ds-blue-50)] text-[var(--ds-text-brand)] font-medium'
+                        : 'text-[var(--ds-text-subtle)] hover:bg-[var(--ds-neutral-50)] hover:text-[var(--ds-text)]'
+                    }`}
+                  >
+                    <item.icon size={20} aria-hidden="true" />
+                    <span className="text-[var(--ds-font-size-100)]">{item.title}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
         </nav>
 
         {/* Footer */}
         <div className="p-[var(--ds-space-150)] border-t border-[var(--ds-border)]">
           <div className="flex items-center gap-[var(--ds-space-150)] px-[var(--ds-space-150)] py-2 bg-[var(--ds-neutral-50)] rounded-[var(--ds-radius-200)]">
             <div className="w-8 h-8 rounded-[var(--ds-radius-200)] bg-[var(--ds-blue-50)] flex items-center justify-center">
-              <User size={16} className="text-[var(--ds-text-brand)]" />
+              <User size={16} className="text-[var(--ds-text-brand)]" aria-hidden="true" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[var(--ds-font-size-100)] font-semibold text-[var(--ds-text)] truncate">{profile?.full_name || 'Usuario'}</p>
@@ -208,7 +224,7 @@ export function AppLayout() {
               title="Cerrar sesión"
               aria-label="Cerrar sesión"
             >
-              <LogOut size={16} className="text-[var(--ds-text-subtle)]" />
+              <LogOut size={16} className="text-[var(--ds-text-subtle)]" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -228,8 +244,8 @@ export function AppLayout() {
               className={`p-[var(--ds-space-100)] rounded-[var(--ds-radius-200)] text-[var(--ds-text-subtle)] hover:text-[var(--ds-text)] hover:bg-[var(--ds-neutral-50)] transition-all ${focusRing}`}
               aria-label="Alternar menú lateral"
             >
-              <Menu size={20} className="lg:hidden" />
-              <Building2 size={20} className="hidden lg:block" />
+              <Menu size={20} className="lg:hidden" aria-hidden="true" />
+              <Building2 size={20} className="hidden lg:block" aria-hidden="true" />
             </button>
             <div>
               <h1 className="text-base lg:text-[var(--ds-font-size-300)] font-semibold text-[var(--ds-text)]">{title}</h1>
@@ -245,17 +261,21 @@ export function AppLayout() {
               className={`relative p-[var(--ds-space-100)] rounded-[var(--ds-radius-200)] text-[var(--ds-text-subtle)] hover:text-[var(--ds-text)] hover:bg-[var(--ds-neutral-50)] transition-all ${focusRing}`}
               aria-label="Notificaciones"
             >
-              <Bell size={20} strokeWidth={2} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-[var(--ds-neutral-0)]" />
+              <Bell size={20} strokeWidth={2} aria-hidden="true" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-[var(--ds-neutral-0)]" aria-hidden="true" />
             </button>
           </div>
         </header>
 
-        <div className="p-[var(--ds-space-200)] lg:p-[var(--ds-space-300)] xl:p-[var(--ds-space-400)]">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="p-[var(--ds-space-200)] lg:p-[var(--ds-space-300)] xl:p-[var(--ds-space-400)] focus:outline-none"
+        >
           <div className="max-w-[1400px] mx-auto">
             <Outlet />
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { FileText, Plus, Download } from '@/lib/lucide-icons';
+import { SkeletonList } from '@/components/ui/skeleton';
 import { PermitTable, type PermitRow } from './PermitTable';
 import { PermitTableFilters, type FilterState } from './PermitTableFilters';
 import { exportPermitsCSV } from './exportPermitsCSV';
@@ -101,9 +102,9 @@ export function PermitListView() {
         </Card>
 
         {loading ? (
-          <div className="p-8 text-center text-[var(--ds-text-subtle)]">
-            Cargando permisos...
-          </div>
+          <Card className="p-[var(--ds-space-300)]" aria-busy="true" aria-label="Cargando permisos">
+            <SkeletonList count={5} />
+          </Card>
         ) : rows.length === 0 ? (
           <Card className="p-0">
             <EmptyState

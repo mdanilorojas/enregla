@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Building2 } from '@/lib/lucide-icons';
 import { Card } from '@/components/ui/card';
@@ -30,7 +31,7 @@ function getStatusLabel(status: Location['status']): string {
   return labelMap[status] || status;
 }
 
-export function LocationCardV2({ location, permits }: LocationCardV2Props) {
+function LocationCardV2Component({ location, permits }: LocationCardV2Props) {
   const activePermits = permits.filter(p => p.is_active);
   const vigentes = activePermits.filter(p => p.status === 'vigente').length;
   const total = activePermits.length;
@@ -53,12 +54,16 @@ export function LocationCardV2({ location, permits }: LocationCardV2Props) {
   const statusLabel = getStatusLabel(location.status);
 
   return (
-    <Link to={`/sedes/${location.id}`} className="block">
+    <Link
+      to={`/sedes/${location.id}`}
+      className="block rounded-[var(--ds-radius-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ds-background-brand)] focus-visible:ring-offset-2"
+      aria-label={`Ver detalles de ${location.name}`}
+    >
       <Card interactive className="p-[var(--ds-space-300)]">
         {/* Header: icon + name + code */}
         <div className="flex items-start gap-[var(--ds-space-200)] mb-[var(--ds-space-200)]">
           <div className="w-10 h-10 bg-[var(--ds-neutral-100)] rounded-[var(--ds-radius-200)] flex items-center justify-center shrink-0">
-            <Building2 className="w-5 h-5 text-[var(--ds-text-subtle)]" />
+            <Building2 className="w-5 h-5 text-[var(--ds-text-subtle)]" aria-hidden="true" />
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-[var(--ds-font-size-200)] text-[var(--ds-text)] truncate">
@@ -88,3 +93,5 @@ export function LocationCardV2({ location, permits }: LocationCardV2Props) {
     </Link>
   );
 }
+
+export const LocationCardV2 = memo(LocationCardV2Component);

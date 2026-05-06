@@ -41,7 +41,7 @@ export function LocationsListViewV2() {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--color-surface)] p-6 md:p-8">
+      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-6 md:p-8">
         <div className="max-w-7xl mx-auto space-y-6 animate-fade-in">
           <div className="flex items-start justify-between mb-8">
             <div className="space-y-2">
@@ -112,13 +112,13 @@ export function LocationsListViewV2() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-surface)] p-6 md:p-8">
+    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-6 md:p-8">
       <div className="max-w-7xl mx-auto animate-fade-in">
         {/* Header */}
         <div className="flex items-start justify-between mb-8">
           <div className="space-y-1">
-            <h1 className="text-[var(--font-size-3xl)] font-bold text-[var(--color-text)] leading-tight">Sedes</h1>
-            <p className="text-[var(--font-size-sm)] text-[var(--color-text-secondary)]">
+            <h1 id="sedes-heading" className="text-[var(--ds-font-size-600)] font-bold text-[var(--ds-text)] leading-tight">Sedes</h1>
+            <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)]">
               {locations.length} {locations.length === 1 ? 'sede registrada' : 'sedes registradas'}
             </p>
           </div>
@@ -132,7 +132,11 @@ export function LocationsListViewV2() {
         </div>
 
         {/* Grid of location cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div
+          role="region"
+          aria-labelledby="sedes-heading"
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        >
           {locations.map((location) => (
             <LocationCardV2
               key={location.id}
