@@ -10,14 +10,14 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-[var(--ds-background-brand)] text-white hover:bg-[var(--ds-background-brand-hovered)] active:bg-[var(--ds-background-brand-pressed)]",
-        destructive: "bg-[var(--ds-background-danger)] text-white hover:opacity-90",
+        default: "bg-[var(--ds-background-brand)] !text-white hover:bg-[var(--ds-background-brand-hovered)] active:bg-[var(--ds-background-brand-pressed)]",
+        destructive: "bg-[var(--ds-background-danger)] !text-white hover:opacity-90",
         outline: "bg-white text-[var(--ds-text)] shadow-[0_0_0_1px_var(--ds-border)] hover:bg-[var(--ds-neutral-100)]",
         secondary: "bg-[var(--ds-neutral-100)] text-[var(--ds-text)] hover:bg-[var(--ds-neutral-200)]",
         subtle: "bg-transparent text-[var(--ds-text-subtle)] hover:bg-[var(--ds-neutral-100)] hover:text-[var(--ds-text)]",
         ghost: "bg-transparent text-[var(--ds-text-subtle)] hover:bg-[var(--ds-neutral-100)] hover:text-[var(--ds-text)]",
         link: "bg-transparent text-[var(--ds-text-brand)] p-0 h-auto underline underline-offset-[3px] hover:text-[var(--ds-background-brand-hovered)]",
-        warning: "bg-[var(--ds-background-accent)] text-white hover:bg-[var(--ds-background-accent-hovered)]",
+        warning: "bg-[var(--ds-background-accent)] !text-white hover:bg-[var(--ds-background-accent-hovered)]",
       },
       size: {
         sm: "h-7 px-[var(--ds-space-100)] text-[var(--ds-font-size-075)] [&_svg]:size-3.5",

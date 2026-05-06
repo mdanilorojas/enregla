@@ -11,7 +11,7 @@ import { Building2, Plus } from '@/lib/lucide-icons'
 import { SkeletonList } from '@/components/ui/skeleton'
 
 export function DashboardView() {
-  const { profile, companyId: authCompanyId } = useAuth()
+  const { companyId: authCompanyId } = useAuth()
   const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true'
   const companyId = isDemoMode ? '50707999-f033-41c4-91c9-989966311972' : authCompanyId
 
@@ -88,7 +88,6 @@ export function DashboardView() {
       <div className="max-w-7xl mx-auto space-y-[var(--ds-space-400)]">
         <h1 className="text-[var(--ds-font-size-500)] font-bold text-[var(--ds-text)]">Dashboard</h1>
         <DashboardWidget
-          empresaName={(profile as { company_name?: string } | null)?.company_name || 'EnRegla Corp'}
           totalSedes={locations.length}
           vigentes={metrics.vigentes}
           porVencer={metrics.porVencer}
