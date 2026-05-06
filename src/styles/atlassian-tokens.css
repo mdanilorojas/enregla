@@ -300,4 +300,40 @@
   --state-disabled-opacity: 0.4;
   --state-hover-scale: 1.02;
   --state-active-scale: 0.98;
+
+  /* ==========================================
+   * Additional Legacy Aliases (used by index.css)
+   * ========================================== */
+  --font-family-sans: var(--ds-font-family);
+  --color-secondary: var(--ds-neutral-500);
+  --color-accent: var(--ds-background-accent);
+  --color-legal-paper: var(--ds-neutral-50);
+  --color-legal-ink: var(--ds-neutral-900);
+
+  /* Enregla neutral scale (legacy) */
+  --color-enregla-50: var(--ds-neutral-900);
+  --color-enregla-100: var(--ds-neutral-800);
+  --color-enregla-200: var(--ds-neutral-700);
+  --color-enregla-300: var(--ds-neutral-600);
+  --color-enregla-400: var(--ds-neutral-500);
+  --color-enregla-500: var(--ds-neutral-400);
+  --color-enregla-600: var(--ds-neutral-300);
+  --color-enregla-700: var(--ds-neutral-200);
+  --color-enregla-750: var(--ds-neutral-200);
+  --color-enregla-800: var(--ds-neutral-100);
+  --color-enregla-850: var(--ds-neutral-50);
+  --color-enregla-900: var(--ds-neutral-0);
+  --color-enregla-950: var(--ds-neutral-50);
+
+  --shadow-focus: 0 0 0 3px rgba(15, 38, 92, 0.15);
+
+  /* Sidebar tokens (shadcn/ui compat) */
+  --sidebar: var(--ds-neutral-50);
+  --sidebar-foreground: var(--ds-neutral-700);
+  --sidebar-primary: var(--ds-neutral-900);
+  --sidebar-primary-foreground: var(--ds-neutral-0);
+  --sidebar-accent: var(--ds-neutral-100);
+  --sidebar-accent-foreground: var(--ds-neutral-900);
+  --sidebar-border: var(--ds-neutral-200);
+  --sidebar-ring: var(--ds-blue-400);
 }
