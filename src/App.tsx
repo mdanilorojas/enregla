@@ -15,6 +15,7 @@ import { RenewalGridView } from '@/features/renewals/RenewalGridView';
 import { TaskBoardView } from '@/features/tasks/TaskBoardView';
 import { DocumentVaultView } from '@/features/documents/DocumentVaultView';
 import { LegalReferenceView } from '@/features/legal/LegalReferenceView';
+import { LegalCategoryDetailView } from '@/features/legal/LegalCategoryDetailView';
 import { NetworkMapPage } from '@/features/network/NetworkMapPage';
 import { DesignSystemView } from '@/features/design-system/DesignSystemView';
 import { DesignSystemShowcase } from '@/features/design-system/DesignSystemShowcase';
@@ -130,6 +131,7 @@ export default function App() {
           <Route path="/tareas" element={<TaskBoardView />} />
           <Route path="/documentos" element={<DocumentVaultView />} />
           <Route path="/marco-legal" element={<LegalReferenceView />} />
+          <Route path="/marco-legal/:categoria" element={<LegalCategoryDetailView />} />
           <Route path="/design-system" element={<DesignSystemView />} />
           <Route path="/design-system-showcase" element={<DesignSystemShowcase />} />
           <Route path="/settings" element={<SettingsView />} />
