@@ -15,7 +15,7 @@ import {
   Menu,
   X,
   Settings
-} from 'lucide-react';
+} from '@/lib/lucide-icons';
 import { useAuth } from '@/hooks/useAuth';
 
 const menuItems = [
@@ -86,6 +86,9 @@ const pageDescriptions: Record<string, string> = {
   '/mapa-permisos': 'Visualiza permisos por tipo de comercio',
 };
 
+const focusRing =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ds-background-brand)] focus-visible:ring-offset-2';
+
 export function AppLayout() {
   const { profile, signOut } = useAuth();
   const location = useLocation();
@@ -130,7 +133,7 @@ export function AppLayout() {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen w-full bg-gray-50">
+    <div className="flex min-h-screen w-full bg-[var(--ds-neutral-50)]">
       {/* Overlay móvil con blur */}
       {sidebarOpen && (
         <div
@@ -140,33 +143,34 @@ export function AppLayout() {
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 h-screen bg-white border-r border-gray-100 flex flex-col z-40 transition-all duration-300 ${
+      <aside className={`fixed left-0 top-0 h-screen bg-[var(--ds-neutral-0)] border-r border-[var(--ds-border)] flex flex-col z-40 transition-all duration-300 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       } w-64 lg:w-64`}>
         {/* Header */}
-        <div className="flex items-center justify-between gap-3 px-4 h-16 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-900 to-blue-800 flex items-center justify-center">
+        <div className="flex items-center justify-between gap-[var(--ds-space-150)] px-[var(--ds-space-200)] h-16 border-b border-[var(--ds-border)]">
+          <div className="flex items-center gap-[var(--ds-space-150)]">
+            <div className="w-10 h-10 rounded-[var(--ds-radius-200)] bg-gradient-to-br from-blue-900 to-blue-800 flex items-center justify-center">
               <Building2 size={20} className="text-white" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900">EnRegla</p>
-              <p className="text-xs text-gray-500">Control operativo</p>
+              <p className="text-[var(--ds-font-size-100)] font-semibold text-[var(--ds-text)]">EnRegla</p>
+              <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)]">Control operativo</p>
             </div>
           </div>
 
           {/* Botón cerrar en móvil */}
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className={`lg:hidden p-[var(--ds-space-100)] hover:bg-[var(--ds-neutral-100)] rounded-[var(--ds-radius-200)] transition-colors ${focusRing}`}
+            aria-label="Cerrar menú"
           >
-            <X size={20} className="text-gray-600" />
+            <X size={20} className="text-[var(--ds-text-subtle)]" />
           </button>
         </div>
 
         {/* Menu */}
-        <nav className="flex-1 p-3 overflow-y-auto">
-          <p className="text-xs font-semibold text-gray-400 uppercase mb-2 px-3">
+        <nav className="flex-1 p-[var(--ds-space-150)] overflow-y-auto">
+          <p className="text-[var(--ds-font-size-075)] font-semibold text-[var(--ds-text-subtlest)] uppercase mb-2 px-[var(--ds-space-150)]">
             Menú principal
           </p>
           {menuItems.map((item) => {
@@ -175,35 +179,36 @@ export function AppLayout() {
               <Link
                 key={item.url}
                 to={item.url}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-colors ${
+                className={`flex items-center gap-[var(--ds-space-150)] px-[var(--ds-space-150)] py-2.5 rounded-[var(--ds-radius-200)] mb-1 transition-colors ${focusRing} ${
                   isActive
-                    ? 'bg-blue-50 text-blue-900 font-medium'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-[var(--ds-blue-50)] text-[var(--ds-text-brand)] font-medium'
+                    : 'text-[var(--ds-text-subtle)] hover:bg-[var(--ds-neutral-50)] hover:text-[var(--ds-text)]'
                 }`}
               >
                 <item.icon size={20} />
-                <span className="text-sm">{item.title}</span>
+                <span className="text-[var(--ds-font-size-100)]">{item.title}</span>
               </Link>
             );
           })}
         </nav>
 
         {/* Footer */}
-        <div className="p-3 border-t border-gray-100">
-          <div className="flex items-center gap-3 px-3 py-2 bg-gray-50 rounded-lg">
-            <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-              <User size={16} className="text-blue-900" />
+        <div className="p-[var(--ds-space-150)] border-t border-[var(--ds-border)]">
+          <div className="flex items-center gap-[var(--ds-space-150)] px-[var(--ds-space-150)] py-2 bg-[var(--ds-neutral-50)] rounded-[var(--ds-radius-200)]">
+            <div className="w-8 h-8 rounded-[var(--ds-radius-200)] bg-[var(--ds-blue-50)] flex items-center justify-center">
+              <User size={16} className="text-[var(--ds-text-brand)]" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-gray-900 truncate">{profile?.full_name || 'Usuario'}</p>
-              <p className="text-xs text-gray-500 truncate capitalize">{profile?.role || 'viewer'}</p>
+              <p className="text-[var(--ds-font-size-100)] font-semibold text-[var(--ds-text)] truncate">{profile?.full_name || 'Usuario'}</p>
+              <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] truncate capitalize">{profile?.role || 'viewer'}</p>
             </div>
             <button
               onClick={() => signOut()}
-              className="p-1 hover:bg-gray-200 rounded transition-colors"
+              className={`p-1 hover:bg-[var(--ds-neutral-100)] rounded transition-colors ${focusRing}`}
               title="Cerrar sesión"
+              aria-label="Cerrar sesión"
             >
-              <LogOut size={16} className="text-gray-600" />
+              <LogOut size={16} className="text-[var(--ds-text-subtle)]" />
             </button>
           </div>
         </div>
@@ -211,38 +216,42 @@ export function AppLayout() {
       {/* Main Content */}
       <div className="lg:ml-64 min-h-screen w-full transition-all duration-300">
         {/* Top Bar */}
-        <header className={`h-16 border-b flex items-center justify-between px-4 lg:px-6 sticky top-0 z-20 transition-all duration-200 ${
+        <header className={`h-16 border-b flex items-center justify-between px-[var(--ds-space-200)] lg:px-[var(--ds-space-300)] sticky top-0 z-20 transition-all duration-200 ${
           scrolled
-            ? 'bg-white/95 backdrop-blur-lg border-gray-100/60 shadow-sm'
-            : 'bg-white border-gray-100/40'
+            ? 'bg-[var(--ds-neutral-0)]/95 backdrop-blur-lg border-[var(--ds-border)] shadow-[var(--ds-shadow-raised)]'
+            : 'bg-[var(--ds-neutral-0)] border-[var(--ds-border)]'
         }`}>
-          <div className="flex items-center gap-3 lg:gap-4">
+          <div className="flex items-center gap-[var(--ds-space-150)] lg:gap-[var(--ds-space-200)]">
             {/* Hamburger en móvil, toggle en desktop */}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all"
+              className={`p-[var(--ds-space-100)] rounded-[var(--ds-radius-200)] text-[var(--ds-text-subtle)] hover:text-[var(--ds-text)] hover:bg-[var(--ds-neutral-50)] transition-all ${focusRing}`}
+              aria-label="Alternar menú lateral"
             >
               <Menu size={20} className="lg:hidden" />
               <Building2 size={20} className="hidden lg:block" />
             </button>
             <div>
-              <h1 className="text-base lg:text-lg font-semibold text-gray-900">{title}</h1>
+              <h1 className="text-base lg:text-[var(--ds-font-size-300)] font-semibold text-[var(--ds-text)]">{title}</h1>
               {description && (
-                <p className="hidden lg:block text-xs text-gray-500 mt-0.5">{description}</p>
+                <p className="hidden lg:block text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mt-0.5">{description}</p>
               )}
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-[var(--ds-space-150)]">
             {/* Notification */}
-            <button className="relative p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all">
+            <button
+              className={`relative p-[var(--ds-space-100)] rounded-[var(--ds-radius-200)] text-[var(--ds-text-subtle)] hover:text-[var(--ds-text)] hover:bg-[var(--ds-neutral-50)] transition-all ${focusRing}`}
+              aria-label="Notificaciones"
+            >
               <Bell size={20} strokeWidth={2} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-[var(--ds-neutral-0)]" />
             </button>
           </div>
         </header>
 
-        <div className="p-4 lg:p-6 xl:p-8">
+        <div className="p-[var(--ds-space-200)] lg:p-[var(--ds-space-300)] xl:p-[var(--ds-space-400)]">
           <div className="max-w-[1400px] mx-auto">
             <Outlet />
           </div>

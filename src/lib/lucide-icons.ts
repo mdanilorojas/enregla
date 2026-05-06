@@ -46,6 +46,7 @@ export {
   Search,
   Filter,
   Calendar,
+  CalendarClock,
   Clock,
 
   // Documents
@@ -84,6 +85,8 @@ export {
   Check,
   Mail,
   MessageSquare,
+  Scale,
+  Workflow,
 } from 'lucide-react'
 
 export type { LucideIcon } from 'lucide-react'
