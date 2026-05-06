@@ -1,39 +1,59 @@
-import { useState } from 'react';
-import { NetworkMapViewV2 } from './NetworkMapViewV2';
-import { NetworkMapV3 } from './NetworkMapV3';
+import { useMemo } from 'react'
+import { useAuth } from '@/hooks/useAuth'
+import { useLocations } from '@/hooks/useLocations'
+import { usePermits } from '@/hooks/usePermits'
+import { NetworkMapCanvas } from './NetworkMapCanvas'
+import { MapLegend } from './MapLegend'
+import type { SedeMapData } from '@/features/dashboard/DashboardMap'
 
 export function NetworkMapPage() {
-  const [useV3, setUseV3] = useState(true);
+  const { profile } = useAuth()
+  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true'
+  const companyId = isDemoMode ? '50707999-f033-41c4-91c9-989966311972' : profile?.company_id
+
+  const { locations } = useLocations(companyId)
+  const { permits } = usePermits({ companyId })
+
+  const sedes = useMemo<SedeMapData[]>(() => {
+    return locations.map(loc => {
+      const locPermits = permits.filter(p => p.location_id === loc.id && p.is_active)
+      const active = locPermits.filter(p => p.status === 'vigente').length
+      const total = locPermits.length || 1
+      const percentage = (active / total) * 100
+
+      const status: 'success' | 'warning' | 'danger' =
+        percentage >= 90 ? 'success' : percentage >= 50 ? 'warning' : 'danger'
+
+      const risk: 'Bajo' | 'Medio' | 'Alto' | 'Crítico' =
+        percentage >= 90 ? 'Bajo' : percentage >= 70 ? 'Medio' : percentage >= 40 ? 'Alto' : 'Crítico'
+
+      return {
+        id: loc.id,
+        label: loc.name,
+        code: (loc as { code?: string }).code || loc.id.slice(0, 8),
+        permits: active,
+        total,
+        status,
+        risk,
+      }
+    })
+  }, [locations, permits])
 
   return (
-    <div className="relative h-full">
-      {/* Version toggle (top-right, temporary for testing) */}
-      <div className="absolute top-4 right-4 z-20 flex items-center gap-2 bg-white rounded-lg shadow-lg px-3 py-2 border border-gray-100">
-        <span className="text-xs font-medium text-gray-600">Versión:</span>
-        <button
-          onClick={() => setUseV3(false)}
-          className={`px-2 py-1 text-xs rounded ${
-            !useV3
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          }`}
-        >
-          V2
-        </button>
-        <button
-          onClick={() => setUseV3(true)}
-          className={`px-2 py-1 text-xs rounded ${
-            useV3
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-          }`}
-        >
-          V3
-        </button>
+    <div className="h-screen bg-[var(--ds-neutral-50)] flex flex-col">
+      <div className="p-[var(--ds-space-300)] border-b border-[var(--ds-border)] bg-white flex justify-between items-center">
+        <h1 className="text-[var(--ds-font-size-400)] font-bold">Mapa de Red</h1>
       </div>
 
-      {/* Render selected version */}
-      {useV3 ? <NetworkMapV3 /> : <NetworkMapViewV2 />}
+      <div className="flex-1 flex relative">
+        <NetworkMapCanvas
+          empresaName={(profile as { company_name?: string } | null)?.company_name || 'EnRegla Corp'}
+          sedes={sedes}
+        />
+        <div className="absolute top-[var(--ds-space-300)] right-[var(--ds-space-300)] w-[220px]">
+          <MapLegend />
+        </div>
+      </div>
     </div>
-  );
+  )
 }
