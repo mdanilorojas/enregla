@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { format } from 'date-fns';
-import { Upload, Calendar as CalendarIcon, AlertCircle } from 'lucide-react';
+import { Upload, Calendar as CalendarIcon, AlertCircle } from '@/lib/lucide-icons';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';

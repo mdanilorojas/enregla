@@ -1,6 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { RiskBadge, type RiskLevel } from '@/components/ui/RiskBadge';
-import { MapPin, ChevronRight, FileText } from 'lucide-react';
+import { MapPin, ChevronRight, FileText } from '@/lib/lucide-icons';
 
 interface SedeCardProps {
   sede: {

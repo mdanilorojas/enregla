@@ -7,7 +7,7 @@ import { Building2 as BuildingIcon, Plus as PlusIcon } from '@/lib/lucide-icons'
 import { LocationCardV2 } from './LocationCardV2';
 import { Button } from '@/components/ui';
 import { EmptyState } from '@/components/ui/empty-state';
-import { SkeletonList, SkeletonCard } from '@/components/ui/skeleton';
+import { SkeletonList, Skeleton } from '@/components/ui/skeleton';
 import { CreateLocationModal } from './CreateLocationModal';
 
 export function LocationsListViewV2() {
@@ -45,8 +45,8 @@ export function LocationsListViewV2() {
         <div className="max-w-7xl mx-auto space-y-6 animate-fade-in">
           <div className="flex items-start justify-between mb-8">
             <div className="space-y-2">
-              <SkeletonCard lines={1} className="h-8 w-32" />
-              <SkeletonCard lines={1} className="h-4 w-64" />
+              <Skeleton className="h-8 w-32" />
+              <Skeleton className="h-4 w-64" />
             </div>
           </div>
           <SkeletonList count={6} />
@@ -61,11 +61,10 @@ export function LocationsListViewV2() {
       <div className="min-h-screen bg-background p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-12">
-            <p className="text-red-600 mb-4">Error al cargar sedes</p>
-            <p className="text-sm text-gray-500 mb-4">{error}</p>
+            <p className="text-[var(--ds-red-600)] mb-4">Error al cargar sedes</p>
+            <p className="text-sm text-[var(--ds-text-subtle)] mb-4">{error}</p>
             <Button
               onClick={() => window.location.reload()}
-              className="bg-gray-900 hover:bg-gray-800"
             >
               Reintentar
             </Button>

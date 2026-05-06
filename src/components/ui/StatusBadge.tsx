@@ -29,7 +29,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
   if (!config) {
     // console.warn(`Unknown permit status: ${status}`);
     return (
-      <Badge variant="outline" className={className}>
+      <Badge variant="default" className={className}>
         {status}
       </Badge>
     );

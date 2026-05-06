@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { uploadPermitDocument } from '@/lib/api/documents';
-import { Upload, File, X, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Upload, File, X, CheckCircle2, AlertCircle } from '@/lib/lucide-icons';
 
 interface DocumentUploadProps {
   permitId: string;

@@ -1,5 +1,5 @@
 import * as React from "react"
-import { ChevronRight } from "lucide-react"
+import { ChevronRight } from "@/lib/lucide-icons"
 import { Link } from "react-router-dom"
 import { cn } from "@/lib/utils"
 

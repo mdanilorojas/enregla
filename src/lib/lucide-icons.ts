@@ -88,6 +88,13 @@ export {
   MessageSquare,
   Scale,
   Workflow,
+  Circle,
+  PanelLeft,
+  FileX,
+  FileCheck,
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
 } from 'lucide-react'
 
 export type { LucideIcon } from 'lucide-react'

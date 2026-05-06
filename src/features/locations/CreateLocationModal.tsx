@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from '@/lib/lucide-icons';
 import toast from 'react-hot-toast';
 import { createLocation } from '@/lib/api/locations';
 
@@ -173,7 +173,7 @@ export function CreateLocationModal({
               disabled={loading}
             />
             {errors.name && (
-              <p className="text-xs text-red-500 mt-1">{errors.name}</p>
+              <p className="text-xs text-[var(--ds-red-500)] mt-1">{errors.name}</p>
             )}
           </div>
 
@@ -194,7 +194,7 @@ export function CreateLocationModal({
               disabled={loading}
             />
             {errors.address && (
-              <p className="text-xs text-red-500 mt-1">{errors.address}</p>
+              <p className="text-xs text-[var(--ds-red-500)] mt-1">{errors.address}</p>
             )}
           </div>
 
@@ -221,7 +221,7 @@ export function CreateLocationModal({
               </SelectContent>
             </Select>
             {errors.status && (
-              <p className="text-xs text-red-500 mt-1">{errors.status}</p>
+              <p className="text-xs text-[var(--ds-red-500)] mt-1">{errors.status}</p>
             )}
           </div>
         </div>

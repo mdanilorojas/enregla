@@ -18,7 +18,7 @@ export function RenewalGridView() {
   const availableYears = useMemo(() => {
     const years = new Set<number>()
     permits.forEach(p => {
-      if (p.expires_at) years.add(new Date(p.expires_at).getFullYear())
+      if (p.expiry_date) years.add(new Date(p.expiry_date).getFullYear())
     })
     const current = new Date().getFullYear()
     years.add(current)
@@ -30,8 +30,8 @@ export function RenewalGridView() {
 
   const monthsData = useMemo(() => {
     const byMonth: Record<number, MonthRenewal[]> = {}
-    permits.filter(p => p.is_active && p.expires_at).forEach(p => {
-      const date = new Date(p.expires_at!)
+    permits.filter(p => p.is_active && p.expiry_date).forEach(p => {
+      const date = new Date(p.expiry_date!)
       if (date.getFullYear() !== year) return
 
       const month = date.getMonth()
@@ -42,7 +42,7 @@ export function RenewalGridView() {
         permitId: p.id,
         permitType: (p as { type?: string }).type ?? 'Sin tipo',
         locationName: loc?.name ?? 'Sin sede',
-        expiresAt: p.expires_at!,
+        expiresAt: p.expiry_date!,
         status: (p.status as MonthRenewal['status']) ?? 'vigente',
       })
     })

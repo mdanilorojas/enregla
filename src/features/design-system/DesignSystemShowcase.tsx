@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton, SkeletonCard } from '@/components/ui/skeleton';
 import {
-  Building2, MapPin, ChevronRight, AlertTriangle,
-  CheckCircle2, Clock, XCircle, Plus, Loader2
-} from 'lucide-react';
+  Building2, MapPin, ChevronRight,
+  CheckCircle2, Plus
+} from '@/lib/lucide-icons';
 
 export function DesignSystemShowcase() {
   const [buttonLoading, setButtonLoading] = useState(false);

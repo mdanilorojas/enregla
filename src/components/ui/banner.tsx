@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Info, CheckCircle2, AlertTriangle, XCircle } from "lucide-react"
+import { Info, CheckCircle2, AlertTriangle, XCircle } from "@/lib/lucide-icons"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 

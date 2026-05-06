@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { FileText, AlertCircle, Clock, FileX, Upload, Trash2, Eye, FileCheck } from 'lucide-react';
+import { FileText, AlertCircle, Clock, FileX, Upload, Trash2, Eye, FileCheck } from '@/lib/lucide-icons';
 import { uploadPermitDocument, deleteDocument } from '@/lib/api/documents';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
@@ -276,7 +276,7 @@ export function PermitCardsGrid({
                   onDrop={(e) => handleDrop(e, permit.id)}
                   className={cn(
                     "relative h-full border-2 border-dashed rounded-lg flex items-center justify-center transition-all",
-                    isDragOver ? "border-primary bg-primary/5" : "border-gray-300",
+                    isDragOver ? "border-primary bg-primary/5" : "border-[var(--ds-neutral-300)]",
                     isUploading && "opacity-50 pointer-events-none"
                   )}
                 >
@@ -295,10 +295,10 @@ export function PermitCardsGrid({
                       </>
                     ) : (
                       <>
-                        <Upload size={24} className="text-gray-400 mb-2" />
-                        <p className="text-sm font-medium text-gray-700">Arrastra documento aquí</p>
-                        <p className="text-xs text-gray-500 mt-1">o haz clic para seleccionar</p>
-                        <p className="text-xs text-gray-400 mt-2">PDF, PNG, JPG (máx. 5MB)</p>
+                        <Upload size={24} className="text-[var(--ds-text-subtlest)] mb-2" />
+                        <p className="text-sm font-medium text-[var(--ds-text)]">Arrastra documento aquí</p>
+                        <p className="text-xs text-[var(--ds-text-subtle)] mt-1">o haz clic para seleccionar</p>
+                        <p className="text-xs text-[var(--ds-text-subtlest)] mt-2">PDF, PNG, JPG (máx. 5MB)</p>
                       </>
                     )}
                   </label>
