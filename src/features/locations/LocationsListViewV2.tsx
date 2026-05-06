@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocations } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
-import { Building2, Plus } from 'lucide-react';
+import { Building2 as BuildingIcon, Plus as PlusIcon } from '@/lib/lucide-icons';
 import { LocationCardV2 } from './LocationCardV2';
-import { Card, CardContent, Button } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { EmptyState } from '@/components/ui/empty-state';
 import { SkeletonList, SkeletonCard } from '@/components/ui/skeleton';
 import { CreateLocationModal } from './CreateLocationModal';
 
@@ -77,37 +78,30 @@ export function LocationsListViewV2() {
   // Empty state
   if (locations.length === 0) {
     return (
-      <div className="min-h-screen bg-[var(--color-surface)] p-6 md:p-8">
+      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
         <div className="max-w-7xl mx-auto">
-          <div className="rounded-xl border-2 border-dashed border-[var(--color-border)] bg-white py-20 text-center transition-all hover:border-[var(--color-text-muted)]">
-            <div className="flex flex-col items-center gap-5 max-w-md mx-auto px-6">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--color-surface)] to-[var(--color-border)] flex items-center justify-center shadow-[var(--shadow-sm)]">
-                <Building2 className="w-8 h-8 text-[var(--color-primary)]" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-lg font-semibold text-[var(--color-text)]">
-                  No hay sedes registradas
-                </h3>
-                <p className="text-[var(--font-size-sm)] text-[var(--color-text-secondary)] leading-relaxed">
-                  Comienza creando tu primera sede para gestionar permisos y cumplimiento normativo
-                </p>
-              </div>
+          <EmptyState
+            icon={BuildingIcon}
+            title="No hay sedes registradas"
+            description="Comienza creando tu primera sede para gestionar permisos y cumplimiento normativo"
+            action={
               <Button
                 onClick={() => setCreateModalOpen(true)}
-                className="mt-2"
-                size="lg"
                 disabled={!companyId}
+                variant="default"
+                size="lg"
               >
-                <Plus className="w-4 h-4" />
+                <PlusIcon className="w-4 h-4" />
                 Crear Primera Sede
               </Button>
-              {!companyId && (
-                <p className="text-[var(--font-size-xs)] text-[var(--color-danger)] mt-2">
-                  Error: No se pudo cargar la información de la empresa
-                </p>
-              )}
-            </div>
-          </div>
+            }
+          />
+          <CreateLocationModal
+            open={createModalOpen}
+            onClose={() => setCreateModalOpen(false)}
+            onSuccess={handleLocationCreated}
+            companyId={companyId || ''}
+          />
         </div>
       </div>
     );
@@ -133,7 +127,7 @@ export function LocationsListViewV2() {
             onClick={() => setCreateModalOpen(true)}
             size="lg"
           >
-            <Plus className="w-4 h-4" />
+            <PlusIcon className="w-4 h-4" />
             Crear Sede
           </Button>
         </div>
