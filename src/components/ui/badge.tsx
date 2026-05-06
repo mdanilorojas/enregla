@@ -4,36 +4,36 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center gap-1.5 rounded-md px-2.5 py-0.5 text-xs font-semibold transition-all duration-150 ease-[var(--ease-out)] border",
+  "inline-flex items-center gap-[var(--ds-space-050)] rounded-[var(--ds-radius-100)] font-bold uppercase tracking-wide transition-all duration-150",
   {
     variants: {
       variant: {
-        // Location status
-        success: "bg-[var(--color-success-bg)] text-[var(--color-success)] border-[var(--color-success-border)]",
-        info: "bg-[var(--color-info-bg)] text-[var(--color-info)] border-[var(--color-info-border)]",
-        secondary: "bg-[var(--color-surface)] text-[var(--color-text-secondary)] border-[var(--color-border)]",
+        default: "bg-[var(--ds-neutral-200)] text-[var(--ds-neutral-700)]",
+        success: "bg-[var(--ds-green-50)] text-[var(--ds-green-600)]",
+        warning: "bg-[var(--ds-orange-50)] text-[var(--ds-orange-700)]",
+        danger: "bg-[var(--ds-red-50)] text-[var(--ds-red-600)]",
+        info: "bg-[var(--ds-blue-50)] text-[var(--ds-blue-600)]",
+        secondary: "bg-[var(--ds-neutral-100)] text-[var(--ds-neutral-600)]",
 
-        // Risk levels
-        "risk-critico": "bg-[var(--color-risk-critico-bg)] text-[var(--color-risk-critico-text)] border-[var(--color-risk-critico-border)] font-bold shadow-[var(--shadow-xs)]",
-        "risk-alto": "bg-[var(--color-risk-alto-bg)] text-[var(--color-risk-alto-text)] border-[var(--color-risk-alto-border)]",
-        "risk-medio": "bg-[var(--color-risk-medio-bg)] text-[var(--color-risk-medio-text)] border-[var(--color-risk-medio-border)]",
-        "risk-bajo": "bg-[var(--color-risk-bajo-bg)] text-[var(--color-risk-bajo-text)] border-[var(--color-risk-bajo-border)]",
+        "risk-critico": "bg-[var(--ds-red-50)] text-[var(--ds-red-600)]",
+        "risk-alto": "bg-[var(--ds-orange-50)] text-[var(--ds-orange-700)]",
+        "risk-medio": "bg-[var(--ds-yellow-50)] text-[var(--ds-yellow-600)]",
+        "risk-bajo": "bg-[var(--ds-green-50)] text-[var(--ds-green-600)]",
 
-        // Permit status
-        "status-vigente": "bg-[var(--color-status-vigente-bg)] text-[var(--color-status-vigente-text)] border-[var(--color-status-vigente-border)]",
-        "status-por-vencer": "bg-[var(--color-status-por-vencer-bg)] text-[var(--color-status-por-vencer-text)] border-[var(--color-status-por-vencer-border)]",
-        "status-vencido": "bg-[var(--color-status-vencido-bg)] text-[var(--color-status-vencido-text)] border-[var(--color-status-vencido-border)] font-bold",
-        "status-en-tramite": "bg-[var(--color-status-en-tramite-bg)] text-[var(--color-status-en-tramite-text)] border-[var(--color-status-en-tramite-border)]",
-        "status-no-registrado": "bg-[var(--color-status-no-registrado-bg)] text-[var(--color-status-no-registrado-text)] border-[var(--color-status-no-registrado-border)]",
+        "status-vigente": "bg-[var(--ds-green-50)] text-[var(--ds-green-600)]",
+        "status-por-vencer": "bg-[var(--ds-orange-50)] text-[var(--ds-orange-700)]",
+        "status-vencido": "bg-[var(--ds-red-50)] text-[var(--ds-red-600)]",
+        "status-en-tramite": "bg-[var(--ds-blue-50)] text-[var(--ds-blue-600)]",
+        "status-no-registrado": "bg-[var(--ds-neutral-100)] text-[var(--ds-neutral-600)]",
       },
       size: {
-        sm: "text-[10px] px-2 py-0.5",
-        default: "text-xs px-2.5 py-0.5",
-        lg: "text-sm px-3 py-1",
+        sm: "text-[10px] px-[var(--ds-space-075)] py-[2px]",
+        default: "text-[var(--ds-font-size-050)] px-[var(--ds-space-075)] py-[2px]",
+        lg: "text-[var(--ds-font-size-075)] px-[var(--ds-space-100)] py-[var(--ds-space-050)]",
       }
     },
     defaultVariants: {
-      variant: "secondary",
+      variant: "default",
       size: "default",
     },
   }
