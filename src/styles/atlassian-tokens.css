@@ -66,8 +66,14 @@
    * ========================================== */
   --ds-yellow-50: #fff8e1;
   --ds-yellow-100: #fff3cd;
+  --ds-yellow-200: #FFF0B3;
+  --ds-yellow-300: #ffda6a;
+  --ds-yellow-400: #ffcd39;
   --ds-yellow-500: #FFAB00;
   --ds-yellow-600: #FF991F;
+  --ds-yellow-700: #ffae02;
+  --ds-yellow-800: #ffa400;
+  --ds-yellow-900: #ff9b00;
 
   /* ==========================================
    * Neutral Gray Scale
@@ -120,7 +126,7 @@
   --ds-risk-medio: var(--ds-yellow-500);
   --ds-risk-medio-bg: var(--ds-yellow-50);
   --ds-risk-medio-text: var(--ds-yellow-600);
-  --ds-risk-medio-border: #FFF0B3;
+  --ds-risk-medio-border: var(--ds-yellow-200);
 
   --ds-risk-bajo: var(--ds-green-500);
   --ds-risk-bajo-bg: var(--ds-green-50);
