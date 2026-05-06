@@ -18,19 +18,13 @@ import { NetworkMapPage } from '@/features/network/NetworkMapPage';
 import { DesignSystemView } from '@/features/design-system/DesignSystemView';
 import { DesignSystemShowcase } from '@/features/design-system/DesignSystemShowcase';
 import { SettingsView } from '@/features/settings/SettingsView';
+import { AppLoader } from '@/components/ui/app-loader';
 
 function OnboardingRoute() {
   const { profile, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-          <p className="text-sm text-gray-600 font-medium">Cargando...</p>
-        </div>
-      </div>
-    );
+    return <AppLoader />;
   }
 
   // Determine initial step based on profile state
@@ -52,14 +46,7 @@ function ProtectedOnboardingRoute() {
   const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-          <p className="text-sm text-gray-600 font-medium">Cargando...</p>
-        </div>
-      </div>
-    );
+    return <AppLoader />;
   }
 
   // In demo mode, skip onboarding check and go straight to app
@@ -89,12 +76,7 @@ export default function App() {
           element={
             isDemoMode ? (
               loading ? (
-                <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-                    <p className="text-sm text-gray-600 font-medium">Modo Demo - Cargando...</p>
-                  </div>
-                </div>
+                <AppLoader message="Modo Demo - Cargando..." />
               ) : (
                 <Navigate to="/" replace />
               )
