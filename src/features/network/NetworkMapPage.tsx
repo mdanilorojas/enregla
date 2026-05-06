@@ -40,19 +40,16 @@ export function NetworkMapPage() {
   }, [locations, permits])
 
   return (
-    <div className="h-screen bg-[var(--ds-neutral-50)] flex flex-col">
-      <div className="p-[var(--ds-space-300)] border-b border-[var(--ds-border)] bg-white flex justify-between items-center">
-        <h1 className="text-[var(--ds-font-size-400)] font-bold">Mapa de Red</h1>
-      </div>
-
-      <div className="flex-1 flex relative">
-        <NetworkMapCanvas
-          empresaName={(profile as { company_name?: string } | null)?.company_name || 'EnRegla Corp'}
-          sedes={sedes}
-        />
-        <div className="absolute top-[var(--ds-space-300)] right-[var(--ds-space-300)] w-[220px]">
-          <MapLegend />
-        </div>
+    <div
+      className="relative w-full rounded-[var(--ds-radius-200)] overflow-hidden bg-[var(--ds-neutral-0)] shadow-[var(--ds-shadow-raised)] border border-[var(--ds-border)]"
+      style={{ height: 'calc(100vh - 140px)', minHeight: 600 }}
+    >
+      <NetworkMapCanvas
+        empresaName={(profile as { company_name?: string } | null)?.company_name || 'EnRegla Corp'}
+        sedes={sedes}
+      />
+      <div className="absolute top-[var(--ds-space-300)] right-[var(--ds-space-300)] w-[220px] z-10">
+        <MapLegend />
       </div>
     </div>
   )

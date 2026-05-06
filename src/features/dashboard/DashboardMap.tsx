@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { ReactFlow, Background, Controls, type Node, type Edge, type NodeTypes, type EdgeTypes } from '@xyflow/react'
+import { ReactFlow, Background, BackgroundVariant, Controls, type Node, type Edge, type NodeTypes, type EdgeTypes } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { EmpresaNode } from './nodes/EmpresaNode'
 import { SedeNode, type SedeNodeData } from './nodes/SedeNode'
@@ -21,9 +21,10 @@ export interface SedeMapData {
 export interface DashboardMapProps {
   empresaName: string
   sedes: SedeMapData[]
+  fillParent?: boolean
 }
 
-export function DashboardMap({ empresaName, sedes }: DashboardMapProps) {
+export function DashboardMap({ empresaName, sedes, fillParent = false }: DashboardMapProps) {
   const { nodes, edges } = useMemo(() => {
     const centerX = 400
     const centerY = 250
@@ -71,19 +72,29 @@ export function DashboardMap({ empresaName, sedes }: DashboardMapProps) {
     return { nodes, edges }
   }, [empresaName, sedes])
 
+  const containerStyle = fillParent
+    ? { width: '100%', height: '100%' }
+    : { width: '100%', height: 500 }
+
   return (
-    <div style={{ width: '100%', height: 500 }}>
+    <div style={containerStyle}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView
-        minZoom={0.5}
+        fitViewOptions={{ padding: 0.2 }}
+        minZoom={0.4}
         maxZoom={1.5}
         proOptions={{ hideAttribution: true }}
       >
-        <Background color="var(--ds-neutral-200)" gap={20} />
+        <Background
+          variant={BackgroundVariant.Dots}
+          color="var(--ds-neutral-300)"
+          gap={24}
+          size={1.5}
+        />
         <Controls showInteractive={false} />
       </ReactFlow>
     </div>

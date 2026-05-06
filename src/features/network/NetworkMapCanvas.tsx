@@ -7,8 +7,8 @@ export interface NetworkMapCanvasProps {
 
 export function NetworkMapCanvas({ empresaName, sedes }: NetworkMapCanvasProps) {
   return (
-    <div className="flex-1 relative">
-      <DashboardMap empresaName={empresaName} sedes={sedes} />
+    <div className="w-full h-full">
+      <DashboardMap empresaName={empresaName} sedes={sedes} fillParent />
     </div>
   )
 }
