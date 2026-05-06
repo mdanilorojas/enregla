@@ -12,8 +12,6 @@ import { LocationDetailView } from '@/features/locations/LocationDetailView';
 import { PermitListView } from '@/features/permits/PermitListView';
 import { PermitDetailView } from '@/features/permits/PermitDetailView';
 import { RenewalGridView } from '@/features/renewals/RenewalGridView';
-import { TaskBoardView } from '@/features/tasks/TaskBoardView';
-import { DocumentVaultView } from '@/features/documents/DocumentVaultView';
 import { LegalReferenceView } from '@/features/legal/LegalReferenceView';
 import { LegalCategoryDetailView } from '@/features/legal/LegalCategoryDetailView';
 import { NetworkMapPage } from '@/features/network/NetworkMapPage';
@@ -128,8 +126,6 @@ export default function App() {
           <Route path="/permisos" element={<PermitListView />} />
           <Route path="/permisos/:id" element={<PermitDetailView />} />
           <Route path="/renovaciones" element={<RenewalGridView />} />
-          <Route path="/tareas" element={<TaskBoardView />} />
-          <Route path="/documentos" element={<DocumentVaultView />} />
           <Route path="/marco-legal" element={<LegalReferenceView />} />
           <Route path="/marco-legal/:categoria" element={<LegalCategoryDetailView />} />
           <Route path="/design-system" element={<DesignSystemView />} />
