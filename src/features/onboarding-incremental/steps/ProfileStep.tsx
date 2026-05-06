@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 interface ProfileStepProps {
   initialName?: string;
@@ -19,16 +20,16 @@ export function ProfileStep({ initialName = '', onNext, loading }: ProfileStepPr
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2 className="text-xl font-semibold text-gray-900 mb-1 tracking-tight">
+      <h2 className="text-[var(--ds-font-size-400)] font-semibold text-[var(--ds-text)] mb-[var(--ds-space-050)] tracking-tight">
         Bienvenido a PermitOps
       </h2>
-      <p className="text-[13px] text-gray-500 mb-8">
+      <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mb-[var(--ds-space-400)]">
         Comencemos con tu información básica. Paso 1 de 3
       </p>
 
-      <div className="space-y-5">
+      <div className="space-y-[var(--ds-space-250)]">
         <div>
-          <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
+          <label className="block text-[var(--ds-font-size-075)] font-medium text-[var(--ds-text)] mb-[var(--ds-space-075)]">
             ¿Cómo te llamas?
           </label>
           <input
@@ -38,16 +39,18 @@ export function ProfileStep({ initialName = '', onNext, loading }: ProfileStepPr
             placeholder="Nombre completo"
             disabled={loading}
             autoFocus
-            className="w-full bg-white border border-gray-100 rounded-lg px-3.5 py-2.5 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-white border border-[var(--ds-border)] rounded-[var(--ds-radius-200)] px-[var(--ds-space-150)] py-[var(--ds-space-100)] text-[var(--ds-font-size-100)] text-[var(--ds-text)] placeholder:text-[var(--ds-text-subtlest)] focus:outline-none focus:ring-2 focus:ring-[var(--ds-background-brand)]/20 focus:border-[var(--ds-border-bold)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
       </div>
 
-      <button
+      <Button
         type="submit"
         disabled={!canProceed || loading}
         className="hidden"
-      />
+      >
+        Siguiente
+      </Button>
     </form>
   );
 }
