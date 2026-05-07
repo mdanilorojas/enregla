@@ -126,7 +126,7 @@ export function DocumentList({ documents, onDocumentDeleted }: DocumentListProps
                   </span>
                   <span className="text-[11px] text-gray-400">•</span>
                   <span className="text-[11px] text-gray-500">
-                    {formatDate(doc.uploaded_at)}
+                    {doc.uploaded_at ? formatDate(doc.uploaded_at) : 'Sin fecha'}
                   </span>
                   {doc.file_type && (
                     <>

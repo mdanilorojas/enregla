@@ -22,12 +22,26 @@ export function OnboardingWizard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [data, setData] = useState<OnboardingData>({
+  // Legacy wizard: no esta routeado en el producto actual (reemplazado por
+  // IncrementalWizard). Mantenemos el estado local con regulatory_factors
+  // para el UI (los Step2Regulatory y Step4Review todavia lo renderizan)
+  // aunque al enviar a completeOnboarding() se ignora (el trigger DB maneja
+  // permits via business_type).
+  type LocalOnboardingData = OnboardingData & {
+    regulatory_factors: {
+      alimentos: boolean;
+      alcohol: boolean;
+      salud: boolean;
+      quimicos: boolean;
+    };
+  };
+
+  const [data, setData] = useState<LocalOnboardingData>({
     company: {
       name: '',
       ruc: '',
       city: 'Quito',
-      business_type: 'Supermercado',
+      business_type: 'restaurante',
     },
     regulatory_factors: {
       alimentos: false,
@@ -51,7 +65,7 @@ export function OnboardingWizard() {
     }));
   };
 
-  const updateRegulatory = (partial: Partial<OnboardingData['regulatory_factors']>) => {
+  const updateRegulatory = (partial: Partial<LocalOnboardingData['regulatory_factors']>) => {
     setData((prev) => ({
       ...prev,
       regulatory_factors: { ...prev.regulatory_factors, ...partial },

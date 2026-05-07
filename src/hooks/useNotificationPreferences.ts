@@ -29,7 +29,12 @@ export function useNotificationPreferences(userId: string | undefined) {
 
         if (error) throw error;
 
-        setPreferences(data);
+        // DB columns son nullable; default a true si falta
+        setPreferences({
+          email_enabled: data.email_enabled ?? true,
+          expiry_alerts_enabled: data.expiry_alerts_enabled ?? true,
+          digest_enabled: data.digest_enabled ?? true,
+        });
         setError(null);
       } catch (err) {
         console.error('[useNotificationPreferences] Error fetching preferences:', err);

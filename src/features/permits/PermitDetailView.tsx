@@ -427,7 +427,7 @@ export function PermitDetailView() {
                             {doc.file_name}
                           </p>
                           <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)]">
-                            {formatDate(doc.uploaded_at)}
+                            {doc.uploaded_at ? formatDate(doc.uploaded_at) : 'Sin fecha'}
                           </p>
                         </div>
                         <div className="flex items-center gap-[var(--ds-space-050)]">

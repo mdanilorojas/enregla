@@ -61,7 +61,9 @@ export function calculateLocationRiskLevel(
   permits: Permit[]
 ): RiskLevel {
   const activePermits = permits.filter((p) => p.is_active && p.location_id === location.id);
-  const hoursSinceCreation = (Date.now() - new Date(location.created_at).getTime()) / (1000 * 60 * 60);
+  // Si por algun motivo location no tiene created_at, asumimos recien creada (hora = 0)
+  const createdAt = location.created_at ? new Date(location.created_at).getTime() : Date.now();
+  const hoursSinceCreation = (Date.now() - createdAt) / (1000 * 60 * 60);
 
   // STAGE 1: First 48 hours
   if (hoursSinceCreation <= 48) {
@@ -124,19 +126,23 @@ export function getUpcomingRenewals(
   locations: Location[],
   limit: number = 5
 ): UpcomingRenewal[] {
-  const activePermits = permits.filter((p) => p.is_active && p.expiry_date);
+  // Filtra permits con location_id y expiry_date no nulos
+  const activePermits = permits.filter(
+    (p): p is Permit & { location_id: string; expiry_date: string } =>
+      !!p.is_active && !!p.expiry_date && !!p.location_id
+  );
 
   const renewals: UpcomingRenewal[] = activePermits
     .map((permit) => {
       const location = locations.find((l) => l.id === permit.location_id);
-      const daysUntilExpiry = permit.expiry_date ? daysUntil(permit.expiry_date) : Infinity;
+      const daysUntilExpiry = daysUntil(permit.expiry_date);
 
       return {
         permitId: permit.id,
         permitType: permit.type,
         locationId: permit.location_id,
         locationName: location?.name,
-        expiryDate: permit.expiry_date!,
+        expiryDate: permit.expiry_date,
         daysUntilExpiry,
         status: permit.status,
       };

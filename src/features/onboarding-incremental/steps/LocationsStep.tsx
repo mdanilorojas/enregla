@@ -7,12 +7,6 @@ interface LocationInput {
   name: string;
   address: string;
   status: 'operando' | 'en_preparacion' | 'cerrado';
-  regulatory: {
-    alimentos: boolean;
-    alcohol: boolean;
-    salud: boolean;
-    quimicos: boolean;
-  };
 }
 
 interface LocationsStepProps {
@@ -26,25 +20,12 @@ const STATUS_OPTIONS = [
   { value: 'cerrado' as const, label: 'Cerrado' },
 ];
 
-const REGULATORY_OPTIONS = [
-  { key: 'alimentos' as const, label: 'Vende alimentos', permit: 'ARCSA' },
-  { key: 'alcohol' as const, label: 'Vende alcohol', permit: 'SCPM' },
-  { key: 'salud' as const, label: 'Servicios de salud', permit: 'MSP' },
-  { key: 'quimicos' as const, label: 'Maneja químicos', permit: 'CONSEP' },
-];
-
 export function LocationsStep({ onComplete, loading }: LocationsStepProps) {
   const [locations, setLocations] = useState<LocationInput[]>([
     {
       name: '',
       address: '',
       status: 'operando',
-      regulatory: {
-        alimentos: false,
-        alcohol: false,
-        salud: false,
-        quimicos: false,
-      },
     },
   ]);
 
@@ -55,12 +36,6 @@ export function LocationsStep({ onComplete, loading }: LocationsStepProps) {
         name: '',
         address: '',
         status: 'operando',
-        regulatory: {
-          alimentos: false,
-          alcohol: false,
-          salud: false,
-          quimicos: false,
-        },
       },
     ]);
   };
@@ -74,22 +49,6 @@ export function LocationsStep({ onComplete, loading }: LocationsStepProps) {
   const updateLocation = (index: number, partial: Partial<LocationInput>) => {
     const newLocations = [...locations];
     newLocations[index] = { ...newLocations[index], ...partial };
-    setLocations(newLocations);
-  };
-
-  const updateRegulatory = (
-    index: number,
-    key: keyof LocationInput['regulatory'],
-    value: boolean
-  ) => {
-    const newLocations = [...locations];
-    newLocations[index] = {
-      ...newLocations[index],
-      regulatory: {
-        ...newLocations[index].regulatory,
-        [key]: value,
-      },
-    };
     setLocations(newLocations);
   };
 
@@ -115,6 +74,10 @@ export function LocationsStep({ onComplete, loading }: LocationsStepProps) {
       <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mb-[var(--ds-space-400)]">
         Agrega todos los locales de tu empresa. Paso 3 de 3
       </p>
+
+      <Banner variant="info" className="mb-[var(--ds-space-300)]">
+        Los permisos se crean automáticamente según el tipo de negocio de la empresa.
+      </Banner>
 
       <div className="space-y-[var(--ds-space-200)]">
         {locations.map((location, index) => (
@@ -186,40 +149,6 @@ export function LocationsStep({ onComplete, loading }: LocationsStepProps) {
                     >
                       {label}
                     </Button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[var(--ds-font-size-075)] font-medium text-[var(--ds-text)] mb-[var(--ds-space-100)]">
-                  Factores regulatorios
-                </label>
-                <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mb-[var(--ds-space-150)]">
-                  Selecciona las actividades de este local para generar automáticamente los
-                  permisos necesarios
-                </p>
-                <div className="space-y-[var(--ds-space-100)]">
-                  {REGULATORY_OPTIONS.map(({ key, label, permit }) => (
-                    <label
-                      key={key}
-                      className="flex items-center gap-[var(--ds-space-150)] p-[var(--ds-space-150)] rounded-[var(--ds-radius-200)] border border-[var(--ds-border)] bg-[var(--ds-neutral-50)] hover:bg-[var(--ds-neutral-100)] transition-colors cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={location.regulatory[key]}
-                        onChange={(e) => updateRegulatory(index, key, e.target.checked)}
-                        disabled={loading}
-                        className="w-4 h-4 rounded border-[var(--ds-border-bold)] text-[var(--ds-text)] focus:ring-2 focus:ring-[var(--ds-background-brand)]/20 disabled:opacity-50"
-                      />
-                      <div className="flex-1">
-                        <span className="text-[var(--ds-font-size-075)] font-medium text-[var(--ds-text)]">
-                          {label}
-                        </span>
-                        <span className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] ml-[var(--ds-space-100)]">
-                          (Genera permiso {permit})
-                        </span>
-                      </div>
-                    </label>
                   ))}
                 </div>
               </div>

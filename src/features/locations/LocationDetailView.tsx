@@ -40,7 +40,7 @@ export function LocationDetailView() {
       type: p.type,
       status: p.status,
       expires_at: p.expiry_date,
-      is_active: p.is_active,
+      is_active: p.is_active ?? true,
     }));
   }, [locationPermits]);
 
