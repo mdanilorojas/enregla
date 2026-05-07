@@ -25,14 +25,10 @@ const CITIES = [
 ];
 
 const BUSINESS_TYPES = [
-  { value: 'Supermercado', label: 'Supermercado' },
-  { value: 'Minimarket', label: 'Minimarket' },
-  { value: 'Restaurante', label: 'Restaurante' },
-  { value: 'Farmacia', label: 'Farmacia' },
-  { value: 'Tienda de conveniencia', label: 'Tienda de conveniencia' },
-  { value: 'Cafetería', label: 'Cafetería' },
-  { value: 'Panadería', label: 'Panadería' },
-  { value: 'Otro', label: 'Otro' },
+  { value: 'restaurante', label: 'Restaurante' },
+  { value: 'retail', label: 'Retail (supermercado, minimarket, tienda)' },
+  { value: 'food_truck', label: 'Food truck' },
+  { value: 'consultorio', label: 'Consultorio' },
 ];
 
 export function CompanyStep({ initialData, onNext, loading }: CompanyStepProps) {
@@ -40,7 +36,7 @@ export function CompanyStep({ initialData, onNext, loading }: CompanyStepProps) 
     name: initialData?.name || '',
     ruc: initialData?.ruc || '',
     city: initialData?.city || 'Quito',
-    business_type: initialData?.business_type || 'Supermercado',
+    business_type: initialData?.business_type || 'restaurante',
   });
 
   const updateField = (field: keyof CompanyData, value: string) => {
