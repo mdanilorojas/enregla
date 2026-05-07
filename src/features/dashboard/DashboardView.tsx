@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useLocations } from '@/hooks/useLocations'
 import { usePermits } from '@/hooks/usePermits'
-import { DashboardWidget } from './DashboardWidget'
-import type { SedeMapData } from './DashboardMap'
+import { LocationsGrid } from '@/features/locations/LocationsGrid'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Button } from '@/components/ui/button'
 import { Building2, Plus } from '@/lib/lucide-icons'
@@ -76,26 +75,6 @@ export function DashboardView() {
     const vencidos = activePermits.filter(p => p.status === 'vencido').length
     const total = activePermits.length
 
-    const sedesWithPermits: SedeMapData[] = locations.map(loc => {
-      const locPermits = permits.filter(p => p.location_id === loc.id && p.is_active)
-      const active = locPermits.filter(p => p.status === 'vigente').length
-      const totalLoc = locPermits.length || 1
-      const percentage = (active / totalLoc) * 100
-      const status: 'success' | 'warning' | 'danger' =
-        percentage >= 90 ? 'success' : percentage >= 50 ? 'warning' : 'danger'
-      const risk: 'Bajo' | 'Medio' | 'Alto' | 'Crítico' =
-        percentage >= 90 ? 'Bajo' : percentage >= 70 ? 'Medio' : percentage >= 40 ? 'Alto' : 'Crítico'
-      return {
-        id: loc.id,
-        label: loc.name,
-        code: loc.id.slice(0, 8).toUpperCase(),
-        permits: active,
-        total: totalLoc,
-        status,
-        risk,
-      }
-    })
-
     const percentage = total > 0 ? Math.round((vigentes / total) * 100) : 0
     const missing = porVencer + vencidos
     const state: WeatherState = vencidos > 0 && percentage < 50
@@ -114,12 +93,11 @@ export function DashboardView() {
       total,
       percentage,
       missing,
-      sedesWithPermits,
       state,
       regularizeCost,
       fineCost,
     }
-  }, [locations, permits])
+  }, [permits])
 
   if (loading) {
     return (
@@ -193,13 +171,7 @@ export function DashboardView() {
           />
         </div>
 
-        <DashboardWidget
-          totalSedes={locations.length}
-          vigentes={metrics.vigentes}
-          porVencer={metrics.porVencer}
-          vencidos={metrics.vencidos}
-          sedes={metrics.sedesWithPermits}
-        />
+        <LocationsGrid standalone={false} />
       </div>
     </div>
   )
