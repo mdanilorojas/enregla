@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check } from '@/lib/lucide-icons';
 
 type TabType = 'colors' | 'typography' | 'buttons' | 'forms' | 'cards' | 'spacing';
 

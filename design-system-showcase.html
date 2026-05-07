@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design System Showcase - EnRegla</title>
+    <style>
+        /* Design Tokens - Organized System */
+        :root {
+            /* Primary Blue Scale */
+            --blue-50: #e8ebf3;
+            --blue-100: #d1d7e7;
+            --blue-200: #a3afcf;
+            --blue-300: #7587b7;
+            --blue-400: #475f9f;
+            --blue-500: #0f265c;
+            --blue-600: #0d2153;
+            --blue-700: #0b1c4a;
+            --blue-800: #091741;
+            --blue-900: #071238;
+
+            /* Accent Orange Scale */
+            --orange-50: #fff4f0;
+            --orange-100: #ffe8e0;
+            --orange-200: #ffd1c1;
+            --orange-300: #ffb99d;
+            --orange-400: #ff9670;
+            --orange-500: #ff7043;
+            --orange-600: #ff5722;
+            --orange-700: #f44336;
+            --orange-800: #e53935;
+            --orange-900: #d32f2f;
+
+            /* Success Green Scale */
+            --green-50: #ecf6ee;
+            --green-100: #daeedf;
+            --green-200: #b4dcbe;
+            --green-300: #8bc99d;
+            --green-400: #61b679;
+            --green-500: #31a451;
+            --green-600: #299846;
+            --green-700: #218c3b;
+            --green-800: #19812f;
+            --green-900: #107524;
+
+            /* Error Red Scale */
+            --red-50: #fbe6e6;
+            --red-100: #f7cdcd;
+            --red-200: #ee9c9c;
+            --red-300: #e66a6a;
+            --red-400: #dd3939;
+            --red-500: #d50707;
+            --red-600: #ce0505;
+            --red-700: #c70404;
+            --red-800: #c00202;
+            --red-900: #b90101;
+
+            /* Gray Scale */
+            --gray-50: #f6f6f6;
+            --gray-100: #ececed;
+            --gray-200: #dbdbdc;
+            --gray-300: #b7b7b9;
+            --gray-400: #6e6e73;
+            --gray-500: #2c2c30;
+            --gray-white: #ffffff;
+
+            /* Semantic Colors */
+            --color-primary: var(--blue-500);
+            --color-primary-hover: var(--blue-600);
+            --color-accent: var(--orange-500);
+            --color-accent-hover: var(--orange-600);
+            --color-success: var(--green-500);
+            --color-danger: var(--red-500);
+            --color-warning: var(--orange-500);
+            --color-text: var(--gray-500);
+            --color-text-secondary: var(--gray-400);
+            --color-text-muted: var(--gray-300);
+            --color-border: var(--gray-200);
+            --color-surface: var(--gray-50);
+
+            /* Shadows - Subtle and professional */
+            --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            --shadow-hover: 0 8px 16px -4px rgba(0, 0, 0, 0.12), 0 4px 8px -3px rgba(0, 0, 0, 0.08);
+            --shadow-focus: 0 0 0 3px rgba(15, 38, 92, 0.2);
+
+            /* Typography */
+            --font-size-xs: 0.75rem;
+            --font-size-sm: 0.875rem;
+            --font-size-base: 1rem;
+            --font-size-lg: 1.125rem;
+            --font-size-xl: 1.25rem;
+            --font-size-2xl: 1.5rem;
+            --font-size-3xl: 1.875rem;
+
+            /* Spacing */
+            --spacing-1: 0.25rem;
+            --spacing-2: 0.5rem;
+            --spacing-3: 0.75rem;
+            --spacing-4: 1rem;
+            --spacing-6: 1.5rem;
+            --spacing-8: 2rem;
+
+            /* Easing */
+            --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+            --ease-out: cubic-bezier(0, 0, 0.2, 1);
+            --ease-in: cubic-bezier(0.4, 0, 1, 1);
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* Interactive States */
+            --state-hover-opacity: 0.9;
+            --state-active-opacity: 0.8;
+            --state-disabled-opacity: 0.5;
+            --state-hover-scale: 1.02;
+            --state-active-scale: 0.98;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #fafafa;
+            color: var(--color-text);
+            line-height: 1.6;
+            padding: 2rem;
+            letter-spacing: -0.01em;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: var(--font-size-3xl);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-size: var(--font-size-2xl);
+            font-weight: 600;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        h3 {
+            font-size: var(--font-size-xl);
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        /* Card */
+        .card {
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: 0.75rem;
+            padding: 1.75rem;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow 0.3s var(--ease-out), transform 0.3s var(--ease-out), border-color 0.3s var(--ease-out);
+        }
+
+        .card.interactive {
+            cursor: pointer;
+        }
+
+        .card.interactive:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-1px);
+            border-color: var(--color-primary);
+        }
+
+        /* Button */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            border-radius: 0.375rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s var(--ease-out);
+            text-decoration: none;
+        }
+
+        .btn:active {
+            transform: scale(var(--state-active-scale));
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--color-primary-hover);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-destructive {
+            background: var(--color-danger);
+            color: white;
+        }
+
+        .btn-destructive:hover {
+            opacity: var(--state-hover-opacity);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+        }
+
+        .btn-outline:hover {
+            background: var(--color-surface);
+        }
+
+        .btn-secondary {
+            background: var(--color-surface);
+            color: var(--color-text);
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--color-text);
+        }
+
+        .btn-ghost:hover {
+            background: var(--color-surface);
+        }
+
+        .btn-link {
+            background: transparent;
+            color: var(--color-primary);
+            text-decoration: underline;
+        }
+
+        .btn-link:hover {
+            opacity: var(--state-hover-opacity);
+        }
+
+        .btn:disabled {
+            opacity: var(--state-disabled-opacity);
+            cursor: not-allowed;
+        }
+
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: var(--font-size-xs);
+        }
+
+        .btn-lg {
+            padding: 0.75rem 1.5rem;
+            font-size: var(--font-size-base);
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.25rem 0.75rem;
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+            border-radius: 9999px;
+            white-space: nowrap;
+        }
+
+        .badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .badge-sm {
+            padding: 0.125rem 0.5rem;
+            font-size: 0.625rem;
+        }
+
+        .badge-lg {
+            padding: 0.375rem 1rem;
+            font-size: var(--font-size-sm);
+        }
+
+        .badge-default {
+            background: var(--color-surface);
+            color: var(--color-text);
+        }
+
+        .badge-success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-warning {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-critico {
+            background: #fee2e2;
+            color: #991b1b;
+            font-weight: 600;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .badge-alto {
+            background: #ffebe5;
+            color: #cc3d00;
+        }
+
+        .badge-medio {
+            background: #fff4e5;
+            color: #cc5500;
+        }
+
+        .badge-bajo {
+            background: #e6f2ff;
+            color: #0f265c;
+        }
+
+        .badge-vigente {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-proximo {
+            background: #fff4e5;
+            color: #cc5500;
+        }
+
+        .badge-vencido {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .grid-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        /* Color Swatch */
+        .color-swatch {
+            width: 100%;
+            height: 80px;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid var(--color-border);
+        }
+
+        .color-label {
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+            color: var(--color-text-secondary);
+        }
+
+        /* Shadow Demo */
+        .shadow-demo {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            color: var(--color-text-secondary);
+        }
+
+        /* Sede Card Demo */
+        .sede-card {
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow 0.2s var(--ease-out), transform 0.2s var(--ease-out);
+            cursor: pointer;
+        }
+
+        .sede-card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .sede-card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .sede-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.5rem;
+            background: var(--color-surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s var(--ease-out);
+        }
+
+        .sede-card:hover .sede-icon {
+            background: var(--color-primary);
+        }
+
+        .sede-card:hover .sede-icon svg {
+            stroke: white;
+        }
+
+        .sede-icon svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            stroke: var(--color-text-secondary);
+            transition: stroke 0.2s var(--ease-out);
+        }
+
+        .sede-card-info {
+            flex: 1;
+        }
+
+        .sede-card-title {
+            font-size: var(--font-size-lg);
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            transition: color 0.2s var(--ease-out);
+        }
+
+        .sede-card:hover .sede-card-title {
+            color: var(--color-primary);
+        }
+
+        .sede-card-code {
+            font-family: 'Courier New', monospace;
+            font-size: var(--font-size-xs);
+            color: var(--color-text-muted);
+        }
+
+        .sede-card-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .sede-card-separator {
+            color: var(--color-border);
+        }
+
+        .sede-card-footer {
+            margin-top: 1rem;
+        }
+
+        .sede-card-permits {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--color-surface);
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--color-success);
+            border-radius: 9999px;
+            transition: width 0.3s var(--ease-smooth);
+        }
+
+        .progress-fill.warning {
+            background: var(--color-accent);
+        }
+
+        .progress-fill.danger {
+            background: var(--color-danger);
+        }
+
+        .flex {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .flex-wrap {
+            flex-wrap: wrap;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .space-y-4 > * + * {
+            margin-top: 1rem;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid currentColor;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Design System Showcase</h1>
+        <p class="subtitle">Sistema de diseño completo de EnRegla con componentes rediseñados</p>
+
+        <!-- Design Tokens -->
+        <h2>Design Tokens</h2>
+
+        <h3>Paleta de Colores Base</h3>
+        <div class="grid grid-4">
+            <div>
+                <div class="color-swatch" style="background: var(--color-primary);"></div>
+                <div class="color-label">Primary Blue</div>
+                <div class="color-label" style="font-family: monospace; font-size: 10px; margin-top: 4px;">#0f265c</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--color-accent);"></div>
+                <div class="color-label">Accent Orange</div>
+                <div class="color-label" style="font-family: monospace; font-size: 10px; margin-top: 4px;">#ff7043</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--color-success);"></div>
+                <div class="color-label">Success Green</div>
+                <div class="color-label" style="font-family: monospace; font-size: 10px; margin-top: 4px;">#31a451</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--color-danger);"></div>
+                <div class="color-label">Error Red</div>
+                <div class="color-label" style="font-family: monospace; font-size: 10px; margin-top: 4px;">#d50707</div>
+            </div>
+        </div>
+
+        <h3>Escala de Azul (Blue Scale)</h3>
+        <div class="grid grid-4" style="grid-template-columns: repeat(10, 1fr);">
+            <div>
+                <div class="color-swatch" style="background: var(--blue-50); height: 60px;"></div>
+                <div class="color-label">50</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--blue-100); height: 60px;"></div>
+                <div class="color-label">100</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--blue-200); height: 60px;"></div>
+                <div class="color-label">200</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--blue-300); height: 60px;"></div>
+                <div class="color-label">300</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--blue-400); height: 60px;"></div>
+                <div class="color-label">400</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--blue-500); height: 60px;"></div>
+                <div class="color-label">500</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--blue-600); height: 60px;"></div>
+                <div class="color-label">600</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--blue-700); height: 60px;"></div>
+                <div class="color-label">700</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--blue-800); height: 60px;"></div>
+                <div class="color-label">800</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--blue-900); height: 60px;"></div>
+                <div class="color-label">900</div>
+            </div>
+        </div>
+
+        <h3>Escala de Naranja (Orange Scale)</h3>
+        <div class="grid grid-4" style="grid-template-columns: repeat(10, 1fr);">
+            <div>
+                <div class="color-swatch" style="background: var(--orange-50); height: 60px;"></div>
+                <div class="color-label">50</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--orange-100); height: 60px;"></div>
+                <div class="color-label">100</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--orange-200); height: 60px;"></div>
+                <div class="color-label">200</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--orange-300); height: 60px;"></div>
+                <div class="color-label">300</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--orange-400); height: 60px;"></div>
+                <div class="color-label">400</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--orange-500); height: 60px;"></div>
+                <div class="color-label">500</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--orange-600); height: 60px;"></div>
+                <div class="color-label">600</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--orange-700); height: 60px;"></div>
+                <div class="color-label">700</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--orange-800); height: 60px;"></div>
+                <div class="color-label">800</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--orange-900); height: 60px;"></div>
+                <div class="color-label">900</div>
+            </div>
+        </div>
+
+        <h3>Escala de Grises (Gray Scale)</h3>
+        <div class="grid grid-4" style="grid-template-columns: repeat(6, 1fr);">
+            <div>
+                <div class="color-swatch" style="background: var(--gray-50); height: 60px;"></div>
+                <div class="color-label">50</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--gray-100); height: 60px;"></div>
+                <div class="color-label">100</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--gray-200); height: 60px;"></div>
+                <div class="color-label">200</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--gray-300); height: 60px;"></div>
+                <div class="color-label">300</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--gray-400); height: 60px;"></div>
+                <div class="color-label">400</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--gray-500); height: 60px;"></div>
+                <div class="color-label">500</div>
+            </div>
+        </div>
+
+        <h3>Sombras</h3>
+        <div class="grid grid-4">
+            <div>
+                <div class="shadow-demo" style="box-shadow: var(--shadow-xs);">xs</div>
+            </div>
+            <div>
+                <div class="shadow-demo" style="box-shadow: var(--shadow-sm);">sm</div>
+            </div>
+            <div>
+                <div class="shadow-demo" style="box-shadow: var(--shadow-md);">md</div>
+            </div>
+            <div>
+                <div class="shadow-demo" style="box-shadow: var(--shadow-lg);">lg</div>
+            </div>
+            <div>
+                <div class="shadow-demo" style="box-shadow: var(--shadow-xl);">xl</div>
+            </div>
+            <div>
+                <div class="shadow-demo" style="box-shadow: var(--shadow-2xl);">2xl</div>
+            </div>
+            <div>
+                <div class="shadow-demo" style="box-shadow: var(--shadow-hover);">hover</div>
+            </div>
+            <div>
+                <div class="shadow-demo" style="box-shadow: var(--shadow-focus);">focus</div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <h2>Buttons</h2>
+
+        <h3>Variantes</h3>
+        <div class="flex flex-wrap">
+            <button class="btn btn-primary">Primary</button>
+            <button class="btn btn-destructive">Destructive</button>
+            <button class="btn btn-outline">Outline</button>
+            <button class="btn btn-secondary">Secondary</button>
+            <button class="btn btn-ghost">Ghost</button>
+            <a href="#" class="btn btn-link">Link</a>
+            <button class="btn" style="background: var(--color-accent); color: white;">Accent</button>
+        </div>
+
+        <h3>Tamaños</h3>
+        <div class="flex items-center flex-wrap">
+            <button class="btn btn-primary btn-sm">Small</button>
+            <button class="btn btn-primary">Default</button>
+            <button class="btn btn-primary btn-lg">Large</button>
+        </div>
+
+        <h3>Estados</h3>
+        <div class="flex flex-wrap">
+            <button class="btn btn-primary">Normal</button>
+            <button class="btn btn-primary" disabled>Disabled</button>
+            <button class="btn btn-primary">
+                <div class="spinner"></div>
+                Loading
+            </button>
+        </div>
+
+        <!-- Badges -->
+        <h2>Badges</h2>
+
+        <h3>Niveles de Riesgo</h3>
+        <div class="flex flex-wrap">
+            <span class="badge badge-critico">
+                <span class="badge-dot"></span>
+                Crítico
+            </span>
+            <span class="badge badge-alto">
+                <span class="badge-dot"></span>
+                Alto
+            </span>
+            <span class="badge badge-medio">
+                <span class="badge-dot"></span>
+                Medio
+            </span>
+            <span class="badge badge-bajo">
+                <span class="badge-dot"></span>
+                Bajo
+            </span>
+        </div>
+
+        <h3>Estados de Permisos</h3>
+        <div class="flex flex-wrap">
+            <span class="badge badge-vigente">
+                <span class="badge-dot"></span>
+                Vigente
+            </span>
+            <span class="badge badge-proximo">
+                <span class="badge-dot"></span>
+                Próximo a vencer
+            </span>
+            <span class="badge badge-vencido">
+                <span class="badge-dot"></span>
+                Vencido
+            </span>
+        </div>
+
+        <h3>Tamaños</h3>
+        <div class="flex items-center flex-wrap">
+            <span class="badge badge-success badge-sm">Small</span>
+            <span class="badge badge-success">Default</span>
+            <span class="badge badge-success badge-lg">Large</span>
+        </div>
+
+        <!-- Cards -->
+        <h2>Cards</h2>
+
+        <div class="grid grid-2">
+            <div class="card">
+                <h3 style="margin-top: 0;">Card Básica</h3>
+                <p style="color: var(--color-text-secondary); font-size: var(--font-size-sm);">
+                    Card estándar con sombra sm y border
+                </p>
+            </div>
+            <div class="card interactive">
+                <h3 style="margin-top: 0;">Card Interactiva</h3>
+                <p style="color: var(--color-text-secondary); font-size: var(--font-size-sm);">
+                    Pasa el mouse para ver el efecto de hover
+                </p>
+            </div>
+        </div>
+
+        <!-- Sede Cards -->
+        <h2>Sede Card Rediseñada</h2>
+        <p class="subtitle">Layout compacto con Estado | Riesgo en línea separados por |</p>
+
+        <div class="grid grid-2">
+            <!-- Good Status Example -->
+            <div class="sede-card">
+                <div class="sede-card-header">
+                    <div class="sede-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
+                            <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/>
+                            <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/>
+                            <path d="M10 6h4"/>
+                            <path d="M10 10h4"/>
+                            <path d="M10 14h4"/>
+                            <path d="M10 18h4"/>
+                        </svg>
+                    </div>
+                    <div class="sede-card-info">
+                        <div class="sede-card-title">Sede Central</div>
+                        <div class="sede-card-code">SEDE-001</div>
+                    </div>
+                </div>
+
+                <div class="sede-card-meta">
+                    <span>Operativa</span>
+                    <span class="sede-card-separator">|</span>
+                    <span class="badge badge-bajo">
+                        <span class="badge-dot"></span>
+                        Bajo
+                    </span>
+                </div>
+
+                <div class="sede-card-footer">
+                    <div class="sede-card-permits">8/8 permisos vigentes</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Warning Status Example -->
+            <div class="sede-card">
+                <div class="sede-card-header">
+                    <div class="sede-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
+                            <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/>
+                            <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/>
+                            <path d="M10 6h4"/>
+                            <path d="M10 10h4"/>
+                            <path d="M10 14h4"/>
+                            <path d="M10 18h4"/>
+                        </svg>
+                    </div>
+                    <div class="sede-card-info">
+                        <div class="sede-card-title">Sucursal Norte</div>
+                        <div class="sede-card-code">SEDE-002</div>
+                    </div>
+                </div>
+
+                <div class="sede-card-meta">
+                    <span>Operativa</span>
+                    <span class="sede-card-separator">|</span>
+                    <span class="badge badge-medio">
+                        <span class="badge-dot"></span>
+                        Medio
+                    </span>
+                </div>
+
+                <div class="sede-card-footer">
+                    <div class="sede-card-permits">5/8 permisos vigentes</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill warning" style="width: 62.5%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 4rem; padding: 2rem; background: white; border-radius: 0.75rem; border: 1px solid var(--color-border); box-shadow: var(--shadow-sm);">
+            <h3 style="margin-top: 0; color: var(--color-primary);">✅ Sistema de Diseño Completo</h3>
+            <p style="color: var(--color-text-secondary); margin-bottom: 1.5rem; font-size: var(--font-size-sm);">
+                Inspirado en Banco Pichincha - Profesional, Confiable, Minimalista
+            </p>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 0.5rem 0; color: var(--color-text-secondary);">✓ Sistema de tokens organizado: Escalas 50-900 (Blue, Orange, Green, Red, Gray)</li>
+                <li style="padding: 0.5rem 0; color: --color-text-secondary);">✓ Paleta base: Azul #0f265c + Naranja #ff7043 (combinación perfecta)</li>
+                <li style="padding: 0.5rem 0; color: var(--color-text-secondary);">✓ Sombras sutiles y profesionales</li>
+                <li style="padding: 0.5rem 0; color: var(--color-text-secondary);">✓ Componentes base mejorados (Button, Badge, Card)</li>
+                <li style="padding: 0.5rem 0; color: var(--color-text-secondary);">✓ Layout compacto en Sede Cards (Estado | Riesgo inline)</li>
+                <li style="padding: 0.5rem 0; color: var(--color-text-secondary);">✓ Estados interactivos con hover effects suaves</li>
+                <li style="padding: 0.5rem 0; color: var(--color-text-secondary);">✓ Tipografía espaciada y legible</li>
+                <li style="padding: 0.5rem 0; color: var(--color-text-secondary);">✓ Sistema consistente listo para aplicar en toda la app</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

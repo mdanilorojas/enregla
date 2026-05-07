@@ -1,38 +1,28 @@
-import { NotificationPreferences } from './NotificationPreferences';
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { ProfileTab } from './ProfileTab'
+import { CompanyTab } from './CompanyTab'
+import { NotificationsTab } from './NotificationsTab'
+import { SecurityTab } from './SecurityTab'
 
 export function SettingsView() {
   return (
-    <div className="space-y-6">
-      {/* Page header */}
-      <div>
-        <h1 className="text-3xl font-bold text-foreground mb-2">Configuración</h1>
-        <p className="text-muted-foreground">
-          Gestiona tus preferencias y configuración de la cuenta
-        </p>
+    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
+      <div className="max-w-4xl mx-auto space-y-[var(--ds-space-300)]">
+        <h1 className="text-[var(--ds-font-size-500)] font-bold">Configuración</h1>
+
+        <Tabs defaultValue="profile">
+          <TabsList>
+            <TabsTrigger value="profile">Perfil</TabsTrigger>
+            <TabsTrigger value="company">Empresa</TabsTrigger>
+            <TabsTrigger value="notifications">Notificaciones</TabsTrigger>
+            <TabsTrigger value="security">Seguridad</TabsTrigger>
+          </TabsList>
+          <TabsContent value="profile"><ProfileTab /></TabsContent>
+          <TabsContent value="company"><CompanyTab /></TabsContent>
+          <TabsContent value="notifications"><NotificationsTab /></TabsContent>
+          <TabsContent value="security"><SecurityTab /></TabsContent>
+        </Tabs>
       </div>
-
-      {/* Notifications section */}
-      <NotificationPreferences />
-
-      {/* Placeholder for future settings */}
-      <Card className="opacity-50">
-        <CardHeader>
-          <CardTitle>Perfil</CardTitle>
-          <CardDescription>
-            Configuración de perfil y cuenta (próximamente)
-          </CardDescription>
-        </CardHeader>
-      </Card>
-
-      <Card className="opacity-50">
-        <CardHeader>
-          <CardTitle>Seguridad</CardTitle>
-          <CardDescription>
-            Contraseña y autenticación (próximamente)
-          </CardDescription>
-        </CardHeader>
-      </Card>
     </div>
-  );
+  )
 }

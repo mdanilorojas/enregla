@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/authStore';
 import type { Database } from '@/types/database';
+import { Loader2, Shield, XCircle } from '@/lib/lucide-icons';
 
 /**
  * Página de callback para OAuth (Google)
@@ -16,11 +17,8 @@ export function AuthCallback() {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        // console.log('[AuthCallback] Iniciando procesamiento...');
-
         // Obtener la sesión del hash de la URL
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        // console.log('[AuthCallback] Sesión obtenida:', session ? 'Sí' : 'No', sessionError);
 
         if (sessionError) {
           throw sessionError;
@@ -31,7 +29,6 @@ export function AuthCallback() {
         }
 
         const user = session.user;
-        // console.log('[AuthCallback] Usuario:', user.email);
 
         // Verificar si el usuario ya tiene un perfil
         const { data: existingProfile, error: profileError } = await supabase
@@ -40,20 +37,16 @@ export function AuthCallback() {
           .eq('id', user.id)
           .maybeSingle();
 
-        // console.log('[AuthCallback] Perfil existente:', existingProfile ? 'Sí' : 'No', profileError);
-
         if (profileError && profileError.code !== 'PGRST116') {
           throw profileError;
         }
 
         if (existingProfile) {
           // Usuario existente, actualizar el store y redirigir
-          // console.log('[AuthCallback] Redirigiendo a dashboard...');
           setAuth(user, existingProfile as Database['public']['Tables']['profiles']['Row']);
           navigate('/', { replace: true });
         } else {
           // Nuevo usuario de Google - necesita completar onboarding
-          // console.log('[AuthCallback] Nuevo usuario, redirigiendo a onboarding...');
           setAuth(user, null);
           navigate('/setup', { replace: true, state: { fromOAuth: true } });
         }
@@ -73,33 +66,31 @@ export function AuthCallback() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FAFBFC]">
-        <div className="max-w-md w-full p-8">
-          <div className="text-center">
-            <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Error de autenticación</h2>
-            <p className="text-gray-600 mb-4">{error}</p>
-            <p className="text-sm text-gray-400">Redirigiendo al login...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[var(--ds-blue-50)] to-[var(--ds-neutral-50)]">
+        <div className="flex flex-col items-center gap-[var(--ds-space-200)] max-w-md text-center px-[var(--ds-space-400)]">
+          <div className="w-16 h-16 rounded-[var(--ds-radius-300)] bg-[var(--ds-background-danger)] flex items-center justify-center">
+            <XCircle className="w-8 h-8 text-white" />
           </div>
+          <h2 className="text-[var(--ds-font-size-400)] font-bold text-[var(--ds-text)]">
+            Error de autenticación
+          </h2>
+          <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)]">{error}</p>
+          <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)]">
+            Redirigiendo al login...
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FAFBFC]">
-      <div className="max-w-md w-full p-8">
-        <div className="text-center">
-          <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
-            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Procesando autenticación</h2>
-          <p className="text-gray-600">Por favor espera...</p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[var(--ds-blue-50)] to-[var(--ds-neutral-50)]">
+      <div className="flex flex-col items-center gap-[var(--ds-space-200)]">
+        <div className="w-16 h-16 rounded-[var(--ds-radius-300)] bg-[var(--ds-background-brand)] flex items-center justify-center">
+          <Shield className="w-8 h-8 text-white" />
         </div>
+        <Loader2 className="w-6 h-6 animate-spin text-[var(--ds-background-brand)]" />
+        <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)]">Autenticando...</p>
       </div>
     </div>
   );

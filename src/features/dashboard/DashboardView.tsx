@@ -1,175 +1,206 @@
-import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { useLocations } from '@/hooks/useLocations';
-import { usePermits } from '@/hooks/usePermits';
-import { RiskOverviewCard } from './RiskOverviewCard';
-import { MetricsGrid } from './MetricsGrid';
-import { SedeCard } from './SedeCard';
-import { CreateLocationModal } from '@/features/locations/CreateLocationModal';
-import { MapPin, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useMemo } from 'react'
+import { Link } from 'react-router-dom'
+import { useAuth } from '@/hooks/useAuth'
+import { useLocations } from '@/hooks/useLocations'
+import { usePermits } from '@/hooks/usePermits'
+import { DashboardWidget } from './DashboardWidget'
+import type { SedeMapData } from './DashboardMap'
+import { EmptyState } from '@/components/ui/empty-state'
+import { Button } from '@/components/ui/button'
+import { Building2, Plus } from '@/lib/lucide-icons'
+import { SkeletonList } from '@/components/ui/skeleton'
+import { ComplianceWeatherCard, type WeatherState } from '@/components/ui/ComplianceWeatherCard'
+import { ComplianceInvoiceCard, type InvoiceLine } from '@/components/ui/ComplianceInvoiceCard'
+
+const AVG_PERMIT_COST = 45
+const FINE_MULTIPLIER: Record<WeatherState, number> = {
+  sunny: 3.2,
+  warn: 4.5,
+  err: 6,
+}
+
+function buildComplianceCopy(state: WeatherState, brand: string): {
+  chipLabel: string
+  headline: React.ReactNode
+} {
+  if (state === 'sunny') {
+    return {
+      chipLabel: 'Casi al día',
+      headline: (
+        <>
+          Vas bien, <span className="brand">{brand}</span>. Solo te falta ponerte al día en unos pocos permisos.
+        </>
+      ),
+    }
+  }
+  if (state === 'warn') {
+    return {
+      chipLabel: 'Te estás atrasando',
+      headline: (
+        <>
+          <span className="brand">{brand}</span>, se te están acumulando los papeles. <b>Ponte las pilas</b> antes que te caiga una multa.
+        </>
+      ),
+    }
+  }
+  return {
+    chipLabel: 'Te pueden cerrar',
+    headline: (
+      <>
+        <span className="brand">{brand}</span>, <b>te pueden clausurar el local</b> en cualquier momento. Hay que actuar ya.
+      </>
+    ),
+  }
+}
+
+function buildWarningText(state: WeatherState): React.ReactNode {
+  if (state === 'sunny') return <>Si no los pagas, la multa puede llegar a</>
+  if (state === 'warn') return <>Si no arreglas esto, la multa puede llegar a</>
+  return <>Clausura + multas hasta</>
+}
 
 export function DashboardView() {
-  const navigate = useNavigate();
-  const { companyId } = useAuth();
-  const { locations, loading: loadingLocations, error: locationsError, refetch } = useLocations(companyId);
-  const { permits, loading: loadingPermits, error: permitsError } = usePermits({ companyId });
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const { companyId: authCompanyId, profile } = useAuth()
+  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true'
+  const companyId = isDemoMode ? '50707999-f033-41c4-91c9-989966311972' : authCompanyId
 
-  // Calculate dashboard metrics
+  const { locations, loading: loadingLocs } = useLocations(companyId)
+  const { permits, loading: loadingPermits } = usePermits({ companyId })
+
+  const loading = loadingLocs || loadingPermits
+
   const metrics = useMemo(() => {
-    if (!companyId || !permits.length) return { vigentes: 0, porVencer: 0, faltantes: 0, compliance: 0 };
-    const vigentes = permits.filter(p => p.status === 'vigente' && p.is_active).length;
-    const porVencer = permits.filter(p => p.status === 'por_vencer' && p.is_active).length;
-    const faltantes = permits.filter(p => p.status === 'no_registrado' && p.is_active).length;
-    const total = permits.filter(p => p.is_active).length;
-    const compliance = total > 0 ? (vigentes / total) * 100 : 0;
+    const activePermits = permits.filter(p => p.is_active)
+    const vigentes = activePermits.filter(p => p.status === 'vigente').length
+    const porVencer = activePermits.filter(p => p.status === 'por_vencer').length
+    const vencidos = activePermits.filter(p => p.status === 'vencido').length
+    const total = activePermits.length
 
-    return { vigentes, porVencer, faltantes, compliance };
-  }, [permits]);
+    const sedesWithPermits: SedeMapData[] = locations.map(loc => {
+      const locPermits = permits.filter(p => p.location_id === loc.id && p.is_active)
+      const active = locPermits.filter(p => p.status === 'vigente').length
+      const totalLoc = locPermits.length || 1
+      const percentage = (active / totalLoc) * 100
+      const status: 'success' | 'warning' | 'danger' =
+        percentage >= 90 ? 'success' : percentage >= 50 ? 'warning' : 'danger'
+      const risk: 'Bajo' | 'Medio' | 'Alto' | 'Crítico' =
+        percentage >= 90 ? 'Bajo' : percentage >= 70 ? 'Medio' : percentage >= 40 ? 'Alto' : 'Crítico'
+      return {
+        id: loc.id,
+        label: loc.name,
+        code: loc.id.slice(0, 8).toUpperCase(),
+        permits: active,
+        total: totalLoc,
+        status,
+        risk,
+      }
+    })
 
-  // Calculate permit counts per location
-  const locationPermitCounts = useMemo(() => {
-    const counts: Record<string, { vigentes: number; total: number }> = {};
+    const percentage = total > 0 ? Math.round((vigentes / total) * 100) : 0
+    const missing = porVencer + vencidos
+    const state: WeatherState = vencidos > 0 && percentage < 50
+      ? 'err'
+      : percentage < 80 || vencidos > 0
+        ? 'warn'
+        : 'sunny'
 
-    if (!locations.length || !permits.length) return counts;
+    const regularizeCost = Math.round(missing * AVG_PERMIT_COST)
+    const fineCost = Math.round(regularizeCost * FINE_MULTIPLIER[state])
 
-    locations.forEach(location => {
-      const locationPermits = permits.filter(p => p.location_id === location.id && p.is_active);
-      const vigentes = locationPermits.filter(p => p.status === 'vigente').length;
-      counts[location.id] = {
-        vigentes,
-        total: locationPermits.length,
-      };
-    });
+    return {
+      vigentes,
+      porVencer,
+      vencidos,
+      total,
+      percentage,
+      missing,
+      sedesWithPermits,
+      state,
+      regularizeCost,
+      fineCost,
+    }
+  }, [locations, permits])
 
-    return counts;
-  }, [locations, permits]);
-
-  // Guard: redirect or show message if no companyId
-  if (!companyId) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-background p-8">
+      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-semibold text-text mb-2">No Company Found</h2>
-            <p className="text-text-secondary">Please complete your company setup to access the dashboard.</p>
-          </div>
+          <SkeletonList count={1} />
         </div>
       </div>
-    );
+    )
   }
 
-  // Error state
-  if (locationsError || permitsError) {
+  if (locations.length === 0) {
     return (
-      <div className="min-h-screen bg-background p-8">
+      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-semibold text-danger mb-2">Error Loading Dashboard</h2>
-            <p className="text-text-secondary mb-4">
-              {locationsError || permitsError || 'Unable to load dashboard data. Please try again.'}
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover"
-            >
-              Retry
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Loading state
-  if (loadingLocations || loadingPermits) {
-    return (
-      <div className="min-h-screen bg-background p-8">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <div className="h-8 w-64 bg-gray-200 rounded animate-pulse" />
-          <div className="h-48 bg-gray-200 rounded animate-pulse" />
-          <div className="grid grid-cols-3 gap-6">
-            <div className="h-32 bg-gray-200 rounded animate-pulse" />
-            <div className="h-32 bg-gray-200 rounded animate-pulse" />
-            <div className="h-32 bg-gray-200 rounded animate-pulse" />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-[var(--color-surface)] p-6 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Risk Overview */}
-        <RiskOverviewCard metrics={metrics} />
-
-        {/* Metrics Grid */}
-        <MetricsGrid metrics={metrics} />
-
-        {/* Sedes Section */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-lg font-semibold text-[var(--color-text)]">Sedes</h2>
-              <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-                {locations.length} {locations.length === 1 ? 'sede registrada' : 'sedes registradas'}
-              </p>
-            </div>
-          </div>
-
-          {locations.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-[var(--color-border)] bg-white py-16 text-center">
-              <div className="flex flex-col items-center gap-4 max-w-sm mx-auto">
-                <div className="w-14 h-14 rounded-full bg-[var(--color-surface)] flex items-center justify-center">
-                  <MapPin className="w-7 h-7 text-[var(--color-text-muted)]" />
-                </div>
-                <div>
-                  <h3 className="text-base font-semibold text-[var(--color-text)] mb-1">
-                    No hay sedes
-                  </h3>
-                  <p className="text-sm text-[var(--color-text-secondary)]">
-                    Comienza creando tu primera sede
-                  </p>
-                </div>
-                <Button
-                  onClick={() => setShowCreateModal(true)}
-                  className="mt-2"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
+          <EmptyState
+            icon={Building2}
+            title="No hay sedes registradas"
+            description="Crea tu primera sede para comenzar a gestionar permisos"
+            action={
+              <Link to="/sedes">
+                <Button variant="default">
+                  <Plus className="w-4 h-4" />
                   Crear Primera Sede
                 </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {locations.map(location => (
-                <SedeCard
-                  key={location.id}
-                  sede={location}
-                  permitCounts={locationPermitCounts[location.id] || { vigentes: 0, total: 0 }}
-                  onClick={() => navigate(`/sedes/${location.id}`)}
-                />
-              ))}
-            </div>
-          )}
+              </Link>
+            }
+          />
         </div>
       </div>
+    )
+  }
 
-      {/* Create Location Modal */}
-      {companyId && (
-        <CreateLocationModal
-          open={showCreateModal}
-          onClose={() => setShowCreateModal(false)}
-          onSuccess={(locationId) => {
-            refetch();
-            navigate(`/sedes/${locationId}`);
-          }}
-          companyId={companyId}
+  const brandName = profile?.company_id
+    ? locations[0]?.name?.split(' ')[0] ?? 'tu negocio'
+    : 'Hamburguesas La Española'
+
+  const { chipLabel, headline } = buildComplianceCopy(metrics.state, brandName)
+
+  const invoiceLines: InvoiceLine[] = metrics.missing > 0
+    ? [
+        ...(metrics.vencidos > 0
+          ? [{ label: 'Permisos vencidos', detail: `${metrics.vencidos} trámites`, amount: Math.round(metrics.vencidos * AVG_PERMIT_COST) }]
+          : []),
+        ...(metrics.porVencer > 0
+          ? [{ label: 'Permisos por vencer', detail: 'próximos 30 días', amount: Math.round(metrics.porVencer * AVG_PERMIT_COST) }]
+          : []),
+      ]
+    : [{ label: 'Sin trámites pendientes', detail: 'Estás al 100%', amount: 0 }]
+
+  return (
+    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
+      <div className="max-w-7xl mx-auto space-y-[var(--ds-space-400)]">
+        <h1 className="text-[var(--ds-font-size-500)] font-bold text-[var(--ds-text)]">Dashboard</h1>
+
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_440px] gap-5 items-stretch">
+          <ComplianceWeatherCard
+            state={metrics.state}
+            chipLabel={chipLabel}
+            headline={headline}
+            percentage={metrics.percentage}
+            permitsDone={metrics.vigentes}
+            permitsTotal={metrics.total}
+            locations={locations.length}
+          />
+          <ComplianceInvoiceCard
+            lines={invoiceLines}
+            total={metrics.regularizeCost}
+            warningAmount={metrics.missing > 0 ? metrics.fineCost : undefined}
+            warningText={metrics.missing > 0 ? buildWarningText(metrics.state) : undefined}
+          />
+        </div>
+
+        <DashboardWidget
+          totalSedes={locations.length}
+          vigentes={metrics.vigentes}
+          porVencer={metrics.porVencer}
+          vencidos={metrics.vencidos}
+          sedes={metrics.sedesWithPermits}
         />
-      )}
+      </div>
     </div>
-  );
+  )
 }

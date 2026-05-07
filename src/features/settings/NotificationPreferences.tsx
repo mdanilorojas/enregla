@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Bell, Mail, CalendarClock, AlertCircle } from 'lucide-react';
+import { Bell, Mail, CalendarClock, AlertCircle } from '@/lib/lucide-icons';
 import toast from 'react-hot-toast';
 
 export function NotificationPreferences() {

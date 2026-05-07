@@ -1,25 +1,17 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocations } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { formatDateRelative, daysUntil } from '@/lib/dates';
-import {
-  Filter,
-  ChevronRight,
-  Shield,
-  Building2,
-  AlertTriangle,
-  CheckCircle2,
-  Clock,
-  XCircle,
-} from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { EmptyState } from '@/components/ui/empty-state';
+import { FileText, Plus, Download } from '@/lib/lucide-icons';
+import { SkeletonList } from '@/components/ui/skeleton';
+import { PermitTable, type PermitRow } from './PermitTable';
+import { PermitTableFilters, type FilterState } from './PermitTableFilters';
+import { exportPermitsCSV } from './exportPermitsCSV';
 
 export function PermitListView() {
-  const navigate = useNavigate();
   const { profile } = useAuth();
   const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
 
@@ -29,295 +21,105 @@ export function PermitListView() {
 
   const { locations, loading: loadingLocations } = useLocations(companyId);
   const { permits, loading: loadingPermits } = usePermits({ companyId });
-  const [filterSede, setFilterSede] = useState<string>('all');
-  const [filterTipo, setFilterTipo] = useState<string>('all');
-  const [filterEstado, setFilterEstado] = useState<string>('all');
 
-  const filtered = useMemo(() => {
-    return permits.filter((p) => {
-      if (filterSede !== 'all' && p.location_id !== filterSede) return false;
-      if (filterTipo !== 'all' && p.type !== filterTipo) return false;
-      if (filterEstado !== 'all' && p.status !== filterEstado) return false;
-      return true;
-    });
-  }, [permits, filterSede, filterTipo, filterEstado]);
-
-  const stats = useMemo(() => {
-    const vigentes = permits.filter((p) => p.status === 'vigente').length;
-    const vencidos = permits.filter((p) => p.status === 'vencido').length;
-    const porVencer = permits.filter((p) => {
-      if (!p.expiry_date || p.status === 'vencido') return false;
-      return daysUntil(p.expiry_date) <= 30;
-    }).length;
-    const noRegistrados = permits.filter((p) => p.status === 'no_registrado').length;
-
-    return { vigentes, vencidos, porVencer, noRegistrados };
-  }, [permits]);
-
-  const uniqueTypes = [...new Set(permits.map((p) => p.type))];
-  const uniqueStatuses = [...new Set(permits.map((p) => p.status))];
+  const [filters, setFilters] = useState<FilterState>({
+    search: '',
+    status: '',
+    type: '',
+    location: '',
+  });
 
   const loading = loadingLocations || loadingPermits;
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="h-20 bg-gray-200 rounded animate-pulse" />
-        <div className="grid grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-24 bg-gray-200 rounded animate-pulse" />
-          ))}
-        </div>
-        <div className="h-16 bg-gray-200 rounded animate-pulse" />
-        <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-20 bg-gray-200 rounded animate-pulse" />
-          ))}
-        </div>
-      </div>
-    );
-  }
+  const rows = useMemo<PermitRow[]>(() => {
+    return permits
+      .filter(p => p.is_active)
+      .map(p => {
+        const loc = locations.find(l => l.id === p.location_id);
+        return {
+          id: p.id,
+          location: loc?.name ?? 'Sin sede',
+          locationId: p.location_id,
+          type: p.type ?? 'Sin tipo',
+          status: (p.status as PermitRow['status']) ?? 'no_registrado',
+          expires_at: p.expiry_date,
+          authority: p.issuer ?? 'Sin autoridad',
+          responsible: '-',
+        };
+      });
+  }, [permits, locations]);
 
-  const getStatusVariant = (status: string): 'success' | 'destructive' | 'warning' | 'secondary' => {
-    if (status === 'vigente') return 'success';
-    if (status === 'vencido') return 'destructive';
-    if (status === 'no_registrado') return 'warning';
-    return 'secondary';
-  };
+  const filtered = useMemo(() => {
+    return rows.filter(r => {
+      if (
+        filters.search &&
+        !`${r.location} ${r.type} ${r.authority} ${r.responsible}`
+          .toLowerCase()
+          .includes(filters.search.toLowerCase())
+      ) {
+        return false;
+      }
+      if (filters.status && r.status !== filters.status) return false;
+      if (filters.type && r.type !== filters.type) return false;
+      if (filters.location && r.locationId !== filters.location) return false;
+      return true;
+    });
+  }, [rows, filters]);
 
-  const hasActiveFilters = filterSede !== 'all' || filterTipo !== 'all' || filterEstado !== 'all';
+  const statuses = useMemo(() => Array.from(new Set(rows.map(r => r.status))), [rows]);
+  const types = useMemo(() => Array.from(new Set(rows.map(r => r.type))), [rows]);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center">
-            <Shield size={20} className="text-white" />
-          </div>
+    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
+      <div className="max-w-7xl mx-auto space-y-[var(--ds-space-300)]">
+        <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+            <h1 className="text-[var(--ds-font-size-500)] font-bold text-[var(--ds-text)]">
               Permisos
             </h1>
-            <p className="text-sm text-gray-500 mt-0.5">
-              {permits.length} permisos rastreados en {locations.length} sedes
+            <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)] mt-[var(--ds-space-050)]">
+              {rows.length} permisos registrados
             </p>
+          </div>
+          <div className="flex gap-[var(--ds-space-100)]">
+            <Button variant="outline" onClick={() => exportPermitsCSV(filtered)}>
+              <Download className="w-4 h-4" />Exportar CSV
+            </Button>
+            <Button variant="default">
+              <Plus className="w-4 h-4" />Nuevo Permiso
+            </Button>
           </div>
         </div>
-      </div>
 
-      {/* Stats Dashboard */}
-      <div className="grid grid-cols-4 gap-4">
-        <Card className="border-emerald-200 bg-emerald-50">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-emerald-600 uppercase tracking-wider mb-1">
-                  Vigentes
-                </p>
-                <p className="text-3xl font-bold text-emerald-700">
-                  {stats.vigentes}
-                </p>
-              </div>
-              <CheckCircle2 size={32} className="text-emerald-400" />
-            </div>
-          </CardContent>
+        <Card className="p-[var(--ds-space-300)]">
+          <PermitTableFilters
+            filters={filters}
+            onFiltersChange={setFilters}
+            availableStatuses={statuses}
+            availableTypes={types}
+            availableLocations={locations.map(l => ({ id: l.id, name: l.name }))}
+          />
         </Card>
 
-        <Card className="border-amber-200 bg-amber-50">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-amber-600 uppercase tracking-wider mb-1">
-                  Por Vencer (≤30d)
-                </p>
-                <p className="text-3xl font-bold text-amber-700">
-                  {stats.porVencer}
-                </p>
-              </div>
-              <Clock size={32} className="text-amber-400" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-red-200 bg-red-50">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-red-600 uppercase tracking-wider mb-1">
-                  Vencidos
-                </p>
-                <p className="text-3xl font-bold text-red-700">
-                  {stats.vencidos}
-                </p>
-              </div>
-              <AlertTriangle size={32} className="text-red-400" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-gray-100 bg-gray-50">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-600 uppercase tracking-wider mb-1">
-                  No Registrados
-                </p>
-                <p className="text-3xl font-bold text-gray-700">
-                  {stats.noRegistrados}
-                </p>
-              </div>
-              <XCircle size={32} className="text-gray-400" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-3 flex-wrap">
-            <Filter size={16} className="text-gray-400" />
-            <select
-              value={filterSede}
-              onChange={(e) => setFilterSede(e.target.value)}
-              className="bg-white border border-gray-100 rounded-lg px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-all"
-            >
-              <option value="all">Todas las sedes</option>
-              {locations.map((l) => (
-                <option key={l.id} value={l.id}>{l.name}</option>
-              ))}
-            </select>
-
-            <select
-              value={filterTipo}
-              onChange={(e) => setFilterTipo(e.target.value)}
-              className="bg-white border border-gray-100 rounded-lg px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-all"
-            >
-              <option value="all">Todos los tipos</option>
-              {uniqueTypes.map((t) => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
-
-            <select
-              value={filterEstado}
-              onChange={(e) => setFilterEstado(e.target.value)}
-              className="bg-white border border-gray-100 rounded-lg px-3 py-2 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-300 transition-all"
-            >
-              <option value="all">Todos los estados</option>
-              {uniqueStatuses.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-
-            {hasActiveFilters && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setFilterSede('all');
-                  setFilterTipo('all');
-                  setFilterEstado('all');
-                }}
-              >
-                Limpiar filtros
-              </Button>
-            )}
-
-            <div className="ml-auto text-sm text-gray-500">
-              {filtered.length === permits.length
-                ? `${permits.length} ${permits.length === 1 ? 'permiso' : 'permisos'}`
-                : `${filtered.length} de ${permits.length}`}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Permits List */}
-      <div className="space-y-3">
-        {filtered.map((permit) => {
-          const loc = locations.find((l) => l.id === permit.location_id);
-          const isRisk = permit.status === 'vencido' || permit.status === 'no_registrado';
-          const daysRemaining = permit.expiry_date ? daysUntil(permit.expiry_date) : null;
-
-          return (
-            <Card
-              key={permit.id}
-              className={`transition-all cursor-pointer hover:shadow-md ${
-                isRisk ? 'border-red-300' : ''
-              }`}
-              onClick={() => navigate(`/permisos/${permit.id}`)}
-            >
-              <CardContent className="pt-6">
-                <div className="flex items-center gap-4">
-                  <div
-                    className={`w-3 h-3 rounded-full shrink-0 ${
-                      permit.status === 'vigente'
-                        ? 'bg-emerald-500'
-                        : permit.status === 'vencido'
-                        ? 'bg-red-500 animate-pulse'
-                        : permit.status === 'no_registrado'
-                        ? 'bg-amber-500'
-                        : 'bg-gray-300'
-                    }`}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-sm font-semibold text-gray-900">
-                        {permit.type}
-                      </h3>
-                      <Badge variant={getStatusVariant(permit.status)}>
-                        {permit.status}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-3 flex-wrap text-xs text-gray-500">
-                      <div className="flex items-center gap-1.5">
-                        <Building2 size={12} />
-                        {loc?.name || 'Sin sede'}
-                      </div>
-                      <span className="text-gray-300">•</span>
-                      <span>{permit.issuer}</span>
-                      {permit.expiry_date && (
-                        <>
-                          <span className="text-gray-300">•</span>
-                          <span
-                            className={`font-medium ${
-                              daysRemaining !== null && daysRemaining < 0
-                                ? 'text-red-600'
-                                : daysRemaining !== null && daysRemaining <= 30
-                                ? 'text-amber-600'
-                                : ''
-                            }`}
-                          >
-                            {formatDateRelative(permit.expiry_date)}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <ChevronRight size={16} className="text-gray-400 shrink-0" />
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-
-        {/* Empty State */}
-        {filtered.length === 0 && (
-          <div className="text-center py-12">
-            <Shield size={48} className="text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 mb-2">
-              {hasActiveFilters
-                ? 'No hay permisos que coincidan con los filtros'
-                : 'No hay permisos registrados'}
-            </p>
-            <p className="text-sm text-gray-400">
-              {hasActiveFilters
-                ? 'Intenta cambiar los filtros'
-                : 'Agrega permisos desde la vista de cada sede'}
-            </p>
-          </div>
+        {loading ? (
+          <Card className="p-[var(--ds-space-300)]" aria-busy="true" aria-label="Cargando permisos">
+            <SkeletonList count={5} />
+          </Card>
+        ) : rows.length === 0 ? (
+          <Card className="p-0">
+            <EmptyState
+              icon={FileText}
+              title="No hay permisos registrados"
+              description="Crea el primer permiso para comenzar"
+              action={
+                <Button variant="default">
+                  <Plus className="w-4 h-4" />Nuevo Permiso
+                </Button>
+              }
+            />
+          </Card>
+        ) : (
+          <PermitTable data={filtered} />
         )}
       </div>
     </div>

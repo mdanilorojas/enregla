@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Escudo — 3 estados, premium</title>
+<style>
+:root {
+  --ds-blue-900: #0f265c;
+  --ds-blue-800: #143374;
+  --ds-blue-50: #e7edf7;
+  --ds-green-500: #16a34a;
+  --ds-green-600: #15803d;
+  --ds-orange-500: #ff7043;
+  --ds-orange-600: #f4511e;
+  --ds-red-500: #dc2626;
+  --ds-red-700: #991b1b;
+  --ds-green-50: #ecfdf5;
+  --ds-orange-50: #fff4e6;
+  --ds-red-50: #fef2f2;
+  --ds-neutral-50: #f7f8fa;
+  --ds-neutral-100: #eef0f3;
+  --ds-neutral-200: #dfe3e8;
+  --ds-text: #172b4d;
+  --ds-text-subtle: #5e6c84;
+  --ds-text-subtlest: #8993a4;
+  --ds-border: #dfe3e8;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI Variable', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Inter', Roboto, sans-serif;
+  margin: 0;
+  padding: 40px 24px;
+  background: var(--ds-neutral-50);
+  color: var(--ds-text);
+  -webkit-font-smoothing: antialiased;
+}
+.page-header { max-width: 1200px; margin: 0 auto 28px; }
+h1 { font-size: 32px; font-weight: 300; letter-spacing: -0.6px; margin: 0 0 8px; }
+.subtitle { color: var(--ds-text-subtle); margin: 0; font-size: 15px; font-weight: 300; max-width: 820px; line-height: 1.55; }
+.notes {
+  background: white; border: 1px solid var(--ds-border);
+  border-left: 3px solid var(--ds-blue-900);
+  padding: 16px 22px; margin: 20px 0 0;
+  font-size: 13px; line-height: 1.6; border-radius: 4px;
+}
+.notes b { color: var(--ds-blue-900); font-weight: 500; }
+.notes ul { margin: 6px 0 0; padding-left: 18px; color: var(--ds-text-subtle); }
+.notes li { margin-bottom: 3px; }
+.notes li b { color: var(--ds-text); font-weight: 500; }
+
+.scene-wrap { max-width: 1200px; margin: 0 auto 24px; }
+.scene-label {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 6px 14px; border-radius: 20px;
+  font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.scene-label.ok   { background: var(--ds-green-50); color: var(--ds-green-500); }
+.scene-label.warn { background: var(--ds-orange-50); color: var(--ds-orange-600); }
+.scene-label.err  { background: var(--ds-red-50); color: var(--ds-red-700); }
+
+.scene {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  min-height: 460px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.06);
+  padding: 48px 56px;
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 48px;
+  align-items: center;
+}
+.scene.ok   { background: radial-gradient(ellipse at 20% 30%, #eff6ff 0%, #e7edf7 40%, #d8e3f2 100%); }
+.scene.warn { background: radial-gradient(ellipse at 20% 30%, #fffbeb 0%, #fff4e6 40%, #ffe4c4 100%); }
+.scene.err {
+  background: radial-gradient(ellipse at 20% 30%, #1a0e14 0%, #231318 40%, #2a1013 100%);
+  color: #fecaca;
+}
+
+.shield-stage { position: relative; height: 380px; display: flex; align-items: center; justify-content: center; }
+
+/* ===== OK shield ===== */
+.shield-ok {
+  width: 100%; height: 100%;
+  filter: drop-shadow(0 18px 28px rgba(15, 38, 92, 0.18));
+  animation: shieldBreathe 4s ease-in-out infinite;
+}
+@keyframes shieldBreathe { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-4px) scale(1.008); } }
+
+.shield-ok .body-fill { fill: url(#grad-ok-body); }
+.shield-ok .body-stroke { fill: none; stroke: var(--ds-blue-900); stroke-width: 2.5; stroke-linejoin: round; }
+.shield-ok .inner-line { fill: none; stroke: var(--ds-blue-900); stroke-width: 1; opacity: 0.28; }
+.shield-ok .fill-layer { fill: url(#grad-ok-fill); opacity: 0.92; }
+.shield-ok .shine { fill: url(#grad-ok-shine); opacity: 0.7; }
+.shield-ok .center-line { fill: none; stroke: var(--ds-blue-900); stroke-width: 0.5; opacity: 0.15; }
+
+/* ===== WARN shield: subtle cracks appearing ===== */
+.shield-warn {
+  width: 100%; height: 100%;
+  filter: drop-shadow(0 16px 26px rgba(244, 81, 30, 0.2));
+  animation: shieldWobble 5s ease-in-out infinite;
+}
+@keyframes shieldWobble { 0%,100% { transform: rotate(0deg); } 33% { transform: rotate(-0.4deg); } 66% { transform: rotate(0.4deg); } }
+
+.shield-warn .body-fill { fill: url(#grad-warn-body); }
+.shield-warn .body-stroke { fill: none; stroke: var(--ds-orange-600); stroke-width: 2.5; stroke-linejoin: round; }
+.shield-warn .inner-line { fill: none; stroke: var(--ds-orange-600); stroke-width: 1; opacity: 0.3; }
+.shield-warn .fill-layer { fill: url(#grad-warn-fill); opacity: 0.85; }
+.shield-warn .shine { fill: url(#grad-warn-shine); opacity: 0.5; }
+.shield-warn .crack-path {
+  fill: none;
+  stroke: rgba(244, 81, 30, 0.55);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-dasharray: 2 3;
+  animation: crackGlow 3s ease-in-out infinite;
+}
+@keyframes crackGlow { 0%,100% { opacity: 0.45; } 50% { opacity: 0.85; } }
+
+/* ===== ERR shield: split in half ===== */
+.shield-err {
+  width: 100%; height: 100%;
+  filter: drop-shadow(0 20px 32px rgba(220, 38, 38, 0.35));
+}
+.shield-err .left-half, .shield-err .right-half {
+  transform-origin: center;
+  animation: breakApart 6s ease-in-out infinite;
+}
+.shield-err .left-half { animation-name: breakApartLeft; }
+.shield-err .right-half { animation-name: breakApartRight; }
+@keyframes breakApartLeft {
+  0%, 50% { transform: translateX(0) rotate(0deg); }
+  70% { transform: translateX(-14px) rotate(-4deg); }
+  100% { transform: translateX(-8px) rotate(-2deg); }
+}
+@keyframes breakApartRight {
+  0%, 50% { transform: translateX(0) rotate(0deg); }
+  70% { transform: translateX(14px) rotate(4deg); }
+  100% { transform: translateX(8px) rotate(2deg); }
+}
+
+.shield-err .body-fill-dark { fill: url(#grad-err-body); }
+.shield-err .body-stroke { fill: none; stroke: var(--ds-red-500); stroke-width: 2.5; stroke-linejoin: round; }
+.shield-err .inner-line { fill: none; stroke: var(--ds-red-500); stroke-width: 1; opacity: 0.4; }
+.shield-err .fill-layer { fill: rgba(220, 38, 38, 0.25); }
+.shield-err .break-edge {
+  fill: none; stroke: rgba(255, 180, 180, 0.7);
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.shield-err .crack-deep {
+  fill: none; stroke: rgba(252, 165, 165, 0.6);
+  stroke-width: 1.4; stroke-linecap: round;
+}
+.shield-err .spark {
+  fill: rgba(255, 200, 200, 0.9);
+  animation: sparkFlicker 2s ease-in-out infinite;
+}
+.shield-err .spark:nth-child(odd) { animation-delay: -0.7s; }
+.shield-err .spark:nth-child(3n) { animation-delay: -1.3s; }
+@keyframes sparkFlicker { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+/* ===== Floating data card (all states) ===== */
+.data-card {
+  position: relative;
+  padding: 28px 32px;
+  border-radius: 16px;
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+}
+.scene.ok .data-card {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(15, 38, 92, 0.12);
+  box-shadow: 0 4px 20px rgba(15, 38, 92, 0.08), 0 1px 2px rgba(15, 38, 92, 0.04);
+}
+.scene.warn .data-card {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(244, 81, 30, 0.18);
+  box-shadow: 0 4px 20px rgba(244, 81, 30, 0.12), 0 1px 2px rgba(244, 81, 30, 0.06);
+}
+.scene.err .data-card {
+  background: rgba(20, 10, 14, 0.75);
+  border: 1px solid rgba(252, 165, 165, 0.25);
+  box-shadow: 0 4px 28px rgba(220, 38, 38, 0.35),
+              0 0 0 1px rgba(252, 165, 165, 0.1) inset;
+}
+
+.data-card .badge-state {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.data-card .badge-state .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+.scene.ok .data-card .badge-state   { color: var(--ds-green-500); }
+.scene.warn .data-card .badge-state { color: var(--ds-orange-600); }
+.scene.err .data-card .badge-state  { color: #fca5a5; }
+.scene.ok .data-card .badge-state .dot   { background: var(--ds-green-500); box-shadow: 0 0 8px var(--ds-green-500); }
+.scene.warn .data-card .badge-state .dot { background: var(--ds-orange-500); box-shadow: 0 0 8px var(--ds-orange-500); }
+.scene.err .data-card .badge-state .dot  { background: #ef4444; box-shadow: 0 0 10px #ef4444; }
+
+.data-card .headline {
+  font-size: 28px; font-weight: 300; letter-spacing: -0.5px;
+  line-height: 1.25; margin: 0 0 24px;
+  max-width: 480px;
+}
+.data-card .headline b { font-weight: 500; }
+.scene.ok .data-card .headline { color: var(--ds-text); }
+.scene.warn .data-card .headline { color: var(--ds-text); }
+.scene.err .data-card .headline { color: #fef2f2; }
+
+.data-card .big-pct {
+  font-size: 120px; font-weight: 100; line-height: 1;
+  letter-spacing: -5px;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 8px;
+}
+.data-card .big-pct small {
+  font-size: 44px; font-weight: 200; opacity: 0.7;
+  margin-left: 2px; letter-spacing: -2px;
+}
+.scene.ok .data-card .big-pct   { color: var(--ds-green-600); }
+.scene.warn .data-card .big-pct { color: var(--ds-orange-600); }
+.scene.err .data-card .big-pct  { color: #fca5a5; text-shadow: 0 0 20px rgba(252,165,165,0.4); }
+
+.data-card .bottom {
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: center; gap: 20px;
+  padding-top: 20px; margin-top: 8px;
+  border-top: 1px solid;
+}
+.scene.ok .data-card .bottom   { border-color: rgba(15, 38, 92, 0.12); }
+.scene.warn .data-card .bottom { border-color: rgba(244, 81, 30, 0.18); }
+.scene.err .data-card .bottom  { border-color: rgba(252, 165, 165, 0.2); }
+
+.data-card .bottom .vdiv {
+  width: 1px; height: 34px;
+  background: currentColor; opacity: 0.2;
+}
+.data-card .bottom .item .k {
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  font-weight: 600; opacity: 0.75;
+}
+.data-card .bottom .item .v {
+  font-size: 26px; font-weight: 200; letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums; line-height: 1;
+  margin-top: 4px;
+}
+.scene.ok .data-card .bottom .item .v   { color: var(--ds-text); }
+.scene.warn .data-card .bottom .item .v { color: var(--ds-text); }
+.scene.err .data-card .bottom .item .v  { color: #fef2f2; }
+
+/* Big shield percentage text rendering inside SVG — kept for context, subtle */
+.shield-label-internal {
+  font-family: 'Segoe UI Variable', -apple-system, sans-serif;
+  fill: currentColor;
+  text-anchor: middle;
+}
+</style>
+</head>
+<body>
+
+<!-- Global SVG defs -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <!-- OK gradients -->
+    <linearGradient id="grad-ok-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f5f8fc"/>
+      <stop offset="100%" stop-color="#d4dfed"/>
+    </linearGradient>
+    <linearGradient id="grad-ok-fill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#22c55e" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#16a34a" stop-opacity="0.35"/>
+    </linearGradient>
+    <linearGradient id="grad-ok-shine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="white" stop-opacity="0"/>
+      <stop offset="50%" stop-color="white" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- WARN gradients -->
+    <linearGradient id="grad-warn-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff7ed"/>
+      <stop offset="100%" stop-color="#fed7aa"/>
+    </linearGradient>
+    <linearGradient id="grad-warn-fill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fb923c" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#ff7043" stop-opacity="0.4"/>
+    </linearGradient>
+    <linearGradient id="grad-warn-shine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="white" stop-opacity="0"/>
+      <stop offset="50%" stop-color="white" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- ERR gradients -->
+    <linearGradient id="grad-err-body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3a1a1a"/>
+      <stop offset="100%" stop-color="#1a0808"/>
+    </linearGradient>
+
+    <!-- Turbulence filter for break edge roughness -->
+    <filter id="rough-edge">
+      <feTurbulence type="fractalNoise" baseFrequency="0.4" numOctaves="2" seed="5" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3"/>
+    </filter>
+  </defs>
+</svg>
+
+<div class="page-header">
+  <h1>Escudo — rediseño premium × 3 estados</h1>
+  <p class="subtitle">
+    Tres estados con calidad visual equivalente al atmosférico. En <b>riesgo</b>, el escudo se parte en dos mitades que se separan ligeramente (rotación + desplazamiento). El dato vive en una <b>tarjeta flotante con blur</b> a la derecha — nunca sobre el escudo — para que el contraste siempre sea limpio, sin importar el estado.
+  </p>
+  <div class="notes">
+    <b>Cambios clave vs. la versión anterior</b>:
+    <ul>
+      <li><b>Escudo y datos separados</b>: el escudo vive a la izquierda (380px), los datos en una tarjeta con <code>backdrop-filter: blur</code> a la derecha. Nunca se pisan.</li>
+      <li><b>Escudo partido</b> en modo riesgo: SVG con dos grupos <code>&lt;g&gt;</code> (mitad izquierda, mitad derecha) que se alejan con rotación sutil. Borde de fractura generado con filter turbulence.</li>
+      <li><b>Luz interna</b> (shine) que barre el escudo en OK y WARN — le da material metálico.</li>
+      <li><b>Breathe animation</b> en OK (respira calmado), <b>wobble</b> en WARN (oscila nervioso), <b>break</b> en ERR (se desarma, se detiene).</li>
+      <li><b>Sparks</b> en ERR: pequeños fragmentos en el borde de fractura que parpadean.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ================================================================
+ * OK
+ * ================================================================ -->
+<div class="scene-wrap">
+  <div class="scene-label ok">☀ Cumpliendo · ≥ 80%</div>
+  <div class="scene ok">
+    <div class="shield-stage">
+      <svg class="shield-ok" viewBox="0 0 280 340">
+        <!-- body -->
+        <path class="body-fill"
+          d="M140 10 L250 48 L250 180 Q250 270 140 330 Q30 270 30 180 L30 48 Z"/>
+        <path class="body-stroke"
+          d="M140 10 L250 48 L250 180 Q250 270 140 330 Q30 270 30 180 L30 48 Z"/>
+        <!-- inner frame -->
+        <path class="inner-line"
+          d="M140 26 L236 58 L236 180 Q236 256 140 312 Q44 256 44 180 L44 58 Z"/>
+        <!-- fill indicator (84% filled from bottom) -->
+        <path class="fill-layer"
+          d="M44 76 L236 76 L236 180 Q236 256 140 312 Q44 256 44 180 Z"/>
+        <!-- shine sweep -->
+        <path class="shine"
+          d="M52 40 L100 40 L70 300 L40 300 Z"/>
+        <!-- subtle vertical center line -->
+        <line class="center-line" x1="140" y1="10" x2="140" y2="330"/>
+      </svg>
+    </div>
+    <div class="data-card">
+      <div class="badge-state"><span class="dot"></span>Escudo íntegro</div>
+      <h2 class="headline">Tu empresa está <b>protegida</b>.</h2>
+      <div class="big-pct">84<small>%</small></div>
+      <div class="bottom">
+        <div class="item">
+          <div class="k">Permisos</div>
+          <div class="v">48 / 57</div>
+        </div>
+        <div class="vdiv"></div>
+        <div class="item">
+          <div class="k">Sedes</div>
+          <div class="v">15</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+ * WARN
+ * ================================================================ -->
+<div class="scene-wrap">
+  <div class="scene-label warn">⛅ Atención · 50 – 79%</div>
+  <div class="scene warn">
+    <div class="shield-stage">
+      <svg class="shield-warn" viewBox="0 0 280 340">
+        <path class="body-fill"
+          d="M140 10 L250 48 L250 180 Q250 270 140 330 Q30 270 30 180 L30 48 Z"/>
+        <path class="body-stroke"
+          d="M140 10 L250 48 L250 180 Q250 270 140 330 Q30 270 30 180 L30 48 Z"/>
+        <path class="inner-line"
+          d="M140 26 L236 58 L236 180 Q236 256 140 312 Q44 256 44 180 L44 58 Z"/>
+        <!-- 62% fill -->
+        <path class="fill-layer"
+          d="M44 126 L236 126 L236 180 Q236 256 140 312 Q44 256 44 180 Z"/>
+        <path class="shine"
+          d="M52 40 L96 40 L66 300 L40 300 Z"/>
+
+        <!-- cracks starting to appear (dashed, subtle) -->
+        <g>
+          <path class="crack-path" d="M140 30 L130 90 L150 140 L120 200 L145 280"/>
+          <path class="crack-path" d="M180 60 L168 110 L196 170"/>
+          <path class="crack-path" d="M90 110 L110 156"/>
+        </g>
+      </svg>
+    </div>
+    <div class="data-card">
+      <div class="badge-state"><span class="dot"></span>Escudo debilitado</div>
+      <h2 class="headline">Tu escudo requiere <b>revisión</b>.</h2>
+      <div class="big-pct">62<small>%</small></div>
+      <div class="bottom">
+        <div class="item">
+          <div class="k">Permisos</div>
+          <div class="v">36 / 57</div>
+        </div>
+        <div class="vdiv"></div>
+        <div class="item">
+          <div class="k">Sedes</div>
+          <div class="v">15</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+ * ERR — shield split in half
+ * ================================================================ -->
+<div class="scene-wrap">
+  <div class="scene-label err">⛈ Riesgo · &lt; 50%</div>
+  <div class="scene err">
+    <div class="shield-stage">
+      <svg class="shield-err" viewBox="0 0 280 340">
+        <!-- clip paths for the two halves with a jagged break line -->
+        <defs>
+          <clipPath id="left-clip">
+            <!-- left half bounded by jagged line -->
+            <path d="M0 0
+                     L146 0
+                     L132 60
+                     L150 110
+                     L128 160
+                     L146 210
+                     L130 260
+                     L152 330
+                     L0 330 Z"/>
+          </clipPath>
+          <clipPath id="right-clip">
+            <path d="M146 0
+                     L280 0
+                     L280 330
+                     L152 330
+                     L130 260
+                     L146 210
+                     L128 160
+                     L150 110
+                     L132 60 Z"/>
+          </clipPath>
+        </defs>
+
+        <!-- Left half of shield -->
+        <g class="left-half" clip-path="url(#left-clip)">
+          <path class="body-fill-dark"
+            d="M140 10 L250 48 L250 180 Q250 270 140 330 Q30 270 30 180 L30 48 Z"/>
+          <path class="body-stroke"
+            d="M140 10 L250 48 L250 180 Q250 270 140 330 Q30 270 30 180 L30 48 Z"/>
+          <path class="inner-line"
+            d="M140 26 L236 58 L236 180 Q236 256 140 312 Q44 256 44 180 L44 58 Z"/>
+          <!-- 34% fill level -->
+          <path class="fill-layer"
+            d="M44 200 L236 200 L236 180 Q236 256 140 312 Q44 256 44 180 Z"/>
+          <!-- Additional cracks -->
+          <path class="crack-deep" d="M80 50 L110 100 L86 140"/>
+          <path class="crack-deep" d="M70 180 L96 220"/>
+        </g>
+
+        <!-- Right half of shield -->
+        <g class="right-half" clip-path="url(#right-clip)">
+          <path class="body-fill-dark"
+            d="M140 10 L250 48 L250 180 Q250 270 140 330 Q30 270 30 180 L30 48 Z"/>
+          <path class="body-stroke"
+            d="M140 10 L250 48 L250 180 Q250 270 140 330 Q30 270 30 180 L30 48 Z"/>
+          <path class="inner-line"
+            d="M140 26 L236 58 L236 180 Q236 256 140 312 Q44 256 44 180 L44 58 Z"/>
+          <path class="fill-layer"
+            d="M44 200 L236 200 L236 180 Q236 256 140 312 Q44 256 44 180 Z"/>
+          <path class="crack-deep" d="M200 50 L174 100 L196 140"/>
+          <path class="crack-deep" d="M210 180 L186 220"/>
+        </g>
+
+        <!-- Rough break edges on top of both halves, with turbulence filter -->
+        <g filter="url(#rough-edge)">
+          <path class="break-edge"
+                d="M146 0 L132 60 L150 110 L128 160 L146 210 L130 260 L152 330"/>
+        </g>
+
+        <!-- Sparks along the break -->
+        <circle class="spark" cx="134" cy="80" r="2"/>
+        <circle class="spark" cx="148" cy="130" r="1.5"/>
+        <circle class="spark" cx="136" cy="180" r="2.5"/>
+        <circle class="spark" cx="142" cy="230" r="1.5"/>
+        <circle class="spark" cx="138" cy="280" r="2"/>
+        <circle class="spark" cx="152" cy="40" r="1"/>
+        <circle class="spark" cx="130" cy="310" r="1.5"/>
+      </svg>
+    </div>
+    <div class="data-card">
+      <div class="badge-state"><span class="dot"></span>Escudo comprometido</div>
+      <h2 class="headline">Tu empresa está <b>en riesgo</b>. Acción inmediata.</h2>
+      <div class="big-pct">34<small>%</small></div>
+      <div class="bottom">
+        <div class="item">
+          <div class="k">Permisos</div>
+          <div class="v">19 / 57</div>
+        </div>
+        <div class="vdiv"></div>
+        <div class="item">
+          <div class="k">Sedes</div>
+          <div class="v">15</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="notes" style="max-width: 1200px; margin: 32px auto 0;">
+  <b>Dato vs. escudo — siempre legibles</b>: la tarjeta de datos es una <b>glass card</b> (fondo con transparencia + blur). Dentro de esa tarjeta, el 84% / 62% / 34% tiene siempre el contraste correcto contra su propio fondo (blanco semi-opaco en OK/WARN, negro semi-opaco en ERR). El escudo se queda a la izquierda como protagonista visual sin competir por la lectura.
+</div>
+
+</body>
+</html>

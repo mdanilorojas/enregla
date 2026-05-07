@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Banner } from '@/components/ui/banner';
 
 interface CompanyData {
   name: string;
@@ -56,18 +58,21 @@ export function CompanyStep({ initialData, onNext, loading }: CompanyStepProps) 
   const showRucError = data.ruc.length > 0 && !isRucValid;
   const canProceed = data.name.trim().length > 0 && isRucValid;
 
+  const baseInputClass =
+    'w-full bg-white border rounded-[var(--ds-radius-200)] px-[var(--ds-space-150)] py-[var(--ds-space-100)] text-[var(--ds-font-size-100)] text-[var(--ds-text)] placeholder:text-[var(--ds-text-subtlest)] focus:outline-none focus:ring-2 transition-all disabled:opacity-50';
+
   return (
     <form onSubmit={handleSubmit}>
-      <h2 className="text-xl font-semibold text-gray-900 mb-1 tracking-tight">
+      <h2 className="text-[var(--ds-font-size-400)] font-semibold text-[var(--ds-text)] mb-[var(--ds-space-050)] tracking-tight">
         Datos de la empresa
       </h2>
-      <p className="text-[13px] text-gray-500 mb-8">
+      <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mb-[var(--ds-space-400)]">
         Información básica de tu empresa. Paso 2 de 3
       </p>
 
-      <div className="space-y-5">
+      <div className="space-y-[var(--ds-space-250)]">
         <div>
-          <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
+          <label className="block text-[var(--ds-font-size-075)] font-medium text-[var(--ds-text)] mb-[var(--ds-space-075)]">
             Nombre de la empresa
           </label>
           <input
@@ -77,12 +82,12 @@ export function CompanyStep({ initialData, onNext, loading }: CompanyStepProps) 
             placeholder="Ej: Supermaxi S.A."
             disabled={loading}
             autoFocus
-            className="w-full bg-white border border-gray-100 rounded-lg px-3.5 py-2.5 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-300 transition-all disabled:opacity-50"
+            className={`${baseInputClass} border-[var(--ds-border)] focus:ring-[var(--ds-background-brand)]/20 focus:border-[var(--ds-border-bold)]`}
           />
         </div>
 
         <div>
-          <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
+          <label className="block text-[var(--ds-font-size-075)] font-medium text-[var(--ds-text)] mb-[var(--ds-space-075)]">
             RUC
           </label>
           <input
@@ -95,28 +100,30 @@ export function CompanyStep({ initialData, onNext, loading }: CompanyStepProps) 
             placeholder="13 dígitos"
             maxLength={13}
             disabled={loading}
-            className={`w-full bg-white border rounded-lg px-3.5 py-2.5 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-all disabled:opacity-50 ${
+            className={`${baseInputClass} ${
               showRucError
-                ? 'border-red-300 focus:ring-red-900/10 focus:border-red-400'
-                : 'border-gray-100 focus:ring-gray-900/10 focus:border-gray-300'
+                ? 'border-[var(--ds-red-300)] focus:ring-[var(--ds-red-500)]/20 focus:border-[var(--ds-red-400)]'
+                : 'border-[var(--ds-border)] focus:ring-[var(--ds-background-brand)]/20 focus:border-[var(--ds-border-bold)]'
             }`}
           />
           {showRucError && (
-            <p className="mt-1.5 text-[12px] text-red-600">
-              El RUC debe tener exactamente 13 dígitos
-            </p>
+            <div className="mt-[var(--ds-space-075)]">
+              <Banner variant="error">
+                El RUC debe tener exactamente 13 dígitos
+              </Banner>
+            </div>
           )}
         </div>
 
         <div>
-          <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
+          <label className="block text-[var(--ds-font-size-075)] font-medium text-[var(--ds-text)] mb-[var(--ds-space-075)]">
             Ciudad principal
           </label>
           <select
             value={data.city}
             onChange={(e) => updateField('city', e.target.value)}
             disabled={loading}
-            className="w-full bg-white border border-gray-100 rounded-lg px-3.5 py-2.5 text-[14px] text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-300 transition-all disabled:opacity-50"
+            className={`${baseInputClass} border-[var(--ds-border)] focus:ring-[var(--ds-background-brand)]/20 focus:border-[var(--ds-border-bold)]`}
           >
             {CITIES.map(({ value, label }) => (
               <option key={value} value={value}>
@@ -127,14 +134,14 @@ export function CompanyStep({ initialData, onNext, loading }: CompanyStepProps) 
         </div>
 
         <div>
-          <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
+          <label className="block text-[var(--ds-font-size-075)] font-medium text-[var(--ds-text)] mb-[var(--ds-space-075)]">
             Tipo de negocio
           </label>
           <select
             value={data.business_type}
             onChange={(e) => updateField('business_type', e.target.value)}
             disabled={loading}
-            className="w-full bg-white border border-gray-100 rounded-lg px-3.5 py-2.5 text-[14px] text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-300 transition-all disabled:opacity-50"
+            className={`${baseInputClass} border-[var(--ds-border)] focus:ring-[var(--ds-background-brand)]/20 focus:border-[var(--ds-border-bold)]`}
           >
             {BUSINESS_TYPES.map(({ value, label }) => (
               <option key={value} value={value}>
@@ -145,7 +152,9 @@ export function CompanyStep({ initialData, onNext, loading }: CompanyStepProps) 
         </div>
       </div>
 
-      <button type="submit" disabled={!canProceed || loading} className="hidden" />
+      <Button type="submit" disabled={!canProceed || loading} className="hidden">
+        Siguiente
+      </Button>
     </form>
   );
 }

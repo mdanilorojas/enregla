@@ -1,0 +1,3416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnRegla Design System - Atlassian Inspired</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reactflow@11.11.0/dist/umd/index.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reactflow@11.11.0/dist/style.css">
+    <style>
+        /* ===== DESIGN TOKENS ===== */
+        :root {
+            /* Primary Blue Scale (Base: #0f265c) */
+            --ds-blue-50: #e8ebf3;
+            --ds-blue-100: #d1d7e7;
+            --ds-blue-200: #a3afcf;
+            --ds-blue-300: #7587b7;
+            --ds-blue-400: #475f9f;
+            --ds-blue-500: #0f265c;
+            --ds-blue-600: #0d2153;
+            --ds-blue-700: #0b1c4a;
+            --ds-blue-800: #091741;
+            --ds-blue-900: #071238;
+
+            /* Accent Orange Scale (Base: #ff7043) */
+            --ds-orange-50: #fff4f0;
+            --ds-orange-100: #ffe8e0;
+            --ds-orange-200: #ffd1c1;
+            --ds-orange-300: #ffb99d;
+            --ds-orange-400: #ff9670;
+            --ds-orange-500: #ff7043;
+            --ds-orange-600: #ff5722;
+            --ds-orange-700: #f44336;
+            --ds-orange-800: #e53935;
+            --ds-orange-900: #d32f2f;
+
+            /* Success Green */
+            --ds-green-50: #ecf6ee;
+            --ds-green-100: #daeedf;
+            --ds-green-500: #36B37E;
+            --ds-green-600: #2A9D66;
+
+            /* Error Red */
+            --ds-red-50: #fbe6e6;
+            --ds-red-100: #f7cdcd;
+            --ds-red-500: #DE350B;
+            --ds-red-600: #BF2600;
+
+            /* Warning Yellow */
+            --ds-yellow-50: #fff8e1;
+            --ds-yellow-100: #fff3cd;
+            --ds-yellow-500: #FFAB00;
+            --ds-yellow-600: #FF991F;
+
+            /* Neutral Grays */
+            --ds-neutral-0: #FFFFFF;
+            --ds-neutral-50: #F7F8F9;
+            --ds-neutral-100: #F1F2F4;
+            --ds-neutral-200: #DCDFE4;
+            --ds-neutral-300: #B3B9C4;
+            --ds-neutral-400: #8993A4;
+            --ds-neutral-500: #626F86;
+            --ds-neutral-600: #44546F;
+            --ds-neutral-700: #2C3E5D;
+            --ds-neutral-800: #172B4D;
+            --ds-neutral-900: #091E42;
+
+            /* Semantic Colors */
+            --ds-background-brand: var(--ds-blue-500);
+            --ds-background-brand-hovered: var(--ds-blue-600);
+            --ds-background-brand-pressed: var(--ds-blue-700);
+            --ds-background-accent: var(--ds-orange-500);
+            --ds-background-accent-hovered: var(--ds-orange-600);
+            --ds-background-success: var(--ds-green-500);
+            --ds-background-danger: var(--ds-red-500);
+            --ds-background-warning: var(--ds-yellow-500);
+            --ds-background-neutral: var(--ds-neutral-100);
+            --ds-text-brand: var(--ds-blue-500);
+            --ds-text-accent: var(--ds-orange-600);
+            --ds-text: var(--ds-neutral-900);
+            --ds-text-subtle: var(--ds-neutral-600);
+            --ds-text-subtlest: var(--ds-neutral-400);
+            --ds-border: var(--ds-neutral-200);
+            --ds-border-bold: var(--ds-neutral-400);
+
+            /* Elevation Shadows */
+            --ds-shadow-raised: 0px 1px 1px rgba(9, 30, 66, 0.25), 0px 0px 1px rgba(9, 30, 66, 0.31);
+            --ds-shadow-overflow: 0px 4px 8px rgba(9, 30, 66, 0.08), 0px 0px 1px rgba(9, 30, 66, 0.31);
+            --ds-shadow-overlay: 0px 8px 16px rgba(9, 30, 66, 0.15), 0px 0px 1px rgba(9, 30, 66, 0.31);
+
+            /* Border Radius */
+            --ds-radius-050: 2px;
+            --ds-radius-100: 3px;
+            --ds-radius-200: 6px;
+            --ds-radius-300: 8px;
+            --ds-radius-400: 12px;
+            --ds-radius-round: 50%;
+
+            /* Spacing */
+            --ds-space-025: 2px;
+            --ds-space-050: 4px;
+            --ds-space-075: 6px;
+            --ds-space-100: 8px;
+            --ds-space-150: 12px;
+            --ds-space-200: 16px;
+            --ds-space-250: 20px;
+            --ds-space-300: 24px;
+            --ds-space-400: 32px;
+            --ds-space-500: 40px;
+            --ds-space-600: 48px;
+
+            /* Typography */
+            --ds-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+            --ds-font-size-050: 11px;
+            --ds-font-size-075: 12px;
+            --ds-font-size-100: 14px;
+            --ds-font-size-200: 16px;
+            --ds-font-size-300: 20px;
+            --ds-font-size-400: 24px;
+            --ds-font-size-500: 29px;
+            --ds-font-size-600: 35px;
+        }
+
+        /* ===== BASE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--ds-font-family);
+            font-size: var(--ds-font-size-100);
+            line-height: 1.5;
+            color: var(--ds-text);
+            background: var(--ds-neutral-50);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 260px;
+            background: var(--ds-neutral-0);
+            border-right: 1px solid var(--ds-border);
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: var(--ds-space-300);
+            border-bottom: 1px solid var(--ds-border);
+        }
+
+        .sidebar-title {
+            font-size: var(--ds-font-size-200);
+            font-weight: 600;
+            color: var(--ds-text-brand);
+        }
+
+        .sidebar-subtitle {
+            font-size: var(--ds-font-size-075);
+            color: var(--ds-text-subtle);
+            margin-top: var(--ds-space-050);
+        }
+
+        .sidebar-nav {
+            padding: var(--ds-space-200) 0;
+        }
+
+        .nav-section {
+            margin-bottom: var(--ds-space-200);
+        }
+
+        .nav-section-title {
+            padding: var(--ds-space-100) var(--ds-space-200);
+            font-size: var(--ds-font-size-050);
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--ds-text-subtlest);
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            display: block;
+            padding: var(--ds-space-075) var(--ds-space-200);
+            color: var(--ds-text-subtle);
+            text-decoration: none;
+            font-size: var(--ds-font-size-100);
+            transition: background 0.15s ease, color 0.15s ease;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: var(--ds-neutral-100);
+            color: var(--ds-text);
+        }
+
+        .nav-item.active {
+            background: var(--ds-blue-50);
+            color: var(--ds-text-brand);
+            font-weight: 500;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--ds-space-500);
+        }
+
+        .content-section {
+            display: none;
+            max-width: 1200px;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: var(--ds-font-size-500);
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: var(--ds-space-150);
+        }
+
+        h2 {
+            font-size: var(--ds-font-size-400);
+            font-weight: 600;
+            margin-top: var(--ds-space-600);
+            margin-bottom: var(--ds-space-300);
+            padding-bottom: var(--ds-space-150);
+            border-bottom: 2px solid var(--ds-border);
+        }
+
+        h2:first-of-type {
+            margin-top: var(--ds-space-300);
+        }
+
+        h3 {
+            font-size: var(--ds-font-size-300);
+            font-weight: 500;
+            margin-top: var(--ds-space-400);
+            margin-bottom: var(--ds-space-200);
+        }
+
+        .subtitle {
+            font-size: var(--ds-font-size-200);
+            color: var(--ds-text-subtle);
+            margin-bottom: var(--ds-space-400);
+        }
+
+        /* ===== COMPONENTS ===== */
+
+        /* Button */
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--ds-space-050);
+            padding: 0 var(--ds-space-150);
+            height: 32px;
+            font-size: var(--ds-font-size-100);
+            font-weight: 500;
+            border-radius: var(--ds-radius-100);
+            border: 0;
+            cursor: pointer;
+            transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.05s ease;
+            text-decoration: none;
+            font-family: var(--ds-font-family);
+            white-space: nowrap;
+        }
+
+        .button:active {
+            transform: scale(0.98);
+        }
+
+        .button-primary {
+            background: var(--ds-background-brand);
+            color: var(--ds-neutral-0);
+        }
+
+        .button-primary:hover {
+            background: var(--ds-background-brand-hovered);
+        }
+
+        .button-primary:active {
+            background: var(--ds-background-brand-pressed);
+        }
+
+        .button-default {
+            background: var(--ds-neutral-0);
+            color: var(--ds-text);
+            box-shadow: 0 0 0 1px var(--ds-border);
+        }
+
+        .button-default:hover {
+            background: var(--ds-neutral-100);
+        }
+
+        .button-subtle {
+            background: transparent;
+            color: var(--ds-text-subtle);
+        }
+
+        .button-subtle:hover {
+            background: var(--ds-neutral-100);
+            color: var(--ds-text);
+        }
+
+        .button-link {
+            background: transparent;
+            color: var(--ds-text-brand);
+            padding: 0;
+            height: auto;
+        }
+
+        .button-link:hover {
+            text-decoration: underline;
+        }
+
+        .button-warning {
+            background: var(--ds-background-accent);
+            color: var(--ds-neutral-0);
+        }
+
+        .button-warning:hover {
+            background: var(--ds-background-accent-hovered);
+        }
+
+        .button-danger {
+            background: var(--ds-background-danger);
+            color: var(--ds-neutral-0);
+        }
+
+        .button-danger:hover {
+            opacity: 0.9;
+        }
+
+        .button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* Lozenge (Badge) */
+        .lozenge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--ds-space-050);
+            padding: var(--ds-space-025) var(--ds-space-075);
+            font-size: var(--ds-font-size-050);
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: var(--ds-radius-100);
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .lozenge-default {
+            background: var(--ds-neutral-200);
+            color: var(--ds-neutral-700);
+        }
+
+        .lozenge-success {
+            background: #E3FCEF;
+            color: #006644;
+        }
+
+        .lozenge-removed {
+            background: #FFEBE6;
+            color: #BF2600;
+        }
+
+        .lozenge-inprogress {
+            background: var(--ds-orange-50);
+            color: var(--ds-orange-700);
+        }
+
+        .lozenge-new {
+            background: #E9F2FF;
+            color: #0055CC;
+        }
+
+        .lozenge-moved {
+            background: #FFF0B3;
+            color: #FF991F;
+        }
+
+        /* Card */
+        .card {
+            background: var(--ds-neutral-0);
+            border-radius: var(--ds-radius-200);
+            padding: var(--ds-space-300);
+            box-shadow: var(--ds-shadow-raised);
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+        }
+
+        .card-clickable {
+            cursor: pointer;
+        }
+
+        .card-clickable:hover {
+            box-shadow: var(--ds-shadow-overlay);
+            transform: translateY(-2px);
+        }
+
+        /* Form Components */
+        .form-field {
+            margin-bottom: var(--ds-space-200);
+        }
+
+        .form-label {
+            display: block;
+            font-size: var(--ds-font-size-075);
+            font-weight: 600;
+            color: var(--ds-text);
+            margin-bottom: var(--ds-space-050);
+        }
+
+        .textfield, .textarea, .select {
+            width: 100%;
+            padding: var(--ds-space-100);
+            font-size: var(--ds-font-size-100);
+            font-family: var(--ds-font-family);
+            color: var(--ds-text);
+            background: var(--ds-neutral-0);
+            border: 2px solid var(--ds-border);
+            border-radius: var(--ds-radius-100);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .textfield:hover, .textarea:hover, .select:hover {
+            border-color: var(--ds-border-bold);
+        }
+
+        .textfield:focus, .textarea:focus, .select:focus {
+            outline: none;
+            border-color: var(--ds-background-brand);
+            box-shadow: 0 0 0 2px var(--ds-blue-100);
+        }
+
+        .textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .select {
+            cursor: pointer;
+        }
+
+        /* Checkbox */
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: var(--ds-space-100);
+            cursor: pointer;
+        }
+
+        .checkbox {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        /* Radio */
+        .radio-wrapper {
+            display: flex;
+            align-items: center;
+            gap: var(--ds-space-100);
+            cursor: pointer;
+        }
+
+        .radio {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        /* Banner */
+        .banner {
+            padding: var(--ds-space-200);
+            border-radius: var(--ds-radius-100);
+            margin-bottom: var(--ds-space-200);
+            display: flex;
+            gap: var(--ds-space-150);
+            align-items: flex-start;
+        }
+
+        .banner-info {
+            background: #E9F2FF;
+            color: #0055CC;
+        }
+
+        .banner-success {
+            background: #E3FCEF;
+            color: #006644;
+        }
+
+        .banner-warning {
+            background: var(--ds-orange-50);
+            color: var(--ds-orange-700);
+        }
+
+        .banner-error {
+            background: #FFEBE6;
+            color: #BF2600;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--ds-radius-100);
+            box-shadow: var(--ds-shadow-raised);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--ds-neutral-0);
+        }
+
+        .table th {
+            padding: var(--ds-space-100) var(--ds-space-150);
+            text-align: left;
+            font-size: var(--ds-font-size-050);
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--ds-text-subtle);
+            background: var(--ds-neutral-50);
+            border-bottom: 2px solid var(--ds-border);
+        }
+
+        .table td {
+            padding: var(--ds-space-150);
+            border-bottom: 1px solid var(--ds-border);
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table tbody tr:hover {
+            background: var(--ds-neutral-50);
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--ds-neutral-100);
+            border-radius: var(--ds-radius-100);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--ds-background-brand);
+            border-radius: var(--ds-radius-100);
+            transition: width 0.4s ease;
+        }
+
+        .progress-fill.success {
+            background: var(--ds-background-success);
+        }
+
+        .progress-fill.warning {
+            background: var(--ds-background-accent);
+        }
+
+        .progress-fill.danger {
+            background: var(--ds-background-danger);
+        }
+
+        /* Avatar */
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--ds-radius-round);
+            background: var(--ds-neutral-200);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: var(--ds-font-size-075);
+            color: var(--ds-neutral-600);
+        }
+
+        .avatar-small {
+            width: 24px;
+            height: 24px;
+            font-size: var(--ds-font-size-050);
+        }
+
+        .avatar-large {
+            width: 48px;
+            height: 48px;
+            font-size: var(--ds-font-size-200);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(9, 30, 66, 0.54);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: var(--ds-neutral-0);
+            border-radius: var(--ds-radius-200);
+            box-shadow: var(--ds-shadow-overlay);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: var(--ds-space-300);
+            border-bottom: 1px solid var(--ds-border);
+        }
+
+        .modal-title {
+            font-size: var(--ds-font-size-300);
+            font-weight: 600;
+        }
+
+        .modal-body {
+            padding: var(--ds-space-300);
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: var(--ds-space-300);
+            border-top: 1px solid var(--ds-border);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--ds-space-100);
+        }
+
+        /* Dropdown Menu */
+        .dropdown-menu {
+            background: var(--ds-neutral-0);
+            border-radius: var(--ds-radius-100);
+            box-shadow: var(--ds-shadow-overlay);
+            padding: var(--ds-space-050) 0;
+            min-width: 200px;
+        }
+
+        .dropdown-item {
+            padding: var(--ds-space-100) var(--ds-space-150);
+            font-size: var(--ds-font-size-100);
+            color: var(--ds-text);
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .dropdown-item:hover {
+            background: var(--ds-neutral-100);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--ds-border);
+            margin: var(--ds-space-050) 0;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--ds-border);
+            gap: var(--ds-space-050);
+        }
+
+        .tab {
+            padding: var(--ds-space-100) var(--ds-space-150);
+            font-size: var(--ds-font-size-100);
+            font-weight: 500;
+            color: var(--ds-text-subtle);
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            cursor: pointer;
+            transition: color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .tab:hover {
+            color: var(--ds-text);
+        }
+
+        .tab.active {
+            color: var(--ds-text-brand);
+            border-bottom-color: var(--ds-background-brand);
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: var(--ds-space-100);
+            font-size: var(--ds-font-size-100);
+        }
+
+        .breadcrumb-item {
+            color: var(--ds-text-subtle);
+            text-decoration: none;
+        }
+
+        .breadcrumb-item:hover {
+            color: var(--ds-text);
+            text-decoration: underline;
+        }
+
+        .breadcrumb-item.active {
+            color: var(--ds-text);
+        }
+
+        .breadcrumb-separator {
+            color: var(--ds-text-subtlest);
+        }
+
+        /* Tooltip */
+        .tooltip-trigger {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-4px);
+            padding: var(--ds-space-050) var(--ds-space-100);
+            background: var(--ds-neutral-800);
+            color: var(--ds-neutral-0);
+            font-size: var(--ds-font-size-075);
+            border-radius: var(--ds-radius-100);
+            white-space: nowrap;
+            box-shadow: var(--ds-shadow-overlay);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .tooltip-trigger:hover .tooltip {
+            opacity: 1;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: var(--ds-space-600) var(--ds-space-400);
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: var(--ds-space-300);
+        }
+
+        .empty-state-title {
+            font-size: var(--ds-font-size-300);
+            font-weight: 600;
+            margin-bottom: var(--ds-space-100);
+        }
+
+        .empty-state-description {
+            color: var(--ds-text-subtle);
+            margin-bottom: var(--ds-space-300);
+        }
+
+        /* Utility Classes */
+        .grid {
+            display: grid;
+            gap: var(--ds-space-200);
+        }
+
+        .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+        .flex {
+            display: flex;
+            gap: var(--ds-space-100);
+        }
+
+        .flex-wrap {
+            flex-wrap: wrap;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .justify-between {
+            justify-content: space-between;
+        }
+
+        .color-swatch {
+            width: 100%;
+            height: 80px;
+            border-radius: var(--ds-radius-100);
+            margin-bottom: var(--ds-space-075);
+            border: 1px solid var(--ds-border);
+        }
+
+        .color-label {
+            font-size: var(--ds-font-size-075);
+            color: var(--ds-text-subtle);
+            text-align: center;
+        }
+
+        .code-block {
+            background: var(--ds-neutral-900);
+            color: var(--ds-neutral-0);
+            padding: var(--ds-space-200);
+            border-radius: var(--ds-radius-100);
+            font-family: 'Courier New', monospace;
+            font-size: var(--ds-font-size-075);
+            overflow-x: auto;
+        }
+
+        /* React Flow Custom Styles */
+        .react-flow-wrapper {
+            width: 100%;
+            height: 500px;
+            border-radius: var(--ds-radius-200);
+            border: 1px solid var(--ds-border);
+            overflow: hidden;
+        }
+
+        .react-flow__node {
+            border-radius: var(--ds-radius-100);
+            font-family: var(--ds-font-family);
+            font-size: var(--ds-font-size-075);
+        }
+
+        .react-flow__node-empresa {
+            background: var(--ds-background-brand);
+            color: var(--ds-neutral-0);
+            border: none;
+            box-shadow: var(--ds-shadow-overlay);
+            padding: var(--ds-space-200);
+            min-width: 160px;
+        }
+
+        .react-flow__node-sede {
+            background: var(--ds-neutral-0);
+            border: 2px solid var(--ds-border);
+            box-shadow: var(--ds-shadow-raised);
+            padding: var(--ds-space-150);
+            width: 200px;
+        }
+
+        .react-flow__node-sede.success {
+            border-color: var(--ds-green-500);
+        }
+
+        .react-flow__node-sede.warning {
+            border-color: var(--ds-orange-500);
+        }
+
+        .react-flow__node-sede.danger {
+            border-color: var(--ds-red-500);
+        }
+
+        .react-flow__edge-path {
+            stroke-width: 2;
+        }
+
+        .react-flow__edge.success .react-flow__edge-path {
+            stroke: var(--ds-green-500);
+        }
+
+        .react-flow__edge.warning .react-flow__edge-path {
+            stroke: var(--ds-neutral-300);
+        }
+
+        .react-flow__edge.warning .pulse-path {
+            stroke: var(--ds-orange-500);
+            stroke-dasharray: 25, 75;
+            animation: pathPulse 1.5s linear infinite;
+        }
+
+        .react-flow__edge.danger .react-flow__edge-path {
+            stroke: var(--ds-red-500);
+            stroke-dasharray: 5, 5;
+            animation: dash-red 1s linear infinite;
+        }
+
+        @keyframes pathPulse {
+            0% { stroke-dashoffset: 100; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        @keyframes dash-red {
+            to {
+                stroke-dashoffset: -10;
+            }
+        }
+
+        /* Handles invisibles pero funcionales */
+        .react-flow__handle {
+            width: 8px;
+            height: 8px;
+            background: transparent;
+            border: none;
+        }
+
+        .sede-node-header {
+            display: flex;
+            align-items: center;
+            gap: var(--ds-space-100);
+            margin-bottom: var(--ds-space-100);
+        }
+
+        .sede-node-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: var(--ds-radius-050);
+            background: var(--ds-neutral-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sede-node-title {
+            font-weight: 600;
+            font-size: var(--ds-font-size-075);
+            color: var(--ds-text);
+        }
+
+        .sede-node-code {
+            font-family: monospace;
+            font-size: 10px;
+            color: var(--ds-text-subtlest);
+        }
+
+        .sede-node-status {
+            display: flex;
+            align-items: center;
+            gap: var(--ds-space-075);
+            margin-bottom: var(--ds-space-075);
+        }
+
+        .sede-node-progress {
+            width: 100%;
+            height: 6px;
+            background: var(--ds-neutral-100);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: var(--ds-space-050);
+        }
+
+        .sede-node-progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--ds-border);
+            }
+
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">EnRegla DS</div>
+            <div class="sidebar-subtitle">Atlassian Inspired</div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Fundamentos</div>
+                <a class="nav-item active" data-section="colors">Colores</a>
+                <a class="nav-item" data-section="typography">Tipografía</a>
+                <a class="nav-item" data-section="spacing">Espaciado</a>
+                <a class="nav-item" data-section="elevation">Elevación</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Componentes Básicos</div>
+                <a class="nav-item" data-section="buttons">Buttons</a>
+                <a class="nav-item" data-section="lozenges">Lozenges</a>
+                <a class="nav-item" data-section="avatars">Avatars</a>
+                <a class="nav-item" data-section="progress">Progress Bars</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Formularios</div>
+                <a class="nav-item" data-section="textfields">Text Fields</a>
+                <a class="nav-item" data-section="textarea">Textarea</a>
+                <a class="nav-item" data-section="select">Select</a>
+                <a class="nav-item" data-section="checkbox">Checkbox</a>
+                <a class="nav-item" data-section="radio">Radio</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Contenedores</div>
+                <a class="nav-item" data-section="cards">Cards</a>
+                <a class="nav-item" data-section="banners">Banners</a>
+                <a class="nav-item" data-section="modals">Modals</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Navegación</div>
+                <a class="nav-item" data-section="tabs">Tabs</a>
+                <a class="nav-item" data-section="breadcrumbs">Breadcrumbs</a>
+                <a class="nav-item" data-section="dropdown">Dropdown Menu</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Data Display</div>
+                <a class="nav-item" data-section="tables">Tables</a>
+                <a class="nav-item" data-section="empty">Empty States</a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">Templates</div>
+                <a class="nav-item" data-section="sede-card">Sede Card</a>
+                <a class="nav-item" data-section="permit-table">Permit Table</a>
+                <a class="nav-item" data-section="dashboard">Dashboard Widget</a>
+                <a class="nav-item" data-section="compliance-summary">Compliance Summary</a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- COLORS -->
+        <section id="colors" class="content-section active">
+            <h1>Colores</h1>
+            <p class="subtitle">Sistema de tokens de color basado en Banco Pichincha</p>
+
+            <h2>Colores Principales</h2>
+            <div class="grid grid-4">
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-blue-500);"></div>
+                    <div class="color-label"><strong>Primary Blue</strong></div>
+                    <div class="color-label">#0f265c</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-orange-500);"></div>
+                    <div class="color-label"><strong>Accent Orange</strong></div>
+                    <div class="color-label">#ff7043</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-green-500);"></div>
+                    <div class="color-label"><strong>Success Green</strong></div>
+                    <div class="color-label">#36B37E</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-red-500);"></div>
+                    <div class="color-label"><strong>Error Red</strong></div>
+                    <div class="color-label">#DE350B</div>
+                </div>
+            </div>
+
+            <h2>Escala de Azul</h2>
+            <div class="grid grid-4" style="grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));">
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-blue-50); height: 60px;"></div>
+                    <div class="color-label">50</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-blue-100); height: 60px;"></div>
+                    <div class="color-label">100</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-blue-200); height: 60px;"></div>
+                    <div class="color-label">200</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-blue-300); height: 60px;"></div>
+                    <div class="color-label">300</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-blue-400); height: 60px;"></div>
+                    <div class="color-label">400</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-blue-500); height: 60px;"></div>
+                    <div class="color-label"><strong>500</strong></div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-blue-600); height: 60px;"></div>
+                    <div class="color-label">600</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-blue-700); height: 60px;"></div>
+                    <div class="color-label">700</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-blue-800); height: 60px;"></div>
+                    <div class="color-label">800</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-blue-900); height: 60px;"></div>
+                    <div class="color-label">900</div>
+                </div>
+            </div>
+
+            <h2>Escala de Naranja</h2>
+            <div class="grid grid-4" style="grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));">
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-orange-50); height: 60px;"></div>
+                    <div class="color-label">50</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-orange-100); height: 60px;"></div>
+                    <div class="color-label">100</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-orange-200); height: 60px;"></div>
+                    <div class="color-label">200</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-orange-300); height: 60px;"></div>
+                    <div class="color-label">300</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-orange-400); height: 60px;"></div>
+                    <div class="color-label">400</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-orange-500); height: 60px;"></div>
+                    <div class="color-label"><strong>500</strong></div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-orange-600); height: 60px;"></div>
+                    <div class="color-label">600</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-orange-700); height: 60px;"></div>
+                    <div class="color-label">700</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-orange-800); height: 60px;"></div>
+                    <div class="color-label">800</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-orange-900); height: 60px;"></div>
+                    <div class="color-label">900</div>
+                </div>
+            </div>
+
+            <h2>Neutrales (Grises)</h2>
+            <div class="grid grid-4" style="grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));">
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-neutral-0); height: 60px;"></div>
+                    <div class="color-label">0 (White)</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-neutral-50); height: 60px;"></div>
+                    <div class="color-label">50</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-neutral-100); height: 60px;"></div>
+                    <div class="color-label">100</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-neutral-200); height: 60px;"></div>
+                    <div class="color-label">200</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-neutral-300); height: 60px;"></div>
+                    <div class="color-label">300</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-neutral-400); height: 60px;"></div>
+                    <div class="color-label">400</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-neutral-500); height: 60px;"></div>
+                    <div class="color-label">500</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-neutral-600); height: 60px;"></div>
+                    <div class="color-label">600</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-neutral-700); height: 60px;"></div>
+                    <div class="color-label">700</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-neutral-800); height: 60px;"></div>
+                    <div class="color-label">800</div>
+                </div>
+                <div>
+                    <div class="color-swatch" style="background: var(--ds-neutral-900); height: 60px;"></div>
+                    <div class="color-label">900</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TYPOGRAPHY -->
+        <section id="typography" class="content-section">
+            <h1>Tipografía</h1>
+            <p class="subtitle">Sistema tipográfico basado en San Francisco (Apple)</p>
+
+            <h2>Escala de Tamaños</h2>
+            <div style="margin-bottom: var(--ds-space-300);">
+                <div style="font-size: var(--ds-font-size-600); margin-bottom: var(--ds-space-200);">Heading 1 - 35px</div>
+                <div style="font-size: var(--ds-font-size-500); margin-bottom: var(--ds-space-200);">Heading 2 - 29px</div>
+                <div style="font-size: var(--ds-font-size-400); margin-bottom: var(--ds-space-200);">Heading 3 - 24px</div>
+                <div style="font-size: var(--ds-font-size-300); margin-bottom: var(--ds-space-200);">Heading 4 - 20px</div>
+                <div style="font-size: var(--ds-font-size-200); margin-bottom: var(--ds-space-200);">Body Large - 16px</div>
+                <div style="font-size: var(--ds-font-size-100); margin-bottom: var(--ds-space-200);">Body - 14px (Default)</div>
+                <div style="font-size: var(--ds-font-size-075); margin-bottom: var(--ds-space-200);">Small - 12px</div>
+                <div style="font-size: var(--ds-font-size-050);">Tiny - 11px</div>
+            </div>
+
+            <h2>Pesos de Fuente</h2>
+            <div style="margin-bottom: var(--ds-space-300);">
+                <div style="font-weight: 400; margin-bottom: var(--ds-space-100);">Regular (400) - Texto normal</div>
+                <div style="font-weight: 500; margin-bottom: var(--ds-space-100);">Medium (500) - Énfasis suave</div>
+                <div style="font-weight: 600; margin-bottom: var(--ds-space-100);">Semibold (600) - Títulos</div>
+                <div style="font-weight: 700;">Bold (700) - Énfasis fuerte</div>
+            </div>
+
+            <h2>Ejemplo de Párrafo</h2>
+            <p style="max-width: 600px; line-height: 1.6;">
+                EnRegla es una plataforma de gestión de cumplimiento normativo diseñada para ayudar a las empresas
+                a mantener sus permisos, licencias y certificaciones al día. Con un diseño profesional inspirado
+                en Banco Pichincha, ofrecemos una experiencia de usuario confiable y eficiente.
+            </p>
+        </section>
+
+        <!-- SPACING -->
+        <section id="spacing" class="content-section">
+            <h1>Espaciado</h1>
+            <p class="subtitle">Sistema de espaciado consistente basado en múltiplos de 4px</p>
+
+            <h2>Escala de Espacios</h2>
+            <div class="grid grid-2">
+                <div style="display: flex; align-items: center; gap: var(--ds-space-200); margin-bottom: var(--ds-space-150);">
+                    <div style="width: 2px; height: 20px; background: var(--ds-background-brand);"></div>
+                    <div><strong>025</strong> - 2px</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--ds-space-200); margin-bottom: var(--ds-space-150);">
+                    <div style="width: 4px; height: 20px; background: var(--ds-background-brand);"></div>
+                    <div><strong>050</strong> - 4px</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--ds-space-200); margin-bottom: var(--ds-space-150);">
+                    <div style="width: 6px; height: 20px; background: var(--ds-background-brand);"></div>
+                    <div><strong>075</strong> - 6px</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--ds-space-200); margin-bottom: var(--ds-space-150);">
+                    <div style="width: 8px; height: 20px; background: var(--ds-background-brand);"></div>
+                    <div><strong>100</strong> - 8px</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--ds-space-200); margin-bottom: var(--ds-space-150);">
+                    <div style="width: 12px; height: 20px; background: var(--ds-background-brand);"></div>
+                    <div><strong>150</strong> - 12px</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--ds-space-200); margin-bottom: var(--ds-space-150);">
+                    <div style="width: 16px; height: 20px; background: var(--ds-background-brand);"></div>
+                    <div><strong>200</strong> - 16px</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--ds-space-200); margin-bottom: var(--ds-space-150);">
+                    <div style="width: 20px; height: 20px; background: var(--ds-background-brand);"></div>
+                    <div><strong>250</strong> - 20px</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--ds-space-200); margin-bottom: var(--ds-space-150);">
+                    <div style="width: 24px; height: 20px; background: var(--ds-background-brand);"></div>
+                    <div><strong>300</strong> - 24px</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--ds-space-200); margin-bottom: var(--ds-space-150);">
+                    <div style="width: 32px; height: 20px; background: var(--ds-background-brand);"></div>
+                    <div><strong>400</strong> - 32px</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--ds-space-200); margin-bottom: var(--ds-space-150);">
+                    <div style="width: 40px; height: 20px; background: var(--ds-background-brand);"></div>
+                    <div><strong>500</strong> - 40px</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--ds-space-200); margin-bottom: var(--ds-space-150);">
+                    <div style="width: 48px; height: 20px; background: var(--ds-background-brand);"></div>
+                    <div><strong>600</strong> - 48px</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ELEVATION -->
+        <section id="elevation" class="content-section">
+            <h1>Elevación</h1>
+            <p class="subtitle">Sistema de sombras para crear jerarquía visual</p>
+
+            <h2>Niveles de Elevación</h2>
+            <div class="grid grid-3">
+                <div>
+                    <div style="background: white; padding: var(--ds-space-400); border-radius: var(--ds-radius-200); box-shadow: var(--ds-shadow-raised); text-align: center; margin-bottom: var(--ds-space-100);">
+                        <strong>Raised</strong>
+                    </div>
+                    <p style="font-size: var(--ds-font-size-075); color: var(--ds-text-subtle); text-align: center;">Cards, Buttons</p>
+                </div>
+                <div>
+                    <div style="background: white; padding: var(--ds-space-400); border-radius: var(--ds-radius-200); box-shadow: var(--ds-shadow-overflow); text-align: center; margin-bottom: var(--ds-space-100);">
+                        <strong>Overflow</strong>
+                    </div>
+                    <p style="font-size: var(--ds-font-size-075); color: var(--ds-text-subtle); text-align: center;">Dropdowns, Popovers</p>
+                </div>
+                <div>
+                    <div style="background: white; padding: var(--ds-space-400); border-radius: var(--ds-radius-200); box-shadow: var(--ds-shadow-overlay); text-align: center; margin-bottom: var(--ds-space-100);">
+                        <strong>Overlay</strong>
+                    </div>
+                    <p style="font-size: var(--ds-font-size-075); color: var(--ds-text-subtle); text-align: center;">Modals, Dialogs</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- BUTTONS -->
+        <section id="buttons" class="content-section">
+            <h1>Buttons</h1>
+            <p class="subtitle">Componente de acción principal</p>
+
+            <h2>Variantes</h2>
+            <div class="flex flex-wrap items-center">
+                <button class="button button-primary">Primary</button>
+                <button class="button button-default">Default</button>
+                <button class="button button-subtle">Subtle</button>
+                <button class="button button-link">Link</button>
+                <button class="button button-warning">Warning</button>
+                <button class="button button-danger">Danger</button>
+            </div>
+
+            <h2>Estados</h2>
+            <div class="flex flex-wrap items-center">
+                <button class="button button-primary">Normal</button>
+                <button class="button button-primary" disabled>Disabled</button>
+            </div>
+
+            <h2>Con Iconos</h2>
+            <div class="flex flex-wrap items-center">
+                <button class="button button-primary">
+                    <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+                    Crear Nuevo
+                </button>
+                <button class="button button-default">
+                    <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                    Descargar
+                </button>
+                <button class="button button-danger">
+                    <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                    Eliminar
+                </button>
+            </div>
+
+            <h2>Código de Ejemplo</h2>
+            <div class="code-block">
+&lt;button class="button button-primary"&gt;Primary&lt;/button&gt;
+&lt;button class="button button-default"&gt;Default&lt;/button&gt;
+&lt;button class="button button-subtle"&gt;Subtle&lt;/button&gt;
+            </div>
+        </section>
+
+        <!-- LOZENGES -->
+        <section id="lozenges" class="content-section">
+            <h1>Lozenges (Badges)</h1>
+            <p class="subtitle">Etiquetas de estado y categorización</p>
+
+            <h2>Estados del Sistema</h2>
+            <div class="flex flex-wrap items-center">
+                <span class="lozenge lozenge-default">Default</span>
+                <span class="lozenge lozenge-success">Success</span>
+                <span class="lozenge lozenge-removed">Removed</span>
+                <span class="lozenge lozenge-inprogress">In Progress</span>
+                <span class="lozenge lozenge-new">New</span>
+                <span class="lozenge lozenge-moved">Moved</span>
+            </div>
+
+            <h2>Niveles de Riesgo (Custom)</h2>
+            <div class="flex flex-wrap items-center">
+                <span class="lozenge lozenge-removed">Crítico</span>
+                <span class="lozenge lozenge-inprogress">Alto</span>
+                <span class="lozenge lozenge-moved">Medio</span>
+                <span class="lozenge lozenge-new">Bajo</span>
+            </div>
+
+            <h2>Estados de Permisos (Custom)</h2>
+            <div class="flex flex-wrap items-center">
+                <span class="lozenge lozenge-success">Vigente</span>
+                <span class="lozenge lozenge-inprogress">Próximo a vencer</span>
+                <span class="lozenge lozenge-removed">Vencido</span>
+                <span class="lozenge lozenge-moved">En renovación</span>
+            </div>
+
+            <h2>Código de Ejemplo</h2>
+            <div class="code-block">
+&lt;span class="lozenge lozenge-success"&gt;Success&lt;/span&gt;
+&lt;span class="lozenge lozenge-inprogress"&gt;In Progress&lt;/span&gt;
+&lt;span class="lozenge lozenge-removed"&gt;Removed&lt;/span&gt;
+            </div>
+        </section>
+
+        <!-- AVATARS -->
+        <section id="avatars" class="content-section">
+            <h1>Avatars</h1>
+            <p class="subtitle">Representación visual de usuarios</p>
+
+            <h2>Tamaños</h2>
+            <div class="flex items-center">
+                <div class="avatar avatar-small">DR</div>
+                <div class="avatar">DR</div>
+                <div class="avatar avatar-large">DR</div>
+            </div>
+
+            <h2>Colores de Fondo</h2>
+            <div class="flex items-center">
+                <div class="avatar" style="background: var(--ds-blue-100); color: var(--ds-blue-700);">AB</div>
+                <div class="avatar" style="background: var(--ds-orange-100); color: var(--ds-orange-700);">CD</div>
+                <div class="avatar" style="background: var(--ds-green-100); color: var(--ds-green-600);">EF</div>
+                <div class="avatar" style="background: var(--ds-red-100); color: var(--ds-red-600);">GH</div>
+            </div>
+
+            <h2>En Uso</h2>
+            <div class="flex items-center">
+                <div class="avatar">DR</div>
+                <div>
+                    <div style="font-weight: 600;">Danilo Rojas</div>
+                    <div style="font-size: var(--ds-font-size-075); color: var(--ds-text-subtle);">danilo@enregla.com</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROGRESS -->
+        <section id="progress" class="content-section">
+            <h1>Progress Bars</h1>
+            <p class="subtitle">Indicadores de progreso y completitud</p>
+
+            <h2>Estados</h2>
+            <div style="max-width: 600px;">
+                <div style="margin-bottom: var(--ds-space-300);">
+                    <div style="margin-bottom: var(--ds-space-100); display: flex; justify-content: space-between;">
+                        <span style="font-weight: 500;">Completo</span>
+                        <span style="color: var(--ds-text-subtle);">100%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill success" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: var(--ds-space-300);">
+                    <div style="margin-bottom: var(--ds-space-100); display: flex; justify-content: space-between;">
+                        <span style="font-weight: 500;">En progreso</span>
+                        <span style="color: var(--ds-text-subtle);">62%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 62%;"></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: var(--ds-space-300);">
+                    <div style="margin-bottom: var(--ds-space-100); display: flex; justify-content: space-between;">
+                        <span style="font-weight: 500;">Advertencia</span>
+                        <span style="color: var(--ds-text-subtle);">45%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill warning" style="width: 45%;"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div style="margin-bottom: var(--ds-space-100); display: flex; justify-content: space-between;">
+                        <span style="font-weight: 500;">Crítico</span>
+                        <span style="color: var(--ds-text-subtle);">15%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill danger" style="width: 15%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <h2>Código de Ejemplo</h2>
+            <div class="code-block">
+&lt;div class="progress-bar"&gt;
+  &lt;div class="progress-fill success" style="width: 75%;"&gt;&lt;/div&gt;
+&lt;/div&gt;
+            </div>
+        </section>
+
+        <!-- TEXTFIELDS -->
+        <section id="textfields" class="content-section">
+            <h1>Text Fields</h1>
+            <p class="subtitle">Campos de entrada de texto</p>
+
+            <h2>Estado Normal</h2>
+            <div style="max-width: 400px;">
+                <div class="form-field">
+                    <label class="form-label">Nombre completo</label>
+                    <input type="text" class="textfield" placeholder="Ingresa tu nombre">
+                </div>
+                <div class="form-field">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="textfield" placeholder="tu@email.com">
+                </div>
+                <div class="form-field">
+                    <label class="form-label">Teléfono</label>
+                    <input type="tel" class="textfield" placeholder="+593 99 999 9999">
+                </div>
+            </div>
+
+            <h2>Código de Ejemplo</h2>
+            <div class="code-block">
+&lt;div class="form-field"&gt;
+  &lt;label class="form-label"&gt;Nombre&lt;/label&gt;
+  &lt;input type="text" class="textfield" placeholder="..."&gt;
+&lt;/div&gt;
+            </div>
+        </section>
+
+        <!-- TEXTAREA -->
+        <section id="textarea" class="content-section">
+            <h1>Textarea</h1>
+            <p class="subtitle">Campo de texto multilínea</p>
+
+            <div style="max-width: 600px;">
+                <div class="form-field">
+                    <label class="form-label">Descripción</label>
+                    <textarea class="textarea" placeholder="Escribe una descripción detallada..."></textarea>
+                </div>
+            </div>
+
+            <h2>Código de Ejemplo</h2>
+            <div class="code-block">
+&lt;textarea class="textarea" placeholder="..."&gt;&lt;/textarea&gt;
+            </div>
+        </section>
+
+        <!-- SELECT -->
+        <section id="select" class="content-section">
+            <h1>Select</h1>
+            <p class="subtitle">Selector dropdown</p>
+
+            <div style="max-width: 400px;">
+                <div class="form-field">
+                    <label class="form-label">Tipo de permiso</label>
+                    <select class="select">
+                        <option>Selecciona un tipo</option>
+                        <option>Funcionamiento</option>
+                        <option>Sanitario</option>
+                        <option>Ambiental</option>
+                        <option>Construcción</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label class="form-label">Nivel de riesgo</label>
+                    <select class="select">
+                        <option>Selecciona un nivel</option>
+                        <option>Bajo</option>
+                        <option>Medio</option>
+                        <option>Alto</option>
+                        <option>Crítico</option>
+                    </select>
+                </div>
+            </div>
+
+            <h2>Código de Ejemplo</h2>
+            <div class="code-block">
+&lt;select class="select"&gt;
+  &lt;option&gt;Opción 1&lt;/option&gt;
+  &lt;option&gt;Opción 2&lt;/option&gt;
+&lt;/select&gt;
+            </div>
+        </section>
+
+        <!-- CHECKBOX -->
+        <section id="checkbox" class="content-section">
+            <h1>Checkbox</h1>
+            <p class="subtitle">Selector de opción múltiple</p>
+
+            <div style="max-width: 400px;">
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" class="checkbox" checked>
+                    <span>Acepto los términos y condiciones</span>
+                </label>
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" class="checkbox">
+                    <span>Deseo recibir notificaciones por email</span>
+                </label>
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" class="checkbox">
+                    <span>Recordarme en este dispositivo</span>
+                </label>
+            </div>
+
+            <h2>Código de Ejemplo</h2>
+            <div class="code-block">
+&lt;label class="checkbox-wrapper"&gt;
+  &lt;input type="checkbox" class="checkbox"&gt;
+  &lt;span&gt;Label text&lt;/span&gt;
+&lt;/label&gt;
+            </div>
+        </section>
+
+        <!-- RADIO -->
+        <section id="radio" class="content-section">
+            <h1>Radio</h1>
+            <p class="subtitle">Selector de opción única</p>
+
+            <div style="max-width: 400px;">
+                <div style="margin-bottom: var(--ds-space-200);">
+                    <div style="font-weight: 600; margin-bottom: var(--ds-space-100);">¿Cómo prefieres que te contactemos?</div>
+                    <label class="radio-wrapper">
+                        <input type="radio" class="radio" name="contact" checked>
+                        <span>Email</span>
+                    </label>
+                    <label class="radio-wrapper">
+                        <input type="radio" class="radio" name="contact">
+                        <span>Teléfono</span>
+                    </label>
+                    <label class="radio-wrapper">
+                        <input type="radio" class="radio" name="contact">
+                        <span>WhatsApp</span>
+                    </label>
+                </div>
+            </div>
+
+            <h2>Código de Ejemplo</h2>
+            <div class="code-block">
+&lt;label class="radio-wrapper"&gt;
+  &lt;input type="radio" class="radio" name="group"&gt;
+  &lt;span&gt;Label text&lt;/span&gt;
+&lt;/label&gt;
+            </div>
+        </section>
+
+        <!-- CARDS -->
+        <section id="cards" class="content-section">
+            <h1>Cards</h1>
+            <p class="subtitle">Contenedores de contenido con elevación</p>
+
+            <h2>Card Básica</h2>
+            <div class="grid grid-2">
+                <div class="card">
+                    <h3 style="margin-top: 0;">Card Estándar</h3>
+                    <p style="color: var(--ds-text-subtle); margin-bottom: var(--ds-space-200);">
+                        Contenedor básico con elevación sutil y bordes redondeados. Ideal para agrupar información relacionada.
+                    </p>
+                    <button class="button button-primary">Ver más</button>
+                </div>
+                <div class="card card-clickable">
+                    <h3 style="margin-top: 0;">Card Clickable</h3>
+                    <p style="color: var(--ds-text-subtle); margin-bottom: var(--ds-space-200);">
+                        Pasa el mouse para ver el efecto de elevación. Se usa cuando toda la card es un enlace.
+                    </p>
+                    <span style="color: var(--ds-text-brand);">Click para explorar →</span>
+                </div>
+            </div>
+
+            <h2>Card con Header</h2>
+            <div class="card">
+                <div style="border-bottom: 1px solid var(--ds-border); padding-bottom: var(--ds-space-200); margin-bottom: var(--ds-space-200);">
+                    <h3 style="margin: 0;">Título de la Card</h3>
+                </div>
+                <p style="color: var(--ds-text-subtle);">
+                    Contenido de la card con un header separado visualmente del cuerpo.
+                </p>
+            </div>
+
+            <h2>Código de Ejemplo</h2>
+            <div class="code-block">
+&lt;div class="card"&gt;
+  &lt;h3&gt;Título&lt;/h3&gt;
+  &lt;p&gt;Contenido...&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;div class="card card-clickable"&gt;
+  &lt;h3&gt;Clickable Card&lt;/h3&gt;
+  &lt;p&gt;Contenido...&lt;/p&gt;
+&lt;/div&gt;
+            </div>
+        </section>
+
+        <!-- BANNERS -->
+        <section id="banners" class="content-section">
+            <h1>Banners</h1>
+            <p class="subtitle">Mensajes de retroalimentación del sistema</p>
+
+            <h2>Variantes</h2>
+            <div class="banner banner-info">
+                <i data-lucide="info" style="width: 20px; height: 20px; flex-shrink: 0;"></i>
+                <div><strong>Info:</strong> Mensaje informativo para el usuario.</div>
+            </div>
+            <div class="banner banner-success">
+                <i data-lucide="check-circle" style="width: 20px; height: 20px; flex-shrink: 0;"></i>
+                <div><strong>Success:</strong> La operación se completó correctamente.</div>
+            </div>
+            <div class="banner banner-warning">
+                <i data-lucide="alert-triangle" style="width: 20px; height: 20px; flex-shrink: 0;"></i>
+                <div><strong>Warning:</strong> Ten cuidado con esta acción.</div>
+            </div>
+            <div class="banner banner-error">
+                <i data-lucide="x-circle" style="width: 20px; height: 20px; flex-shrink: 0;"></i>
+                <div><strong>Error:</strong> Algo salió mal, por favor intenta de nuevo.</div>
+            </div>
+
+            <h2>Código de Ejemplo</h2>
+            <div class="code-block">
+&lt;div class="banner banner-info"&gt;
+  &lt;strong&gt;ℹ️ Info:&lt;/strong&gt; Mensaje...
+&lt;/div&gt;
+
+&lt;div class="banner banner-success"&gt;
+  &lt;strong&gt;✓ Success:&lt;/strong&gt; Mensaje...
+&lt;/div&gt;
+            </div>
+        </section>
+
+        <!-- MODALS -->
+        <section id="modals" class="content-section">
+            <h1>Modals</h1>
+            <p class="subtitle">Diálogos overlay para acciones importantes</p>
+
+            <h2>Ejemplo</h2>
+            <button class="button button-primary" onclick="document.getElementById('demo-modal').style.display = 'flex'">
+                Abrir Modal
+            </button>
+
+            <div id="demo-modal" class="modal-overlay" style="display: none;" onclick="if(event.target === this) this.style.display = 'none'">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Confirmar Acción</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p>¿Estás seguro de que deseas continuar con esta acción? Esta operación no se puede deshacer.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="button button-default" onclick="document.getElementById('demo-modal').style.display = 'none'">
+                            Cancelar
+                        </button>
+                        <button class="button button-primary" onclick="document.getElementById('demo-modal').style.display = 'none'">
+                            Confirmar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <h2>Código de Ejemplo</h2>
+            <div class="code-block">
+&lt;div class="modal-overlay"&gt;
+  &lt;div class="modal"&gt;
+    &lt;div class="modal-header"&gt;
+      &lt;h3 class="modal-title"&gt;Título&lt;/h3&gt;
+    &lt;/div&gt;
+    &lt;div class="modal-body"&gt;
+      &lt;p&gt;Contenido...&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class="modal-footer"&gt;
+      &lt;button class="button button-default"&gt;Cancelar&lt;/button&gt;
+      &lt;button class="button button-primary"&gt;Confirmar&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+            </div>
+        </section>
+
+        <!-- TABS -->
+        <section id="tabs" class="content-section">
+            <h1>Tabs</h1>
+            <p class="subtitle">Navegación entre vistas relacionadas</p>
+
+            <h2>Ejemplo</h2>
+            <div class="tabs">
+                <button class="tab active">General</button>
+                <button class="tab">Permisos</button>
+                <button class="tab">Documentos</button>
+                <button class="tab">Historial</button>
+            </div>
+
+            <div style="padding: var(--ds-space-300); background: var(--ds-neutral-0); border-radius: var(--ds-radius-100); margin-top: var(--ds-space-200);">
+                <p>Contenido del tab seleccionado...</p>
+            </div>
+
+            <h2>Código de Ejemplo</h2>
+            <div class="code-block">
+&lt;div class="tabs"&gt;
+  &lt;button class="tab active"&gt;Tab 1&lt;/button&gt;
+  &lt;button class="tab"&gt;Tab 2&lt;/button&gt;
+  &lt;button class="tab"&gt;Tab 3&lt;/button&gt;
+&lt;/div&gt;
+            </div>
+        </section>
+
+        <!-- BREADCRUMBS -->
+        <section id="breadcrumbs" class="content-section">
+            <h1>Breadcrumbs</h1>
+            <p class="subtitle">Navegación jerárquica</p>
+
+            <h2>Ejemplo</h2>
+            <nav class="breadcrumb">
+                <a href="#" class="breadcrumb-item">Inicio</a>
+                <span class="breadcrumb-separator">/</span>
+                <a href="#" class="breadcrumb-item">Sedes</a>
+                <span class="breadcrumb-separator">/</span>
+                <a href="#" class="breadcrumb-item">Sede Central</a>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-item active">Permisos</span>
+            </nav>
+
+            <h2>Código de Ejemplo</h2>
+            <div class="code-block">
+&lt;nav class="breadcrumb"&gt;
+  &lt;a href="#" class="breadcrumb-item"&gt;Home&lt;/a&gt;
+  &lt;span class="breadcrumb-separator"&gt;/&lt;/span&gt;
+  &lt;a href="#" class="breadcrumb-item"&gt;Page&lt;/a&gt;
+  &lt;span class="breadcrumb-separator"&gt;/&lt;/span&gt;
+  &lt;span class="breadcrumb-item active"&gt;Current&lt;/span&gt;
+&lt;/nav&gt;
+            </div>
+        </section>
+
+        <!-- DROPDOWN -->
+        <section id="dropdown" class="content-section">
+            <h1>Dropdown Menu</h1>
+            <p class="subtitle">Menú contextual desplegable</p>
+
+            <h2>Ejemplo</h2>
+            <div style="position: relative; display: inline-block;">
+                <button class="button button-default">
+                    Opciones
+                    <span>▼</span>
+                </button>
+                <div class="dropdown-menu" style="position: absolute; top: 100%; left: 0; margin-top: var(--ds-space-050);">
+                    <div class="dropdown-item">Editar</div>
+                    <div class="dropdown-item">Duplicar</div>
+                    <div class="dropdown-item">Compartir</div>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item" style="color: var(--ds-red-500);">Eliminar</div>
+                </div>
+            </div>
+
+            <h2>Código de Ejemplo</h2>
+            <div class="code-block">
+&lt;div class="dropdown-menu"&gt;
+  &lt;div class="dropdown-item"&gt;Action 1&lt;/div&gt;
+  &lt;div class="dropdown-item"&gt;Action 2&lt;/div&gt;
+  &lt;div class="dropdown-divider"&gt;&lt;/div&gt;
+  &lt;div class="dropdown-item"&gt;Action 3&lt;/div&gt;
+&lt;/div&gt;
+            </div>
+        </section>
+
+        <!-- TABLES -->
+        <section id="tables" class="content-section">
+            <h1>Tables</h1>
+            <p class="subtitle">Presentación de datos tabulares</p>
+
+            <h2>Tabla de Permisos</h2>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Sede</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                            <th>Vencimiento</th>
+                            <th>Riesgo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Sede Central</strong></td>
+                            <td>Funcionamiento</td>
+                            <td><span class="lozenge lozenge-success">Vigente</span></td>
+                            <td>2026-12-31</td>
+                            <td><span class="lozenge lozenge-new">Bajo</span></td>
+                            <td>
+                                <button class="button button-subtle">Ver</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sucursal Norte</strong></td>
+                            <td>Sanitario</td>
+                            <td><span class="lozenge lozenge-inprogress">Próximo</span></td>
+                            <td>2026-06-15</td>
+                            <td><span class="lozenge lozenge-moved">Medio</span></td>
+                            <td>
+                                <button class="button button-subtle">Ver</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Bodega Sur</strong></td>
+                            <td>Ambiental</td>
+                            <td><span class="lozenge lozenge-removed">Vencido</span></td>
+                            <td>2026-01-10</td>
+                            <td><span class="lozenge lozenge-removed">Crítico</span></td>
+                            <td>
+                                <button class="button button-subtle">Ver</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Oficina Este</strong></td>
+                            <td>Funcionamiento</td>
+                            <td><span class="lozenge lozenge-success">Vigente</span></td>
+                            <td>2027-03-20</td>
+                            <td><span class="lozenge lozenge-new">Bajo</span></td>
+                            <td>
+                                <button class="button button-subtle">Ver</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h2>Código de Ejemplo</h2>
+            <div class="code-block">
+&lt;table class="table"&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Header 1&lt;/th&gt;
+      &lt;th&gt;Header 2&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Data 1&lt;/td&gt;
+      &lt;td&gt;Data 2&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+            </div>
+        </section>
+
+        <!-- EMPTY STATES -->
+        <section id="empty" class="content-section">
+            <h1>Empty States</h1>
+            <p class="subtitle">Estado cuando no hay datos</p>
+
+            <h2>Ejemplo</h2>
+            <div class="card">
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i data-lucide="clipboard" style="width: 64px; height: 64px; color: var(--ds-text-subtlest);"></i>
+                    </div>
+                    <div class="empty-state-title">No hay permisos registrados</div>
+                    <div class="empty-state-description">
+                        Comienza agregando tu primer permiso para esta sede
+                    </div>
+                    <button class="button button-primary">
+                        <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+                        Agregar Permiso
+                    </button>
+                </div>
+            </div>
+
+            <h2>Código de Ejemplo</h2>
+            <div class="code-block">
+&lt;div class="empty-state"&gt;
+  &lt;div class="empty-state-icon"&gt;
+    &lt;i data-lucide="clipboard"&gt;&lt;/i&gt;
+  &lt;/div&gt;
+  &lt;div class="empty-state-title"&gt;No hay datos&lt;/div&gt;
+  &lt;div class="empty-state-description"&gt;
+    Descripción...
+  &lt;/div&gt;
+  &lt;button class="button button-primary"&gt;Acción&lt;/button&gt;
+&lt;/div&gt;
+            </div>
+        </section>
+
+        <!-- SEDE CARD TEMPLATE -->
+        <section id="sede-card" class="content-section">
+            <h1>Template: Sede Card</h1>
+            <p class="subtitle">Diseño compacto con Estado | Riesgo inline</p>
+
+            <div class="grid grid-2">
+                <div class="card card-clickable">
+                    <div style="display: flex; gap: var(--ds-space-200); margin-bottom: var(--ds-space-200);">
+                        <div style="width: 40px; height: 40px; border-radius: var(--ds-radius-100); background: var(--ds-neutral-100); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i data-lucide="building-2" style="width: 20px; height: 20px; color: var(--ds-text-subtle);"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <h3 style="margin: 0 0 var(--ds-space-025) 0;">Sede Central</h3>
+                            <p style="font-size: var(--ds-font-size-075); color: var(--ds-text-subtle); font-family: monospace;">SEDE-001</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: var(--ds-space-150); margin-bottom: var(--ds-space-200); font-size: var(--ds-font-size-100); color: var(--ds-text-subtle);">
+                        <span>Operativa</span>
+                        <span style="color: var(--ds-border-bold);">|</span>
+                        <span class="lozenge lozenge-new">Bajo</span>
+                    </div>
+                    <div>
+                        <p style="font-size: var(--ds-font-size-075); color: var(--ds-text-subtle); margin-bottom: var(--ds-space-100);">8/8 permisos vigentes</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill success" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-clickable">
+                    <div style="display: flex; gap: var(--ds-space-200); margin-bottom: var(--ds-space-200);">
+                        <div style="width: 40px; height: 40px; border-radius: var(--ds-radius-100); background: var(--ds-neutral-100); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i data-lucide="building-2" style="width: 20px; height: 20px; color: var(--ds-text-subtle);"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <h3 style="margin: 0 0 var(--ds-space-025) 0;">Sucursal Norte</h3>
+                            <p style="font-size: var(--ds-font-size-075); color: var(--ds-text-subtle); font-family: monospace;">SEDE-002</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: var(--ds-space-150); margin-bottom: var(--ds-space-200); font-size: var(--ds-font-size-100); color: var(--ds-text-subtle);">
+                        <span>Operativa</span>
+                        <span style="color: var(--ds-border-bold);">|</span>
+                        <span class="lozenge lozenge-inprogress">Medio</span>
+                    </div>
+                    <div>
+                        <p style="font-size: var(--ds-font-size-075); color: var(--ds-text-subtle); margin-bottom: var(--ds-space-100);">5/8 permisos vigentes</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill warning" style="width: 62.5%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PERMIT TABLE TEMPLATE -->
+        <section id="permit-table" class="content-section">
+            <h1>Template: Permit Table</h1>
+            <p class="subtitle">Tabla profesional para gestión de permisos</p>
+
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--ds-space-300);">
+                    <div>
+                        <h2 style="margin: 0; border: none; padding: 0;">Permisos</h2>
+                        <p style="color: var(--ds-text-subtle); margin-top: var(--ds-space-050);">12 permisos registrados</p>
+                    </div>
+                    <div class="flex">
+                        <button class="button button-default">Filtrar</button>
+                        <button class="button button-default">Exportar</button>
+                        <button class="button button-primary">
+                            <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+                            Nuevo Permiso
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Sede</th>
+                                <th>Tipo</th>
+                                <th>Estado</th>
+                                <th>Vencimiento</th>
+                                <th>Autoridad</th>
+                                <th>Responsable</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Sede Central</strong></td>
+                                <td>Funcionamiento</td>
+                                <td><span class="lozenge lozenge-success">Vigente</span></td>
+                                <td>2026-12-31</td>
+                                <td>Municipio de Quito</td>
+                                <td>
+                                    <div class="flex items-center">
+                                        <div class="avatar avatar-small" style="background: var(--ds-blue-100); color: var(--ds-blue-700);">JM</div>
+                                        <span>Juan Morales</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="flex">
+                                        <button class="button button-subtle">Ver</button>
+                                        <button class="button button-subtle">Editar</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sucursal Norte</strong></td>
+                                <td>Sanitario</td>
+                                <td><span class="lozenge lozenge-inprogress">Próximo</span></td>
+                                <td>2026-06-15</td>
+                                <td>MSP</td>
+                                <td>
+                                    <div class="flex items-center">
+                                        <div class="avatar avatar-small" style="background: var(--ds-orange-100); color: var(--ds-orange-700);">LP</div>
+                                        <span>Laura Pérez</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="flex">
+                                        <button class="button button-subtle">Ver</button>
+                                        <button class="button button-subtle">Editar</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Bodega Sur</strong></td>
+                                <td>Ambiental</td>
+                                <td><span class="lozenge lozenge-removed">Vencido</span></td>
+                                <td>2026-01-10</td>
+                                <td>MAE</td>
+                                <td>
+                                    <div class="flex items-center">
+                                        <div class="avatar avatar-small" style="background: var(--ds-green-100); color: var(--ds-green-600);">CS</div>
+                                        <span>Carlos Silva</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="flex">
+                                        <button class="button button-subtle">Ver</button>
+                                        <button class="button button-subtle">Editar</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- DASHBOARD TEMPLATE -->
+        <section id="dashboard" class="content-section">
+            <h1>Template: Dashboard Widget</h1>
+            <p class="subtitle">Widget combinado con métricas y mapa de calor</p>
+
+            <div class="card">
+                <h2 style="margin-top: 0; border: none; padding: 0;">Resumen General</h2>
+                <div class="grid grid-4" style="margin-bottom: var(--ds-space-400);">
+                    <div>
+                        <div style="font-size: var(--ds-font-size-050); color: var(--ds-text-subtle); text-transform: uppercase; margin-bottom: var(--ds-space-050);">Total Sedes</div>
+                        <div style="font-size: var(--ds-font-size-500); font-weight: 600;">8</div>
+                    </div>
+                    <div>
+                        <div style="font-size: var(--ds-font-size-050); color: var(--ds-text-subtle); text-transform: uppercase; margin-bottom: var(--ds-space-050);">Permisos Vigentes</div>
+                        <div style="font-size: var(--ds-font-size-500); font-weight: 600; color: var(--ds-green-500);">45</div>
+                    </div>
+                    <div>
+                        <div style="font-size: var(--ds-font-size-050); color: var(--ds-text-subtle); text-transform: uppercase; margin-bottom: var(--ds-space-050);">Por Vencer</div>
+                        <div style="font-size: var(--ds-font-size-500); font-weight: 600; color: var(--ds-orange-500);">8</div>
+                    </div>
+                    <div>
+                        <div style="font-size: var(--ds-font-size-050); color: var(--ds-text-subtle); text-transform: uppercase; margin-bottom: var(--ds-space-050);">Vencidos</div>
+                        <div style="font-size: var(--ds-font-size-500); font-weight: 600; color: var(--ds-red-500);">3</div>
+                    </div>
+                </div>
+
+                <h3>Mapa Interactivo de Red</h3>
+                <p style="font-size: var(--ds-font-size-075); color: var(--ds-text-subtle); margin-bottom: var(--ds-space-200);">
+                    Empresa en el centro conectada a todas las sedes. Los colores indican estado de cumplimiento.
+                </p>
+                <div id="network-map-container" class="react-flow-wrapper"></div>
+            </div>
+        </section>
+
+        <!-- ================================================================
+             Compliance Summary — two cards side by side (from question-2c)
+             × 3 states (sunny / warn / err from 1l)
+             ================================================================ -->
+        <section id="compliance-summary" class="content-section">
+            <h1>Template: Compliance Summary</h1>
+            <p class="subtitle">Par de cards que aparecen arriba del Dashboard. <b>Izquierda</b>: estado atmosférico del cumplimiento (sol/nubes/tormenta) con escudo watermark. <b>Derecha</b>: nota de pago con exposición económica aproximada. Grid <code>1fr + 440px</code>.</p>
+
+            <svg width="0" height="0" style="position:absolute">
+                <defs>
+                    <filter id="cs-cloud-filter" x="-20%" y="-20%" width="140%" height="140%">
+                        <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="3" seed="2" result="noise"/>
+                        <feDisplacementMap in="SourceGraphic" in2="noise" scale="12"/>
+                        <feGaussianBlur stdDeviation="3"/>
+                    </filter>
+                    <filter id="cs-heavy-cloud-filter" x="-20%" y="-20%" width="140%" height="140%">
+                        <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="4" seed="5" result="noise"/>
+                        <feDisplacementMap in="SourceGraphic" in2="noise" scale="20"/>
+                        <feGaussianBlur stdDeviation="4"/>
+                    </filter>
+                    <filter id="cs-storm-cloud-filter" x="-20%" y="-20%" width="140%" height="140%">
+                        <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="5" seed="8" result="noise">
+                            <animate attributeName="baseFrequency" values="0.015;0.02;0.015" dur="30s" repeatCount="indefinite"/>
+                        </feTurbulence>
+                        <feDisplacementMap in="SourceGraphic" in2="noise" scale="28"/>
+                        <feGaussianBlur stdDeviation="5"/>
+                    </filter>
+                    <filter id="cs-sky-turb">
+                        <feTurbulence type="fractalNoise" baseFrequency="0.006" numOctaves="4" seed="3">
+                            <animate attributeName="baseFrequency" values="0.006;0.01;0.006" dur="20s" repeatCount="indefinite"/>
+                        </feTurbulence>
+                        <feColorMatrix values="0 0 0 0 0.3  0 0 0 0 0.25  0 0 0 0 0.4  0 0 0 0.4 0"/>
+                    </filter>
+                    <filter id="cs-rough-edge">
+                        <feTurbulence type="fractalNoise" baseFrequency="0.4" numOctaves="2" seed="5" result="noise"/>
+                        <feDisplacementMap in="SourceGraphic" in2="noise" scale="3"/>
+                    </filter>
+                    <pattern id="cs-hex-ok" x="0" y="0" width="16" height="18.475" patternUnits="userSpaceOnUse">
+                        <path d="M8 0 L16 4.619 L16 13.856 L8 18.475 L0 13.856 L0 4.619 Z" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.6"/>
+                    </pattern>
+                    <pattern id="cs-hex-warn" x="0" y="0" width="16" height="18.475" patternUnits="userSpaceOnUse">
+                        <path d="M8 0 L16 4.619 L16 13.856 L8 18.475 L0 13.856 L0 4.619 Z" fill="none" stroke="rgba(194, 65, 12, 0.5)" stroke-width="0.7"/>
+                    </pattern>
+                    <pattern id="cs-hex-err" x="0" y="0" width="16" height="18.475" patternUnits="userSpaceOnUse">
+                        <path d="M8 0 L16 4.619 L16 13.856 L8 18.475 L0 13.856 L0 4.619 Z" fill="none" stroke="rgba(252, 165, 165, 0.55)" stroke-width="0.7"/>
+                    </pattern>
+                </defs>
+            </svg>
+
+            <style>
+#compliance-summary .cs-state-banner {
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 6px 14px; border-radius: 20px;
+  font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  margin: var(--ds-space-300) 0 var(--ds-space-150);
+}
+#compliance-summary .cs-state-banner .threshold {
+  font-family: ui-monospace, monospace;
+  font-size: 10px; font-weight: 500; opacity: 0.75;
+}
+#compliance-summary .cs-state-banner.ok   { background: #ecfdf5; color: #15803d; }
+#compliance-summary .cs-state-banner.warn { background: #fff4e6; color: #c2410c; }
+#compliance-summary .cs-state-banner.err  { background: #fef2f2; color: #991b1b; }
+
+#compliance-summary .cs-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 440px;
+  gap: 20px;
+  align-items: stretch;
+  margin-bottom: 28px;
+}
+@media (max-width: 1100px) {
+  #compliance-summary .cs-row { grid-template-columns: 1fr; }
+}
+
+/* ============ HERO CARD (atmospheric) ============ */
+#compliance-summary .hero-card {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  min-height: 340px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  isolation: isolate;
+}
+#compliance-summary .hero-card--sunny { background: linear-gradient(180deg, #6ab0ff 0%, #a6c8eb 35%, #d7e4f3 65%, #f4f1ea 100%); color: #0f265c; }
+#compliance-summary .hero-card--warn  { background: linear-gradient(180deg, #3d4a5c 0%, #55637a 30%, #6b7a91 60%, #7a849a 100%); color: #f1f5f9; }
+#compliance-summary .hero-card--err   { background: linear-gradient(180deg, #0a0d1a 0%, #1a1428 40%, #2a1820 70%, #3a1a1a 100%); color: #fecaca; }
+
+#compliance-summary .hero-card .bg-layer {
+  position: absolute; inset: 0;
+  pointer-events: none; overflow: hidden;
+}
+#compliance-summary .hero-card .bg-layer.sun       { z-index: 1; }
+#compliance-summary .hero-card .bg-layer.sky       { z-index: 1; }
+#compliance-summary .hero-card .bg-layer.shield    { z-index: 2; }
+#compliance-summary .hero-card .bg-layer.clouds    { z-index: 3; }
+#compliance-summary .hero-card .bg-layer.particles { z-index: 4; }
+#compliance-summary .hero-card .bg-layer.rain      { z-index: 4; }
+#compliance-summary .hero-card .bg-layer.lightning { z-index: 7; }
+
+#compliance-summary .hero-card canvas {
+  position: absolute !important;
+  inset: 0; width: 100%; height: 100%;
+  pointer-events: none; display: block;
+}
+#compliance-summary .hero-card .sky-turb-svg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  opacity: 0.4; mix-blend-mode: screen;
+}
+
+/* sun */
+#compliance-summary .hero-card .sun-halo {
+  position: absolute; top: -120px; right: 80px;
+  width: 360px; height: 360px;
+  background: radial-gradient(circle, rgba(255, 248, 220, 0.8) 0%, rgba(255, 230, 160, 0.5) 30%, transparent 70%);
+  border-radius: 50%; animation: csSunBreathe 5s ease-in-out infinite;
+  filter: blur(2px);
+}
+#compliance-summary .hero-card .sun-core {
+  position: absolute; top: 40px; right: 170px;
+  width: 100px; height: 100px;
+  background: radial-gradient(circle, rgba(255, 252, 240, 1) 0%, rgba(255, 240, 180, 0.85) 40%, transparent 100%);
+  border-radius: 50%; filter: blur(3px);
+  animation: csSunCorePulse 3s ease-in-out infinite;
+}
+@keyframes csSunBreathe { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.95; } }
+@keyframes csSunCorePulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+
+/* clouds sunny */
+#compliance-summary .hero-card .cloud { position: absolute; filter: url(#cs-cloud-filter); }
+#compliance-summary .hero-card .cloud svg { display: block; overflow: visible; }
+#compliance-summary .hero-card .cloud ellipse { fill: white; }
+#compliance-summary .hero-card .cloud-1 { top: 40px; left: 0; width: 200px; opacity: 0.82; animation: csCloudDrift 50s linear infinite; }
+#compliance-summary .hero-card .cloud-2 { top: 120px; left: 0; width: 160px; opacity: 0.62; animation: csCloudDrift 70s linear infinite -20s; }
+#compliance-summary .hero-card .cloud-3 { top: 30px; left: 0; width: 180px; opacity: 0.78; animation: csCloudDrift 40s linear infinite -35s; }
+@keyframes csCloudDrift { from { transform: translateX(-120%); } to { transform: translateX(1000%); } }
+
+/* heavy clouds warn */
+#compliance-summary .hero-card .heavy-cloud { position: absolute; filter: url(#cs-heavy-cloud-filter); }
+#compliance-summary .hero-card .heavy-cloud svg { display: block; overflow: visible; }
+#compliance-summary .hero-card .heavy-cloud ellipse { fill: rgba(35, 42, 56, 0.72); }
+#compliance-summary .hero-card .hc-1 { top: -30px; left: 0; width: 360px; animation: csCloudDrift 90s linear infinite; }
+#compliance-summary .hero-card .hc-2 { top: 30px; left: 0; width: 300px; animation: csCloudDrift 110s linear infinite -40s; }
+#compliance-summary .hero-card .hc-3 { top: 80px; left: 0; width: 280px; opacity: 0.82; animation: csCloudDrift 70s linear infinite -20s; }
+#compliance-summary .hero-card .hc-4 { top: 130px; left: 0; width: 240px; opacity: 0.7; animation: csCloudDrift 80s linear infinite -50s; }
+#compliance-summary .hero-card .mist {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%);
+  animation: csMistMove 8s ease-in-out infinite; mix-blend-mode: overlay;
+}
+@keyframes csMistMove { 0%,100% { opacity: 0.3; transform: translateY(0); } 50% { opacity: 0.55; transform: translateY(-5px); } }
+
+/* storm clouds err */
+#compliance-summary .hero-card .dark-cloud { position: absolute; filter: url(#cs-storm-cloud-filter); }
+#compliance-summary .hero-card .dark-cloud svg { display: block; overflow: visible; }
+#compliance-summary .hero-card .dark-cloud ellipse { fill: rgba(10, 10, 20, 0.9); }
+#compliance-summary .hero-card .dk-1 { top: -50px; left: 0; width: 440px; animation: csStormRoll 40s ease-in-out infinite; }
+#compliance-summary .hero-card .dk-2 { top: 20px; left: 20%; width: 360px; animation: csStormRoll 50s ease-in-out infinite -15s; }
+#compliance-summary .hero-card .dk-3 { top: 70px; left: 45%; width: 320px; opacity: 0.88; animation: csStormRoll 45s ease-in-out infinite -25s; }
+#compliance-summary .hero-card .dk-4 { top: 100px; left: 0; width: 280px; opacity: 0.8; animation: csStormRoll 55s ease-in-out infinite -35s; }
+@keyframes csStormRoll { 0% { transform: translateX(-40px); } 50% { transform: translateX(20px); } 100% { transform: translateX(-40px); } }
+
+#compliance-summary .hero-card .rain-overlay {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(105deg,
+    transparent 0%, transparent 49.5%,
+    rgba(160, 180, 220, 0.16) 49.5%, rgba(160, 180, 220, 0.16) 50.5%,
+    transparent 50.5%, transparent 100%);
+  background-size: 3px 26px;
+  animation: csRainFall 0.5s linear infinite;
+  opacity: 0.5;
+}
+@keyframes csRainFall { from { background-position: 0 0; } to { background-position: -10px 26px; } }
+
+#compliance-summary .hero-card .lightning-bolt {
+  position: absolute; opacity: 0; pointer-events: none;
+  filter: drop-shadow(0 0 8px rgba(200, 220, 255, 0.8)) drop-shadow(0 0 24px rgba(180, 200, 255, 0.6));
+}
+#compliance-summary .hero-card .lightning-bolt svg { overflow: visible; }
+#compliance-summary .hero-card .lightning-bolt path { fill: white; stroke: rgba(200, 220, 255, 0.9); stroke-width: 0.5; }
+#compliance-summary .hero-card .flash-overlay {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 30% 30%, rgba(255,255,255,0.95), rgba(200,220,255,0.3) 40%, transparent 70%);
+  opacity: 0; pointer-events: none;
+}
+
+/* shield */
+#compliance-summary .hero-card .shield-wm {
+  position: absolute; top: 50%; right: -80px;
+  transform: translateY(-50%);
+  width: 380px; height: 450px;
+  pointer-events: none; filter: blur(1.4px);
+}
+#compliance-summary .hero-card .shield-wm svg { width: 100%; height: 100%; display: block; }
+#compliance-summary .hero-card .shield-ok { opacity: 0.22; animation: csShieldBreathe 5s ease-in-out infinite; }
+@keyframes csShieldBreathe {
+  0%,100% { transform: translateY(-50%) scale(1); }
+  50%     { transform: translateY(-50%) scale(1.012); }
+}
+#compliance-summary .hero-card .shield-warn { opacity: 0.26; animation: csShieldWobble 6s ease-in-out infinite; }
+@keyframes csShieldWobble {
+  0%,100% { transform: translateY(-50%) rotate(0deg); }
+  33% { transform: translateY(-50%) rotate(-0.3deg); }
+  66% { transform: translateY(-50%) rotate(0.3deg); }
+}
+#compliance-summary .hero-card .shield-warn .crack { animation: csCrackGlow 3s ease-in-out infinite; }
+@keyframes csCrackGlow { 0%,100% { opacity: 0.5; } 50% { opacity: 0.85; } }
+
+#compliance-summary .hero-card .shield-err { opacity: 0.28; }
+#compliance-summary .hero-card .shield-err .left-half,
+#compliance-summary .hero-card .shield-err .right-half {
+  transform-origin: center; transform-box: fill-box;
+}
+#compliance-summary .hero-card .shield-err .left-half  { animation: csBreakLeft 6s ease-in-out infinite; }
+#compliance-summary .hero-card .shield-err .right-half { animation: csBreakRight 6s ease-in-out infinite; }
+@keyframes csBreakLeft {
+  0%, 50% { transform: translateX(0) rotate(0deg); }
+  70% { transform: translateX(-16px) rotate(-3.5deg); }
+  100% { transform: translateX(-8px) rotate(-1.8deg); }
+}
+@keyframes csBreakRight {
+  0%, 50% { transform: translateX(0) rotate(0deg); }
+  70% { transform: translateX(16px) rotate(3.5deg); }
+  100% { transform: translateX(8px) rotate(1.8deg); }
+}
+#compliance-summary .hero-card .shield-err .spark { animation: csSparkFlicker 2s ease-in-out infinite; }
+#compliance-summary .hero-card .shield-err .spark:nth-child(odd) { animation-delay: -0.7s; }
+#compliance-summary .hero-card .shield-err .spark:nth-child(3n) { animation-delay: -1.3s; }
+@keyframes csSparkFlicker { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+/* content */
+#compliance-summary .hero-card .content {
+  position: relative; z-index: 10;
+  padding: 32px 36px;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 340px;
+}
+#compliance-summary .hero-card .state-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 12px; border-radius: 100px;
+  font-size: 10px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase;
+  color: white; align-self: flex-start;
+}
+#compliance-summary .hero-card--sunny .state-chip { background: #15803d; box-shadow: 0 2px 8px rgba(21, 128, 61, 0.25); }
+#compliance-summary .hero-card--warn  .state-chip { background: #c2410c; box-shadow: 0 2px 8px rgba(194, 65, 12, 0.3); }
+#compliance-summary .hero-card--err   .state-chip { background: #dc2626; box-shadow: 0 2px 12px rgba(220, 38, 38, 0.45); }
+#compliance-summary .hero-card .state-chip .dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  animation: csPulse 2s ease-in-out infinite;
+}
+#compliance-summary .hero-card--sunny .state-chip .dot { background: #bbf7d0; box-shadow: 0 0 6px #bbf7d0; }
+#compliance-summary .hero-card--warn  .state-chip .dot { background: #fed7aa; box-shadow: 0 0 6px #fed7aa; }
+#compliance-summary .hero-card--err   .state-chip .dot { background: #fecaca; box-shadow: 0 0 6px #fecaca; }
+@keyframes csPulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.55; transform: scale(1.15); } }
+
+#compliance-summary .hero-card .top-row {
+  display: flex; flex-direction: column; gap: 12px;
+  max-width: 520px;
+}
+#compliance-summary .hero-card .headline {
+  font-size: 24px; font-weight: 400; letter-spacing: -0.2px;
+  line-height: 1.35; margin: 0;
+}
+#compliance-summary .hero-card--sunny .headline { color: #0f265c; }
+#compliance-summary .hero-card--warn  .headline { color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+#compliance-summary .hero-card--err   .headline { color: #fef2f2; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+#compliance-summary .hero-card .headline b { font-weight: 600; }
+#compliance-summary .hero-card .cs-brand { font-weight: 600; }
+
+#compliance-summary .hero-card .hero-stats {
+  display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap;
+}
+#compliance-summary .hero-card .big-pct {
+  font-size: 120px; font-weight: 100; line-height: 0.9;
+  letter-spacing: -5px;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 14px rgba(255,255,255,0.5);
+}
+#compliance-summary .hero-card--sunny .big-pct { color: #166534; }
+#compliance-summary .hero-card--warn  .big-pct { color: #fed7aa; text-shadow: 0 2px 16px rgba(0,0,0,0.3); }
+#compliance-summary .hero-card--err   .big-pct { color: #fca5a5; text-shadow: 0 0 24px rgba(252,165,165,0.6), 0 2px 8px rgba(0,0,0,0.8); }
+#compliance-summary .hero-card .big-pct small {
+  font-size: 38px; font-weight: 200; opacity: 0.75;
+  margin-left: 0; letter-spacing: -1.4px;
+}
+
+#compliance-summary .hero-card .data-pill {
+  display: inline-flex; align-items: center; gap: 20px;
+  padding: 9px 16px;
+  border-radius: 11px;
+  backdrop-filter: blur(14px);
+  align-self: flex-start;
+}
+#compliance-summary .hero-card--sunny .data-pill {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(15, 38, 92, 0.12);
+  color: #172b4d;
+}
+#compliance-summary .hero-card--warn .data-pill {
+  background: rgba(20, 25, 40, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: white;
+}
+#compliance-summary .hero-card--err .data-pill {
+  background: rgba(60, 15, 20, 0.65);
+  border: 1px solid rgba(252, 165, 165, 0.25);
+  color: #fef2f2;
+}
+#compliance-summary .hero-card .data-pill .k { font-size: 10px; font-weight: 500; opacity: 0.75; }
+#compliance-summary .hero-card .data-pill .v { font-size: 19px; font-weight: 300; margin-top: 3px; font-variant-numeric: tabular-nums; letter-spacing: -0.3px; }
+#compliance-summary .hero-card .data-pill .vdiv { width: 1px; height: 24px; background: currentColor; opacity: 0.22; }
+
+/* ============ INVOICE CARD ============ */
+#compliance-summary .invoice-card {
+  background: white;
+  border: 1px solid var(--ds-border);
+  border-radius: 16px;
+  padding: 28px;
+  min-height: 340px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+}
+#compliance-summary .invoice-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #16a34a, #15803d);
+}
+#compliance-summary .invoice-card .invoice-header {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px;
+}
+#compliance-summary .invoice-card .invoice-title {
+  font-size: 15px; font-weight: 600; color: var(--ds-text);
+  display: flex; align-items: center; gap: 10px;
+}
+#compliance-summary .invoice-card .invoice-title .icon {
+  width: 30px; height: 30px;
+  background: #ecfdf5;
+  color: #15803d;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+#compliance-summary .invoice-card .approx-chip {
+  font-size: 10px; font-weight: 500;
+  padding: 3px 10px; border-radius: 12px;
+  background: var(--ds-neutral-100);
+  color: var(--ds-text-subtle);
+  font-style: italic;
+  flex-shrink: 0;
+}
+#compliance-summary .invoice-card .receipt-list { display: flex; flex-direction: column; }
+#compliance-summary .invoice-card .receipt-line {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 13.5px; padding: 8px 0;
+  border-bottom: 1px dotted var(--ds-border);
+  color: var(--ds-text);
+}
+#compliance-summary .invoice-card .receipt-line:last-child { border-bottom: none; }
+#compliance-summary .invoice-card .receipt-line .label { line-height: 1.3; }
+#compliance-summary .invoice-card .receipt-line .label .more {
+  color: var(--ds-text-subtle);
+  font-size: 11px; font-style: italic; margin-left: 4px;
+}
+#compliance-summary .invoice-card .receipt-line .price {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  white-space: nowrap; margin-left: 12px;
+  color: var(--ds-text);
+}
+#compliance-summary .invoice-card .receipt-total {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-top: 14px;
+  border-top: 2px solid var(--ds-border);
+}
+#compliance-summary .invoice-card .receipt-total .label { font-size: 13px; font-weight: 500; color: var(--ds-text); }
+#compliance-summary .invoice-card .receipt-total .amount {
+  font-size: 34px; font-weight: 300;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.8px; line-height: 1;
+  color: #166534; white-space: nowrap;
+}
+#compliance-summary .invoice-card .receipt-total .amount small {
+  font-size: 14px; font-weight: 300; opacity: 0.6;
+  margin-left: 3px; letter-spacing: 0;
+  color: var(--ds-text-subtle);
+}
+#compliance-summary .invoice-card .warning-box {
+  font-size: 12.5px; line-height: 1.5;
+  padding: 10px 14px; border-radius: 8px;
+  background: #fff4e6;
+  border: 1px dashed rgba(194, 65, 12, 0.35);
+  color: #7c2d12;
+}
+#compliance-summary .invoice-card .warning-box b {
+  font-weight: 600; color: #c2410c;
+  font-variant-numeric: tabular-nums;
+}
+#compliance-summary .invoice-card .footnote {
+  font-size: 10.5px; color: var(--ds-text-subtlest);
+  font-style: italic; line-height: 1.4;
+}
+</style>
+
+
+      <div class="cs-state-banner cs-state-banner--ok">
+        <span>☀ Casi al día</span>
+        <span class="threshold">≥ 80%</span>
+      </div>
+      <div class="cs-row">
+        <div class="hero-card hero-card--sunny">
+          
+        <div class="bg-layer sun">
+          <div class="sun-halo"></div>
+          <div class="sun-core"></div>
+        </div>
+        <div class="bg-layer shield">
+          <div class="shield-wm shield-ok">
+            <svg viewBox="0 0 560 650">
+              <path fill="rgba(255, 255, 255, 0.4)" stroke="rgba(255, 255, 255, 0.55)" stroke-width="1.5" d="M280 40 L500 130 L500 330 Q500 480 280 610 Q60 480 60 330 L60 130 Z"/>
+              <path fill="url(#cs-hex-ok)" opacity="0.3" d="M280 40 L500 130 L500 330 Q500 480 280 610 Q60 480 60 330 L60 130 Z"/>
+              <path fill="none" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1" d="M280 70 L472 150 L472 328 Q472 464 280 584 Q88 464 88 328 L88 150 Z"/>
+              <path fill="rgba(22, 163, 74, 0.2)" d="M88 174 L472 174 L472 328 Q472 464 280 584 Q88 464 88 328 Z"/>
+              <path fill="none" stroke="rgba(255, 255, 255, 0.6)" stroke-width="2" stroke-linejoin="round" d="M280 48 L492 134 L492 250"/>
+              <g transform="translate(280, 320)">
+                <circle fill="rgba(22, 163, 74, 0.4)" stroke="rgba(255, 255, 255, 0.6)" stroke-width="1.5" cx="0" cy="0" r="58"/>
+                <path fill="none" stroke="rgba(255, 255, 255, 0.9)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M-25 -2 L-8 18 L25 -20"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+        <div class="bg-layer clouds">
+          <div class="cloud cloud-1"><svg viewBox="0 0 260 80"><ellipse cx="60" cy="50" rx="60" ry="22"/><ellipse cx="120" cy="38" rx="52" ry="28"/><ellipse cx="180" cy="50" rx="56" ry="20"/><ellipse cx="210" cy="42" rx="36" ry="20"/></svg></div>
+          <div class="cloud cloud-2"><svg viewBox="0 0 180 60"><ellipse cx="50" cy="36" rx="48" ry="18"/><ellipse cx="95" cy="28" rx="40" ry="20"/><ellipse cx="135" cy="36" rx="42" ry="16"/></svg></div>
+          <div class="cloud cloud-3"><svg viewBox="0 0 220 70"><ellipse cx="50" cy="42" rx="52" ry="20"/><ellipse cx="110" cy="32" rx="46" ry="24"/><ellipse cx="170" cy="42" rx="50" ry="18"/></svg></div>
+        </div>
+        <div class="bg-layer particles"><canvas class="dust-canvas" data-state="sunny"></canvas></div>
+          <div class="content">
+            <div class="top-row">
+              <div class="state-chip"><span class="dot"></span>Casi al día</div>
+              <h2 class="headline">Vas bien, <span class="cs-brand">Hamburguesas La Española</span>. Solo te falta ponerte al día en unos pocos permisos.</h2>
+            </div>
+            <div class="hero-stats">
+              <div class="big-pct"><span>84</span><small>%</small></div>
+            </div>
+            <div class="data-pill">
+              <div><div class="k">Permisos</div><div class="v">48 de 57</div></div>
+              <div class="vdiv"></div>
+              <div><div class="k">Locales</div><div class="v">3</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="invoice-card">
+          <div class="invoice-header">
+            <div class="invoice-title">
+              <div class="icon"><i data-lucide="dollar-sign" style="width:15px;height:15px"></i></div>
+              Lo que te falta pagar
+            </div>
+            <div class="approx-chip">aprox.</div>
+          </div>
+          <div class="receipt-list">
+          <div class="receipt-line">
+            <div class="label">Patente municipal</div>
+            <div class="price">$35</div>
+          </div>
+          <div class="receipt-line">
+            <div class="label">Permiso de bomberos</div>
+            <div class="price">$30</div>
+          </div>
+          <div class="receipt-line">
+            <div class="label">Uso de suelo<span class="more"> · local 2</span></div>
+            <div class="price">$40</div>
+          </div>
+          <div class="receipt-line">
+            <div class="label">Otros<span class="more"> · 6 trámites menores</span></div>
+            <div class="price">$275</div>
+          </div>
+          </div>
+          <div class="receipt-total">
+            <div class="label">Total pendiente</div>
+            <div class="amount"><span>$380</span><small> USD</small></div>
+          </div>
+          <div class="warning-box">Si no los pagas, la multa puede llegar a <b>$1 200</b>.</div>
+          <div class="footnote">Valores aproximados según tarifa municipal. Los exactos los ves en cada permiso.</div>
+        </div>
+      </div>
+
+      <div class="cs-state-banner cs-state-banner--warn">
+        <span>⛅ Te estás atrasando</span>
+        <span class="threshold">50 – 79%</span>
+      </div>
+      <div class="cs-row">
+        <div class="hero-card hero-card--warn">
+          
+        <div class="bg-layer shield">
+          <div class="shield-wm shield-warn">
+            <svg viewBox="0 0 560 650">
+              <path fill="rgba(255, 200, 140, 0.38)" stroke="rgba(253, 186, 116, 0.7)" stroke-width="1.5" d="M280 40 L500 130 L500 330 Q500 480 280 610 Q60 480 60 330 L60 130 Z"/>
+              <path fill="url(#cs-hex-warn)" opacity="0.4" d="M280 40 L500 130 L500 330 Q500 480 280 610 Q60 480 60 330 L60 130 Z"/>
+              <path fill="none" stroke="rgba(253, 186, 116, 0.45)" stroke-width="1" d="M280 70 L472 150 L472 328 Q472 464 280 584 Q88 464 88 328 L88 150 Z"/>
+              <path fill="rgba(234, 88, 12, 0.22)" d="M88 268 L472 268 L472 328 Q472 464 280 584 Q88 464 88 328 Z"/>
+              <path fill="none" stroke="rgba(255, 230, 180, 0.6)" stroke-width="2" stroke-linejoin="round" d="M280 48 L492 134 L492 250"/>
+              <path class="crack" fill="none" stroke="rgba(194, 65, 12, 0.7)" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 4" d="M280 60 L260 180 L300 280 L240 400 L290 560"/>
+              <path class="crack" fill="none" stroke="rgba(194, 65, 12, 0.7)" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 4" d="M360 110 L336 210 L384 330"/>
+              <path class="crack" fill="none" stroke="rgba(194, 65, 12, 0.7)" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 4" d="M180 200 L220 310"/>
+              <g transform="translate(280, 320)">
+                <circle fill="rgba(234, 88, 12, 0.35)" stroke="rgba(255, 220, 180, 0.55)" stroke-width="1.5" cx="0" cy="0" r="58"/>
+                <line stroke="rgba(255, 255, 255, 0.85)" stroke-width="3.5" stroke-linecap="round" x1="0" y1="-30" x2="0" y2="10"/>
+                <circle fill="rgba(255, 255, 255, 0.85)" cx="0" cy="28" r="5"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+        <div class="bg-layer clouds">
+          <div class="heavy-cloud hc-1"><svg viewBox="0 0 500 140"><ellipse cx="80" cy="80" rx="100" ry="40"/><ellipse cx="180" cy="60" rx="110" ry="50"/><ellipse cx="290" cy="70" rx="100" ry="46"/><ellipse cx="400" cy="82" rx="100" ry="42"/></svg></div>
+          <div class="heavy-cloud hc-2"><svg viewBox="0 0 420 120"><ellipse cx="70" cy="70" rx="90" ry="34"/><ellipse cx="160" cy="56" rx="90" ry="42"/><ellipse cx="250" cy="66" rx="90" ry="38"/><ellipse cx="340" cy="76" rx="80" ry="34"/></svg></div>
+          <div class="heavy-cloud hc-3"><svg viewBox="0 0 380 110"><ellipse cx="60" cy="60" rx="80" ry="30"/><ellipse cx="150" cy="48" rx="84" ry="38"/><ellipse cx="240" cy="58" rx="80" ry="32"/><ellipse cx="320" cy="66" rx="70" ry="30"/></svg></div>
+          <div class="heavy-cloud hc-4"><svg viewBox="0 0 320 100"><ellipse cx="60" cy="60" rx="70" ry="28"/><ellipse cx="140" cy="48" rx="74" ry="32"/><ellipse cx="220" cy="58" rx="70" ry="30"/><ellipse cx="280" cy="64" rx="50" ry="24"/></svg></div>
+          <div class="mist"></div>
+        </div>
+        <div class="bg-layer particles"><canvas class="warn-canvas" data-state="warn"></canvas></div>
+          <div class="content">
+            <div class="top-row">
+              <div class="state-chip"><span class="dot"></span>Te estás atrasando</div>
+              <h2 class="headline"><span class="cs-brand">Hamburguesas La Española</span>, se te están acumulando los papeles. <b>Ponte las pilas</b> antes que te caiga una multa.</h2>
+            </div>
+            <div class="hero-stats">
+              <div class="big-pct"><span>62</span><small>%</small></div>
+            </div>
+            <div class="data-pill">
+              <div><div class="k">Permisos</div><div class="v">36 de 57</div></div>
+              <div class="vdiv"></div>
+              <div><div class="k">Locales</div><div class="v">3</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="invoice-card">
+          <div class="invoice-header">
+            <div class="invoice-title">
+              <div class="icon"><i data-lucide="dollar-sign" style="width:15px;height:15px"></i></div>
+              Lo que te falta pagar
+            </div>
+            <div class="approx-chip">aprox.</div>
+          </div>
+          <div class="receipt-list">
+          <div class="receipt-line">
+            <div class="label">LUAE<span class="more"> · vencida hace 2 meses</span></div>
+            <div class="price">$80</div>
+          </div>
+          <div class="receipt-line">
+            <div class="label">Patente municipal<span class="more"> · 2 locales</span></div>
+            <div class="price">$210</div>
+          </div>
+          <div class="receipt-line">
+            <div class="label">Permiso ARCSA<span class="more"> · alimentos</span></div>
+            <div class="price">$80</div>
+          </div>
+          <div class="receipt-line">
+            <div class="label">Otros<span class="more"> · 18 trámites</span></div>
+            <div class="price">$830</div>
+          </div>
+          </div>
+          <div class="receipt-total">
+            <div class="label">Total pendiente</div>
+            <div class="amount"><span>$1 200</span><small> USD</small></div>
+          </div>
+          <div class="warning-box">Si no arreglas esto, la multa puede llegar a <b>$4 000</b>.</div>
+          <div class="footnote">Valores aproximados según tarifa municipal. Los exactos los ves en cada permiso.</div>
+        </div>
+      </div>
+
+      <div class="cs-state-banner cs-state-banner--err">
+        <span>⛈ Te pueden cerrar</span>
+        <span class="threshold">< 50%</span>
+      </div>
+      <div class="cs-row">
+        <div class="hero-card hero-card--err">
+          
+        <div class="bg-layer sky">
+          <svg class="sky-turb-svg" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" filter="url(#cs-sky-turb)"/></svg>
+        </div>
+        <div class="bg-layer shield">
+          <div class="shield-wm shield-err">
+            <svg viewBox="0 0 560 650">
+              <defs>
+                <clipPath id="cs-left-clip-2"><path d="M0 0 L290 0 L260 120 L300 220 L256 320 L290 420 L258 520 L304 650 L0 650 Z"/></clipPath>
+                <clipPath id="cs-right-clip-2"><path d="M290 0 L560 0 L560 650 L304 650 L258 520 L290 420 L256 320 L300 220 L260 120 Z"/></clipPath>
+                <clipPath id="cs-shield-clip-2"><path d="M280 40 L500 130 L500 330 Q500 480 280 610 Q60 480 60 330 L60 130 Z"/></clipPath>
+              </defs>
+              <g class="left-half" clip-path="url(#cs-left-clip-2)">
+                <path fill="rgba(60, 20, 25, 0.55)" stroke="rgba(252, 165, 165, 0.8)" stroke-width="1.5" d="M280 40 L500 130 L500 330 Q500 480 280 610 Q60 480 60 330 L60 130 Z"/>
+                <path fill="url(#cs-hex-err)" opacity="0.35" clip-path="url(#cs-shield-clip-2)" d="M280 40 L500 130 L500 330 Q500 480 280 610 Q60 480 60 330 L60 130 Z"/>
+                <path fill="none" stroke="rgba(252, 165, 165, 0.5)" stroke-width="1" d="M280 70 L472 150 L472 328 Q472 464 280 584 Q88 464 88 328 L88 150 Z"/>
+                <path fill="rgba(220, 38, 38, 0.4)" d="M88 394 L472 394 L472 328 Q472 464 280 584 Q88 464 88 328 Z"/>
+                <path fill="none" stroke="rgba(252, 165, 165, 0.7)" stroke-width="1.4" stroke-linecap="round" d="M160 100 L210 200 L170 280"/>
+                <path fill="none" stroke="rgba(252, 165, 165, 0.7)" stroke-width="1.4" stroke-linecap="round" d="M140 360 L190 430"/>
+              </g>
+              <g class="right-half" clip-path="url(#cs-right-clip-2)">
+                <path fill="rgba(60, 20, 25, 0.55)" stroke="rgba(252, 165, 165, 0.8)" stroke-width="1.5" d="M280 40 L500 130 L500 330 Q500 480 280 610 Q60 480 60 330 L60 130 Z"/>
+                <path fill="url(#cs-hex-err)" opacity="0.35" clip-path="url(#cs-shield-clip-2)" d="M280 40 L500 130 L500 330 Q500 480 280 610 Q60 480 60 330 L60 130 Z"/>
+                <path fill="none" stroke="rgba(252, 165, 165, 0.5)" stroke-width="1" d="M280 70 L472 150 L472 328 Q472 464 280 584 Q88 464 88 328 L88 150 Z"/>
+                <path fill="rgba(220, 38, 38, 0.4)" d="M88 394 L472 394 L472 328 Q472 464 280 584 Q88 464 88 328 Z"/>
+                <path fill="none" stroke="rgba(252, 165, 165, 0.7)" stroke-width="1.4" stroke-linecap="round" d="M400 100 L350 200 L394 280"/>
+                <path fill="none" stroke="rgba(252, 165, 165, 0.7)" stroke-width="1.4" stroke-linecap="round" d="M420 360 L370 430"/>
+              </g>
+              <g filter="url(#cs-rough-edge)">
+                <path fill="none" stroke="rgba(255, 200, 200, 0.85)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M290 0 L260 120 L300 220 L256 320 L290 420 L258 520 L304 650"/>
+              </g>
+              <circle class="spark" fill="rgba(255, 220, 220, 0.95)" cx="272" cy="160" r="3"/>
+              <circle class="spark" fill="rgba(255, 220, 220, 0.95)" cx="295" cy="260" r="2.5"/>
+              <circle class="spark" fill="rgba(255, 220, 220, 0.95)" cx="268" cy="360" r="4"/>
+              <circle class="spark" fill="rgba(255, 220, 220, 0.95)" cx="285" cy="460" r="2.5"/>
+              <circle class="spark" fill="rgba(255, 220, 220, 0.95)" cx="275" cy="560" r="3"/>
+              <circle class="spark" fill="rgba(255, 220, 220, 0.95)" cx="302" cy="80" r="2"/>
+            </svg>
+          </div>
+        </div>
+        <div class="bg-layer clouds">
+          <div class="dark-cloud dk-1"><svg viewBox="0 0 620 170"><ellipse cx="100" cy="90" rx="120" ry="46"/><ellipse cx="220" cy="70" rx="130" ry="56"/><ellipse cx="350" cy="82" rx="130" ry="52"/><ellipse cx="490" cy="94" rx="120" ry="46"/></svg></div>
+          <div class="dark-cloud dk-2"><svg viewBox="0 0 520 150"><ellipse cx="90" cy="80" rx="100" ry="40"/><ellipse cx="200" cy="60" rx="110" ry="50"/><ellipse cx="320" cy="74" rx="110" ry="44"/><ellipse cx="440" cy="86" rx="100" ry="40"/></svg></div>
+          <div class="dark-cloud dk-3"><svg viewBox="0 0 460 130"><ellipse cx="80" cy="70" rx="90" ry="34"/><ellipse cx="180" cy="56" rx="100" ry="44"/><ellipse cx="290" cy="68" rx="96" ry="38"/><ellipse cx="400" cy="78" rx="80" ry="34"/></svg></div>
+          <div class="dark-cloud dk-4"><svg viewBox="0 0 380 110"><ellipse cx="70" cy="60" rx="80" ry="30"/><ellipse cx="160" cy="48" rx="88" ry="36"/><ellipse cx="260" cy="58" rx="80" ry="32"/><ellipse cx="340" cy="64" rx="60" ry="28"/></svg></div>
+          <div class="rain-overlay"></div>
+        </div>
+        <div class="bg-layer rain"><canvas class="rain-canvas" data-state="err" data-idx="2"></canvas></div>
+        <div class="bg-layer lightning">
+          <div class="lightning-bolt" data-bolt="2-1" style="top: 10%; left: 25%;">
+            <svg width="50" height="150" viewBox="0 0 60 180"><path d="M35 0 L12 70 L28 70 L20 130 L45 70 L30 70 L42 0 Z"/></svg>
+          </div>
+          <div class="lightning-bolt" data-bolt="2-2" style="top: 8%; right: 30%;">
+            <svg width="44" height="130" viewBox="0 0 50 160"><path d="M28 0 L8 55 L22 55 L14 110 L38 52 L24 52 L35 0 Z"/></svg>
+          </div>
+          <div class="lightning-bolt" data-bolt="2-3" style="top: 12%; left: 50%;">
+            <svg width="40" height="120" viewBox="0 0 44 150"><path d="M25 0 L8 50 L20 50 L14 100 L34 48 L22 48 L32 0 Z"/></svg>
+          </div>
+          <div class="flash-overlay" data-flash="2"></div>
+        </div>
+          <div class="content">
+            <div class="top-row">
+              <div class="state-chip"><span class="dot"></span>Te pueden cerrar</div>
+              <h2 class="headline"><span class="cs-brand">Hamburguesas La Española</span>, <b>te pueden clausurar el local</b> en cualquier momento. Hay que actuar ya.</h2>
+            </div>
+            <div class="hero-stats">
+              <div class="big-pct"><span>34</span><small>%</small></div>
+            </div>
+            <div class="data-pill">
+              <div><div class="k">Permisos</div><div class="v">19 de 57</div></div>
+              <div class="vdiv"></div>
+              <div><div class="k">Locales</div><div class="v">3</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="invoice-card">
+          <div class="invoice-header">
+            <div class="invoice-title">
+              <div class="icon"><i data-lucide="dollar-sign" style="width:15px;height:15px"></i></div>
+              Lo que te falta pagar
+            </div>
+            <div class="approx-chip">aprox.</div>
+          </div>
+          <div class="receipt-list">
+          <div class="receipt-line">
+            <div class="label">LUAE<span class="more"> · los 3 locales</span></div>
+            <div class="price">$240</div>
+          </div>
+          <div class="receipt-line">
+            <div class="label">Patente municipal<span class="more"> · vencidas</span></div>
+            <div class="price">$315</div>
+          </div>
+          <div class="receipt-line">
+            <div class="label">Bomberos + ARCSA</div>
+            <div class="price">$330</div>
+          </div>
+          <div class="receipt-line">
+            <div class="label">Otros<span class="more"> · 35 trámites + IESS</span></div>
+            <div class="price">$1 915</div>
+          </div>
+          </div>
+          <div class="receipt-total">
+            <div class="label">Total pendiente</div>
+            <div class="amount"><span>$2 800</span><small> USD</small></div>
+          </div>
+          <div class="warning-box">Clausura + multas hasta <b>$12 000</b>.</div>
+          <div class="footnote">Valores aproximados según tarifa municipal. Los exactos los ves en cada permiso.</div>
+        </div>
+      </div>
+
+
+<script>
+(function() {
+  // Sunny dust particles (single canvas)
+  document.querySelectorAll('#compliance-summary canvas.dust-canvas').forEach(canvas => {
+    const ctx = canvas.getContext('2d');
+    const particles = [];
+    const N = 40;
+    function resize() {
+      canvas.width = canvas.offsetWidth * devicePixelRatio;
+      canvas.height = canvas.offsetHeight * devicePixelRatio;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(devicePixelRatio, devicePixelRatio);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    for (let i = 0; i < N; i++) {
+      particles.push({
+        x: Math.random() * canvas.offsetWidth,
+        y: Math.random() * canvas.offsetHeight,
+        r: Math.random() * 2 + 0.5,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: -(Math.random() * 0.3 + 0.1),
+        alpha: Math.random() * 0.5 + 0.2,
+        phase: Math.random() * Math.PI * 2
+      });
+    }
+    function tick() {
+      ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+      particles.forEach(p => {
+        p.phase += 0.02;
+        p.x += p.vx + Math.sin(p.phase) * 0.2;
+        p.y += p.vy;
+        if (p.y < -10) { p.y = canvas.offsetHeight + 10; p.x = Math.random() * canvas.offsetWidth; }
+        if (p.x < -10) p.x = canvas.offsetWidth + 10;
+        if (p.x > canvas.offsetWidth + 10) p.x = -10;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 245, 200, ' + p.alpha + ')';
+        ctx.shadowColor = 'rgba(255, 235, 170, 0.6)';
+        ctx.shadowBlur = 4;
+        ctx.fill();
+      });
+      requestAnimationFrame(tick);
+    }
+    tick();
+  });
+
+  // Warn mist
+  document.querySelectorAll('#compliance-summary canvas.warn-canvas').forEach(canvas => {
+    const ctx = canvas.getContext('2d');
+    const particles = [];
+    const N = 25;
+    function resize() {
+      canvas.width = canvas.offsetWidth * devicePixelRatio;
+      canvas.height = canvas.offsetHeight * devicePixelRatio;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(devicePixelRatio, devicePixelRatio);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    for (let i = 0; i < N; i++) {
+      particles.push({
+        x: Math.random() * canvas.offsetWidth,
+        y: Math.random() * canvas.offsetHeight,
+        r: Math.random() * 28 + 18,
+        vx: Math.random() * 0.3 + 0.1,
+        vy: (Math.random() - 0.5) * 0.15,
+        alpha: Math.random() * 0.08 + 0.02
+      });
+    }
+    function tick() {
+      ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x > canvas.offsetWidth + p.r) { p.x = -p.r; p.y = Math.random() * canvas.offsetHeight; }
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+        g.addColorStop(0, 'rgba(255, 255, 255, ' + p.alpha + ')');
+        g.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(p.x - p.r, p.y - p.r, p.r * 2, p.r * 2);
+      });
+      requestAnimationFrame(tick);
+    }
+    tick();
+  });
+
+  // Err rain
+  document.querySelectorAll('#compliance-summary canvas.rain-canvas').forEach(canvas => {
+    const ctx = canvas.getContext('2d');
+    const drops = [];
+    const N = 180;
+    function resize() {
+      canvas.width = canvas.offsetWidth * devicePixelRatio;
+      canvas.height = canvas.offsetHeight * devicePixelRatio;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(devicePixelRatio, devicePixelRatio);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+    for (let i = 0; i < N; i++) {
+      const depth = Math.random();
+      drops.push({
+        x: Math.random() * canvas.offsetWidth,
+        y: Math.random() * canvas.offsetHeight,
+        length: depth * 16 + 6,
+        speed: depth * 11 + 5,
+        alpha: depth * 0.5 + 0.1,
+        thickness: depth * 1.2 + 0.4,
+        drift: depth * 2 + 1
+      });
+    }
+    function tick() {
+      ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+      drops.forEach(d => {
+        d.y += d.speed;
+        d.x -= d.drift;
+        if (d.y > canvas.offsetHeight + 20) { d.y = -20; d.x = Math.random() * (canvas.offsetWidth + 100); }
+        if (d.x < -20) d.x = canvas.offsetWidth + 20;
+        ctx.beginPath();
+        ctx.moveTo(d.x, d.y);
+        ctx.lineTo(d.x - d.drift * 1.5, d.y + d.length);
+        ctx.strokeStyle = 'rgba(180, 200, 230, ' + d.alpha + ')';
+        ctx.lineWidth = d.thickness;
+        ctx.stroke();
+      });
+      requestAnimationFrame(tick);
+    }
+    tick();
+
+    // Lightning for this scene
+    const idx = canvas.dataset.idx;
+    const flash = document.querySelector('#compliance-summary [data-flash="' + idx + '"]');
+    const bolts = [
+      document.querySelector('#compliance-summary [data-bolt="' + idx + '-1"]'),
+      document.querySelector('#compliance-summary [data-bolt="' + idx + '-2"]'),
+      document.querySelector('#compliance-summary [data-bolt="' + idx + '-3"]')
+    ].filter(Boolean);
+    if (flash && bolts.length > 0) {
+      function strike() {
+        const bolt = bolts[Math.floor(Math.random() * bolts.length)];
+        const nextDelay = 3000 + Math.random() * 6000;
+        flash.animate([
+          { opacity: 0 }, { opacity: 1, offset: 0.08 },
+          { opacity: 0.4, offset: 0.18 }, { opacity: 0.9, offset: 0.25 }, { opacity: 0 }
+        ], { duration: 700, easing: 'ease-out' });
+        bolt.animate([
+          { opacity: 0 }, { opacity: 1, offset: 0.08 },
+          { opacity: 0.3, offset: 0.18 }, { opacity: 1, offset: 0.25 }, { opacity: 0 }
+        ], { duration: 700, easing: 'ease-out' });
+        setTimeout(strike, nextDelay);
+      }
+      setTimeout(strike, 1500);
+    }
+  });
+})();
+</script>
+
+        </section>
+
+
+
+
+
+    </main>
+
+    <script>
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // Update active nav item
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+
+                // Show corresponding section
+                const sectionId = this.getAttribute('data-section');
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(sectionId).classList.add('active');
+
+                // Scroll to top
+                document.querySelector('.main-content').scrollTop = 0;
+            });
+        });
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Initialize React Flow Network Map
+        const { default: ReactFlow, Background, Controls, Handle, Position, MarkerType, EdgeLabelRenderer, getBezierPath, BaseEdge } = window.ReactFlow;
+
+        // Custom node types
+        const EmpresaNode = ({ data }) => {
+            React.useEffect(() => {
+                lucide.createIcons();
+            }, []);
+
+            return React.createElement('div', {
+                style: {
+                    textAlign: 'center',
+                    fontWeight: 600,
+                    fontSize: '14px'
+                }
+            }, [
+                React.createElement(Handle, {
+                    key: 'handle-top',
+                    type: 'source',
+                    position: Position.Top,
+                    id: 'top'
+                }),
+                React.createElement(Handle, {
+                    key: 'handle-bottom',
+                    type: 'source',
+                    position: Position.Bottom,
+                    id: 'bottom'
+                }),
+                React.createElement(Handle, {
+                    key: 'handle-left',
+                    type: 'source',
+                    position: Position.Left,
+                    id: 'left'
+                }),
+                React.createElement(Handle, {
+                    key: 'handle-right',
+                    type: 'source',
+                    position: Position.Right,
+                    id: 'right'
+                }),
+                React.createElement('div', {
+                    key: 'icon',
+                    style: { marginBottom: '8px', display: 'flex', justifyContent: 'center' }
+                }, React.createElement('i', {
+                    'data-lucide': 'landmark',
+                    style: { width: '24px', height: '24px', color: 'white' }
+                })),
+                React.createElement('div', { key: 'name' }, data.label)
+            ]);
+        };
+
+        const SedeNode = ({ data, targetPosition, sourcePosition }) => {
+            const iconColor = data.status === 'success' ? 'var(--ds-green-600)' :
+                            data.status === 'warning' ? 'var(--ds-orange-600)' :
+                            'var(--ds-red-600)';
+
+            const fillColor = data.status === 'success' ? 'var(--ds-green-500)' :
+                            data.status === 'warning' ? 'var(--ds-orange-500)' :
+                            'var(--ds-red-500)';
+
+            React.useEffect(() => {
+                lucide.createIcons();
+            }, []);
+
+            return React.createElement('div', {
+                style: { width: '100%' }
+            }, [
+                React.createElement(Handle, {
+                    key: 'handle-top',
+                    type: 'target',
+                    position: Position.Top,
+                    id: 'top'
+                }),
+                React.createElement(Handle, {
+                    key: 'handle-bottom',
+                    type: 'target',
+                    position: Position.Bottom,
+                    id: 'bottom'
+                }),
+                React.createElement(Handle, {
+                    key: 'handle-left',
+                    type: 'target',
+                    position: Position.Left,
+                    id: 'left'
+                }),
+                React.createElement(Handle, {
+                    key: 'handle-right',
+                    type: 'target',
+                    position: Position.Right,
+                    id: 'right'
+                }),
+                React.createElement('div', {
+                    key: 'header',
+                    className: 'sede-node-header'
+                }, [
+                    React.createElement('div', {
+                        key: 'icon',
+                        className: 'sede-node-icon'
+                    }, React.createElement('i', {
+                        'data-lucide': 'building-2',
+                        style: { width: '16px', height: '16px', color: 'var(--ds-text-subtle)' }
+                    })),
+                    React.createElement('div', {
+                        key: 'info',
+                        style: { flex: 1 }
+                    }, [
+                        React.createElement('div', {
+                            key: 'title',
+                            className: 'sede-node-title'
+                        }, data.label),
+                        React.createElement('div', {
+                            key: 'code',
+                            className: 'sede-node-code'
+                        }, data.code)
+                    ])
+                ]),
+                React.createElement('div', {
+                    key: 'status',
+                    className: 'sede-node-status'
+                }, [
+                    React.createElement('span', {
+                        key: 'text',
+                        style: {
+                            fontSize: '11px',
+                            color: 'var(--ds-text-subtle)'
+                        }
+                    }, `${data.permits}/${data.total} permisos`),
+                    React.createElement('span', {
+                        key: 'badge',
+                        className: `lozenge lozenge-${data.status === 'success' ? 'success' : data.status === 'warning' ? 'inprogress' : 'removed'}`,
+                        style: { marginLeft: 'auto' }
+                    }, data.risk)
+                ]),
+                React.createElement('div', {
+                    key: 'progress',
+                    className: 'sede-node-progress'
+                }, React.createElement('div', {
+                    className: 'sede-node-progress-fill',
+                    style: {
+                        width: `${data.percentage}%`,
+                        background: fillColor
+                    }
+                }))
+            ]);
+        };
+
+        // Custom Edge with pulse for warning status
+        const CustomEdge = ({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, style = {}, data, markerEnd }) => {
+            const [edgePath] = getBezierPath({
+                sourceX,
+                sourceY,
+                sourcePosition,
+                targetX,
+                targetY,
+                targetPosition
+            });
+
+            // Si es warning, dibujamos dos paths: uno gris (base) y uno naranja con pulso
+            if (data.status === 'warning') {
+                return React.createElement('g', {}, [
+                    React.createElement('path', {
+                        key: 'base',
+                        d: edgePath,
+                        fill: 'none',
+                        stroke: 'var(--ds-neutral-300)',
+                        strokeWidth: 2
+                    }),
+                    React.createElement('path', {
+                        key: 'pulse',
+                        d: edgePath,
+                        fill: 'none',
+                        stroke: 'var(--ds-orange-500)',
+                        strokeWidth: 2,
+                        strokeDasharray: '25 75',
+                        style: {
+                            animation: 'pathPulse 1.5s linear infinite'
+                        }
+                    })
+                ]);
+            }
+
+            // Para otros estados, edge normal
+            return React.createElement(BaseEdge, {
+                path: edgePath,
+                markerEnd: markerEnd,
+                style: style
+            });
+        };
+
+        const nodeTypes = {
+            empresa: EmpresaNode,
+            sede: SedeNode
+        };
+
+        const edgeTypes = {
+            custom: CustomEdge
+        };
+
+        // Initial nodes and edges - EQUIDISTANTES (empresa en y:250, sedes a ±180px)
+        const initialNodes = [
+            {
+                id: 'empresa',
+                type: 'empresa',
+                position: { x: 400, y: 250 },
+                data: { label: 'EnRegla Corp' }
+            },
+            {
+                id: 'sede-1',
+                type: 'sede',
+                position: { x: 100, y: 70 },
+                data: {
+                    label: 'Sede Central',
+                    code: 'SEDE-001',
+                    permits: 8,
+                    total: 8,
+                    percentage: 100,
+                    status: 'success',
+                    risk: 'Bajo'
+                },
+                className: 'success'
+            },
+            {
+                id: 'sede-2',
+                type: 'sede',
+                position: { x: 700, y: 70 },
+                data: {
+                    label: 'Sucursal Norte',
+                    code: 'SEDE-002',
+                    permits: 5,
+                    total: 8,
+                    percentage: 62.5,
+                    status: 'warning',
+                    risk: 'Medio'
+                },
+                className: 'warning'
+            },
+            {
+                id: 'sede-3',
+                type: 'sede',
+                position: { x: 100, y: 430 },
+                data: {
+                    label: 'Bodega Sur',
+                    code: 'SEDE-003',
+                    permits: 2,
+                    total: 8,
+                    percentage: 25,
+                    status: 'danger',
+                    risk: 'Crítico'
+                },
+                className: 'danger'
+            },
+            {
+                id: 'sede-4',
+                type: 'sede',
+                position: { x: 700, y: 430 },
+                data: {
+                    label: 'Oficina Este',
+                    code: 'SEDE-004',
+                    permits: 7,
+                    total: 8,
+                    percentage: 87.5,
+                    status: 'success',
+                    risk: 'Bajo'
+                },
+                className: 'success'
+            }
+        ];
+
+        const initialEdges = [
+            {
+                id: 'e-empresa-1',
+                source: 'empresa',
+                sourceHandle: 'top',
+                target: 'sede-1',
+                targetHandle: 'bottom',
+                type: 'custom',
+                className: 'success',
+                data: { status: 'success', startDate: '2024-01-15' }
+            },
+            {
+                id: 'e-empresa-2',
+                source: 'empresa',
+                sourceHandle: 'top',
+                target: 'sede-2',
+                targetHandle: 'bottom',
+                type: 'custom',
+                className: 'warning',
+                data: { status: 'warning', startDate: '2024-03-20' }
+            },
+            {
+                id: 'e-empresa-3',
+                source: 'empresa',
+                sourceHandle: 'bottom',
+                target: 'sede-3',
+                targetHandle: 'top',
+                type: 'custom',
+                className: 'danger',
+                data: { status: 'danger', startDate: '2023-11-10' }
+            },
+            {
+                id: 'e-empresa-4',
+                source: 'empresa',
+                sourceHandle: 'bottom',
+                target: 'sede-4',
+                targetHandle: 'top',
+                type: 'custom',
+                className: 'success',
+                data: { status: 'success', startDate: '2024-02-05' }
+            }
+        ];
+
+        function NetworkMapApp() {
+            const [nodes, setNodes] = React.useState(initialNodes);
+            const [edges, setEdges] = React.useState(initialEdges);
+
+            React.useEffect(() => {
+                // Re-initialize Lucide icons after React Flow renders
+                const timer = setTimeout(() => {
+                    lucide.createIcons();
+                }, 100);
+                return () => clearTimeout(timer);
+            }, [nodes]);
+
+            return React.createElement(ReactFlow, {
+                nodes: nodes,
+                edges: edges,
+                nodeTypes: nodeTypes,
+                edgeTypes: edgeTypes,
+                fitView: true,
+                attributionPosition: 'bottom-left',
+                minZoom: 0.5,
+                maxZoom: 1.5,
+                style: {
+                    background: 'var(--ds-neutral-50)'
+                }
+            }, [
+                React.createElement(Background, {
+                    key: 'bg',
+                    color: 'var(--ds-neutral-200)',
+                    gap: 20
+                }),
+                React.createElement(Controls, {
+                    key: 'controls',
+                    showInteractive: false
+                })
+            ]);
+        }
+
+        // Mount React Flow
+        const container = document.getElementById('network-map-container');
+        if (container) {
+            const root = ReactDOM.createRoot(container);
+            root.render(React.createElement(NetworkMapApp));
+        }
+    </script>
+</body>
+</html>

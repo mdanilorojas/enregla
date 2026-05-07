@@ -1,4 +1,4 @@
-import { CheckCircle2, Building2, MapPin, User } from 'lucide-react';
+import { CheckCircle2, Building2, MapPin, User } from '@/lib/lucide-icons';
 
 interface Step {
   id: string;
@@ -19,7 +19,7 @@ const STEPS: Step[] = [
 
 export function ProgressStepper({ currentStep, completedSteps }: ProgressStepperProps) {
   return (
-    <div className="space-y-1">
+    <div className="space-y-[var(--ds-space-050)]">
       {STEPS.map((step) => {
         const Icon = step.icon;
         const isActive = step.id === currentStep;
@@ -28,26 +28,26 @@ export function ProgressStepper({ currentStep, completedSteps }: ProgressStepper
         return (
           <div
             key={step.id}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all ${
+            className={`flex items-center gap-[var(--ds-space-150)] rounded-[var(--ds-radius-200)] px-[var(--ds-space-150)] py-[var(--ds-space-100)] transition-all ${
               isActive
-                ? 'bg-gray-900 text-white'
+                ? 'bg-[var(--ds-text)] text-white'
                 : isCompleted
-                ? 'text-gray-500'
-                : 'text-gray-400'
+                ? 'text-[var(--ds-text-subtle)]'
+                : 'text-[var(--ds-text-subtlest)]'
             }`}
           >
             <div
-              className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium shrink-0 ${
+              className={`w-7 h-7 rounded-full flex items-center justify-center text-[var(--ds-font-size-075)] font-medium shrink-0 ${
                 isActive
-                  ? 'bg-white text-gray-900'
+                  ? 'bg-white text-[var(--ds-text)]'
                   : isCompleted
-                  ? 'bg-gray-100 text-gray-500'
-                  : 'bg-gray-100 text-gray-400'
+                  ? 'bg-[var(--ds-neutral-100)] text-[var(--ds-text-subtle)]'
+                  : 'bg-[var(--ds-neutral-100)] text-[var(--ds-text-subtlest)]'
               }`}
             >
-              {isCompleted ? <CheckCircle2 size={14} /> : <Icon size={14} />}
+              {isCompleted ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Icon className="w-3.5 h-3.5" />}
             </div>
-            <span className="text-[13px] font-medium">{step.label}</span>
+            <span className="text-[var(--ds-font-size-075)] font-medium">{step.label}</span>
           </div>
         );
       })}

@@ -315,7 +315,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 - ⏳ 2FA (Two-Factor Auth) - Phase 3
 - ⏳ Audit logs - Phase 3
 
-Report security issues to: [security@enregla.com](mailto:security@enregla.com)
+Report security issues to: [security@enregla.ec](mailto:security@enregla.ec)
 
 ---
 

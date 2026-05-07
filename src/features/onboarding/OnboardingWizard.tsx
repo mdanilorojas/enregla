@@ -6,7 +6,7 @@ import { Step2Regulatory } from './steps/Step2Regulatory';
 import { Step3Locations } from './steps/Step3Locations';
 import { Step4Review } from './steps/Step4Review';
 import { Button } from '@/components/ui/button';
-import { Building2, Shield, MapPin, CheckCircle2, Loader2 } from 'lucide-react';
+import { Building2, Shield, MapPin, CheckCircle2, Loader2 } from '@/lib/lucide-icons';
 import { cn } from '@/lib/utils';
 
 const STEPS = [

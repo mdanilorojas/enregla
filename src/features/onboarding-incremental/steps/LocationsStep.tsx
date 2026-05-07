@@ -1,5 +1,7 @@
 import { useState } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2 } from '@/lib/lucide-icons';
+import { Button } from '@/components/ui/button';
+import { Banner } from '@/components/ui/banner';
 
 interface LocationInput {
   name: string;
@@ -102,39 +104,46 @@ export function LocationsStep({ onComplete, loading }: LocationsStepProps) {
     locations.length > 0 &&
     locations.every((loc) => loc.name.trim().length > 0 && loc.address.trim().length > 0);
 
+  const baseInputClass =
+    'w-full bg-white border border-[var(--ds-border)] rounded-[var(--ds-radius-200)] px-[var(--ds-space-150)] py-[var(--ds-space-100)] text-[var(--ds-font-size-100)] text-[var(--ds-text)] placeholder:text-[var(--ds-text-subtlest)] focus:outline-none focus:ring-2 focus:ring-[var(--ds-background-brand)]/20 focus:border-[var(--ds-border-bold)] transition-all disabled:opacity-50';
+
   return (
     <form onSubmit={handleSubmit}>
-      <h2 className="text-xl font-semibold text-gray-900 mb-1 tracking-tight">
+      <h2 className="text-[var(--ds-font-size-400)] font-semibold text-[var(--ds-text)] mb-[var(--ds-space-050)] tracking-tight">
         Locales / Sedes
       </h2>
-      <p className="text-[13px] text-gray-500 mb-8">
+      <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mb-[var(--ds-space-400)]">
         Agrega todos los locales de tu empresa. Paso 3 de 3
       </p>
 
-      <div className="space-y-4">
+      <div className="space-y-[var(--ds-space-200)]">
         {locations.map((location, index) => (
           <div
             key={index}
-            className="border border-gray-100 rounded-xl bg-white p-5 shadow-[0_1px_3px_0_rgba(0,0,0,0.04)]"
+            className="border border-[var(--ds-border)] rounded-[var(--ds-radius-300)] bg-white p-[var(--ds-space-250)] shadow-[var(--ds-shadow-raised)]"
           >
-            <div className="flex items-start justify-between mb-4">
-              <h3 className="text-[14px] font-semibold text-gray-900">Local {index + 1}</h3>
+            <div className="flex items-start justify-between mb-[var(--ds-space-200)]">
+              <h3 className="text-[var(--ds-font-size-100)] font-semibold text-[var(--ds-text)]">
+                Local {index + 1}
+              </h3>
               {locations.length > 1 && (
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => removeLocation(index)}
                   disabled={loading}
-                  className="text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
                   title="Eliminar local"
+                  className="text-[var(--ds-text-subtlest)] hover:text-[var(--ds-red-600)]"
                 >
-                  <Trash2 size={16} />
-                </button>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
               )}
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-[var(--ds-space-200)]">
               <div>
-                <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
+                <label className="block text-[var(--ds-font-size-075)] font-medium text-[var(--ds-text)] mb-[var(--ds-space-075)]">
                   Nombre del local
                 </label>
                 <input
@@ -143,12 +152,12 @@ export function LocationsStep({ onComplete, loading }: LocationsStepProps) {
                   onChange={(e) => updateLocation(index, { name: e.target.value })}
                   placeholder="Ej: Sucursal La Mariscal"
                   disabled={loading}
-                  className="w-full bg-white border border-gray-100 rounded-lg px-3.5 py-2.5 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-300 transition-all disabled:opacity-50"
+                  className={baseInputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
+                <label className="block text-[var(--ds-font-size-075)] font-medium text-[var(--ds-text)] mb-[var(--ds-space-075)]">
                   Dirección
                 </label>
                 <input
@@ -157,57 +166,56 @@ export function LocationsStep({ onComplete, loading }: LocationsStepProps) {
                   onChange={(e) => updateLocation(index, { address: e.target.value })}
                   placeholder="Dirección completa"
                   disabled={loading}
-                  className="w-full bg-white border border-gray-100 rounded-lg px-3.5 py-2.5 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-300 transition-all disabled:opacity-50"
+                  className={baseInputClass}
                 />
               </div>
 
               <div>
-                <label className="block text-[13px] font-medium text-gray-700 mb-2">
+                <label className="block text-[var(--ds-font-size-075)] font-medium text-[var(--ds-text)] mb-[var(--ds-space-100)]">
                   Estado
                 </label>
-                <div className="flex gap-2">
+                <div className="flex gap-[var(--ds-space-100)]">
                   {STATUS_OPTIONS.map(({ value, label }) => (
-                    <button
+                    <Button
                       key={value}
                       type="button"
                       onClick={() => updateLocation(index, { status: value })}
                       disabled={loading}
-                      className={`px-3.5 py-2 rounded-lg text-[13px] font-medium transition-all disabled:opacity-50 ${
-                        location.status === value
-                          ? 'bg-gray-900 text-white shadow-sm'
-                          : 'bg-gray-50 text-gray-500 hover:bg-gray-100 border border-gray-100'
-                      }`}
+                      variant={location.status === value ? 'default' : 'secondary'}
+                      size="sm"
                     >
                       {label}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className="block text-[13px] font-medium text-gray-700 mb-2">
+                <label className="block text-[var(--ds-font-size-075)] font-medium text-[var(--ds-text)] mb-[var(--ds-space-100)]">
                   Factores regulatorios
                 </label>
-                <p className="text-[12px] text-gray-500 mb-3">
+                <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mb-[var(--ds-space-150)]">
                   Selecciona las actividades de este local para generar automáticamente los
                   permisos necesarios
                 </p>
-                <div className="space-y-2">
+                <div className="space-y-[var(--ds-space-100)]">
                   {REGULATORY_OPTIONS.map(({ key, label, permit }) => (
                     <label
                       key={key}
-                      className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
+                      className="flex items-center gap-[var(--ds-space-150)] p-[var(--ds-space-150)] rounded-[var(--ds-radius-200)] border border-[var(--ds-border)] bg-[var(--ds-neutral-50)] hover:bg-[var(--ds-neutral-100)] transition-colors cursor-pointer"
                     >
                       <input
                         type="checkbox"
                         checked={location.regulatory[key]}
                         onChange={(e) => updateRegulatory(index, key, e.target.checked)}
                         disabled={loading}
-                        className="w-4 h-4 rounded border-gray-300 text-gray-900 focus:ring-2 focus:ring-gray-900/10 disabled:opacity-50"
+                        className="w-4 h-4 rounded border-[var(--ds-border-bold)] text-[var(--ds-text)] focus:ring-2 focus:ring-[var(--ds-background-brand)]/20 disabled:opacity-50"
                       />
                       <div className="flex-1">
-                        <span className="text-[13px] font-medium text-gray-900">{label}</span>
-                        <span className="text-[12px] text-gray-500 ml-2">
+                        <span className="text-[var(--ds-font-size-075)] font-medium text-[var(--ds-text)]">
+                          {label}
+                        </span>
+                        <span className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] ml-[var(--ds-space-100)]">
                           (Genera permiso {permit})
                         </span>
                       </div>
@@ -220,21 +228,26 @@ export function LocationsStep({ onComplete, loading }: LocationsStepProps) {
         ))}
       </div>
 
-      <button
+      <Button
         type="button"
+        variant="outline"
         onClick={addLocation}
         disabled={loading}
-        className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border-2 border-dashed border-gray-300 rounded-xl text-[13px] font-medium text-gray-600 hover:border-gray-400 hover:text-gray-900 hover:bg-gray-50 transition-all disabled:opacity-50"
+        className="mt-[var(--ds-space-200)] w-full border-2 border-dashed border-[var(--ds-border-bold)] rounded-[var(--ds-radius-300)] py-[var(--ds-space-150)] text-[var(--ds-text-subtle)] hover:text-[var(--ds-text)] hover:bg-[var(--ds-neutral-50)]"
       >
-        <Plus size={16} />
+        <Plus className="w-4 h-4" />
         Agregar otra sede
-      </button>
+      </Button>
 
       {locations.length === 0 && (
-        <p className="mt-2 text-[12px] text-red-600">Debes agregar al menos un local</p>
+        <div className="mt-[var(--ds-space-100)]">
+          <Banner variant="error">Debes agregar al menos un local</Banner>
+        </div>
       )}
 
-      <button type="submit" disabled={!canProceed || loading} className="hidden" />
+      <Button type="submit" disabled={!canProceed || loading} className="hidden">
+        Completar
+      </Button>
     </form>
   );
 }

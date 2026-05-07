@@ -23,7 +23,7 @@ export function RiskBadge({ level, className }: RiskBadgeProps) {
   if (!config) {
     // console.warn(`Unknown risk level: ${level}`);
     return (
-      <Badge variant="outline" className={className}>
+      <Badge variant="default" className={className}>
         {level}
       </Badge>
     );

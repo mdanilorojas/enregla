@@ -11,26 +11,20 @@ import { LocationsListViewV2 } from '@/features/locations/LocationsListViewV2';
 import { LocationDetailView } from '@/features/locations/LocationDetailView';
 import { PermitListView } from '@/features/permits/PermitListView';
 import { PermitDetailView } from '@/features/permits/PermitDetailView';
-import { RenewalTimelineView } from '@/features/renewals/RenewalTimelineView';
-import { TaskBoardView } from '@/features/tasks/TaskBoardView';
-import { DocumentVaultView } from '@/features/documents/DocumentVaultView';
+import { RenewalGridView } from '@/features/renewals/RenewalGridView';
 import { LegalReferenceView } from '@/features/legal/LegalReferenceView';
+import { LegalCategoryDetailView } from '@/features/legal/LegalCategoryDetailView';
 import { NetworkMapPage } from '@/features/network/NetworkMapPage';
 import { DesignSystemView } from '@/features/design-system/DesignSystemView';
+import { DesignSystemShowcase } from '@/features/design-system/DesignSystemShowcase';
 import { SettingsView } from '@/features/settings/SettingsView';
+import { AppLoader } from '@/components/ui/app-loader';
 
 function OnboardingRoute() {
   const { profile, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-          <p className="text-sm text-gray-600 font-medium">Cargando...</p>
-        </div>
-      </div>
-    );
+    return <AppLoader />;
   }
 
   // Determine initial step based on profile state
@@ -52,14 +46,7 @@ function ProtectedOnboardingRoute() {
   const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-          <p className="text-sm text-gray-600 font-medium">Cargando...</p>
-        </div>
-      </div>
-    );
+    return <AppLoader />;
   }
 
   // In demo mode, skip onboarding check and go straight to app
@@ -89,12 +76,7 @@ export default function App() {
           element={
             isDemoMode ? (
               loading ? (
-                <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
-                    <p className="text-sm text-gray-600 font-medium">Modo Demo - Cargando...</p>
-                  </div>
-                </div>
+                <AppLoader message="Modo Demo - Cargando..." />
               ) : (
                 <Navigate to="/" replace />
               )
@@ -125,11 +107,11 @@ export default function App() {
           <Route path="/mapa-red" element={<NetworkMapPage />} />
           <Route path="/permisos" element={<PermitListView />} />
           <Route path="/permisos/:id" element={<PermitDetailView />} />
-          <Route path="/renovaciones" element={<RenewalTimelineView />} />
-          <Route path="/tareas" element={<TaskBoardView />} />
-          <Route path="/documentos" element={<DocumentVaultView />} />
+          <Route path="/renovaciones" element={<RenewalGridView />} />
           <Route path="/marco-legal" element={<LegalReferenceView />} />
+          <Route path="/marco-legal/:categoria" element={<LegalCategoryDetailView />} />
           <Route path="/design-system" element={<DesignSystemView />} />
+          <Route path="/design-system-showcase" element={<DesignSystemShowcase />} />
           <Route path="/settings" element={<SettingsView />} />
           <Route path="/settings/notifications" element={<SettingsView />} />
         </Route>

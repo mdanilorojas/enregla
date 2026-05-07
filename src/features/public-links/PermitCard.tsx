@@ -1,5 +1,14 @@
 import { format, parseISO } from 'date-fns';
-import { FileText, ExternalLink } from 'lucide-react';
+import {
+  FileText,
+  ExternalLink,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  ClipboardList,
+  File,
+  type LucideIcon,
+} from '@/lib/lucide-icons';
 
 interface PermitCardProps {
   type: string;
@@ -11,6 +20,46 @@ interface PermitCardProps {
   documentUrl: string | null;
 }
 
+type StatusMeta = {
+  Icon: LucideIcon;
+  label: string;
+  textClass: string;
+  iconClass: string;
+};
+
+const STATUS_META: Record<PermitCardProps['status'], StatusMeta> = {
+  vigente: {
+    Icon: CheckCircle2,
+    label: 'Vigente',
+    textClass: 'text-[var(--ds-status-vigente-text)]',
+    iconClass: 'text-[var(--ds-status-vigente-text)]',
+  },
+  por_vencer: {
+    Icon: AlertTriangle,
+    label: 'Por vencer',
+    textClass: 'text-[var(--ds-status-por-vencer-text)]',
+    iconClass: 'text-[var(--ds-status-por-vencer-text)]',
+  },
+  vencido: {
+    Icon: XCircle,
+    label: 'Vencido',
+    textClass: 'text-[var(--ds-status-vencido-text)]',
+    iconClass: 'text-[var(--ds-status-vencido-text)]',
+  },
+  no_registrado: {
+    Icon: ClipboardList,
+    label: 'No registrado',
+    textClass: 'text-[var(--ds-text-subtle)]',
+    iconClass: 'text-[var(--ds-text-subtle)]',
+  },
+  en_tramite: {
+    Icon: File,
+    label: 'En trámite',
+    textClass: 'text-[var(--ds-status-en-tramite-text)]',
+    iconClass: 'text-[var(--ds-status-en-tramite-text)]',
+  },
+};
+
 export function PermitCard({
   type,
   issuer,
@@ -20,50 +69,8 @@ export function PermitCard({
   hasDocument,
   documentUrl,
 }: PermitCardProps) {
-  const getStatusIcon = () => {
-    switch (status) {
-      case 'vigente':
-        return '✅';
-      case 'por_vencer':
-        return '⚠️';
-      case 'vencido':
-        return '❌';
-      case 'no_registrado':
-        return '📋';
-      default:
-        return '📄';
-    }
-  };
-
-  const getStatusLabel = () => {
-    switch (status) {
-      case 'vigente':
-        return 'Vigente';
-      case 'por_vencer':
-        return 'Por vencer';
-      case 'vencido':
-        return 'Vencido';
-      case 'no_registrado':
-        return 'No registrado';
-      default:
-        return 'En trámite';
-    }
-  };
-
-  const getStatusColor = () => {
-    switch (status) {
-      case 'vigente':
-        return 'text-green-600';
-      case 'por_vencer':
-        return 'text-yellow-600';
-      case 'vencido':
-        return 'text-red-600';
-      case 'no_registrado':
-        return 'text-gray-600';
-      default:
-        return 'text-gray-600';
-    }
-  };
+  const meta = STATUS_META[status] ?? STATUS_META.en_tramite;
+  const { Icon, label, textClass, iconClass } = meta;
 
   const getDaysUntilExpiry = () => {
     if (!expiryDate) return null;
@@ -86,28 +93,34 @@ export function PermitCard({
   };
 
   return (
-    <div className="border border-gray-100 rounded-lg p-4 bg-white hover:shadow-md transition-shadow">
-      <div className="flex items-start gap-3">
-        <span className="text-2xl flex-shrink-0" aria-label={`Estado: ${getStatusLabel()}`} role="img">{getStatusIcon()}</span>
+    <div className="border border-[var(--ds-border)] rounded-[var(--ds-radius-300)] p-[var(--ds-space-200)] bg-[var(--ds-neutral-0)] hover:shadow-[var(--ds-shadow-overflow)] transition-shadow">
+      <div className="flex items-start gap-[var(--ds-space-150)]">
+        <span
+          className={`flex-shrink-0 ${iconClass}`}
+          aria-label={`Estado: ${label}`}
+          role="img"
+        >
+          <Icon className="h-6 w-6" aria-hidden="true" />
+        </span>
         <div className="flex-1 min-w-0">
-          <h3 className={`font-semibold text-gray-900 ${getStatusColor()}`}>
+          <h3 className={`font-semibold text-[var(--ds-font-size-200)] ${textClass}`}>
             {type}
           </h3>
 
           {issuer && (
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)] mt-[var(--ds-space-050)]">
               {issuer}
             </p>
           )}
 
           {status === 'no_registrado' ? (
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtlest)] mt-[var(--ds-space-100)]">
               Estado: Pendiente de registro
             </p>
           ) : (
-            <div className="mt-2 space-y-1">
+            <div className="mt-[var(--ds-space-100)] space-y-[var(--ds-space-050)]">
               {issueDate && (
-                <p className="text-sm text-gray-700">
+                <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text)]">
                   Emisión: <span className="font-mono">
                     {(() => {
                       try {
@@ -120,7 +133,7 @@ export function PermitCard({
                 </p>
               )}
               {expiryDate && (
-                <p className="text-sm text-gray-700">
+                <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text)]">
                   Vencimiento: <span className="font-mono">
                     {(() => {
                       try {
@@ -131,14 +144,14 @@ export function PermitCard({
                     })()}
                   </span>
                   {getDaysUntilExpiry() && (
-                    <span className={`ml-2 ${getStatusColor()}`}>
+                    <span className={`ml-[var(--ds-space-100)] ${textClass}`}>
                       ({getDaysUntilExpiry()})
                     </span>
                   )}
                 </p>
               )}
               {!expiryDate && status === 'vigente' && (
-                <p className="text-sm text-gray-700">
+                <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text)]">
                   Vigencia: Indefinida
                 </p>
               )}
@@ -150,14 +163,16 @@ export function PermitCard({
               href={documentUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 mt-3 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+              className="inline-flex items-center gap-[var(--ds-space-100)] mt-[var(--ds-space-150)] text-[var(--ds-font-size-100)] text-[var(--ds-text-brand)] hover:text-[var(--ds-background-brand-hovered)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ds-background-brand)] focus-visible:ring-offset-2 rounded-[var(--ds-radius-100)] transition-colors"
             >
-              <FileText className="h-4 w-4" />
+              <FileText className="h-4 w-4" aria-hidden="true" />
               Ver documento
-              <ExternalLink className="h-3 w-3" />
+              <ExternalLink className="h-3 w-3" aria-hidden="true" />
             </a>
           ) : status !== 'no_registrado' ? (
-            <p className="text-xs text-gray-500 mt-3">(sin documento)</p>
+            <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtlest)] mt-[var(--ds-space-150)]">
+              (sin documento)
+            </p>
           ) : null}
         </div>
       </div>

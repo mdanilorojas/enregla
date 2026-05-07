@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocations } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
-import { Building2, Plus } from 'lucide-react';
+import { Building2 as BuildingIcon, Plus as PlusIcon } from '@/lib/lucide-icons';
 import { LocationCardV2 } from './LocationCardV2';
-import { Card, CardContent, Button } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { EmptyState } from '@/components/ui/empty-state';
+import { SkeletonList, Skeleton } from '@/components/ui/skeleton';
 import { CreateLocationModal } from './CreateLocationModal';
 
 export function LocationsListViewV2() {
@@ -39,23 +41,15 @@ export function LocationsListViewV2() {
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-4 md:p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <div className="h-8 bg-gray-200 rounded animate-pulse w-32 mb-2" />
-            <div className="h-4 bg-gray-200 rounded animate-pulse w-64" />
+      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-6 md:p-8">
+        <div className="max-w-7xl mx-auto space-y-6 animate-fade-in">
+          <div className="flex items-start justify-between mb-8">
+            <div className="space-y-2">
+              <Skeleton className="h-8 w-32" />
+              <Skeleton className="h-4 w-64" />
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[1, 2, 3, 4].map((i) => (
-              <Card key={i}>
-                <CardContent className="p-6 space-y-4">
-                  <div className="h-6 bg-gray-200 rounded animate-pulse" />
-                  <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4" />
-                  <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          <SkeletonList count={6} />
         </div>
       </div>
     );
@@ -67,11 +61,10 @@ export function LocationsListViewV2() {
       <div className="min-h-screen bg-background p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-12">
-            <p className="text-red-600 mb-4">Error al cargar sedes</p>
-            <p className="text-sm text-gray-500 mb-4">{error}</p>
+            <p className="text-[var(--ds-red-600)] mb-4">Error al cargar sedes</p>
+            <p className="text-sm text-[var(--ds-text-subtle)] mb-4">{error}</p>
             <Button
               onClick={() => window.location.reload()}
-              className="bg-gray-900 hover:bg-gray-800"
             >
               Reintentar
             </Button>
@@ -84,31 +77,30 @@ export function LocationsListViewV2() {
   // Empty state
   if (locations.length === 0) {
     return (
-      <div className="min-h-screen bg-background p-4 md:p-8">
+      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center py-12">
-            <Building2 className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-4 text-lg font-semibold">No hay sedes</h3>
-            <p className="mt-2 text-sm text-gray-500">
-              Comienza creando tu primera sede
-            </p>
-            <Button
-              onClick={() => {
-                // console.log('[LocationsListViewV2] Button clicked, companyId:', companyId);
-                setCreateModalOpen(true);
-              }}
-              className="mt-6 bg-blue-900 hover:bg-blue-800"
-              disabled={!companyId}
-            >
-              <Plus size={16} />
-              Crear Primera Sede
-            </Button>
-            {!companyId && (
-              <p className="mt-2 text-xs text-red-500">
-                Error: No se pudo cargar la información de la empresa
-              </p>
-            )}
-          </div>
+          <EmptyState
+            icon={BuildingIcon}
+            title="No hay sedes registradas"
+            description="Comienza creando tu primera sede para gestionar permisos y cumplimiento normativo"
+            action={
+              <Button
+                onClick={() => setCreateModalOpen(true)}
+                disabled={!companyId}
+                variant="default"
+                size="lg"
+              >
+                <PlusIcon className="w-4 h-4" />
+                Crear Primera Sede
+              </Button>
+            }
+          />
+          <CreateLocationModal
+            open={createModalOpen}
+            onClose={() => setCreateModalOpen(false)}
+            onSuccess={handleLocationCreated}
+            companyId={companyId || ''}
+          />
         </div>
       </div>
     );
@@ -120,27 +112,31 @@ export function LocationsListViewV2() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-6 md:p-8">
+      <div className="max-w-7xl mx-auto animate-fade-in">
         {/* Header */}
         <div className="flex items-start justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Sedes</h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Gestión de sedes y ubicaciones de tu empresa
+          <div className="space-y-1">
+            <h1 id="sedes-heading" className="text-[var(--ds-font-size-600)] font-bold text-[var(--ds-text)] leading-tight">Sedes</h1>
+            <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)]">
+              {locations.length} {locations.length === 1 ? 'sede registrada' : 'sedes registradas'}
             </p>
           </div>
           <Button
             onClick={() => setCreateModalOpen(true)}
-            className="bg-blue-900 hover:bg-blue-800"
+            size="lg"
           >
-            <Plus size={16} />
+            <PlusIcon className="w-4 h-4" />
             Crear Sede
           </Button>
         </div>
 
         {/* Grid of location cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div
+          role="region"
+          aria-labelledby="sedes-heading"
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        >
           {locations.map((location) => (
             <LocationCardV2
               key={location.id}

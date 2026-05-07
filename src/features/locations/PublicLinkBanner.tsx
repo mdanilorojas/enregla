@@ -1,4 +1,4 @@
-import { Link2, Eye } from 'lucide-react';
+import { Link2, Eye } from '@/lib/lucide-icons';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 

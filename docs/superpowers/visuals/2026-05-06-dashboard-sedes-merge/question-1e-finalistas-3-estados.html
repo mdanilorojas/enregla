@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Finalistas × 3 estados</title>
+<style>
+:root {
+  --ds-blue-900: #0f265c;
+  --ds-blue-800: #143374;
+  --ds-blue-700: #1e3a8a;
+  --ds-blue-50: #e7edf7;
+  --ds-orange-500: #ff7043;
+  --ds-orange-600: #f4511e;
+  --ds-orange-50: #fff4e6;
+  --ds-green-500: #16a34a;
+  --ds-green-400: #22c55e;
+  --ds-green-50: #ecfdf5;
+  --ds-red-500: #dc2626;
+  --ds-red-700: #991b1b;
+  --ds-red-50: #fef2f2;
+  --ds-neutral-0: #ffffff;
+  --ds-neutral-50: #f7f8fa;
+  --ds-neutral-100: #eef0f3;
+  --ds-neutral-200: #dfe3e8;
+  --ds-text: #172b4d;
+  --ds-text-subtle: #5e6c84;
+  --ds-text-subtlest: #8993a4;
+  --ds-border: #dfe3e8;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI Variable', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Inter', Roboto, sans-serif;
+  margin: 0;
+  padding: 40px 24px;
+  background: var(--ds-neutral-50);
+  color: var(--ds-text);
+  -webkit-font-smoothing: antialiased;
+}
+.page-header { max-width: 1400px; margin: 0 auto 32px; }
+h1 { font-size: 32px; font-weight: 300; letter-spacing: -0.6px; margin: 0 0 8px; }
+.subtitle {
+  color: var(--ds-text-subtle); margin: 0;
+  font-size: 15px; font-weight: 300;
+  max-width: 820px; line-height: 1.55;
+}
+.rules {
+  background: white;
+  border: 1px solid var(--ds-border);
+  border-left: 3px solid var(--ds-blue-900);
+  padding: 16px 22px; margin: 20px 0 0;
+  font-size: 13px; line-height: 1.6;
+  border-radius: 4px;
+}
+.rules b { color: var(--ds-blue-900); font-weight: 500; }
+.rules ol { margin: 6px 0 0; padding-left: 18px; color: var(--ds-text-subtle); }
+.rules li { margin-bottom: 3px; }
+.rules li b { color: var(--ds-text); }
+
+.design-section { max-width: 1400px; margin: 0 auto 40px; }
+.design-header {
+  padding: 14px 22px;
+  background: white;
+  border: 1px solid var(--ds-border);
+  border-bottom: none;
+  border-radius: 12px 12px 0 0;
+  display: flex; align-items: baseline; gap: 14px;
+}
+.design-num {
+  font-family: ui-monospace, 'Cascadia Code', 'Consolas', monospace;
+  font-size: 12px; color: var(--ds-text-subtlest); letter-spacing: 1px; font-weight: 500;
+}
+.design-title { font-size: 18px; font-weight: 500; margin: 0; flex: 1; }
+.design-note { font-size: 12px; color: var(--ds-text-subtle); }
+.states-row {
+  background: white;
+  border: 1px solid var(--ds-border);
+  border-top: 1px solid var(--ds-neutral-100);
+  border-radius: 0 0 12px 12px;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+.state-wrap { display: flex; flex-direction: column; }
+.state-label {
+  font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-weight: 700;
+  margin-bottom: 8px; padding: 4px 10px; border-radius: 20px; align-self: flex-start;
+  display: inline-flex; gap: 6px;
+}
+.state-label.ok   { background: var(--ds-green-50); color: var(--ds-green-500); }
+.state-label.warn { background: var(--ds-orange-50); color: var(--ds-orange-600); }
+.state-label.err  { background: var(--ds-red-50); color: var(--ds-red-700); }
+.state-card { flex: 1; min-height: 340px; display: flex; }
+
+/* ================================================================
+ * 01 Ring Pro · 3 estados
+ * ================================================================ */
+.c01 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 24px 20px;
+  background: white;
+  border: 1px solid var(--ds-border);
+  border-radius: 14px;
+}
+.c01 .ring-wrap { position: relative; width: 160px; height: 160px; }
+.c01 svg { transform: rotate(-90deg); }
+.c01 .bg { fill: none; stroke: var(--ds-neutral-100); stroke-width: 9; }
+.c01 .fg { fill: none; stroke-width: 9; stroke-linecap: round; }
+.c01.ok .fg   { stroke: var(--ds-green-500); }
+.c01.warn .fg { stroke: var(--ds-orange-500); }
+.c01.err .fg  { stroke: var(--ds-red-500); }
+.c01 .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.c01 .pct { font-size: 46px; font-weight: 200; letter-spacing: -1.5px; font-variant-numeric: tabular-nums; line-height: 1; }
+.c01.ok .pct   { color: var(--ds-green-500); }
+.c01.warn .pct { color: var(--ds-orange-500); }
+.c01.err .pct  { color: var(--ds-red-500); }
+.c01 .pct small { font-size: 18px; opacity: 0.7; }
+.c01 .info { text-align: center; display: flex; flex-direction: column; gap: 8px; }
+.c01 .headline { font-size: 17px; font-weight: 500; color: var(--ds-text); letter-spacing: -0.2px; }
+.c01 .meta { display: flex; justify-content: center; gap: 18px; padding-top: 10px; border-top: 1px solid var(--ds-neutral-100); }
+.c01 .meta .item { display: flex; flex-direction: column; gap: 2px; }
+.c01 .meta .item .v { font-size: 22px; font-weight: 200; font-variant-numeric: tabular-nums; letter-spacing: -0.5px; color: var(--ds-text); line-height: 1; }
+.c01 .meta .item .l { font-size: 10px; color: var(--ds-text-subtle); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+
+/* ================================================================
+ * 02 Jaguar · 3 estados
+ * ================================================================ */
+.c02 {
+  flex: 1;
+  padding: 32px 28px;
+  background: white;
+  border: 1px solid var(--ds-border);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+}
+.c02 .top-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--ds-text-subtle); font-weight: 500; }
+.c02 .hero { display: flex; align-items: baseline; gap: 18px; }
+.c02 .ghost { font-size: 120px; font-weight: 100; letter-spacing: -6px; line-height: 0.85; font-variant-numeric: tabular-nums; }
+.c02 .ghost small { font-size: 40px; color: var(--ds-text-subtlest); }
+.c02.ok .ghost   { color: var(--ds-green-500); }
+.c02.warn .ghost { color: var(--ds-orange-500); }
+.c02.err .ghost  { color: var(--ds-red-500); }
+.c02 .headline { font-size: 14px; line-height: 1.4; color: var(--ds-text); font-weight: 400; max-width: 130px; }
+.c02 .headline b { font-weight: 500; }
+.c02 .bottom {
+  display: grid; grid-template-columns: 1fr 1px 1fr; gap: 16px;
+  padding-top: 16px; border-top: 1px solid var(--ds-neutral-200);
+}
+.c02 .bottom .vd { background: var(--ds-neutral-200); width: 1px; }
+.c02 .bottom .item .v { font-size: 30px; font-weight: 200; font-variant-numeric: tabular-nums; letter-spacing: -1px; line-height: 1; color: var(--ds-text); }
+.c02 .bottom .item .l { font-size: 10px; color: var(--ds-text-subtle); letter-spacing: 1.2px; text-transform: uppercase; margin-top: 6px; font-weight: 500; }
+.c02 .bottom .item .bar { height: 1px; width: 18px; margin-top: 8px; opacity: 0.5; }
+.c02.ok .bottom .item .bar   { background: var(--ds-green-500); }
+.c02.warn .bottom .item .bar { background: var(--ds-orange-500); }
+.c02.err .bottom .item .bar  { background: var(--ds-red-500); }
+
+/* ================================================================
+ * 03 Blueprint · 3 estados
+ * ================================================================ */
+.c03 {
+  flex: 1;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 29px, rgba(15, 38, 92, 0.025) 29px 30px),
+    repeating-linear-gradient(90deg, transparent 0 29px, rgba(15, 38, 92, 0.025) 29px 30px),
+    #fcfdfe;
+  border: 1px solid;
+  border-radius: 4px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.c03.ok   { border-color: var(--ds-blue-900); }
+.c03.warn { border-color: var(--ds-orange-500); }
+.c03.err  { border-color: var(--ds-red-500); }
+.c03 .head-block {
+  display: flex; flex-direction: column; gap: 4px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--ds-neutral-200);
+}
+.c03 .top-label { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; font-weight: 600; }
+.c03.ok   .top-label { color: var(--ds-blue-900); }
+.c03.warn .top-label { color: var(--ds-orange-600); }
+.c03.err  .top-label { color: var(--ds-red-700); }
+.c03 .gauge-pct {
+  font-size: 60px; font-weight: 200; letter-spacing: -2px;
+  font-variant-numeric: tabular-nums; line-height: 1;
+}
+.c03 .gauge-pct small { font-size: 26px; opacity: 0.55; }
+.c03.ok   .gauge-pct { color: var(--ds-blue-900); }
+.c03.warn .gauge-pct { color: var(--ds-orange-600); }
+.c03.err  .gauge-pct { color: var(--ds-red-700); }
+.c03 .gauge-ratio {
+  font-family: ui-monospace, monospace;
+  font-size: 11px; color: var(--ds-text-subtle);
+  letter-spacing: 1px; margin-top: 4px;
+}
+.c03 .headline {
+  font-size: 15px; color: var(--ds-text); font-weight: 400; line-height: 1.45;
+}
+.c03 .headline b { font-weight: 500; }
+.c03 .sedes-block {
+  display: flex; align-items: baseline; gap: 14px; margin-top: auto;
+}
+.c03 .sedes-block .v { font-size: 34px; font-weight: 200; letter-spacing: -1px; font-variant-numeric: tabular-nums; line-height: 1; color: var(--ds-text); }
+.c03 .sedes-block .l { font-size: 11px; color: var(--ds-text-subtle); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500; }
+
+/* ================================================================
+ * 04 Atmospheric · 3 estados
+ * ================================================================ */
+.c04 {
+  flex: 1;
+  border-radius: 14px;
+  padding: 24px 22px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--ds-border);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 340px;
+}
+.c04.ok { background: linear-gradient(180deg, #c8e4ff 0%, #e8f1fb 40%, #ffffff 100%); }
+.c04.warn { background: linear-gradient(180deg, #8a9bb3 0%, #c8cdd6 40%, #f0eee8 100%); }
+.c04.err {
+  background: linear-gradient(180deg, #1a1d2e 0%, #2d2430 50%, #3a2a2a 100%);
+  color: #fecaca;
+}
+.c04 .sun { position: absolute; top: -50px; right: -50px; width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(255, 220, 120, 0.8), rgba(255, 240, 180, 0.3) 50%, transparent 70%);
+  border-radius: 50%; animation: breathe 4s ease-in-out infinite; }
+@keyframes breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+.c04 .cloud { position: absolute; background: rgba(255,255,255,0.75); border-radius: 40px; filter: blur(8px); }
+.c04 .c-a { width: 90px; height: 24px; top: 20px; left: 8%; animation: float 14s ease-in-out infinite; }
+.c04 .c-b { width: 64px; height: 18px; top: 50px; left: 45%; animation: float 18s ease-in-out infinite -4s; }
+@keyframes float { 0%,100% { transform: translateX(0); } 50% { transform: translateX(30px); } }
+.c04 .bigcloud { position: absolute; background: rgba(80, 85, 100, 0.4); border-radius: 100px; filter: blur(14px); }
+.c04 .bc-a { width: 200px; height: 50px; top: 6px; left: -30px; }
+.c04 .bc-b { width: 160px; height: 42px; top: 46px; right: -20px; }
+.c04 .bc-c { width: 130px; height: 34px; top: 70px; left: 20%; }
+.c04 .sun-dim { position: absolute; top: 16px; right: 24px; width: 70px; height: 70px;
+  background: radial-gradient(circle, rgba(255, 220, 120, 0.3), transparent 70%); border-radius: 50%; opacity: 0.6; }
+.c04 .dark-cloud {
+  position: absolute; background: rgba(20, 15, 25, 0.8);
+  border-radius: 100px; filter: blur(20px);
+  animation: cloudDrift 10s ease-in-out infinite;
+}
+@keyframes cloudDrift { 0%,100% { transform: translateX(-10px); } 50% { transform: translateX(15px); } }
+.c04 .dc-a { width: 230px; height: 60px; top: -10px; left: -40px; }
+.c04 .dc-b { width: 220px; height: 56px; top: 34px; right: -60px; animation-delay: -3s; }
+.c04 .dc-c { width: 170px; height: 40px; top: 72px; left: 22%; animation-delay: -6s; }
+.c04 .lightning { position: absolute; pointer-events: none; animation: flash 5s ease-in-out infinite; opacity: 0; }
+.c04 .lightning svg { width: 40px; height: 72px; filter: drop-shadow(0 0 12px rgba(250, 204, 21, 0.8)); }
+.c04 .lightning-a { top: 36px; left: 18%; animation-delay: 0s; }
+.c04 .lightning-b { top: 48px; right: 14%; animation-delay: -2.5s; }
+@keyframes flash { 0%, 4%, 8%, 100% { opacity: 0; } 2% { opacity: 1; } 6% { opacity: 0.9; } }
+.c04 .rain {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(115deg, transparent 0%, transparent 49%, rgba(150, 170, 210, 0.25) 49%, rgba(150, 170, 210, 0.25) 51%, transparent 51%, transparent 100%);
+  background-size: 22px 22px;
+  animation: rainfall 0.7s linear infinite;
+}
+@keyframes rainfall { 0% { background-position: 0 0; } 100% { background-position: -22px 22px; } }
+
+.c04 .content { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; }
+.c04 .top-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; font-weight: 600; }
+.c04.ok .top-label { color: var(--ds-green-500); }
+.c04.warn .top-label { color: var(--ds-orange-600); }
+.c04.err .top-label { color: #fca5a5; }
+.c04 .headline { font-size: 18px; font-weight: 400; letter-spacing: -0.2px; line-height: 1.35; }
+.c04.ok .headline, .c04.warn .headline { color: var(--ds-text); }
+.c04.err .headline { color: #fecaca; font-weight: 500; }
+.c04 .headline b { font-weight: 500; }
+.c04 .hero { display: flex; align-items: baseline; gap: 10px; }
+.c04 .big { font-size: 78px; font-weight: 100; line-height: 1; letter-spacing: -3px; font-variant-numeric: tabular-nums; }
+.c04 .big small { font-size: 28px; opacity: 0.7; }
+.c04.ok .big { color: var(--ds-green-500); }
+.c04.warn .big { color: var(--ds-orange-500); }
+.c04.err .big { color: #fca5a5; text-shadow: 0 0 16px rgba(252,165,165,0.5); }
+.c04 .ratio {
+  font-family: ui-monospace, monospace; font-size: 11px; letter-spacing: 0.5px;
+}
+.c04.ok .ratio, .c04.warn .ratio { color: var(--ds-text-subtle); }
+.c04.err .ratio { color: #fecaca; opacity: 0.85; }
+.c04 .bottom {
+  position: relative; z-index: 1;
+  padding-top: 12px; margin-top: auto;
+  border-top: 1px solid;
+  display: flex; align-items: baseline; gap: 10px;
+}
+.c04.ok .bottom, .c04.warn .bottom { border-color: rgba(15,38,92,0.15); }
+.c04.err .bottom { border-color: rgba(252,165,165,0.2); }
+.c04 .bottom .v { font-size: 26px; font-weight: 200; letter-spacing: -1px; font-variant-numeric: tabular-nums; line-height: 1; }
+.c04.ok .bottom .v, .c04.warn .bottom .v { color: var(--ds-text); }
+.c04.err .bottom .v { color: white; }
+.c04 .bottom .l { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500; }
+.c04.ok .bottom .l, .c04.warn .bottom .l { color: var(--ds-text-subtle); }
+.c04.err .bottom .l { color: #fca5a5; }
+
+/* ================================================================
+ * 09 Shield · 3 estados
+ * ================================================================ */
+.c09 {
+  flex: 1;
+  background: linear-gradient(180deg, #fafbfd 0%, #eef1f6 100%);
+  border: 1px solid var(--ds-border); border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+  text-align: center;
+}
+.c09.warn { background: linear-gradient(180deg, #fff7ed 0%, #ffedd5 100%); }
+.c09.err  { background: linear-gradient(180deg, #1a0e0e 0%, #2a1515 100%); color: #fecaca; }
+.c09 .shield { width: 130px; height: 150px; position: relative; }
+.c09 .shield svg { width: 100%; height: 100%; filter: drop-shadow(0 8px 20px rgba(15,38,92,0.15)); }
+.c09 .shield-body { stroke-width: 1.5; }
+.c09.ok   .shield-body { fill: url(#sgrad-ok);   stroke: var(--ds-blue-900); }
+.c09.warn .shield-body { fill: url(#sgrad-warn); stroke: var(--ds-orange-600); }
+.c09.err  .shield-body { fill: url(#sgrad-err);  stroke: var(--ds-red-500); }
+.c09 .shield-inner { fill: none; stroke-width: 1; }
+.c09.ok   .shield-inner { stroke: rgba(15, 38, 92, 0.25); }
+.c09.warn .shield-inner { stroke: rgba(244, 81, 30, 0.25); }
+.c09.err  .shield-inner { stroke: rgba(252, 165, 165, 0.3); }
+.c09 .shield-fill { stroke-width: 2; }
+.c09.ok   .shield-fill { fill: rgba(22, 163, 74, 0.15); stroke: var(--ds-green-500); }
+.c09.warn .shield-fill { fill: rgba(255, 112, 67, 0.15); stroke: var(--ds-orange-500); }
+.c09.err  .shield-fill { fill: rgba(220, 38, 38, 0.18); stroke: var(--ds-red-500); }
+.c09 .shield-crack { stroke: var(--ds-red-500); stroke-width: 1.4; fill: none; opacity: 0.7; }
+.c09 .shield-pct { font-size: 32px; font-weight: 200; text-anchor: middle; font-family: inherit; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+.c09.ok   .shield-pct { fill: var(--ds-green-500); }
+.c09.warn .shield-pct { fill: var(--ds-orange-600); }
+.c09.err  .shield-pct { fill: var(--ds-red-500); }
+.c09 .shield-ratio { fill: var(--ds-text-subtle); font-size: 9px; text-anchor: middle; letter-spacing: 0.5px; font-family: ui-monospace, monospace; }
+.c09.err .shield-ratio { fill: #fecaca; opacity: 0.8; }
+.c09 .top-label { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; font-weight: 600; }
+.c09.ok .top-label   { color: var(--ds-green-500); }
+.c09.warn .top-label { color: var(--ds-orange-600); }
+.c09.err .top-label  { color: #fca5a5; }
+.c09 .headline { font-size: 16px; font-weight: 500; letter-spacing: -0.2px; line-height: 1.35; margin: 0; }
+.c09.ok .headline, .c09.warn .headline { color: var(--ds-text); }
+.c09.err .headline { color: #fecaca; }
+.c09 .headline b { font-weight: 600; }
+.c09 .bottom {
+  margin-top: auto; padding-top: 12px;
+  border-top: 1px solid;
+  width: 100%;
+  display: flex; justify-content: center; align-items: baseline; gap: 10px;
+}
+.c09.ok .bottom, .c09.warn .bottom { border-color: var(--ds-neutral-200); }
+.c09.err .bottom { border-color: rgba(252,165,165,0.25); }
+.c09 .bottom .v { font-size: 26px; font-weight: 200; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; line-height: 1; }
+.c09.ok .bottom .v, .c09.warn .bottom .v { color: var(--ds-text); }
+.c09.err .bottom .v { color: white; }
+.c09 .bottom .l { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500; }
+.c09.ok .bottom .l, .c09.warn .bottom .l { color: var(--ds-text-subtle); }
+.c09.err .bottom .l { color: #fca5a5; }
+
+/* ================================================================
+ * 12 Bento · 3 estados
+ * ================================================================ */
+.c12 {
+  flex: 1;
+  display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 8px;
+  min-height: 340px;
+}
+.c12 .tile {
+  background: white; border: 1px solid var(--ds-border);
+  border-radius: 12px; padding: 16px;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.c12 .hero {
+  grid-column: span 2;
+  color: white; border: none; padding: 18px 20px;
+  display: grid; grid-template-columns: auto 1fr; gap: 16px;
+  align-items: center;
+}
+.c12.ok .hero   { background: linear-gradient(160deg, var(--ds-blue-900), var(--ds-blue-800)); }
+.c12.warn .hero { background: linear-gradient(160deg, #7c2d12, #c2410c); }
+.c12.err .hero  { background: linear-gradient(160deg, #450a0a, #991b1b); }
+.c12 .hero .big-ring { position: relative; width: 100px; height: 100px; }
+.c12 .hero svg { transform: rotate(-90deg); }
+.c12 .hero .bg { fill: none; stroke: rgba(255,255,255,0.15); stroke-width: 7; }
+.c12 .hero .fg { fill: none; stroke-width: 7; stroke-linecap: round; }
+.c12.ok   .hero .fg { stroke: #4ade80; }
+.c12.warn .hero .fg { stroke: #fb923c; }
+.c12.err  .hero .fg { stroke: #fca5a5; }
+.c12 .hero .pct { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.c12 .hero .pct-n { font-size: 30px; font-weight: 200; letter-spacing: -1px; font-variant-numeric: tabular-nums; line-height: 1; }
+.c12 .hero .ratio { font-family: ui-monospace, monospace; font-size: 10px; opacity: 0.85; margin-top: 2px; }
+.c12 .hero .text { display: flex; flex-direction: column; gap: 4px; }
+.c12 .hero .label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; opacity: 0.75; font-weight: 600; }
+.c12 .hero .headline { font-size: 16px; font-weight: 500; line-height: 1.3; }
+.c12 .tile.sedes-tile { grid-column: span 2; display: flex; flex-direction: row; align-items: center; gap: 16px; padding: 14px 18px; }
+.c12 .tile.sedes-tile .v { font-size: 40px; font-weight: 200; letter-spacing: -1.5px; font-variant-numeric: tabular-nums; line-height: 1; color: var(--ds-text); }
+.c12 .tile.sedes-tile .l { font-size: 11px; color: var(--ds-text-subtle); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500; }
+.c12 .tile.sedes-tile .s { font-size: 12px; color: var(--ds-text-subtle); margin-top: 4px; font-weight: 300; }
+.c12 .tile .accent { position: absolute; top: 0; left: 0; width: 100%; height: 2px; }
+.c12.ok   .accent { background: var(--ds-blue-900); }
+.c12.warn .accent { background: var(--ds-orange-500); }
+.c12.err  .accent { background: var(--ds-red-500); }
+
+/* legend hint */
+.legend-hint {
+  max-width: 1400px; margin: 32px auto 0;
+  padding: 16px 22px;
+  background: white;
+  border: 1px solid var(--ds-border);
+  border-left: 3px solid var(--ds-blue-900);
+  border-radius: 4px;
+  font-size: 13px; color: var(--ds-text-subtle); line-height: 1.6;
+}
+.legend-hint b { color: var(--ds-text); font-weight: 500; }
+.legend-hint .g { color: var(--ds-green-500); font-weight: 600; }
+.legend-hint .w { color: var(--ds-orange-600); font-weight: 600; }
+.legend-hint .e { color: var(--ds-red-700); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <linearGradient id="sgrad-ok" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff"/>
+      <stop offset="100%" stop-color="#eef1f6"/>
+    </linearGradient>
+    <linearGradient id="sgrad-warn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff"/>
+      <stop offset="100%" stop-color="#ffedd5"/>
+    </linearGradient>
+    <linearGradient id="sgrad-err" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2a1515"/>
+      <stop offset="100%" stop-color="#450a0a"/>
+    </linearGradient>
+  </defs>
+</svg>
+
+<div class="page-header">
+  <h1>Finalistas × 3 estados — solo 4 elementos</h1>
+  <p class="subtitle">
+    Cada card tiene únicamente: <b>mensaje de estado</b>, <b>% de cumplimiento</b>, <b>ratio de permisos</b> y <b>cantidad de sedes</b>. Sin desglose de vigentes/por vencer/vencidos. Sin texto redundante.
+  </p>
+  <div class="rules">
+    <b>Regla de textos por estado</b> (sin repetirse):
+    <ol>
+      <li><b>OK (≥80%)</b> — headline corto tipo "Todo al día" o "Operación protegida". El <code>%</code> y el ratio <code>48/57 permisos</code> dicen el dato. No repetir "cumplimiento" en la frase.</li>
+      <li><b>Warning (50–79%)</b> — headline tipo "Atención próxima" o "Revisar pronto". El ratio cambia a <code>36/57 permisos</code>.</li>
+      <li><b>Riesgo (&lt;50% o con vencidos)</b> — headline tipo "Acción inmediata" o "Operación en riesgo". Ratio <code>19/57 permisos</code>.</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ================================================================
+ * 01 Ring Pro
+ * ================================================================ -->
+<div class="design-section">
+  <div class="design-header">
+    <span class="design-num">01</span>
+    <h3 class="design-title">Ring Pro</h3>
+    <span class="design-note">Anillo + % + ratio → estado + sedes</span>
+  </div>
+  <div class="states-row">
+
+    <div class="state-wrap">
+      <span class="state-label ok">☀ Cumpliendo</span>
+      <div class="state-card">
+        <div class="c01 ok">
+          <div class="ring-wrap">
+            <svg width="160" height="160" viewBox="0 0 160 160">
+              <circle class="bg" cx="80" cy="80" r="72"/>
+              <circle class="fg" cx="80" cy="80" r="72" stroke-dasharray="452.39" stroke-dashoffset="72.38"/>
+            </svg>
+            <div class="center"><div class="pct">84<small>%</small></div></div>
+          </div>
+          <div class="info">
+            <div class="headline">Tu empresa está al día</div>
+          </div>
+          <div class="meta">
+            <div class="item"><span class="v">48/57</span><span class="l">permisos</span></div>
+            <div class="item"><span class="v">15</span><span class="l">sedes</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="state-wrap">
+      <span class="state-label warn">⛅ Atención</span>
+      <div class="state-card">
+        <div class="c01 warn">
+          <div class="ring-wrap">
+            <svg width="160" height="160" viewBox="0 0 160 160">
+              <circle class="bg" cx="80" cy="80" r="72"/>
+              <circle class="fg" cx="80" cy="80" r="72" stroke-dasharray="452.39" stroke-dashoffset="171.91"/>
+            </svg>
+            <div class="center"><div class="pct">62<small>%</small></div></div>
+          </div>
+          <div class="info">
+            <div class="headline">Atención próxima</div>
+          </div>
+          <div class="meta">
+            <div class="item"><span class="v">36/57</span><span class="l">permisos</span></div>
+            <div class="item"><span class="v">15</span><span class="l">sedes</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="state-wrap">
+      <span class="state-label err">⛈ Riesgo</span>
+      <div class="state-card">
+        <div class="c01 err">
+          <div class="ring-wrap">
+            <svg width="160" height="160" viewBox="0 0 160 160">
+              <circle class="bg" cx="80" cy="80" r="72"/>
+              <circle class="fg" cx="80" cy="80" r="72" stroke-dasharray="452.39" stroke-dashoffset="298.58"/>
+            </svg>
+            <div class="center"><div class="pct">34<small>%</small></div></div>
+          </div>
+          <div class="info">
+            <div class="headline">Acción inmediata</div>
+          </div>
+          <div class="meta">
+            <div class="item"><span class="v">19/57</span><span class="l">permisos</span></div>
+            <div class="item"><span class="v">15</span><span class="l">sedes</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================================================================
+ * 02 Jaguar
+ * ================================================================ -->
+<div class="design-section">
+  <div class="design-header">
+    <span class="design-num">02</span>
+    <h3 class="design-title">Jaguar — Minimalismo editorial</h3>
+    <span class="design-note">Número gigante + caption corto; sedes/permisos abajo</span>
+  </div>
+  <div class="states-row">
+
+    <div class="state-wrap">
+      <span class="state-label ok">☀ Cumpliendo</span>
+      <div class="state-card">
+        <div class="c02 ok">
+          <div class="top-label">Cumplimiento</div>
+          <div class="hero">
+            <div class="ghost">84<small>%</small></div>
+            <div class="headline">Tu empresa está <b>al día</b>.</div>
+          </div>
+          <div class="bottom">
+            <div class="item">
+              <div class="v">48/57</div>
+              <div class="l">Permisos</div>
+              <div class="bar"></div>
+            </div>
+            <div class="vd"></div>
+            <div class="item">
+              <div class="v">15</div>
+              <div class="l">Sedes</div>
+              <div class="bar"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="state-wrap">
+      <span class="state-label warn">⛅ Atención</span>
+      <div class="state-card">
+        <div class="c02 warn">
+          <div class="top-label">Cumplimiento</div>
+          <div class="hero">
+            <div class="ghost">62<small>%</small></div>
+            <div class="headline">Atención <b>próxima</b>.</div>
+          </div>
+          <div class="bottom">
+            <div class="item">
+              <div class="v">36/57</div>
+              <div class="l">Permisos</div>
+              <div class="bar"></div>
+            </div>
+            <div class="vd"></div>
+            <div class="item">
+              <div class="v">15</div>
+              <div class="l">Sedes</div>
+              <div class="bar"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="state-wrap">
+      <span class="state-label err">⛈ Riesgo</span>
+      <div class="state-card">
+        <div class="c02 err">
+          <div class="top-label">Cumplimiento</div>
+          <div class="hero">
+            <div class="ghost">34<small>%</small></div>
+            <div class="headline">Acción <b>inmediata</b>.</div>
+          </div>
+          <div class="bottom">
+            <div class="item">
+              <div class="v">19/57</div>
+              <div class="l">Permisos</div>
+              <div class="bar"></div>
+            </div>
+            <div class="vd"></div>
+            <div class="item">
+              <div class="v">15</div>
+              <div class="l">Sedes</div>
+              <div class="bar"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================================================================
+ * 03 Blueprint
+ * ================================================================ -->
+<div class="design-section">
+  <div class="design-header">
+    <span class="design-num">03</span>
+    <h3 class="design-title">Blueprint — Plano técnico (pulido)</h3>
+    <span class="design-note">Cuadrícula sutil, tipografía editorial, borde que cambia con el estado</span>
+  </div>
+  <div class="states-row">
+
+    <div class="state-wrap">
+      <span class="state-label ok">☀ Cumpliendo</span>
+      <div class="state-card">
+        <div class="c03 ok">
+          <div class="head-block">
+            <div class="top-label">Cumplimiento · Empresa</div>
+            <div class="gauge-pct">84<small>%</small></div>
+            <div class="gauge-ratio">48 / 57 permisos</div>
+          </div>
+          <div class="headline">Tu empresa está <b>al día</b> con la normativa.</div>
+          <div class="sedes-block">
+            <div class="v">15</div>
+            <div class="l">Sedes · ubicaciones</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="state-wrap">
+      <span class="state-label warn">⛅ Atención</span>
+      <div class="state-card">
+        <div class="c03 warn">
+          <div class="head-block">
+            <div class="top-label">Cumplimiento · Empresa</div>
+            <div class="gauge-pct">62<small>%</small></div>
+            <div class="gauge-ratio">36 / 57 permisos</div>
+          </div>
+          <div class="headline">Atención <b>próxima</b> requerida.</div>
+          <div class="sedes-block">
+            <div class="v">15</div>
+            <div class="l">Sedes · ubicaciones</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="state-wrap">
+      <span class="state-label err">⛈ Riesgo</span>
+      <div class="state-card">
+        <div class="c03 err">
+          <div class="head-block">
+            <div class="top-label">Cumplimiento · Empresa</div>
+            <div class="gauge-pct">34<small>%</small></div>
+            <div class="gauge-ratio">19 / 57 permisos</div>
+          </div>
+          <div class="headline">Acción <b>inmediata</b>. Tu empresa está en riesgo.</div>
+          <div class="sedes-block">
+            <div class="v">15</div>
+            <div class="l">Sedes · ubicaciones</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================================================================
+ * 04 Atmospheric
+ * ================================================================ -->
+<div class="design-section">
+  <div class="design-header">
+    <span class="design-num">04</span>
+    <h3 class="design-title">Atmosférico — Clima como metáfora</h3>
+    <span class="design-note">Fondo y expresión cambian con el estado. Animaciones sutiles.</span>
+  </div>
+  <div class="states-row">
+
+    <div class="state-wrap">
+      <span class="state-label ok">☀ Cumpliendo</span>
+      <div class="state-card">
+        <div class="c04 ok">
+          <div class="sun"></div>
+          <div class="cloud c-a"></div>
+          <div class="cloud c-b"></div>
+          <div class="content">
+            <div class="top-label">✓ Cielo despejado</div>
+            <h3 class="headline">Tu empresa está <b>al día</b>.</h3>
+            <div class="hero">
+              <div class="big">84<small>%</small></div>
+            </div>
+            <div class="ratio">48 / 57 permisos</div>
+          </div>
+          <div class="bottom">
+            <span class="v">15</span><span class="l">Sedes</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="state-wrap">
+      <span class="state-label warn">⛅ Atención</span>
+      <div class="state-card">
+        <div class="c04 warn">
+          <div class="sun-dim"></div>
+          <div class="bigcloud bc-a"></div>
+          <div class="bigcloud bc-b"></div>
+          <div class="bigcloud bc-c"></div>
+          <div class="content">
+            <div class="top-label">⚠ Cielo nublado</div>
+            <h3 class="headline">Atención <b>próxima</b> requerida.</h3>
+            <div class="hero">
+              <div class="big">62<small>%</small></div>
+            </div>
+            <div class="ratio">36 / 57 permisos</div>
+          </div>
+          <div class="bottom">
+            <span class="v">15</span><span class="l">Sedes</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="state-wrap">
+      <span class="state-label err">⛈ Riesgo</span>
+      <div class="state-card">
+        <div class="c04 err">
+          <div class="dark-cloud dc-a"></div>
+          <div class="dark-cloud dc-b"></div>
+          <div class="dark-cloud dc-c"></div>
+          <div class="lightning lightning-a">
+            <svg viewBox="0 0 50 90">
+              <path d="M25 0 L10 50 L22 50 L15 90 L40 35 L28 35 L35 0 Z"
+                    fill="#fde047" stroke="#fef9c3" stroke-width="1"/>
+            </svg>
+          </div>
+          <div class="lightning lightning-b">
+            <svg viewBox="0 0 50 90">
+              <path d="M25 0 L10 50 L22 50 L15 90 L40 35 L28 35 L35 0 Z"
+                    fill="#fde047" stroke="#fef9c3" stroke-width="1"/>
+            </svg>
+          </div>
+          <div class="rain"></div>
+          <div class="content">
+            <div class="top-label">⛈ Tormenta activa</div>
+            <h3 class="headline">Acción <b>inmediata</b>.</h3>
+            <div class="hero">
+              <div class="big">34<small>%</small></div>
+            </div>
+            <div class="ratio">19 / 57 permisos</div>
+          </div>
+          <div class="bottom">
+            <span class="v">15</span><span class="l">Sedes</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================================================================
+ * 09 Shield
+ * ================================================================ -->
+<div class="design-section">
+  <div class="design-header">
+    <span class="design-num">09</span>
+    <h3 class="design-title">Escudo — Integridad protectora</h3>
+    <span class="design-note">El escudo se agrieta visualmente cuando hay riesgo</span>
+  </div>
+  <div class="states-row">
+
+    <div class="state-wrap">
+      <span class="state-label ok">☀ Cumpliendo</span>
+      <div class="state-card">
+        <div class="c09 ok">
+          <div class="top-label">✓ Escudo íntegro</div>
+          <div class="shield">
+            <svg viewBox="0 0 140 160">
+              <path class="shield-body" d="M70 8 L124 32 L124 86 Q124 134 70 156 Q16 134 16 86 L16 32 Z"/>
+              <path class="shield-inner" d="M70 18 L115 38 L115 84 Q115 126 70 145 Q25 126 25 84 L25 38 Z"/>
+              <path class="shield-fill" d="M25 84 Q25 126 70 145 Q115 126 115 84 L115 56 L25 56 Z"/>
+              <text class="shield-pct" x="70" y="88">84%</text>
+              <text class="shield-ratio" x="70" y="104">48 / 57</text>
+            </svg>
+          </div>
+          <h3 class="headline">Tu empresa está <b>protegida</b>.</h3>
+          <div class="bottom">
+            <span class="v">15</span><span class="l">Sedes</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="state-wrap">
+      <span class="state-label warn">⛅ Atención</span>
+      <div class="state-card">
+        <div class="c09 warn">
+          <div class="top-label">⚠ Escudo debilitado</div>
+          <div class="shield">
+            <svg viewBox="0 0 140 160">
+              <path class="shield-body" d="M70 8 L124 32 L124 86 Q124 134 70 156 Q16 134 16 86 L16 32 Z"/>
+              <path class="shield-inner" d="M70 18 L115 38 L115 84 Q115 126 70 145 Q25 126 25 84 L25 38 Z"/>
+              <path class="shield-fill" d="M25 92 Q25 126 70 145 Q115 126 115 92 L115 76 L25 76 Z"/>
+              <text class="shield-pct" x="70" y="90">62%</text>
+              <text class="shield-ratio" x="70" y="106">36 / 57</text>
+            </svg>
+          </div>
+          <h3 class="headline">Tu escudo requiere <b>revisión</b>.</h3>
+          <div class="bottom">
+            <span class="v">15</span><span class="l">Sedes</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="state-wrap">
+      <span class="state-label err">⛈ Riesgo</span>
+      <div class="state-card">
+        <div class="c09 err">
+          <div class="top-label">✖ Escudo comprometido</div>
+          <div class="shield">
+            <svg viewBox="0 0 140 160">
+              <path class="shield-body" d="M70 8 L124 32 L124 86 Q124 134 70 156 Q16 134 16 86 L16 32 Z"/>
+              <path class="shield-inner" d="M70 18 L115 38 L115 84 Q115 126 70 145 Q25 126 25 84 L25 38 Z"/>
+              <path class="shield-fill" d="M25 118 Q25 126 70 145 Q115 126 115 118 L115 112 L25 112 Z"/>
+              <path class="shield-crack" d="M70 20 L62 58 L74 76 L64 108 L72 130"/>
+              <path class="shield-crack" d="M88 40 L80 64 L92 86"/>
+              <text class="shield-pct" x="70" y="92">34%</text>
+              <text class="shield-ratio" x="70" y="108">19 / 57</text>
+            </svg>
+          </div>
+          <h3 class="headline">Tu empresa está <b>en riesgo</b>.</h3>
+          <div class="bottom">
+            <span class="v">15</span><span class="l">Sedes</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================================================================
+ * 12 Bento
+ * ================================================================ -->
+<div class="design-section">
+  <div class="design-header">
+    <span class="design-num">12</span>
+    <h3 class="design-title">Bento — Grid premium</h3>
+    <span class="design-note">Hero con ring + mensaje, tile de sedes abajo. El color del hero cambia con el estado.</span>
+  </div>
+  <div class="states-row">
+
+    <div class="state-wrap">
+      <span class="state-label ok">☀ Cumpliendo</span>
+      <div class="state-card">
+        <div class="c12 ok">
+          <div class="tile hero">
+            <div class="big-ring">
+              <svg width="100" height="100" viewBox="0 0 100 100">
+                <circle class="bg" cx="50" cy="50" r="42" stroke-width="7" fill="none" stroke="rgba(255,255,255,0.15)"/>
+                <circle class="fg" cx="50" cy="50" r="42" stroke-dasharray="263.89" stroke-dashoffset="42.22"/>
+              </svg>
+              <div class="pct">
+                <div class="pct-n">84<span style="font-size:14px">%</span></div>
+                <div class="ratio">48/57</div>
+              </div>
+            </div>
+            <div class="text">
+              <div class="label">✓ Cumplimiento</div>
+              <div class="headline">Tu empresa está al día</div>
+            </div>
+          </div>
+          <div class="tile sedes-tile">
+            <span class="accent"></span>
+            <div class="v">15</div>
+            <div>
+              <div class="l">Sedes</div>
+              <div class="s">Ubicaciones registradas</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="state-wrap">
+      <span class="state-label warn">⛅ Atención</span>
+      <div class="state-card">
+        <div class="c12 warn">
+          <div class="tile hero">
+            <div class="big-ring">
+              <svg width="100" height="100" viewBox="0 0 100 100">
+                <circle class="bg" cx="50" cy="50" r="42" stroke-width="7" fill="none" stroke="rgba(255,255,255,0.15)"/>
+                <circle class="fg" cx="50" cy="50" r="42" stroke-dasharray="263.89" stroke-dashoffset="100.28"/>
+              </svg>
+              <div class="pct">
+                <div class="pct-n">62<span style="font-size:14px">%</span></div>
+                <div class="ratio">36/57</div>
+              </div>
+            </div>
+            <div class="text">
+              <div class="label">⚠ Atención próxima</div>
+              <div class="headline">Revisar permisos pronto</div>
+            </div>
+          </div>
+          <div class="tile sedes-tile">
+            <span class="accent"></span>
+            <div class="v">15</div>
+            <div>
+              <div class="l">Sedes</div>
+              <div class="s">Ubicaciones registradas</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="state-wrap">
+      <span class="state-label err">⛈ Riesgo</span>
+      <div class="state-card">
+        <div class="c12 err">
+          <div class="tile hero">
+            <div class="big-ring">
+              <svg width="100" height="100" viewBox="0 0 100 100">
+                <circle class="bg" cx="50" cy="50" r="42" stroke-width="7" fill="none" stroke="rgba(255,255,255,0.15)"/>
+                <circle class="fg" cx="50" cy="50" r="42" stroke-dasharray="263.89" stroke-dashoffset="174.17"/>
+              </svg>
+              <div class="pct">
+                <div class="pct-n">34<span style="font-size:14px">%</span></div>
+                <div class="ratio">19/57</div>
+              </div>
+            </div>
+            <div class="text">
+              <div class="label">⛈ Acción inmediata</div>
+              <div class="headline">Tu empresa está en riesgo</div>
+            </div>
+          </div>
+          <div class="tile sedes-tile">
+            <span class="accent"></span>
+            <div class="v">15</div>
+            <div>
+              <div class="l">Sedes</div>
+              <div class="s">Ubicaciones registradas</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="legend-hint">
+  <b>Umbrales sugeridos</b> (aplican a los 6 diseños):
+  <span class="g">OK ≥ 80%</span> · <span class="w">Warning 50–79%</span> · <span class="e">Riesgo &lt; 50%</span>.
+  Regla extra: si hay <b>cualquier permiso vencido</b>, la card pasa al menos a <span class="w">warning</span> aunque el % siga alto —  la criticidad pesa más que el promedio.<br><br>
+  <b>Siguiente paso:</b> dime con cuál de los 6 sigo. Una vez elegido, paso al layout completo del Dashboard unificado (dónde vive esta card, dónde van las LocationCardV2 reutilizadas, dónde el botón "Crear sede", merge con Sedes, cleanup de "Mapa de Permisos").
+</div>
+
+</body>
+</html>

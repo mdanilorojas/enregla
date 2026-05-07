@@ -18,10 +18,13 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 // console.log('[Supabase] Client created successfully');
 
-// Create a single supabase client for interacting with your database
+// Create a single supabase client for interacting with your database.
+// storageKey is namespaced to avoid collisions with other Supabase projects
+// running on the same localhost origin (e.g. life-update in another port).
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
+    storageKey: 'enregla-auth-token',
   },
 });

@@ -1,4 +1,4 @@
-import { Building2, MapPin, Shield, CheckCircle2 } from 'lucide-react';
+import { Building2, MapPin, Shield, CheckCircle2 } from '@/lib/lucide-icons';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -146,7 +146,7 @@ export function Step4Review({ company, regulatory, locations }: Props) {
                     <span className="text-sm font-medium text-text">
                       {location.name}
                     </span>
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="secondary" className="text-xs">
                       {STATUS_LABELS[location.status]}
                     </Badge>
                   </div>

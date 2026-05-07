@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Resumen General — 4 opciones</title>
+<style>
+:root {
+  --ds-blue-900: #0f265c;
+  --ds-blue-800: #143374;
+  --ds-blue-50: #e7edf7;
+  --ds-orange-500: #ff7043;
+  --ds-green-500: #16a34a;
+  --ds-green-50: #ecfdf5;
+  --ds-red-500: #dc2626;
+  --ds-red-50: #fef2f2;
+  --ds-orange-50: #fff4e6;
+  --ds-neutral-0: #ffffff;
+  --ds-neutral-50: #f7f8fa;
+  --ds-neutral-100: #eef0f3;
+  --ds-neutral-200: #dfe3e8;
+  --ds-neutral-300: #c1c7d0;
+  --ds-text: #172b4d;
+  --ds-text-subtle: #5e6c84;
+  --ds-text-subtlest: #8993a4;
+  --ds-border: #dfe3e8;
+  --ds-radius-200: 8px;
+  --ds-radius-300: 12px;
+  --ds-shadow-raised: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+}
+* { box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  padding: 32px;
+  background: var(--ds-neutral-50);
+  color: var(--ds-text);
+}
+h1 { font-size: 28px; margin: 0 0 8px; }
+.subtitle { color: var(--ds-text-subtle); margin: 0 0 32px; font-size: 15px; }
+.option {
+  background: var(--ds-neutral-0);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-300);
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: var(--ds-shadow-raised);
+}
+.option-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.option-tag {
+  background: var(--ds-blue-50);
+  color: var(--ds-blue-900);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+.option-title { font-size: 20px; font-weight: 700; margin: 0; }
+.option-desc { color: var(--ds-text-subtle); font-size: 14px; margin: 0 0 20px; }
+.mockup-frame {
+  background: var(--ds-neutral-50);
+  border: 1px dashed var(--ds-neutral-300);
+  border-radius: var(--ds-radius-200);
+  padding: 24px;
+}
+
+/* ===== Option A: Current (reference) ===== */
+.opt-a .card {
+  background: white;
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-200);
+  padding: 20px;
+}
+.opt-a h2 { font-size: 16px; margin: 0 0 16px; font-weight: 600; }
+.opt-a .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.opt-a .metric-label {
+  font-size: 11px;
+  color: var(--ds-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.opt-a .metric-value { font-size: 22px; font-weight: 700; }
+
+/* ===== Option B: Big Numbers (stat-card style) ===== */
+.opt-b .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.opt-b .stat {
+  background: white;
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-200);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+.opt-b .stat::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--ds-neutral-300);
+}
+.opt-b .stat.total::before { background: var(--ds-blue-900); }
+.opt-b .stat.ok::before    { background: var(--ds-green-500); }
+.opt-b .stat.warn::before  { background: var(--ds-orange-500); }
+.opt-b .stat.err::before   { background: var(--ds-red-500); }
+.opt-b .stat-top { display: flex; align-items: center; justify-content: space-between; }
+.opt-b .stat-label {
+  font-size: 13px;
+  color: var(--ds-text-subtle);
+  font-weight: 500;
+}
+.opt-b .stat-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.opt-b .stat.total .stat-icon { background: var(--ds-blue-50); color: var(--ds-blue-900); }
+.opt-b .stat.ok .stat-icon    { background: var(--ds-green-50); color: var(--ds-green-500); }
+.opt-b .stat.warn .stat-icon  { background: var(--ds-orange-50); color: var(--ds-orange-500); }
+.opt-b .stat.err .stat-icon   { background: var(--ds-red-50); color: var(--ds-red-500); }
+.opt-b .stat-value {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -1.5px;
+  font-variant-numeric: tabular-nums;
+}
+.opt-b .stat.total .stat-value { color: var(--ds-text); }
+.opt-b .stat.ok .stat-value    { color: var(--ds-green-500); }
+.opt-b .stat.warn .stat-value  { color: var(--ds-orange-500); }
+.opt-b .stat.err .stat-value   { color: var(--ds-red-500); }
+.opt-b .stat-trend {
+  font-size: 12px;
+  color: var(--ds-text-subtle);
+}
+
+/* ===== Option C: Hero + Supporting ===== */
+.opt-c { display: grid; grid-template-columns: 1.5fr 2fr; gap: 16px; }
+.opt-c .hero {
+  background: linear-gradient(135deg, var(--ds-blue-900), var(--ds-blue-800));
+  color: white;
+  border-radius: var(--ds-radius-200);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.opt-c .hero-label {
+  font-size: 12px;
+  opacity: 0.75;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+.opt-c .hero-value {
+  font-size: 72px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -2px;
+  font-variant-numeric: tabular-nums;
+}
+.opt-c .hero-sub {
+  font-size: 14px;
+  opacity: 0.85;
+  margin-top: 12px;
+}
+.opt-c .side {
+  display: grid;
+  grid-template-rows: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.opt-c .row {
+  background: white;
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-200);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.opt-c .row-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.opt-c .row.ok .row-icon   { background: var(--ds-green-50); color: var(--ds-green-500); }
+.opt-c .row.warn .row-icon { background: var(--ds-orange-50); color: var(--ds-orange-500); }
+.opt-c .row.err .row-icon  { background: var(--ds-red-50); color: var(--ds-red-500); }
+.opt-c .row-body { flex: 1; }
+.opt-c .row-label { font-size: 13px; color: var(--ds-text-subtle); }
+.opt-c .row-value {
+  font-size: 32px; font-weight: 700; line-height: 1;
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
+}
+.opt-c .row.ok .row-value   { color: var(--ds-green-500); }
+.opt-c .row.warn .row-value { color: var(--ds-orange-500); }
+.opt-c .row.err .row-value  { color: var(--ds-red-500); }
+
+/* ===== Option D: Compliance Ring + Stats ===== */
+.opt-d {
+  background: white;
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-200);
+  padding: 28px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 40px;
+  align-items: center;
+}
+.opt-d .ring-wrap { position: relative; width: 180px; height: 180px; }
+.opt-d svg { transform: rotate(-90deg); }
+.opt-d .ring-bg { fill: none; stroke: var(--ds-neutral-100); stroke-width: 14; }
+.opt-d .ring-fg { fill: none; stroke: var(--ds-green-500); stroke-width: 14; stroke-linecap: round; }
+.opt-d .ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.opt-d .ring-pct {
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--ds-green-500);
+  font-variant-numeric: tabular-nums;
+}
+.opt-d .ring-sub {
+  font-size: 11px;
+  color: var(--ds-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-top: 4px;
+}
+.opt-d .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 32px; }
+.opt-d .stat-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-left: 3px solid;
+  padding-left: 12px;
+}
+.opt-d .stat-row.total { border-color: var(--ds-blue-900); }
+.opt-d .stat-row.ok    { border-color: var(--ds-green-500); }
+.opt-d .stat-row.warn  { border-color: var(--ds-orange-500); }
+.opt-d .stat-row.err   { border-color: var(--ds-red-500); }
+.opt-d .stat-row-label { font-size: 12px; color: var(--ds-text-subtle); text-transform: uppercase; letter-spacing: 0.4px; }
+.opt-d .stat-row-value {
+  font-size: 34px; font-weight: 800; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.opt-d .stat-row.total .stat-row-value { color: var(--ds-text); }
+.opt-d .stat-row.ok .stat-row-value    { color: var(--ds-green-500); }
+.opt-d .stat-row.warn .stat-row-value  { color: var(--ds-orange-500); }
+.opt-d .stat-row.err .stat-row-value   { color: var(--ds-red-500); }
+
+.verdict {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: var(--ds-blue-50);
+  border-left: 3px solid var(--ds-blue-900);
+  border-radius: 4px;
+  font-size: 13px;
+}
+.verdict b { color: var(--ds-blue-900); }
+.rec-badge {
+  display: inline-block;
+  background: var(--ds-orange-500);
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 10px;
+  letter-spacing: 0.6px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+</style>
+</head>
+<body>
+
+<h1>Resumen General — 4 opciones visuales</h1>
+<p class="subtitle">Los datos son los mismos (15 sedes, 48 vigentes, 6 por vencer, 3 vencidos). Solo cambia el tratamiento visual.</p>
+
+<!-- Option A: current -->
+<section class="option">
+  <div class="option-header">
+    <span class="option-tag">Opción A</span>
+    <h2 class="option-title">Lo que tienes hoy (referencia)</h2>
+  </div>
+  <p class="option-desc">Una sola card con label + número. Números de 22px. Se pierden visualmente.</p>
+  <div class="mockup-frame opt-a">
+    <div class="card">
+      <h2>Resumen General</h2>
+      <div class="grid">
+        <div><div class="metric-label">🏢 TOTAL SEDES</div><div class="metric-value">15</div></div>
+        <div><div class="metric-label">✓ VIGENTES</div><div class="metric-value" style="color:var(--ds-green-500)">48</div></div>
+        <div><div class="metric-label">⚠ POR VENCER</div><div class="metric-value" style="color:var(--ds-orange-500)">6</div></div>
+        <div><div class="metric-label">✗ VENCIDOS</div><div class="metric-value" style="color:var(--ds-red-500)">3</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Option B -->
+<section class="option">
+  <div class="option-header">
+    <span class="option-tag">Opción B</span>
+    <h2 class="option-title">Stat cards con números grandes<span class="rec-badge">RECOMENDADA</span></h2>
+  </div>
+  <p class="option-desc">4 cards independientes, cada una con barra de color arriba, icono a la derecha, y número de 48px. Modern, legible, escaneable. Es el patrón de Linear / Vercel / Atlassian.</p>
+  <div class="mockup-frame opt-b">
+    <div class="grid">
+      <div class="stat total">
+        <div class="stat-top">
+          <span class="stat-label">Total Sedes</span>
+          <span class="stat-icon">🏢</span>
+        </div>
+        <div class="stat-value">15</div>
+        <div class="stat-trend">3 activas hoy</div>
+      </div>
+      <div class="stat ok">
+        <div class="stat-top">
+          <span class="stat-label">Vigentes</span>
+          <span class="stat-icon">✓</span>
+        </div>
+        <div class="stat-value">48</div>
+        <div class="stat-trend">84% del total</div>
+      </div>
+      <div class="stat warn">
+        <div class="stat-top">
+          <span class="stat-label">Por Vencer</span>
+          <span class="stat-icon">⚠</span>
+        </div>
+        <div class="stat-value">6</div>
+        <div class="stat-trend">Próximos 30 días</div>
+      </div>
+      <div class="stat err">
+        <div class="stat-top">
+          <span class="stat-label">Vencidos</span>
+          <span class="stat-icon">✗</span>
+        </div>
+        <div class="stat-value">3</div>
+        <div class="stat-trend">Requieren acción</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Option C -->
+<section class="option">
+  <div class="option-header">
+    <span class="option-tag">Opción C</span>
+    <h2 class="option-title">Hero + supporting rows</h2>
+  </div>
+  <p class="option-desc">El número más importante (Total Sedes) en grande dentro de un hero azul marca. Los otros 3 como filas compactas al lado. Da jerarquía clara pero puede ser "mucho" si Total Sedes no es la métrica estrella.</p>
+  <div class="mockup-frame">
+    <div class="opt-c">
+      <div class="hero">
+        <div class="hero-label">Total de sedes</div>
+        <div class="hero-value">15</div>
+        <div class="hero-sub">Distribuidas en 4 ciudades</div>
+      </div>
+      <div class="side">
+        <div class="row ok">
+          <div class="row-icon">✓</div>
+          <div class="row-body">
+            <div class="row-label">Permisos vigentes</div>
+            <div class="row-value">48</div>
+          </div>
+        </div>
+        <div class="row warn">
+          <div class="row-icon">⚠</div>
+          <div class="row-body">
+            <div class="row-label">Por vencer</div>
+            <div class="row-value">6</div>
+          </div>
+        </div>
+        <div class="row err">
+          <div class="row-icon">✗</div>
+          <div class="row-body">
+            <div class="row-label">Vencidos</div>
+            <div class="row-value">3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Option D -->
+<section class="option">
+  <div class="option-header">
+    <span class="option-tag">Opción D</span>
+    <h2 class="option-title">Anillo de cumplimiento + stats</h2>
+  </div>
+  <p class="option-desc">Un anillo SVG grande con el % global de cumplimiento, y los 4 stats al lado en 2×2. Muy visual, transmite "estás bien / mal". Cuesta un poco más de implementación (SVG) pero es memorable.</p>
+  <div class="mockup-frame">
+    <div class="opt-d">
+      <div class="ring-wrap">
+        <svg width="180" height="180" viewBox="0 0 180 180">
+          <circle class="ring-bg" cx="90" cy="90" r="78"></circle>
+          <circle class="ring-fg" cx="90" cy="90" r="78"
+                  stroke-dasharray="489.84" stroke-dashoffset="78.37"></circle>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-pct">84%</div>
+          <div class="ring-sub">Cumplimiento</div>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-row total">
+          <span class="stat-row-label">Total Sedes</span>
+          <span class="stat-row-value">15</span>
+        </div>
+        <div class="stat-row ok">
+          <span class="stat-row-label">Vigentes</span>
+          <span class="stat-row-value">48</span>
+        </div>
+        <div class="stat-row warn">
+          <span class="stat-row-label">Por Vencer</span>
+          <span class="stat-row-value">6</span>
+        </div>
+        <div class="stat-row err">
+          <span class="stat-row-label">Vencidos</span>
+          <span class="stat-row-value">3</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="verdict">
+  <b>Mi recomendación: Opción B.</b> Encaja con el lenguaje que ya tiene el resto del sistema (cards con borde superior de color por status), es la forma estándar en productos modernos (Linear, Vercel, Atlassian), y los números de 48px resuelven exactamente tu queja principal — que se vean grandes y modernos. Si más adelante quieres añadir algo más llamativo, el anillo de la opción D podría ir como sección aparte sin competir.
+</div>
+
+</body>
+</html>

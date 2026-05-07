@@ -1,17 +1,19 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Share2 } from 'lucide-react';
 import { useLocations } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
 import { useAuth } from '@/hooks/useAuth';
-import { getPermitDocuments } from '@/lib/api/documents';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { PermitCardsGrid } from './PermitCardsGrid';
+import { Card } from '@/components/ui/card';
+import { Breadcrumb } from '@/components/ui/breadcrumb';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { RenewPermitModal } from './RenewPermitModal';
 import { ShareLocationModal } from '@/features/public-links/ShareLocationModal';
-import type { Permit, Document } from '@/types/database';
+import { LocationPermitsTab, type LocationPermitSummary } from './LocationPermitsTab';
+import { LocationDocumentsTab } from './LocationDocumentsTab';
+import { LocationHistoryTab } from './LocationHistoryTab';
+import { CheckCircle2, AlertTriangle, XCircle, Share2 } from '@/lib/lucide-icons';
+import type { Permit } from '@/types/database';
 
 export function LocationDetailView() {
   const { id } = useParams<{ id: string }>();
@@ -23,7 +25,6 @@ export function LocationDetailView() {
   const [selectedPermit, setSelectedPermit] = useState<Permit | null>(null);
   const [renewModalOpen, setRenewModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
-  const [documentsMap, setDocumentsMap] = useState<Map<string, Document[]>>(new Map());
 
   const location = useMemo(() => {
     return locations.find(loc => loc.id === id);
@@ -33,62 +34,24 @@ export function LocationDetailView() {
     return permits.filter(p => p.location_id === id && p.is_active);
   }, [permits, id]);
 
-  const stats = useMemo(() => {
-    const vigentes = locationPermits.filter(p => p.status === 'vigente').length;
-    const total = locationPermits.length;
-    const compliance = total > 0 ? Math.round((vigentes / total) * 100) : 0;
-
-    return { vigentes, total, compliance };
+  const permitSummaries: LocationPermitSummary[] = useMemo(() => {
+    return locationPermits.map(p => ({
+      id: p.id,
+      type: p.type,
+      status: p.status,
+      expires_at: p.expiry_date,
+      is_active: p.is_active,
+    }));
   }, [locationPermits]);
 
-  // Fetch documents for all permits
-  const fetchAllDocuments = useCallback(async () => {
-    const newMap = new Map<string, Document[]>();
+  const loading = loadingLocations || loadingPermits;
 
-    await Promise.all(
-      locationPermits.map(async (permit) => {
-        try {
-          const docs = await getPermitDocuments(permit.id);
-          if (docs.length > 0) {
-            newMap.set(permit.id, docs);
-          }
-        } catch (error) {
-          console.error(`Error fetching documents for permit ${permit.id}:`, error);
-        }
-      })
-    );
-
-    setDocumentsMap(newMap);
-  }, [locationPermits]);
-
-  const handleDocumentUpdated = useCallback(() => {
-    // Only refetch documents, not permits (avoids full page reload)
-    fetchAllDocuments();
-  }, [fetchAllDocuments]);
-
-  const handleDocumentDeleted = useCallback((permitId: string, documentId: string) => {
-    // Remove document from local state without refetching
-    setDocumentsMap(prev => {
-      const newMap = new Map(prev);
-      const docs = newMap.get(permitId) || [];
-      newMap.set(permitId, docs.filter(d => d.id !== documentId));
-      return newMap;
-    });
-  }, []);
-
-  // Fetch documents when permits change
-  useEffect(() => {
-    if (locationPermits.length > 0) {
-      fetchAllDocuments();
-    }
-  }, [locationPermits, fetchAllDocuments]);
-
-  if (loadingLocations || loadingPermits) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-background p-8">
+      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
         <div className="max-w-7xl mx-auto">
-          <div className="h-8 w-64 bg-gray-200 rounded animate-pulse mb-8" />
-          <div className="h-48 bg-gray-200 rounded animate-pulse" />
+          <div className="h-8 w-64 bg-[var(--ds-neutral-200)] rounded animate-pulse mb-8" />
+          <div className="h-48 bg-[var(--ds-neutral-200)] rounded animate-pulse" />
         </div>
       </div>
     );
@@ -96,9 +59,9 @@ export function LocationDetailView() {
 
   if (!location) {
     return (
-      <div className="min-h-screen bg-background p-8">
+      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
         <div className="max-w-7xl mx-auto text-center py-12">
-          <h2 className="text-2xl font-semibold text-text mb-2">Sede no encontrada</h2>
+          <h2 className="text-[var(--ds-font-size-400)] font-semibold text-[var(--ds-text)] mb-2">Sede no encontrada</h2>
           <Button onClick={() => navigate('/sedes')}>
             Volver a sedes
           </Button>
@@ -107,9 +70,9 @@ export function LocationDetailView() {
     );
   }
 
-  const handleViewPermitDetails = (permitId: string) => {
-    navigate(`/permisos/${permitId}`);
-  };
+  const vigentes = locationPermits.filter(p => p.status === 'vigente').length;
+  const porVencer = locationPermits.filter(p => p.status === 'por_vencer').length;
+  const vencidos = locationPermits.filter(p => p.status === 'vencido').length;
 
   const handleConfirmRenewal = async (permitId: string, newExpiryDate: string) => {
     await updatePermit(permitId, {
@@ -119,96 +82,72 @@ export function LocationDetailView() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Back button */}
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/')}
-          className="mb-4"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Volver al dashboard
-        </Button>
+    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
+      <div className="max-w-7xl mx-auto space-y-[var(--ds-space-300)]">
+        <Breadcrumb items={[
+          { label: 'Inicio', href: '/' },
+          { label: 'Sedes', href: '/sedes' },
+          { label: location.name },
+        ]} />
 
-        {/* Location header */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="grid grid-cols-2 gap-8">
-              {/* Columna izquierda: Información de la sede */}
-              <div className="space-y-4">
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900 mb-2">{location.name}</h1>
-                  <p className="text-sm text-text-secondary mb-4">{location.address}</p>
-                </div>
+        <div className="flex items-start justify-between gap-[var(--ds-space-300)]">
+          <div>
+            <h1 className="text-[var(--ds-font-size-500)] font-bold text-[var(--ds-text)]">{location.name}</h1>
+            {location.address && (
+              <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)] mt-[var(--ds-space-075)]">
+                {location.address}
+              </p>
+            )}
+          </div>
+          <Button variant="outline" onClick={() => setShareModalOpen(true)}>
+            <Share2 className="w-4 h-4" />
+            Generar QR
+          </Button>
+        </div>
 
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-xs text-text-secondary mb-1">Estado</p>
-                    <p className="text-sm font-semibold capitalize">{location.status}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-text-secondary mb-1">Nivel de Riesgo</p>
-                    <p className="text-sm font-semibold capitalize">{location.risk_level}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-text-secondary mb-1">Permisos Vigentes</p>
-                    <p className="text-sm font-semibold">{stats.vigentes} de {stats.total}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Columna derecha: Cumplimiento y QR */}
-              <div className="space-y-6 flex flex-col items-end">
-                <div className="w-full flex justify-end">
-                  <Badge color={stats.compliance >= 80 ? 'green' : stats.compliance >= 60 ? 'yellow' : 'red'}>
-                    {stats.compliance}% Cumplimiento
-                  </Badge>
-                </div>
-
-                <div className="w-full">
-                  <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-                    <div>
-                      <h3 className="text-sm font-semibold text-gray-900 mb-1">
-                        Genera un QR público
-                      </h3>
-                      <p className="text-xs text-text-secondary">
-                        Permite que terceros verifiquen estados de permisos
-                      </p>
-                    </div>
-                    <Button
-                      variant="default"
-                      size="sm"
-                      onClick={() => setShareModalOpen(true)}
-                      className="w-full"
-                    >
-                      <Share2 className="mr-2 h-4 w-4" />
-                      Generar QR
-                    </Button>
-                  </div>
-                </div>
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-[var(--ds-space-300)]">
+          <Card className="p-[var(--ds-space-300)]">
+            <div className="flex items-center gap-[var(--ds-space-100)] text-[var(--ds-green-600)]">
+              <CheckCircle2 className="w-5 h-5" />
+              <span className="uppercase text-[var(--ds-font-size-075)] font-semibold">Vigentes</span>
             </div>
-          </CardContent>
+            <div className="text-[var(--ds-font-size-500)] font-bold mt-[var(--ds-space-100)]">{vigentes}</div>
+          </Card>
+          <Card className="p-[var(--ds-space-300)]">
+            <div className="flex items-center gap-[var(--ds-space-100)] text-[var(--ds-orange-600)]">
+              <AlertTriangle className="w-5 h-5" />
+              <span className="uppercase text-[var(--ds-font-size-075)] font-semibold">Por Vencer</span>
+            </div>
+            <div className="text-[var(--ds-font-size-500)] font-bold mt-[var(--ds-space-100)]">{porVencer}</div>
+          </Card>
+          <Card className="p-[var(--ds-space-300)]">
+            <div className="flex items-center gap-[var(--ds-space-100)] text-[var(--ds-red-600)]">
+              <XCircle className="w-5 h-5" />
+              <span className="uppercase text-[var(--ds-font-size-075)] font-semibold">Vencidos</span>
+            </div>
+            <div className="text-[var(--ds-font-size-500)] font-bold mt-[var(--ds-space-100)]">{vencidos}</div>
+          </Card>
+        </div>
+
+        <Card className="p-[var(--ds-space-300)]">
+          <Tabs defaultValue="permisos">
+            <TabsList>
+              <TabsTrigger value="permisos">Permisos</TabsTrigger>
+              <TabsTrigger value="documentos">Documentos</TabsTrigger>
+              <TabsTrigger value="historial">Historial</TabsTrigger>
+            </TabsList>
+            <TabsContent value="permisos">
+              <LocationPermitsTab locationId={location.id} permits={permitSummaries} />
+            </TabsContent>
+            <TabsContent value="documentos">
+              <LocationDocumentsTab locationId={location.id} />
+            </TabsContent>
+            <TabsContent value="historial">
+              <LocationHistoryTab locationId={location.id} />
+            </TabsContent>
+          </Tabs>
         </Card>
 
-        {/* Permits cards grid */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Permisos de la Sede</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <PermitCardsGrid
-              permits={locationPermits}
-              documentsMap={documentsMap}
-              onDocumentUpdated={handleDocumentUpdated}
-              onDocumentDeleted={handleDocumentDeleted}
-              onViewDetails={handleViewPermitDetails}
-            />
-          </CardContent>
-        </Card>
-
-        {/* Renew modal */}
         <RenewPermitModal
           permit={selectedPermit}
           open={renewModalOpen}
@@ -219,7 +158,6 @@ export function LocationDetailView() {
           onConfirm={handleConfirmRenewal}
         />
 
-        {/* Share modal */}
         <ShareLocationModal
           locationId={location.id}
           locationName={location.name}

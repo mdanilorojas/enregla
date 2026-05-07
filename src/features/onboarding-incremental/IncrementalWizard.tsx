@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from '@/lib/lucide-icons';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthStore } from '@/store/authStore';
 import { supabase } from '@/lib/supabase';
@@ -9,7 +9,10 @@ import {
   saveCompany,
   saveLocationWithPermits,
 } from '@/lib/api/onboarding';
+import { Button } from '@/components/ui/button';
+import { Banner } from '@/components/ui/banner';
 import { ProgressStepper } from './components/ProgressStepper';
+import { Stepper } from './Stepper';
 import { ProfileStep } from './steps/ProfileStep';
 import { CompanyStep } from './steps/CompanyStep';
 import { LocationsStep } from './steps/LocationsStep';
@@ -134,23 +137,30 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
   const canGoBack = currentStep !== 'profile';
   const showNextButton = currentStep !== 'locations';
 
+  const handleSubmitForm = () => {
+    const form = document.querySelector('form');
+    if (form) {
+      form.requestSubmit();
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#F9FAFB] flex">
+    <div className="min-h-screen bg-[var(--ds-neutral-50)] flex">
       {/* Sidebar */}
-      <div className="w-[280px] bg-white border-r border-gray-100/80 p-6 flex flex-col shrink-0">
-        <div className="flex items-center gap-2.5 mb-10">
-          <div className="w-8 h-8 rounded-lg bg-gray-900 flex items-center justify-center">
-            <span className="text-white font-bold text-[11px]">PM</span>
+      <div className="w-[280px] bg-white border-r border-[var(--ds-border)] p-[var(--ds-space-300)] flex flex-col shrink-0">
+        <div className="flex items-center gap-[var(--ds-space-100)] mb-[var(--ds-space-500)]">
+          <div className="w-8 h-8 rounded-[var(--ds-radius-200)] bg-[var(--ds-text)] flex items-center justify-center">
+            <span className="text-white font-bold text-[var(--ds-font-size-050)]">PM</span>
           </div>
-          <span className="text-[15px] font-semibold text-gray-900 tracking-tight">
+          <span className="text-[var(--ds-font-size-200)] font-semibold text-[var(--ds-text)] tracking-tight">
             PermitOps
           </span>
         </div>
 
         <ProgressStepper currentStep={currentStep} completedSteps={completedSteps} />
 
-        <div className="mt-auto pt-6">
-          <p className="text-[12px] text-gray-400 leading-relaxed">
+        <div className="mt-auto pt-[var(--ds-space-300)]">
+          <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtlest)] leading-relaxed">
             Configura tu empresa paso a paso. Cada paso se guarda automáticamente.
           </p>
         </div>
@@ -158,8 +168,19 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        <div className="flex-1 flex items-start justify-center overflow-y-auto py-12 px-8">
+        <div className="flex-1 flex items-start justify-center overflow-y-auto py-[var(--ds-space-600)] px-[var(--ds-space-400)]">
           <div className="w-full max-w-2xl">
+            <div className="max-w-2xl mx-auto mb-[var(--ds-space-400)]">
+              <Stepper
+                steps={[
+                  { id: 'profile', label: 'Perfil' },
+                  { id: 'company', label: 'Empresa' },
+                  { id: 'locations', label: 'Sedes' },
+                ]}
+                currentStepId={currentStep}
+              />
+            </div>
+
             {currentStep === 'profile' && (
               <ProfileStep
                 initialName={savedProfile}
@@ -185,58 +206,47 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
 
             {/* Error Message */}
             {error && (
-              <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-[13px] text-red-900">{error}</p>
+              <div className="mt-[var(--ds-space-300)]">
+                <Banner variant="error" title="Error">
+                  {error}
+                </Banner>
               </div>
             )}
           </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="border-t border-gray-100/80 px-8 py-4 flex items-center justify-between bg-white/80 backdrop-blur-xl">
-          <button
+        <div className="border-t border-[var(--ds-border)] px-[var(--ds-space-400)] py-[var(--ds-space-200)] flex items-center justify-between bg-white/80 backdrop-blur-xl">
+          <Button
+            variant="ghost"
             onClick={handleBack}
             disabled={!canGoBack || loading}
-            className="text-[13px] text-gray-500 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-medium"
           >
             Atrás
-          </button>
+          </Button>
 
           {showNextButton ? (
-            <button
-              onClick={() => {
-                // Trigger form submit by finding and clicking hidden submit button
-                const form = document.querySelector('form');
-                if (form) {
-                  form.requestSubmit();
-                }
-              }}
+            <Button
+              onClick={handleSubmitForm}
               disabled={loading}
-              className="px-5 py-2.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm flex items-center gap-2"
+              loading={loading}
             >
-              {loading && <Loader2 size={14} className="animate-spin" />}
               Siguiente
-            </button>
+            </Button>
           ) : (
-            <button
-              onClick={() => {
-                const form = document.querySelector('form');
-                if (form) {
-                  form.requestSubmit();
-                }
-              }}
+            <Button
+              onClick={handleSubmitForm}
               disabled={loading}
-              className="px-5 py-2.5 bg-gray-900 text-white text-[13px] font-medium rounded-lg hover:bg-gray-800 disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm flex items-center gap-2"
             >
               {loading ? (
                 <>
-                  <Loader2 size={14} className="animate-spin" />
+                  <Loader2 className="animate-spin" />
                   Guardando...
                 </>
               ) : (
                 'Ir al Dashboard'
               )}
-            </button>
+            </Button>
           )}
         </div>
       </div>

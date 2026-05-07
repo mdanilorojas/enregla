@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EnRegla — Mockup Landing PYME (v3 · Atlassian DS + Pichincha)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ================================================
+     DESIGN TOKENS — Atlassian DS + Banco Pichincha
+     Mismo sistema que src/styles/atlassian-tokens.css
+  ================================================ */
+  :root {
+    /* Primary Blue Scale (Pichincha base #0f265c) */
+    --ds-blue-50: #e8ebf3;
+    --ds-blue-100: #d1d7e7;
+    --ds-blue-200: #a3afcf;
+    --ds-blue-300: #7587b7;
+    --ds-blue-400: #475f9f;
+    --ds-blue-500: #0f265c;
+    --ds-blue-600: #0d2153;
+    --ds-blue-700: #0b1c4a;
+    --ds-blue-800: #091741;
+    --ds-blue-900: #071238;
+
+    /* Accent Orange Scale (Pichincha accent #ff7043) */
+    --ds-orange-50: #fff4f0;
+    --ds-orange-100: #ffe8e0;
+    --ds-orange-200: #ffd1c1;
+    --ds-orange-500: #ff7043;
+    --ds-orange-600: #ff5722;
+
+    /* Status */
+    --ds-green-50: #ecf6ee;
+    --ds-green-500: #36B37E;
+    --ds-green-600: #2A9D66;
+    --ds-red-50: #fbe6e6;
+    --ds-red-500: #DE350B;
+    --ds-red-600: #BF2600;
+    --ds-yellow-50: #fff8e1;
+    --ds-yellow-500: #FFAB00;
+
+    /* Neutral Grays */
+    --ds-neutral-0: #FFFFFF;
+    --ds-neutral-50: #F7F8F9;
+    --ds-neutral-100: #F1F2F4;
+    --ds-neutral-200: #DCDFE4;
+    --ds-neutral-300: #B3B9C4;
+    --ds-neutral-400: #8993A4;
+    --ds-neutral-500: #626F86;
+    --ds-neutral-600: #44546F;
+    --ds-neutral-700: #2C3E5D;
+    --ds-neutral-800: #172B4D;
+    --ds-neutral-900: #091E42;
+
+    /* Semantic */
+    --ds-background: var(--ds-neutral-50);
+    --ds-surface: var(--ds-neutral-0);
+    --ds-surface-raised: var(--ds-neutral-0);
+    --ds-text: var(--ds-neutral-900);
+    --ds-text-subtle: var(--ds-neutral-600);
+    --ds-text-subtlest: var(--ds-neutral-400);
+    --ds-border: var(--ds-neutral-200);
+    --ds-border-bold: var(--ds-neutral-400);
+
+    /* Elevation */
+    --ds-shadow-raised: 0px 1px 1px rgba(9,30,66,0.25), 0px 0px 1px rgba(9,30,66,0.31);
+    --ds-shadow-overflow: 0px 4px 8px rgba(9,30,66,0.08), 0px 0px 1px rgba(9,30,66,0.31);
+    --ds-shadow-overlay: 0px 8px 16px rgba(9,30,66,0.15), 0px 0px 1px rgba(9,30,66,0.31);
+
+    /* Radius (Atlassian = poco redondeado) */
+    --ds-radius-050: 2px;
+    --ds-radius-100: 3px;
+    --ds-radius-200: 6px;
+    --ds-radius-300: 8px;
+    --ds-radius-400: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--ds-background);
+    color: var(--ds-text);
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ================================================
+     MOCKUP FRAME (delete on real implementation)
+  ================================================ */
+  .mockup-header {
+    background: var(--ds-neutral-900);
+    color: white;
+    padding: 14px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    font-family: ui-monospace, 'SF Mono', monospace;
+  }
+  .mockup-header .left { display: flex; gap: 12px; align-items: center; }
+  .mockup-header .dots { display: flex; gap: 6px; }
+  .mockup-header .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ds-neutral-500); }
+  .mockup-note {
+    background: var(--ds-yellow-50);
+    color: var(--ds-neutral-900);
+    padding: 12px 24px;
+    text-align: center;
+    font-size: 13px;
+    border-bottom: 1px solid var(--ds-yellow-500);
+  }
+  .mockup-note strong { font-weight: 700; }
+
+  /* ================================================
+     ICON SYSTEM (Opción B — container de color sólido)
+     Outlined Lucide SVG + fondo navy/orange/neutral
+  ================================================ */
+  .icon-container {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .icon-container--sm { width: 32px; height: 32px; border-radius: var(--ds-radius-200); }
+  .icon-container--md { width: 44px; height: 44px; border-radius: var(--ds-radius-200); }
+  .icon-container--lg { width: 56px; height: 56px; border-radius: var(--ds-radius-300); }
+
+  .icon-container--navy { background: var(--ds-blue-500); color: white; }
+  .icon-container--orange { background: var(--ds-orange-500); color: white; }
+  .icon-container--neutral { background: var(--ds-neutral-100); color: var(--ds-blue-500); }
+  .icon-container--navy-soft { background: var(--ds-blue-50); color: var(--ds-blue-500); }
+  .icon-container--orange-soft { background: var(--ds-orange-50); color: var(--ds-orange-600); }
+  .icon-container--success { background: var(--ds-green-50); color: var(--ds-green-600); }
+  .icon-container--danger { background: var(--ds-red-50); color: var(--ds-red-600); }
+
+  svg.lucide {
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .icon-container--sm svg { width: 16px; height: 16px; }
+  .icon-container--md svg { width: 22px; height: 22px; }
+  .icon-container--lg svg { width: 28px; height: 28px; }
+
+  /* ================================================
+     TYPOGRAPHY
+  ================================================ */
+  h1, h2, h3, h4, h5 {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--ds-blue-500);
+  }
+  h1 { font-size: clamp(40px, 5vw, 60px); }
+  h2 { font-size: clamp(28px, 3.5vw, 42px); }
+  h3 { font-size: 24px; }
+  h4 { font-size: 18px; letter-spacing: -0.01em; }
+
+  p { color: var(--ds-text-subtle); }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 10px;
+    background: var(--ds-blue-50);
+    color: var(--ds-blue-500);
+    border-radius: var(--ds-radius-100);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 16px;
+  }
+  .eyebrow--orange { background: var(--ds-orange-50); color: var(--ds-orange-600); }
+  .eyebrow--danger { background: var(--ds-red-50); color: var(--ds-red-600); }
+  .eyebrow--success { background: var(--ds-green-50); color: var(--ds-green-600); }
+  .eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 50%; background: currentColor;
+  }
+
+  /* ================================================
+     BUTTONS (Atlassian style)
+  ================================================ */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: var(--ds-radius-100);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    letter-spacing: -0.005em;
+  }
+  .btn svg { width: 16px; height: 16px; }
+  .btn--primary {
+    background: var(--ds-orange-500);
+    color: white;
+    box-shadow: var(--ds-shadow-raised);
+  }
+  .btn--primary:hover { background: var(--ds-orange-600); }
+  .btn--secondary {
+    background: var(--ds-surface);
+    color: var(--ds-blue-500);
+    border-color: var(--ds-border-bold);
+  }
+  .btn--secondary:hover { background: var(--ds-neutral-50); border-color: var(--ds-blue-500); }
+  .btn--ghost {
+    background: transparent;
+    color: var(--ds-blue-500);
+  }
+  .btn--ghost:hover { background: var(--ds-blue-50); }
+  .btn--large { padding: 14px 24px; font-size: 15px; }
+
+  /* ================================================
+     NAV
+  ================================================ */
+  nav.site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(247,248,249,0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--ds-border);
+  }
+  .nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    color: var(--ds-blue-500);
+    text-decoration: none;
+  }
+  .brand-shield {
+    width: 32px; height: 32px;
+    background: var(--ds-blue-500);
+    border-radius: var(--ds-radius-200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+  .brand-shield svg { width: 18px; height: 18px; }
+  .nav-links {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .nav-links > a {
+    color: var(--ds-text-subtle);
+    text-decoration: none;
+    transition: color 0.12s;
+  }
+  .nav-links > a:hover { color: var(--ds-blue-500); }
+
+  /* ================================================
+     SECTION BASE
+  ================================================ */
+  section {
+    padding: 96px 24px;
+    scroll-margin-top: 80px;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  /* ================================================
+     HERO
+  ================================================ */
+  .hero {
+    padding: 120px 24px 80px;
+    background:
+      radial-gradient(circle at 15% 20%, var(--ds-blue-50) 0%, transparent 40%),
+      var(--ds-background);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, var(--ds-neutral-200) 1px, transparent 1px);
+    background-size: 32px 32px;
+    opacity: 0.5;
+    pointer-events: none;
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%);
+  }
+  .hero-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 64px;
+    align-items: center;
+    position: relative;
+  }
+  .hero h1 {
+    margin-bottom: 20px;
+    color: var(--ds-blue-500);
+  }
+  .hero h1 .hl {
+    color: var(--ds-orange-500);
+    display: inline-block;
+    position: relative;
+  }
+  .hero h1 .hl::after {
+    content: '';
+    position: absolute;
+    left: -2px;
+    right: -2px;
+    bottom: 6px;
+    height: 14px;
+    background: var(--ds-orange-100);
+    z-index: -1;
+    border-radius: var(--ds-radius-050);
+  }
+  .hero-sub {
+    font-size: 19px;
+    color: var(--ds-text-subtle);
+    margin-bottom: 32px;
+    max-width: 540px;
+    line-height: 1.5;
+  }
+  .hero-ctas {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+  .hero-trust {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: var(--ds-text-subtlest);
+    align-items: center;
+  }
+  .hero-trust-item { display: flex; align-items: center; gap: 6px; }
+  .hero-trust-item svg { width: 14px; height: 14px; color: var(--ds-green-500); stroke-width: 2.5; }
+
+  /* Hero phone mockup */
+  .hero-visual {
+    position: relative;
+    display: flex;
+    justify-content: center;
+  }
+  .phone {
+    width: 300px;
+    height: 600px;
+    background: var(--ds-blue-500);
+    border-radius: 44px;
+    padding: 10px;
+    box-shadow:
+      0 30px 60px -15px rgba(15, 38, 92, 0.3),
+      0 0 0 1px rgba(255,255,255,0.05);
+    position: relative;
+  }
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 22px;
+    background: var(--ds-blue-500);
+    border-radius: 0 0 20px 20px;
+    z-index: 2;
+  }
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    background: white;
+    border-radius: 34px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .phone-header {
+    padding: 44px 20px 16px;
+    border-bottom: 1px solid var(--ds-border);
+    background: var(--ds-neutral-50);
+  }
+  .phone-label {
+    font-family: ui-monospace, monospace;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--ds-text-subtlest);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .phone-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--ds-blue-500);
+    letter-spacing: -0.01em;
+  }
+  .phone-sub {
+    font-size: 12px;
+    color: var(--ds-text-subtle);
+    margin-top: 2px;
+  }
+  .phone-body {
+    padding: 14px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .permit-card {
+    border: 1px solid var(--ds-border);
+    border-radius: var(--ds-radius-100);
+    padding: 10px 12px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+  }
+  .permit-card.vigente {
+    border-left: 3px solid var(--ds-green-500);
+  }
+  .permit-card.urgente {
+    border-left: 3px solid var(--ds-orange-500);
+    background: var(--ds-orange-50);
+  }
+  .permit-info { flex: 1; min-width: 0; }
+  .permit-label {
+    font-family: ui-monospace, monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .permit-label.v { color: var(--ds-green-600); }
+  .permit-label.u { color: var(--ds-orange-600); }
+  .permit-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ds-blue-500);
+    margin-top: 1px;
+  }
+  .permit-date {
+    font-size: 10px;
+    color: var(--ds-text-subtle);
+    font-family: ui-monospace, monospace;
+    margin-top: 1px;
+  }
+  .phone-footer {
+    margin-top: auto;
+    padding: 14px;
+    border-top: 1px solid var(--ds-border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--ds-neutral-50);
+  }
+  .qr-box {
+    width: 52px; height: 52px;
+    border-radius: var(--ds-radius-100);
+    background: white;
+    padding: 3px;
+    flex-shrink: 0;
+    border: 1px solid var(--ds-border);
+  }
+  .qr-box img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    image-rendering: pixelated;
+  }
+  .qr-large {
+    width: 160px;
+    height: 160px;
+    border-radius: var(--ds-radius-200);
+    background: white;
+    padding: 10px;
+    border: 1px solid var(--ds-border);
+    box-shadow: var(--ds-shadow-raised);
+  }
+  .qr-large img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    image-rendering: pixelated;
+  }
+  .phone-footer-text {
+    font-size: 11px;
+    color: var(--ds-text-subtle);
+    line-height: 1.4;
+  }
+  .phone-footer-text strong {
+    color: var(--ds-blue-500);
+    font-weight: 700;
+  }
+
+  /* Phone accent — floating alert card */
+  .phone-alert {
+    position: absolute;
+    top: 38%;
+    left: -48px;
+    z-index: 10;
+    background: white;
+    padding: 14px 16px;
+    border-radius: var(--ds-radius-200);
+    box-shadow: var(--ds-shadow-overlay);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid var(--ds-border);
+    width: 240px;
+  }
+  .phone-alert-text {
+    font-size: 12px;
+    color: var(--ds-text);
+    line-height: 1.3;
+  }
+  .phone-alert-text strong { color: var(--ds-blue-500); font-weight: 700; }
+  .phone-alert-text span { color: var(--ds-text-subtle); }
+
+  /* ================================================
+     PROBLEMA / SOLUCIÓN
+  ================================================ */
+  .problema {
+    background: var(--ds-surface);
+    border-top: 1px solid var(--ds-border);
+    border-bottom: 1px solid var(--ds-border);
+  }
+  .problema-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+  }
+  .problema h2 { margin-bottom: 32px; max-width: 440px; }
+  .problema-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+  .problema-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .problema-item h4 {
+    margin-bottom: 4px;
+    color: var(--ds-blue-500);
+  }
+  .problema-item p {
+    color: var(--ds-text-subtle);
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  .solucion-box {
+    background: var(--ds-blue-50);
+    border: 1px solid var(--ds-blue-200);
+    border-radius: var(--ds-radius-400);
+    padding: 48px 40px;
+    position: relative;
+  }
+  .solucion-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 64px;
+    background: var(--ds-orange-500);
+    border-radius: 0 var(--ds-radius-050) var(--ds-radius-050) 0;
+  }
+
+  /* ================================================
+     CÓMO FUNCIONA (Opción D — numerado editorial)
+  ================================================ */
+  .como-funciona {
+    background: var(--ds-blue-500);
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .como-funciona::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+  }
+  .como-funciona .eyebrow { background: rgba(255,255,255,0.1); color: var(--ds-orange-500); }
+  .como-funciona h2 {
+    color: white;
+    margin-bottom: 64px;
+    max-width: 640px;
+    position: relative;
+  }
+  .pasos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    position: relative;
+  }
+  .paso {
+    border-top: 1px solid rgba(255,255,255,0.2);
+    padding-top: 28px;
+    position: relative;
+  }
+  .paso-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .paso-num {
+    font-family: ui-monospace, 'SF Mono', monospace;
+    font-size: 44px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.3);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+  .paso.active .paso-num { color: var(--ds-orange-500); }
+  .paso h4 {
+    color: white;
+    font-size: 22px;
+    margin-bottom: 12px;
+  }
+  .paso p {
+    color: rgba(255,255,255,0.7);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ================================================
+     PLATAFORMA / FEATURES (Opción B — icon containers)
+  ================================================ */
+  .plataforma { background: var(--ds-background); }
+  .plataforma-header {
+    text-align: center;
+    max-width: 680px;
+    margin: 0 auto 56px;
+  }
+  .plataforma-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .feature-card {
+    background: var(--ds-surface);
+    border: 1px solid var(--ds-border);
+    border-radius: var(--ds-radius-300);
+    padding: 28px 24px;
+    transition: all 0.15s ease;
+  }
+  .feature-card:hover {
+    border-color: var(--ds-blue-500);
+    transform: translateY(-2px);
+    box-shadow: var(--ds-shadow-overflow);
+  }
+  .feature-card .icon-container { margin-bottom: 20px; }
+  .feature-card h4 {
+    margin-bottom: 8px;
+    color: var(--ds-blue-500);
+  }
+  .feature-card p {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ds-text-subtle);
+  }
+
+  /* ================================================
+     INSPECTOR
+  ================================================ */
+  .inspector {
+    background: var(--ds-surface);
+    border-top: 1px solid var(--ds-border);
+  }
+  .inspector-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .inspector h2 { margin-bottom: 20px; max-width: 480px; }
+  .inspector-lead {
+    font-size: 18px;
+    color: var(--ds-blue-500);
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+  .inspector-body {
+    color: var(--ds-text-subtle);
+    font-size: 16px;
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+  .inspector-bullets {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .inspector-bullets li {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ds-text);
+  }
+
+  /* ================================================
+     PRICING
+  ================================================ */
+  .pricing { background: var(--ds-background); }
+  .pricing-header {
+    text-align: center;
+    max-width: 680px;
+    margin: 0 auto 56px;
+  }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  .price-card {
+    background: var(--ds-surface);
+    border: 1px solid var(--ds-border);
+    border-radius: var(--ds-radius-300);
+    padding: 32px;
+    position: relative;
+    transition: transform 0.15s ease;
+  }
+  .price-card.featured {
+    border: 2px solid var(--ds-orange-500);
+    transform: translateY(-8px);
+    box-shadow: var(--ds-shadow-overlay);
+  }
+  .price-badge {
+    position: absolute;
+    top: -13px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ds-orange-500);
+    color: white;
+    padding: 5px 14px;
+    border-radius: var(--ds-radius-100);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    white-space: nowrap;
+  }
+  .price-name {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--ds-text-subtle);
+    margin-bottom: 16px;
+  }
+  .price-amount {
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--ds-blue-500);
+    margin-bottom: 8px;
+    line-height: 1;
+  }
+  .price-amount .currency {
+    font-size: 22px;
+    vertical-align: top;
+    color: var(--ds-text-subtle);
+  }
+  .price-amount .per {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ds-text-subtle);
+  }
+  .price-desc {
+    font-size: 14px;
+    color: var(--ds-text-subtle);
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--ds-border);
+  }
+  .price-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .price-features li {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-size: 14px;
+    color: var(--ds-text);
+  }
+  .price-features svg {
+    width: 14px; height: 14px;
+    color: var(--ds-green-500);
+    stroke-width: 3;
+    flex-shrink: 0;
+  }
+  .price-card .btn { width: 100%; justify-content: center; }
+
+  /* ================================================
+     CTA FINAL
+  ================================================ */
+  .cta-final {
+    background: var(--ds-blue-500);
+    color: white;
+    text-align: center;
+    padding: 96px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-final::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+  }
+  .cta-final .eyebrow {
+    background: rgba(255,255,255,0.1);
+    color: var(--ds-orange-500);
+  }
+  .cta-final h2 {
+    color: white;
+    font-size: clamp(28px, 4vw, 44px);
+    margin-bottom: 20px;
+    max-width: 820px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+  }
+  .cta-final p {
+    color: rgba(255,255,255,0.75);
+    font-size: 18px;
+    margin-bottom: 40px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+  }
+  .cta-final-secondary {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    margin-top: 24px;
+    position: relative;
+  }
+  .cta-final-secondary strong { color: white; font-weight: 700; }
+
+  /* ================================================
+     FOOTER
+  ================================================ */
+  footer {
+    background: var(--ds-blue-900);
+    color: var(--ds-neutral-300);
+    padding: 64px 24px 32px;
+  }
+  .footer-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 48px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 14px;
+  }
+  .footer-brand .brand-shield {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .footer-desc {
+    font-size: 14px;
+    max-width: 320px;
+    line-height: 1.6;
+    color: var(--ds-neutral-400);
+  }
+  .footer-col-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--ds-neutral-400);
+    margin-bottom: 16px;
+  }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-col a {
+    color: var(--ds-neutral-200);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.12s;
+  }
+  .footer-col a:hover { color: white; }
+  .footer-bottom {
+    max-width: 1200px;
+    margin: 32px auto 0;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--ds-neutral-500);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .footer-bottom strong { color: var(--ds-neutral-200); font-weight: 600; }
+
+  /* ================================================
+     RESPONSIVE
+  ================================================ */
+  @media (max-width: 968px) {
+    .hero-grid, .problema-grid, .inspector-grid, .footer-grid {
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
+    .pasos, .plataforma-grid, .pricing-grid {
+      grid-template-columns: 1fr;
+    }
+    .price-card.featured { transform: none; }
+    .nav-links { display: none; }
+    .nav-links .btn { display: inline-flex; }
+    section { padding: 64px 20px; }
+    .hero { padding: 80px 20px 48px; }
+    .phone-alert { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="mockup-header">
+  <div class="left">
+    <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    <span>enregla.ec — MOCKUP v3 · Atlassian DS + Pichincha</span>
+  </div>
+  <span style="opacity:0.6">2026-05-06</span>
+</div>
+
+<div class="mockup-note">
+  <strong>Mockup v3 con DS real.</strong> Paleta Pichincha (#0f265c + #ff7043), tipografía Manrope, iconos Lucide en containers de color, radios Atlassian (3-8px). Si apruebas, se implementa en branch <code>feature/pyme-redesign</code> del repo <code>enregla-landing</code>.
+</div>
+
+<!-- ====== NAV ====== -->
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="#" class="brand">
+      <span class="brand-shield">
+        <svg class="lucide" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </span>
+      EnRegla
+    </a>
+    <div class="nav-links">
+      <a href="#problema">El problema</a>
+      <a href="#como-funciona">Cómo funciona</a>
+      <a href="#precios">Precios</a>
+      <a href="#partners">Partners</a>
+      <a href="#cta" class="btn btn--primary">
+        Probar 30 días gratis
+        <svg class="lucide" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ====== HERO ====== -->
+<section class="hero">
+  <div class="hero-grid">
+    <div>
+      <span class="eyebrow">
+        <span class="dot" style="background: var(--ds-green-500);"></span>
+        Para negocios con 2 o 3 locales
+      </span>
+      <h1>Tu negocio, <span class="hl">siempre en regla</span>.<br>Sin sustos.</h1>
+      <p class="hero-sub">
+        Guarda los PDFs de tus permisos. Te avisamos 30, 15 y 7 días antes de que venzan.
+        Un QR para mostrarle al inspector. Listo. Se acabó el pánico de última hora.
+      </p>
+      <div class="hero-ctas">
+        <a href="#cta" class="btn btn--primary btn--large">
+          Probar 30 días gratis
+          <svg class="lucide" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#como-funciona" class="btn btn--secondary btn--large">
+          Ver cómo funciona
+        </a>
+      </div>
+      <div class="hero-trust">
+        <span class="hero-trust-item">
+          <svg class="lucide" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+          Sin tarjeta
+        </span>
+        <span class="hero-trust-item">
+          <svg class="lucide" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+          Instalación en 10 min
+        </span>
+        <span class="hero-trust-item">
+          <svg class="lucide" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+          Soporte en WhatsApp
+        </span>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="phone-alert">
+        <span class="icon-container icon-container--sm icon-container--orange">
+          <svg class="lucide" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        </span>
+        <div class="phone-alert-text">
+          <strong>ARCSA vence en 15 días</strong><br>
+          <span>Ya enviamos recordatorio al equipo</span>
+        </div>
+      </div>
+
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="phone-header">
+            <div class="phone-label">Verificación pública</div>
+            <div class="phone-title">Don Pollo — Sede Norte</div>
+            <div class="phone-sub">Av. República · Quito</div>
+          </div>
+          <div class="phone-body">
+            <div class="permit-card vigente">
+              <span class="icon-container icon-container--sm icon-container--success">
+                <svg class="lucide" viewBox="0 0 24 24" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+              </span>
+              <div class="permit-info">
+                <div class="permit-label v">Vigente</div>
+                <div class="permit-title">Patente Municipal</div>
+                <div class="permit-date">Vence: 31 Dic 2026</div>
+              </div>
+            </div>
+            <div class="permit-card vigente">
+              <span class="icon-container icon-container--sm icon-container--success">
+                <svg class="lucide" viewBox="0 0 24 24" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+              </span>
+              <div class="permit-info">
+                <div class="permit-label v">Vigente</div>
+                <div class="permit-title">Permiso Bomberos</div>
+                <div class="permit-date">Vence: 15 Sep 2026</div>
+              </div>
+            </div>
+            <div class="permit-card urgente">
+              <span class="icon-container icon-container--sm icon-container--orange">
+                <svg class="lucide" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+              </span>
+              <div class="permit-info">
+                <div class="permit-label u">Por vencer</div>
+                <div class="permit-title">ARCSA Sanitario</div>
+                <div class="permit-date">Vence: 22 May 2026</div>
+              </div>
+            </div>
+          </div>
+          <div class="phone-footer">
+            <div class="qr-box">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https%3A%2F%2Fenregla.ec%2Fp%2Fdon-pollo-norte&qzone=0&color=0f265c&bgcolor=ffffff" alt="QR verificación pública">
+            </div>
+            <div class="phone-footer-text">
+              <strong>El inspector escanea</strong> y ve todo en segundos.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== PROBLEMA / SOLUCIÓN ====== -->
+<section class="problema" id="problema">
+  <div class="container">
+    <div class="problema-grid">
+      <div>
+        <span class="eyebrow eyebrow--danger">
+          <span class="dot"></span>
+          Así están las cosas hoy
+        </span>
+        <h2>Los permisos son ese dolor de cabeza que ignoras hasta que ya es tarde.</h2>
+        <ul class="problema-list">
+          <li class="problema-item">
+            <span class="icon-container icon-container--md icon-container--danger">
+              <svg class="lucide" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            </span>
+            <div>
+              <h4>Los PDFs viven en WhatsApp</h4>
+              <p>Entre chats, correos y una carpeta física que nadie encuentra cuando llega el inspector.</p>
+            </div>
+          </li>
+          <li class="problema-item">
+            <span class="icon-container icon-container--md icon-container--danger">
+              <svg class="lucide" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </span>
+            <div>
+              <h4>Te enteras tarde que venció</h4>
+              <p>Cuando llega la clausura. O cuando ya pagaste multa. O cuando la sede de al lado te lo avisa.</p>
+            </div>
+          </li>
+          <li class="problema-item">
+            <span class="icon-container icon-container--md icon-container--danger">
+              <svg class="lucide" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="18" y1="8" x2="23" y2="13"/><line x1="23" y1="8" x2="18" y2="13"/></svg>
+            </span>
+            <div>
+              <h4>Si se va el encargado, se va todo</h4>
+              <p>Si la persona que "sabe" no está, tu negocio queda expuesto frente a cualquier inspección sorpresa.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="solucion-box">
+        <span class="eyebrow eyebrow--orange">
+          <span class="dot"></span>
+          Con EnRegla
+        </span>
+        <h2 style="font-size: 30px; margin-bottom: 32px;">Todo ordenado. Todo visible. Todo a tiempo.</h2>
+        <ul class="problema-list">
+          <li class="problema-item">
+            <span class="icon-container icon-container--md icon-container--navy">
+              <svg class="lucide" viewBox="0 0 24 24"><path d="M3 7v13a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V7"/><path d="M2 3h20v4H2z"/><path d="M10 12h4"/></svg>
+            </span>
+            <div>
+              <h4>Cada sede con su expediente</h4>
+              <p>PDFs organizados por local. Los encuentras en segundos, no en horas.</p>
+            </div>
+          </li>
+          <li class="problema-item">
+            <span class="icon-container icon-container--md icon-container--navy">
+              <svg class="lucide" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+            </span>
+            <div>
+              <h4>Alertas 30, 15 y 7 días antes</h4>
+              <p>Email a ti y a tu equipo. Nadie queda afuera. Renuevas a tiempo, no en pánico.</p>
+            </div>
+          </li>
+          <li class="problema-item">
+            <span class="icon-container icon-container--md icon-container--navy">
+              <svg class="lucide" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </span>
+            <div>
+              <h4>El negocio no depende de una persona</h4>
+              <p>Si se va el encargado, la información se queda. La empresa sigue protegida.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== CÓMO FUNCIONA ====== -->
+<section class="como-funciona" id="como-funciona">
+  <div class="container">
+    <span class="eyebrow">
+      <span class="dot"></span>
+      Así funciona
+    </span>
+    <h2>Tres pasos. Sin vueltas. Lo tienes listo en 10 minutos.</h2>
+    <div class="pasos">
+      <div class="paso">
+        <div class="paso-header">
+          <div class="paso-num">01</div>
+          <span class="icon-container icon-container--md" style="background: rgba(255,255,255,0.1); color: white;">
+            <svg class="lucide" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </span>
+        </div>
+        <h4>Registras tus sedes</h4>
+        <p>Creas tu cuenta, agregas cada local (nombre, dirección, tipo de negocio). Te toma 3 minutos.</p>
+      </div>
+      <div class="paso">
+        <div class="paso-header">
+          <div class="paso-num">02</div>
+          <span class="icon-container icon-container--md" style="background: rgba(255,255,255,0.1); color: white;">
+            <svg class="lucide" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </span>
+        </div>
+        <h4>Subes los PDFs</h4>
+        <p>Tus patentes, permisos sanitarios, bomberos. Le dices cuándo vencen. EnRegla hace el resto.</p>
+      </div>
+      <div class="paso active">
+        <div class="paso-header">
+          <div class="paso-num">03</div>
+          <span class="icon-container icon-container--md" style="background: var(--ds-orange-500); color: white;">
+            <svg class="lucide" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </span>
+        </div>
+        <h4>Duermes tranquilo</h4>
+        <p>Te avisa antes de que venzan. Le muestras el QR al inspector. Tu negocio siempre en regla.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== PLATAFORMA / FEATURES ====== -->
+<section class="plataforma">
+  <div class="container">
+    <div class="plataforma-header">
+      <span class="eyebrow">
+        <span class="dot"></span>
+        Lo que te protege
+      </span>
+      <h2>Las 4 cosas que hace EnRegla por tu negocio.</h2>
+    </div>
+    <div class="plataforma-grid">
+      <div class="feature-card">
+        <span class="icon-container icon-container--lg icon-container--navy">
+          <svg class="lucide" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
+        </span>
+        <h4>Mapa de tus sedes</h4>
+        <p>Ves todas tus sedes en una pantalla. Semáforo verde, amarillo, rojo según riesgo.</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon-container icon-container--lg icon-container--navy">
+          <svg class="lucide" viewBox="0 0 24 24"><path d="M6 14l1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H18a2 2 0 0 1 2 2v2"/></svg>
+        </span>
+        <h4>Bóveda de PDFs</h4>
+        <p>Todos tus permisos ordenados por sede, por tipo, por fecha. Nunca más perdidos.</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon-container icon-container--lg icon-container--orange">
+          <svg class="lucide" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        </span>
+        <h4>Alertas antes que venza</h4>
+        <p>30, 15 y 7 días antes. Email a todo tu equipo. Renuevas a tiempo, no en pánico.</p>
+      </div>
+      <div class="feature-card">
+        <span class="icon-container icon-container--lg icon-container--navy">
+          <svg class="lucide" viewBox="0 0 24 24"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
+        </span>
+        <h4>QR para el inspector</h4>
+        <p>Escanea el QR, ve tus permisos vigentes, se va contento. Sin papeles, sin drama.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== INSPECTOR ====== -->
+<section class="inspector">
+  <div class="container">
+    <div class="inspector-grid">
+      <div>
+        <span class="eyebrow eyebrow--success">
+          <span class="dot"></span>
+          Cuando llega el inspector
+        </span>
+        <h2>El QR que te salva.</h2>
+        <p class="inspector-lead">En una inspección, el pánico y el desorden te joden.</p>
+        <p class="inspector-body">
+          EnRegla te da un enlace público por sede. Lo pegas en la entrada, lo muestras en tu teléfono,
+          lo imprimes. El inspector escanea, ve lo que está al día, y se va. Sin mostrar tu app,
+          sin exponer tus datos internos.
+        </p>
+        <ul class="inspector-bullets">
+          <li>
+            <span class="icon-container icon-container--sm icon-container--success">
+              <svg class="lucide" viewBox="0 0 24 24" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+            </span>
+            Sin contraseñas para el inspector
+          </li>
+          <li>
+            <span class="icon-container icon-container--sm icon-container--success">
+              <svg class="lucide" viewBox="0 0 24 24" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+            </span>
+            Se ve bien en cualquier celular
+          </li>
+          <li>
+            <span class="icon-container icon-container--sm icon-container--success">
+              <svg class="lucide" viewBox="0 0 24 24" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+            </span>
+            Te hace ver profesional, no improvisado
+          </li>
+        </ul>
+      </div>
+
+      <div style="display: flex; justify-content: center;">
+        <div class="phone" style="width: 260px; height: 520px;">
+          <div class="phone-screen">
+            <div class="phone-header">
+              <div class="phone-label">Verificación pública</div>
+              <div class="phone-title" style="font-size: 15px;">Don Pollo</div>
+              <div class="phone-sub">Sede Norte · UIO</div>
+            </div>
+            <div class="phone-body" style="justify-content: center; align-items: center; gap: 18px; padding: 32px;">
+              <div class="qr-large">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=https%3A%2F%2Fenregla.ec%2Fp%2Fdon-pollo-norte&qzone=1&color=0f265c&bgcolor=ffffff" alt="QR verificación pública Don Pollo Sede Norte">
+              </div>
+              <div style="text-align: center; font-size: 13px; color: var(--ds-text-subtle); line-height: 1.4;">
+                <strong style="color: var(--ds-blue-500);">Escanea para verificar</strong><br>
+                permisos vigentes
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== PRICING ====== -->
+<section class="pricing" id="precios">
+  <div class="container">
+    <div class="pricing-header">
+      <span class="eyebrow">
+        <span class="dot"></span>
+        Precios
+      </span>
+      <h2>Paga lo que tu negocio necesita. Empieza gratis 30 días.</h2>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-name">Básico</div>
+        <div class="price-amount"><span class="currency">$</span>29<span class="per">/mes</span></div>
+        <div class="price-desc">Para 1 local. Tu dolor de cabeza reducido al mínimo.</div>
+        <ul class="price-features">
+          <li><svg class="lucide" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> 1 sede</li>
+          <li><svg class="lucide" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Permisos ilimitados</li>
+          <li><svg class="lucide" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Alertas 30/15/7 días</li>
+          <li><svg class="lucide" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> QR público</li>
+          <li><svg class="lucide" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Soporte WhatsApp</li>
+        </ul>
+        <a href="#cta" class="btn btn--secondary">Empezar gratis</a>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-badge">Más popular</div>
+        <div class="price-name">Pro</div>
+        <div class="price-amount"><span class="currency">$</span>99<span class="per">/mes</span></div>
+        <div class="price-desc">Para 2-5 sedes. El sweet spot de Don Huevas.</div>
+        <ul class="price-features">
+          <li><svg class="lucide" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Hasta 5 sedes</li>
+          <li><svg class="lucide" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Permisos ilimitados</li>
+          <li><svg class="lucide" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Alertas 30/15/7 días</li>
+          <li><svg class="lucide" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> QR público por sede</li>
+          <li><svg class="lucide" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Dashboard multi-sede</li>
+          <li><svg class="lucide" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Equipo (5 usuarios)</li>
+          <li><svg class="lucide" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Soporte prioritario</li>
+        </ul>
+        <a href="#cta" class="btn btn--primary">Probar 30 días gratis</a>
+      </div>
+
+      <div class="price-card">
+        <div class="price-name">Multi</div>
+        <div class="price-amount"><span class="currency">$</span>199<span class="per">/mes</span></div>
+        <div class="price-desc">Para 6+ sedes o cadenas pequeñas.</div>
+        <ul class="price-features">
+          <li><svg class="lucide" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Sedes ilimitadas</li>
+          <li><svg class="lucide" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Todo lo del Pro</li>
+          <li><svg class="lucide" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Reportes mensuales</li>
+          <li><svg class="lucide" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Equipo ilimitado</li>
+          <li><svg class="lucide" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Onboarding guiado</li>
+        </ul>
+        <a href="#cta" class="btn btn--secondary">Hablemos</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== CTA FINAL ====== -->
+<section class="cta-final" id="cta">
+  <div class="container">
+    <span class="eyebrow">
+      <span class="dot"></span>
+      Último llamado
+    </span>
+    <h2>Si esperas que te caiga el inspector para ordenarte, ya vas tarde.</h2>
+    <p>Prueba EnRegla 30 días gratis. Sin tarjeta. Sin compromiso. Si no te sirve, te vas.</p>
+    <a href="mailto:hola@enregla.ec?subject=Probar%20EnRegla%2030%20d%C3%ADas" class="btn btn--primary btn--large">
+      Empezar los 30 días gratis
+      <svg class="lucide" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+    <p class="cta-final-secondary">
+      O escríbenos a <strong>hola@enregla.ec</strong> · WhatsApp disponible
+    </p>
+  </div>
+</section>
+
+<!-- ====== FOOTER ====== -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand">
+        <span class="brand-shield">
+          <svg class="lucide" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </span>
+        EnRegla
+      </div>
+      <p class="footer-desc">
+        Control de permisos para negocios con varias sedes. Sin sustos, sin multas, sin pánico de último minuto.
+      </p>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Producto</div>
+      <ul>
+        <li><a href="#problema">El problema</a></li>
+        <li><a href="#como-funciona">Cómo funciona</a></li>
+        <li><a href="#precios">Precios</a></li>
+        <li><a href="/diagnostico">Diagnóstico</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Partners</div>
+      <ul>
+        <li><a href="/partners">Programa de partners</a></li>
+        <li><a href="/sobre">Sobre nosotros</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Contacto</div>
+      <ul>
+        <li><a href="mailto:hola@enregla.ec">hola@enregla.ec</a></li>
+        <li><a href="#">WhatsApp</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 EnRegla. Un producto de <strong>Aura</strong>.</p>
+    <p>Hecho en Quito, Ecuador.</p>
+  </div>
+</footer>
+
+</body>
+</html>

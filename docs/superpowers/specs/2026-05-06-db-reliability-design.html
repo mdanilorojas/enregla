@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DB Reliability & Client Hardening — Spec</title>
+<style>
+  :root {
+    --blue: #0f265c;
+    --blue-50: #eff3fb;
+    --blue-100: #dbe5f3;
+    --orange: #ff7043;
+    --ink: #0b1220;
+    --muted: #5b6476;
+    --paper: #ffffff;
+    --cream: #fafafb;
+    --border: #e5e8ef;
+    --green: #1f9854;
+    --red: #d13438;
+    --yellow: #e09b00;
+    --radius: 12px;
+    --shadow-sm: 0 1px 2px rgba(15,38,92,.04), 0 1px 4px rgba(15,38,92,.06);
+    --shadow-md: 0 4px 12px rgba(15,38,92,.06), 0 2px 4px rgba(15,38,92,.04);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--cream); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.6; }
+  .shell { max-width: 960px; margin: 0 auto; padding: 48px 32px 120px; }
+  header.spec-hero { background: linear-gradient(135deg, var(--blue) 0%, #1c3a7a 100%); color: white; padding: 48px 40px; border-radius: 16px; margin-bottom: 40px; position: relative; overflow: hidden; }
+  header.spec-hero::after { content: ""; position: absolute; right: -60px; top: -60px; width: 260px; height: 260px; background: rgba(255,112,67,.15); border-radius: 50%; }
+  header.spec-hero .eyebrow { text-transform: uppercase; letter-spacing: .12em; font-size: 12px; opacity: .75; margin-bottom: 8px; }
+  header.spec-hero h1 { margin: 0 0 12px; font-size: 36px; font-weight: 700; letter-spacing: -.01em; }
+  header.spec-hero .sub { font-size: 17px; opacity: .9; max-width: 680px; }
+  header.spec-hero .meta { display: flex; gap: 16px; margin-top: 24px; flex-wrap: wrap; }
+  header.spec-hero .chip { background: rgba(255,255,255,.12); padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 500; border: 1px solid rgba(255,255,255,.2); }
+  header.spec-hero .chip.status { background: rgba(31,152,84,.25); border-color: rgba(31,152,84,.45); }
+
+  h2 { font-size: 24px; font-weight: 700; letter-spacing: -.01em; margin: 48px 0 16px; padding-bottom: 12px; border-bottom: 2px solid var(--border); }
+  h3 { font-size: 18px; font-weight: 600; margin: 28px 0 8px; color: var(--blue); }
+  p { margin: 0 0 14px; color: var(--ink); }
+  .muted { color: var(--muted); }
+  ul, ol { margin: 0 0 14px; padding-left: 22px; }
+  li { margin: 6px 0; }
+  code { font-family: "SF Mono", "JetBrains Mono", Menlo, monospace; font-size: 13px; background: var(--blue-50); color: var(--blue); padding: 1px 6px; border-radius: 4px; }
+  pre { background: var(--ink); color: #e8edf7; padding: 18px 20px; border-radius: 10px; overflow-x: auto; font-size: 13px; line-height: 1.55; }
+  pre code { background: transparent; color: inherit; padding: 0; }
+
+  .card { background: var(--paper); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 28px; margin: 16px 0; box-shadow: var(--shadow-sm); }
+  .card.problem { border-left: 4px solid var(--red); }
+  .card.goal { border-left: 4px solid var(--green); }
+  .card.warn { border-left: 4px solid var(--yellow); }
+  .card.info { border-left: 4px solid var(--blue); }
+  .card h3 { margin-top: 0; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .before-after { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  @media (max-width: 720px) { .before-after { grid-template-columns: 1fr; } }
+  .before-after .side { background: var(--paper); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; }
+  .before-after .side.before { border-top: 4px solid var(--red); }
+  .before-after .side.after { border-top: 4px solid var(--green); }
+  .before-after .side h4 { margin: 0 0 12px; font-size: 13px; text-transform: uppercase; letter-spacing: .1em; }
+  .before-after .side.before h4 { color: var(--red); }
+  .before-after .side.after h4 { color: var(--green); }
+
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; background: var(--paper); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+  thead { background: var(--blue-50); }
+  th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: top; }
+  th { font-weight: 600; color: var(--blue); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .flow-wrap { background: var(--paper); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; margin: 20px 0; overflow-x: auto; }
+  .flow-wrap svg { width: 100%; height: auto; max-width: 100%; }
+
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 500; margin-right: 6px; }
+  .tag.red { background: #fde7e7; color: var(--red); }
+  .tag.green { background: #e4f5ec; color: var(--green); }
+  .tag.blue { background: var(--blue-50); color: var(--blue); }
+  .tag.orange { background: #ffe8df; color: var(--orange); }
+  .tag.yellow { background: #fff4de; color: var(--yellow); }
+
+  .phase-list { counter-reset: phase; padding-left: 0; list-style: none; }
+  .phase-list li { counter-increment: phase; position: relative; padding: 18px 20px 18px 64px; background: var(--paper); border: 1px solid var(--border); border-radius: var(--radius); margin: 12px 0; box-shadow: var(--shadow-sm); }
+  .phase-list li::before { content: counter(phase); position: absolute; left: 18px; top: 18px; width: 32px; height: 32px; background: var(--blue); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; }
+  .phase-list li h4 { margin: 0 0 6px; font-size: 16px; color: var(--blue); }
+
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li { padding: 8px 0 8px 28px; position: relative; }
+  .checklist li::before { content: "✓"; position: absolute; left: 0; top: 6px; width: 20px; height: 20px; background: var(--green); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; }
+  .checklist.cross li::before { content: "✗"; background: var(--red); }
+
+  details.collapse { background: var(--paper); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 20px; margin: 10px 0; }
+  details.collapse > summary { cursor: pointer; font-weight: 600; color: var(--blue); list-style: none; padding-right: 24px; position: relative; }
+  details.collapse > summary::after { content: "▸"; position: absolute; right: 0; top: 0; transition: transform .2s; }
+  details.collapse[open] > summary::after { transform: rotate(90deg); }
+  details.collapse[open] > summary { margin-bottom: 12px; }
+
+  footer { margin-top: 60px; padding: 24px 0; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; text-align: center; }
+
+  .toc { background: var(--blue-50); border: 1px solid var(--blue-100); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 32px; }
+  .toc h3 { margin: 0 0 12px; color: var(--blue); font-size: 14px; text-transform: uppercase; letter-spacing: .08em; }
+  .toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 32px; }
+  .toc ol li { margin: 4px 0; }
+  .toc a { color: var(--blue); text-decoration: none; font-size: 14px; }
+  .toc a:hover { text-decoration: underline; }
+  @media (max-width: 600px) { .toc ol { columns: 1; } }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<header class="spec-hero">
+  <div class="eyebrow">Spec · 2026-05-06</div>
+  <h1>DB Reliability & Client Hardening</h1>
+  <div class="sub">Sprint de endurecimiento para matar el "skeleton eterno" y los cuelgues intermitentes. Target: 10-20 empresas piloto en 2 meses.</div>
+  <div class="meta">
+    <span class="chip">Branch: feature/atlassian-ds-migration</span>
+    <span class="chip status">Status: approved (pending user review)</span>
+    <span class="chip">Esfuerzo: 1.5 - 2 días</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <h3>Contenido</h3>
+  <ol>
+    <li><a href="#problema">Problema y causa raíz</a></li>
+    <li><a href="#objetivos">Objetivos</a></li>
+    <li><a href="#flow">User flow / process map</a></li>
+    <li><a href="#arquitectura">Arquitectura</a></li>
+    <li><a href="#hooks">Migración de hooks</a></li>
+    <li><a href="#errores">Manejo de errores</a></li>
+    <li><a href="#db">Cambios de DB</a></li>
+    <li><a href="#pipeline">Pipeline (CI, Vercel, splitting)</a></li>
+    <li><a href="#execution">Orden de ejecución</a></li>
+    <li><a href="#success">Criterio de éxito</a></li>
+    <li><a href="#followups">Follow-ups</a></li>
+  </ol>
+</nav>
+
+<h2 id="problema">1 · Problema y causa raíz</h2>
+
+<div class="card problem">
+  <h3>Síntoma actual</h3>
+  <ul>
+    <li>La app carga lento en la primera visita</li>
+    <li>A veces se queda en el skeleton loader para siempre</li>
+    <li>A veces "se muere" a mitad de uso — queries dejan de responder, no se muestra error</li>
+    <li>Es <strong>intermitente e impredecible</strong></li>
+  </ul>
+</div>
+
+<h3>Causa raíz</h3>
+<div class="grid-2">
+  <div class="card warn">
+    <h3>~90% cliente</h3>
+    <p>Los 8 hooks usan <code>useState + useEffect + supabase.from()</code> a mano. Sin caché, sin retry, sin timeout duro, sin dedupe.</p>
+    <p>Un solo glitch de red = skeleton permanente. Cada navegación entre rutas re-pega la DB sin razón.</p>
+  </div>
+  <div class="card info">
+    <h3>~10% schema</h3>
+    <p>Faltan índices en <code>documents.permit_id</code> y <code>profiles.company_id</code>. Helpers <code>user_company_id()</code> y <code>user_role()</code> marcados <code>VOLATILE</code> en lugar de <code>STABLE</code>.</p>
+    <p>Para 10 clientes casi no se nota, pero es barato de arreglar.</p>
+  </div>
+</div>
+
+<div class="card warn">
+  <h3>Auth layer acumuló 3 band-aids</h3>
+  <ul>
+    <li>Global flag <code>authInitialized</code></li>
+    <li>Shared <code>initializationPromise</code></li>
+    <li>Safety timeout de 5s que fuerza <code>loading=false</code></li>
+  </ul>
+  <p>Cada uno parcha un bug distinto de race conditions. Cuando metamos TanStack Query abajo, todos estos dejan de ser necesarios.</p>
+</div>
+
+<h2 id="objetivos">2 · Objetivos</h2>
+
+<div class="grid-2">
+  <div class="card goal">
+    <h3>Lo que debe lograr</h3>
+    <ul class="checklist">
+      <li><strong>Nunca</strong> skeleton permanente — si falla, UI lo muestra</li>
+      <li><strong>Nunca</strong> query colgada > 10s sin feedback</li>
+      <li>Navegar entre rutas: instantáneo (cache)</li>
+      <li>Errores reales visibles en Sentry</li>
+      <li>PRs validados con CI antes de merge</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Fuera de alcance</h3>
+    <ul class="checklist cross">
+      <li>Rediseño de schema</li>
+      <li>Migración a otro backend</li>
+      <li>Edge Functions / SSR</li>
+      <li>Realtime subscriptions</li>
+      <li>Rewrite completo de RLS</li>
+      <li>Suite de tests E2E</li>
+    </ul>
+  </div>
+</div>
+
+<h2 id="flow">3 · User flow / process map</h2>
+
+<p>Así se comporta la app en cada escenario después de este sprint:</p>
+
+<div class="flow-wrap">
+<svg viewBox="0 0 1000 720" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0f265c" />
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#d13438" />
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1f9854" />
+    </marker>
+  </defs>
+
+  <!-- Entrada -->
+  <rect x="400" y="20" width="200" height="50" rx="25" fill="#0f265c" />
+  <text x="500" y="52" text-anchor="middle" fill="white" font-size="14" font-weight="600">Usuario abre la app</text>
+
+  <!-- Boot -->
+  <rect x="360" y="100" width="280" height="60" rx="8" fill="#eff3fb" stroke="#0f265c" stroke-width="1.5" />
+  <text x="500" y="125" text-anchor="middle" fill="#0f265c" font-size="13" font-weight="600">main.tsx boot</text>
+  <text x="500" y="145" text-anchor="middle" fill="#5b6476" font-size="11">QueryClient + ErrorBoundary + Sentry</text>
+
+  <line x1="500" y1="70" x2="500" y2="100" stroke="#0f265c" stroke-width="1.5" marker-end="url(#arrow)" />
+
+  <!-- Router / useQuery -->
+  <rect x="360" y="190" width="280" height="60" rx="8" fill="#eff3fb" stroke="#0f265c" stroke-width="1.5" />
+  <text x="500" y="215" text-anchor="middle" fill="#0f265c" font-size="13" font-weight="600">Route → useQuery(key, fetcher)</text>
+  <text x="500" y="235" text-anchor="middle" fill="#5b6476" font-size="11">Check QueryClient cache</text>
+
+  <line x1="500" y1="160" x2="500" y2="190" stroke="#0f265c" stroke-width="1.5" marker-end="url(#arrow)" />
+
+  <!-- Diamante: cache? -->
+  <polygon points="500,280 620,330 500,380 380,330" fill="#fff4de" stroke="#e09b00" stroke-width="1.5" />
+  <text x="500" y="328" text-anchor="middle" fill="#0b1220" font-size="13" font-weight="600">¿En cache?</text>
+  <text x="500" y="348" text-anchor="middle" fill="#5b6476" font-size="11">¿Stale?</text>
+
+  <line x1="500" y1="250" x2="500" y2="280" stroke="#0f265c" stroke-width="1.5" marker-end="url(#arrow)" />
+
+  <!-- Hit fresh -->
+  <rect x="30" y="310" width="200" height="50" rx="8" fill="#e4f5ec" stroke="#1f9854" stroke-width="1.5" />
+  <text x="130" y="332" text-anchor="middle" fill="#1f9854" font-size="13" font-weight="600">Hit fresh</text>
+  <text x="130" y="350" text-anchor="middle" fill="#5b6476" font-size="11">Render inmediato, sin red</text>
+  <line x1="380" y1="330" x2="232" y2="335" stroke="#1f9854" stroke-width="1.5" marker-end="url(#arrow-green)" />
+
+  <!-- Hit stale -->
+  <rect x="770" y="270" width="200" height="70" rx="8" fill="#e4f5ec" stroke="#1f9854" stroke-width="1.5" />
+  <text x="870" y="295" text-anchor="middle" fill="#1f9854" font-size="13" font-weight="600">Hit stale</text>
+  <text x="870" y="315" text-anchor="middle" fill="#5b6476" font-size="11">Render inmediato</text>
+  <text x="870" y="330" text-anchor="middle" fill="#5b6476" font-size="11">+ revalidación en bg</text>
+  <line x1="620" y1="320" x2="770" y2="300" stroke="#1f9854" stroke-width="1.5" marker-end="url(#arrow-green)" />
+
+  <!-- Miss → Fetch -->
+  <rect x="360" y="420" width="280" height="60" rx="8" fill="#dbe5f3" stroke="#0f265c" stroke-width="1.5" />
+  <text x="500" y="445" text-anchor="middle" fill="#0f265c" font-size="13" font-weight="600">Fetch (hard timeout 10s)</text>
+  <text x="500" y="465" text-anchor="middle" fill="#5b6476" font-size="11">AbortController + Promise.race</text>
+  <line x1="500" y1="380" x2="500" y2="420" stroke="#e09b00" stroke-width="1.5" marker-end="url(#arrow)" />
+  <text x="515" y="402" fill="#e09b00" font-size="11" font-style="italic">miss</text>
+
+  <!-- Diamante: resultado -->
+  <polygon points="500,510 620,560 500,610 380,560" fill="#fff4de" stroke="#e09b00" stroke-width="1.5" />
+  <text x="500" y="558" text-anchor="middle" fill="#0b1220" font-size="13" font-weight="600">¿Resultado?</text>
+  <line x1="500" y1="480" x2="500" y2="510" stroke="#0f265c" stroke-width="1.5" marker-end="url(#arrow)" />
+
+  <!-- Success -->
+  <rect x="30" y="540" width="200" height="50" rx="8" fill="#e4f5ec" stroke="#1f9854" stroke-width="1.5" />
+  <text x="130" y="562" text-anchor="middle" fill="#1f9854" font-size="13" font-weight="600">Success</text>
+  <text x="130" y="580" text-anchor="middle" fill="#5b6476" font-size="11">Cache populate, UI render</text>
+  <line x1="380" y1="560" x2="232" y2="563" stroke="#1f9854" stroke-width="1.5" marker-end="url(#arrow-green)" />
+
+  <!-- Error tree -->
+  <rect x="770" y="500" width="200" height="130" rx="8" fill="#fde7e7" stroke="#d13438" stroke-width="1.5" />
+  <text x="870" y="525" text-anchor="middle" fill="#d13438" font-size="13" font-weight="600">Failure</text>
+  <text x="870" y="548" text-anchor="start" x="785" fill="#5b6476" font-size="11">• Timeout → banner + retry</text>
+  <text x="870" y="566" text-anchor="start" x="785" fill="#5b6476" font-size="11">• Offline → "Sin conexión"</text>
+  <text x="870" y="584" text-anchor="start" x="785" fill="#5b6476" font-size="11">• 401/403 → /login</text>
+  <text x="870" y="602" text-anchor="start" x="785" fill="#5b6476" font-size="11">• 500 → retry 2x + banner</text>
+  <text x="870" y="620" text-anchor="start" x="785" fill="#5b6476" font-size="11">• RLS 403 → sin permisos</text>
+  <line x1="620" y1="560" x2="770" y2="555" stroke="#d13438" stroke-width="1.5" marker-end="url(#arrow-red)" />
+
+  <!-- Mutation flow -->
+  <rect x="360" y="650" width="280" height="50" rx="8" fill="#ffe8df" stroke="#ff7043" stroke-width="1.5" />
+  <text x="500" y="672" text-anchor="middle" fill="#ff7043" font-size="13" font-weight="600">Mutation (updatePermit, etc.)</text>
+  <text x="500" y="690" text-anchor="middle" fill="#5b6476" font-size="11">onSuccess → invalidateQueries(key)</text>
+  <line x1="500" y1="610" x2="500" y2="650" stroke="#1f9854" stroke-width="1.5" marker-end="url(#arrow-green)" />
+
+  <!-- Legend -->
+  <rect x="30" y="660" width="16" height="16" fill="#e4f5ec" stroke="#1f9854" />
+  <text x="54" y="673" fill="#5b6476" font-size="11">Path exitoso</text>
+  <rect x="30" y="685" width="16" height="16" fill="#fde7e7" stroke="#d13438" />
+  <text x="54" y="698" fill="#5b6476" font-size="11">Path de error</text>
+</svg>
+</div>
+
+<h2 id="arquitectura">4 · Arquitectura</h2>
+
+<div class="before-after">
+  <div class="side before">
+    <h4>Antes</h4>
+<pre><code>Component → useLocations()
+  → useState + useEffect
+  → supabase.from()
+
+- Sin cache
+- Sin retry
+- Sin timeout
+- Re-fetch por mount</code></pre>
+  </div>
+  <div class="side after">
+    <h4>Después</h4>
+<pre><code>Component → useLocations()
+  → useQuery(['locations', id], fn)
+  → QueryClient
+  → supabase.from()
+
++ Cache compartido
++ Retry con backoff
++ Timeout 10s
++ Dedupe automático</code></pre>
+  </div>
+</div>
+
+<h3>QueryClient defaults</h3>
+
+<table>
+  <thead><tr><th>Option</th><th>Value</th><th>Efecto</th></tr></thead>
+  <tbody>
+    <tr><td><code>staleTime</code></td><td>5 min</td><td>Datos considerados frescos 5 min; no hay network request</td></tr>
+    <tr><td><code>gcTime</code></td><td>30 min</td><td>Se mantienen en memoria 30 min aunque no se usen</td></tr>
+    <tr><td><code>retry</code></td><td>2</td><td>Hasta 2 reintentos con backoff exponencial (1s, 2s)</td></tr>
+    <tr><td><code>networkMode</code></td><td>'online'</td><td>Sin red = no intenta query</td></tr>
+    <tr><td><code>refetchOnWindowFocus</code></td><td>true</td><td>Cambiar de pestaña y volver = revalida</td></tr>
+    <tr><td><code>refetchOnReconnect</code></td><td>true</td><td>Volver online = revalida</td></tr>
+    <tr><td>Custom wrapper</td><td>10s timeout</td><td>AbortController + Promise.race; garantiza nunca colgarse</td></tr>
+  </tbody>
+</table>
+
+<h2 id="hooks">5 · Migración de hooks (big-bang)</h2>
+
+<p>Los 8 hooks migran en un solo commit con subagents paralelos. Uno por agente.</p>
+
+<table>
+  <thead><tr><th>Hook</th><th>Nueva key</th><th>Notas</th></tr></thead>
+  <tbody>
+    <tr><td><code>useAuth</code></td><td>—</td><td>No es query. Mantiene listener de auth + <code>useQuery(['profile', userId])</code>. Elimina <code>authInitialized</code> global, <code>initializationPromise</code> y el safety timeout</td></tr>
+    <tr><td><code>useLocations</code></td><td><code>['locations', companyId]</code></td><td>Se desacopla de <code>usePermits</code> (era N+1 implícito)</td></tr>
+    <tr><td><code>usePermits</code></td><td><code>['permits', { companyId, locationId }]</code></td><td></td></tr>
+    <tr><td><code>usePermit</code></td><td><code>['permit', permitId]</code></td><td></td></tr>
+    <tr><td><code>usePermitHistory</code></td><td><code>['permit-history', permitId]</code></td><td>Antes era parte de <code>usePermit</code></td></tr>
+    <tr><td><code>useDocuments</code></td><td><code>['documents', permitId]</code></td><td></td></tr>
+    <tr><td><code>useLocation</code></td><td><code>['location', locationId]</code></td><td></td></tr>
+    <tr><td><code>useNotificationPreferences</code></td><td><code>['notification-prefs', userId]</code></td><td></td></tr>
+  </tbody>
+</table>
+
+<p><strong>Mutaciones</strong> (<code>updatePermit</code>, <code>renewPermit</code>, <code>uploadPermitDocument</code>) usan <code>useMutation</code> y invalidan queries relacionadas en <code>onSuccess</code> → UI se actualiza sola.</p>
+
+<h2 id="errores">6 · Manejo de errores</h2>
+
+<h3>Componentes nuevos</h3>
+<ul>
+  <li><code>src/components/ui/DataErrorBanner.tsx</code> — se muestra <strong>en vez</strong> de skeleton cuando <code>isError</code> es true. Incluye botón Reintentar</li>
+  <li><code>src/components/ErrorBoundary.tsx</code> — wrap global de <code>&lt;App&gt;</code>, captura errores de render, reporta a Sentry</li>
+</ul>
+
+<h3>Clasificación de errores</h3>
+<table>
+  <thead><tr><th>Tipo</th><th>Usuario ve</th><th>Cliente hace</th></tr></thead>
+  <tbody>
+    <tr><td><span class="tag orange">Offline</span></td><td>Banner naranja: "Sin conexión"</td><td>Espera a <code>online</code> event para reintentar</td></tr>
+    <tr><td><span class="tag red">Timeout 10s</span></td><td>Banner rojo + Reintentar</td><td>Log a Sentry</td></tr>
+    <tr><td><span class="tag red">Auth 401/403</span></td><td>Redirect a <code>/login</code></td><td>Limpia Zustand + cache</td></tr>
+    <tr><td><span class="tag red">Server 500</span></td><td>Banner rojo + Reintentar</td><td>Retry 2x auto + Sentry</td></tr>
+    <tr><td><span class="tag yellow">RLS 403</span></td><td>"No tienes permisos"</td><td>Sentry, no reintenta</td></tr>
+  </tbody>
+</table>
+
+<h3>Sentry</h3>
+<ul>
+  <li>Plan free (5K errors/mes, suficiente para 10 clientes)</li>
+  <li>Guarded por <code>VITE_SENTRY_DSN</code> — si no está, no-op</li>
+  <li>Captura: errores de render, promesas rechazadas, errores de TanStack Query</li>
+  <li>Excluye: session replay (feature de pago)</li>
+  <li>Contexto en eventos: <code>user.id</code>, <code>company_id</code>, <code>pathname</code>, última query key</li>
+</ul>
+
+<h2 id="db">7 · Cambios de DB</h2>
+
+<h3>Migration 015 — índices faltantes</h3>
+<pre><code>CREATE INDEX IF NOT EXISTS idx_documents_permit
+  ON documents(permit_id);
+
+CREATE INDEX IF NOT EXISTS idx_profiles_company
+  ON profiles(company_id) WHERE company_id IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS idx_permits_superseded_by
+  ON permits(superseded_by) WHERE superseded_by IS NOT NULL;</code></pre>
+
+<h3>Migration 016 — helpers STABLE</h3>
+<pre><code>ALTER FUNCTION user_company_id() STABLE;
+ALTER FUNCTION user_role() STABLE;</code></pre>
+<p class="muted"><code>STABLE</code> le dice a Postgres que el resultado es determinístico dentro de una query, habilitando caché. Solo mejora.</p>
+
+<h3>Types regeneración</h3>
+<pre><code>npx supabase gen types typescript --local &gt; src/types/database.ts</code></pre>
+<p class="muted">Para incluir <code>notification_logs</code> y <code>notification_preferences</code> que faltan.</p>
+
+<h3>Limpieza de artefactos</h3>
+<ul class="checklist cross">
+  <li>Borrar <code>reset-demo-user.sql</code> (bcrypt hardcoded)</li>
+  <li>Borrar <code>scripts/create-demo-data.sql</code> (referencia tabla dropped)</li>
+</ul>
+
+<h2 id="pipeline">8 · Pipeline</h2>
+
+<h3>CI/CD — nuevo <code>.github/workflows/ci.yml</code></h3>
+<pre><code>name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npx tsc --noEmit -p config/tsconfig.json
+      - run: npm run build
+      - run: npm test -- --run</code></pre>
+
+<h3>vercel.json — con headers de seguridad + asset cache</h3>
+<details class="collapse">
+  <summary>Ver vercel.json completo</summary>
+<pre><code>{
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ]
+}</code></pre>
+</details>
+
+<h3>Code-splitting — React.lazy() por ruta</h3>
+<div class="grid-2">
+  <div class="card info">
+    <h3>Antes</h3>
+    <p>Bundle único: <strong>1.07 MB</strong> (303 KB gzip)</p>
+  </div>
+  <div class="card goal">
+    <h3>Después (esperado)</h3>
+    <ul>
+      <li>Inicial: ~300 KB (shell + Dashboard)</li>
+      <li>Por-ruta: 50-100 KB, on-demand</li>
+      <li>Primera carga 3x más rápida en red lenta</li>
+    </ul>
+  </div>
+</div>
+
+<h3>Env var cleanup</h3>
+<ul class="checklist cross">
+  <li><code>VITE_ENABLE_PUBLIC_LINKS</code> (no se usa)</li>
+  <li><code>VITE_ENABLE_GOOGLE_AUTH</code> (no se usa)</li>
+  <li><code>VITE_ENABLE_NETWORK_MAP</code> (no se usa)</li>
+  <li><code>.env.local.template</code> (redundante con <code>.env.example</code>)</li>
+</ul>
+<p>Se agrega: <code>VITE_SENTRY_DSN</code> como opcional.</p>
+
+<h3>Checklist de env vars en Vercel (acción tuya)</h3>
+<p>En cada environment (Production, Preview, Development):</p>
+<ul class="checklist">
+  <li><code>VITE_SUPABASE_URL</code></li>
+  <li><code>VITE_SUPABASE_ANON_KEY</code></li>
+  <li><code>VITE_UI_VERSION=v2</code></li>
+  <li><code>VITE_DEMO_MODE=false</code> (Production + Preview)</li>
+  <li><code>VITE_SENTRY_DSN</code> (después de crear proyecto en sentry.io)</li>
+</ul>
+
+<h2 id="execution">9 · Orden de ejecución</h2>
+
+<ol class="phase-list">
+  <li>
+    <h4>Foundation (paralelizable, sin riesgo)</h4>
+    <p>Migrations 015 + 016, regenerar types, borrar artefactos muertos, workflow CI, vercel.json ampliado</p>
+  </li>
+  <li>
+    <h4>TanStack Query core</h4>
+    <p>Instalar paquetes, crear <code>queryClient.ts</code>, provider en <code>main.tsx</code>, migrar 8 hooks en paralelo con subagents, adaptar componentes</p>
+  </li>
+  <li>
+    <h4>Error UX + Sentry</h4>
+    <p><code>DataErrorBanner</code>, <code>ErrorBoundary</code> global, init de Sentry guarded, reemplazar skeleton-on-error</p>
+  </li>
+  <li>
+    <h4>Code-splitting</h4>
+    <p><code>React.lazy()</code> por ruta en <code>App.tsx</code>, <code>Suspense</code> wrapper, verificar chunks en build</p>
+  </li>
+  <li>
+    <h4>Validación</h4>
+    <p>Dev server limpio, build sin warnings, typecheck limpio, smoke test manual en Vercel preview con los 5 escenarios (ver sección 10)</p>
+  </li>
+</ol>
+
+<h2 id="success">10 · Criterio de éxito</h2>
+
+<div class="card goal">
+  <ul class="checklist">
+    <li>30 min de uso real en el preview de Vercel sin un solo skeleton permanente</li>
+    <li><code>npm run build</code> produce ≥ 5 chunks; bundle inicial < 400 KB</li>
+    <li>PR a <code>main</code> con CI verde (typecheck + lint + build + tests)</li>
+    <li>Sentry activo, capturando errores correctamente durante QA</li>
+  </ul>
+</div>
+
+<h3>Smoke test manual</h3>
+<ol>
+  <li>Abrir dashboard → datos visibles en &lt; 2s</li>
+  <li>Navegar entre rutas → instantáneo (cache)</li>
+  <li>Matar Wi-Fi a mitad de query → ver banner con Reintentar</li>
+  <li>Dejar pestaña idle 10 min → volver → revalida + datos frescos</li>
+  <li>Abrir TanStack devtools → queries cacheadas visibles</li>
+</ol>
+
+<h2 id="followups">11 · Follow-ups (no incluidos)</h2>
+
+<ul>
+  <li><strong>Región de Supabase</strong> — verificar en dashboard y evaluar migración a <code>sa-east-1</code> o <code>us-east-1</code> si está lejos de Ecuador</li>
+  <li>Playwright E2E smoke suite</li>
+  <li>Realtime subscriptions para notificaciones en vivo</li>
+  <li>Rediseño profundo de RLS (solo si escalamos > 100 empresas)</li>
+  <li>Bundle budget en CI (fail si inicial > 500 KB)</li>
+</ul>
+
+<footer>
+  Spec generada el 2026-05-06 · EnRegla · branch <code>feature/atlassian-ds-migration</code>
+</footer>
+
+</div>
+</body>
+</html>

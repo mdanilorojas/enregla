@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText } from 'lucide-react';
+import { FileText } from '@/lib/lucide-icons';
 import {
   Table,
   TableBody,
@@ -72,7 +72,7 @@ export function PermitsTable({
           {permits.map((permit) => (
             <React.Fragment key={permit.id}>
               {/* Main row */}
-              <TableRow className="hover:bg-gray-50 transition-colors">
+              <TableRow className="hover:bg-[var(--ds-neutral-50)] transition-colors">
                 <TableCell className="font-medium">{permit.type}</TableCell>
                 <TableCell>{permit.permit_number || '-'}</TableCell>
                 <TableCell>
@@ -90,19 +90,19 @@ export function PermitsTable({
                   {permit.status === 'no_registrado' ? (
                     <button
                       onClick={() => setExpandedPermitId(expandedPermitId === permit.id ? null : permit.id)}
-                      className="text-blue-900 hover:text-blue-800 font-medium transition-colors"
+                      className="text-[var(--ds-text-brand)] hover:text-[var(--ds-blue-600)] font-medium transition-colors"
                     >
                       {expandedPermitId === permit.id ? 'Cancelar' : 'Subir documento'}
                     </button>
                   ) : (
                     <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1.5 text-gray-600">
+                      <div className="flex items-center gap-1.5 text-[var(--ds-text-subtle)]">
                         <FileText className="h-4 w-4" />
                         <span className="text-xs">Documento</span>
                       </div>
                       <button
                         onClick={() => setExpandedPermitId(expandedPermitId === permit.id ? null : permit.id)}
-                        className="text-gray-700 hover:text-gray-900 text-sm transition-colors"
+                        className="text-[var(--ds-text-subtle)] hover:text-[var(--ds-text)] text-sm transition-colors"
                       >
                         {expandedPermitId === permit.id ? 'Cancelar' : 'Reemplazar'}
                       </button>

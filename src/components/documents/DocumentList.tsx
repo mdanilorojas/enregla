@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { getDocumentUrl, deleteDocument } from '@/lib/api/documents';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDate } from '@/lib/dates';
-import { FileText, Download, Trash2, ExternalLink } from 'lucide-react';
+import { FileText, Download, Trash2, ExternalLink } from '@/lib/lucide-icons';
 import type { Document } from '@/types/database';
 
 interface DocumentListProps {
