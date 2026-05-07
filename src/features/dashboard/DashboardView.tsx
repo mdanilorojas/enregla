@@ -12,7 +12,6 @@ import { SkeletonList } from '@/components/ui/skeleton'
 import { ComplianceWeatherCard, type WeatherState } from '@/components/ui/ComplianceWeatherCard'
 import { ComplianceInvoiceCard, type InvoiceLine } from '@/components/ui/ComplianceInvoiceCard'
 
-// Placeholder average cost per permit in USD — TODO: replace with real per-type costs.
 const AVG_PERMIT_COST = 45
 const FINE_MULTIPLIER: Record<WeatherState, number> = {
   sunny: 3.2,
@@ -29,7 +28,7 @@ function buildComplianceCopy(state: WeatherState, brand: string): {
       chipLabel: 'Casi al día',
       headline: (
         <>
-          Vas bien, <span className="cwc__brand">{brand}</span>. Solo te falta ponerte al día en unos pocos permisos.
+          Vas bien, <span className="brand">{brand}</span>. Solo te falta ponerte al día en unos pocos permisos.
         </>
       ),
     }
@@ -39,7 +38,7 @@ function buildComplianceCopy(state: WeatherState, brand: string): {
       chipLabel: 'Te estás atrasando',
       headline: (
         <>
-          <span className="cwc__brand">{brand}</span>, se te están acumulando los papeles. <b>Ponte las pilas</b> antes que te caiga una multa.
+          <span className="brand">{brand}</span>, se te están acumulando los papeles. <b>Ponte las pilas</b> antes que te caiga una multa.
         </>
       ),
     }
@@ -48,10 +47,16 @@ function buildComplianceCopy(state: WeatherState, brand: string): {
     chipLabel: 'Te pueden cerrar',
     headline: (
       <>
-        <span className="cwc__brand">{brand}</span>, <b>te pueden clausurar el local</b> en cualquier momento. Hay que actuar ya.
+        <span className="brand">{brand}</span>, <b>te pueden clausurar el local</b> en cualquier momento. Hay que actuar ya.
       </>
     ),
   }
+}
+
+function buildWarningText(state: WeatherState): React.ReactNode {
+  if (state === 'sunny') return <>Si no los pagas, la multa puede llegar a</>
+  if (state === 'warn') return <>Si no arreglas esto, la multa puede llegar a</>
+  return <>Clausura + multas hasta</>
 }
 
 export function DashboardView() {
@@ -76,13 +81,10 @@ export function DashboardView() {
       const active = locPermits.filter(p => p.status === 'vigente').length
       const totalLoc = locPermits.length || 1
       const percentage = (active / totalLoc) * 100
-
       const status: 'success' | 'warning' | 'danger' =
         percentage >= 90 ? 'success' : percentage >= 50 ? 'warning' : 'danger'
-
       const risk: 'Bajo' | 'Medio' | 'Alto' | 'Crítico' =
         percentage >= 90 ? 'Bajo' : percentage >= 70 ? 'Medio' : percentage >= 40 ? 'Alto' : 'Crítico'
-
       return {
         id: loc.id,
         label: loc.name,
@@ -157,28 +159,23 @@ export function DashboardView() {
 
   const { chipLabel, headline } = buildComplianceCopy(metrics.state, brandName)
 
-  const invoiceLines: InvoiceLine[] = [
-    ...(metrics.vencidos > 0
-      ? [{ label: 'Permisos vencidos', detail: `${metrics.vencidos} trámites`, amount: Math.round(metrics.vencidos * AVG_PERMIT_COST) }]
-      : []),
-    ...(metrics.porVencer > 0
-      ? [{ label: 'Permisos por vencer', detail: `próximos 30 días`, amount: Math.round(metrics.porVencer * AVG_PERMIT_COST) }]
-      : []),
-  ]
-
-  // If nothing is missing, show a celebratory placeholder
-  const showInvoice = metrics.missing > 0
-  const fallbackLines: InvoiceLine[] = [
-    { label: 'Sin trámites pendientes', detail: 'Estás al 100%', amount: 0 },
-  ]
+  const invoiceLines: InvoiceLine[] = metrics.missing > 0
+    ? [
+        ...(metrics.vencidos > 0
+          ? [{ label: 'Permisos vencidos', detail: `${metrics.vencidos} trámites`, amount: Math.round(metrics.vencidos * AVG_PERMIT_COST) }]
+          : []),
+        ...(metrics.porVencer > 0
+          ? [{ label: 'Permisos por vencer', detail: 'próximos 30 días', amount: Math.round(metrics.porVencer * AVG_PERMIT_COST) }]
+          : []),
+      ]
+    : [{ label: 'Sin trámites pendientes', detail: 'Estás al 100%', amount: 0 }]
 
   return (
     <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
       <div className="max-w-7xl mx-auto space-y-[var(--ds-space-400)]">
         <h1 className="text-[var(--ds-font-size-500)] font-bold text-[var(--ds-text)]">Dashboard</h1>
 
-        {/* New compliance summary: weather card + invoice card */}
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_440px] gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_440px] gap-5 items-stretch">
           <ComplianceWeatherCard
             state={metrics.state}
             chipLabel={chipLabel}
@@ -189,19 +186,10 @@ export function DashboardView() {
             locations={locations.length}
           />
           <ComplianceInvoiceCard
-            lines={showInvoice ? invoiceLines : fallbackLines}
+            lines={invoiceLines}
             total={metrics.regularizeCost}
-            warningAmount={showInvoice ? metrics.fineCost : undefined}
-            warningText={
-              showInvoice ? (
-                metrics.state === 'err'
-                  ? <>Clausura + multas hasta</>
-                  : metrics.state === 'warn'
-                    ? <>Si no arreglas esto, la multa puede llegar a</>
-                    : <>Si no los pagas, multa de hasta</>
-              ) : undefined
-            }
-            footnote="Valores aproximados según tarifa municipal. Los exactos los ves en cada permiso."
+            warningAmount={metrics.missing > 0 ? metrics.fineCost : undefined}
+            warningText={metrics.missing > 0 ? buildWarningText(metrics.state) : undefined}
           />
         </div>
 

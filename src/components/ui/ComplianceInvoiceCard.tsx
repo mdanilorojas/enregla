@@ -17,7 +17,7 @@ export interface ComplianceInvoiceCardProps {
 }
 
 function formatAmount(n: number): string {
-  return n.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).replace(/,/g, ' ');
+  return n.toLocaleString('en-US', { maximumFractionDigits: 0 }).replace(/,/g, ' ');
 }
 
 function ComplianceInvoiceCardImpl({
@@ -26,45 +26,43 @@ function ComplianceInvoiceCardImpl({
   currency = 'USD',
   warningAmount,
   warningText,
-  footnote,
+  footnote = 'Valores aproximados según tarifa municipal. Los exactos los ves en cada permiso.',
 }: ComplianceInvoiceCardProps) {
   return (
-    <div className="cic">
+    <div className="invoice-card">
       <style>{CSS}</style>
 
-      <div className="cic__accent" />
-
-      <div className="cic__header">
-        <div className="cic__title">
-          <div className="cic__title-icon">
+      <div className="invoice-header">
+        <div className="invoice-title">
+          <div className="icon">
             <DollarSign size={15} strokeWidth={2.5} />
           </div>
           Lo que te falta pagar
         </div>
-        <div className="cic__approx">aprox.</div>
+        <div className="approx-chip">aprox.</div>
       </div>
 
-      <div className="cic__list">
+      <div className="receipt-list">
         {lines.map((line, i) => (
-          <div key={i} className="cic__line">
-            <div className="cic__label">
+          <div key={i} className="receipt-line">
+            <div className="label">
               {line.label}
-              {line.detail && <span className="cic__detail">· {line.detail}</span>}
+              {line.detail && <span className="more"> · {line.detail}</span>}
             </div>
-            <div className="cic__price">${formatAmount(line.amount)}</div>
+            <div className="price">${formatAmount(line.amount)}</div>
           </div>
         ))}
       </div>
 
-      <div className="cic__total">
-        <div className="cic__total-label">Total pendiente</div>
-        <div className="cic__total-amount">
-          ${formatAmount(total)}<small> {currency}</small>
+      <div className="receipt-total">
+        <div className="label">Total pendiente</div>
+        <div className="amount">
+          <span>${formatAmount(total)}</span><small> {currency}</small>
         </div>
       </div>
 
       {warningText && (
-        <div className="cic__warning">
+        <div className="warning-box">
           {warningText}
           {warningAmount !== undefined && (
             <> <b>${formatAmount(warningAmount)}</b>.</>
@@ -72,7 +70,7 @@ function ComplianceInvoiceCardImpl({
         </div>
       )}
 
-      {footnote && <div className="cic__footnote">{footnote}</div>}
+      <div className="footnote">{footnote}</div>
     </div>
   );
 }
@@ -80,7 +78,7 @@ function ComplianceInvoiceCardImpl({
 export const ComplianceInvoiceCard = memo(ComplianceInvoiceCardImpl);
 
 const CSS = `
-.cic {
+.invoice-card {
   background: white;
   border: 1px solid #dfe3e8;
   border-radius: 16px;
@@ -93,19 +91,20 @@ const CSS = `
   position: relative;
   overflow: hidden;
 }
-.cic__accent {
+.invoice-card::before {
+  content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 3px;
   background: linear-gradient(90deg, #16a34a, #15803d);
 }
-.cic__header {
+.invoice-card .invoice-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
 }
-.cic__title {
+.invoice-card .invoice-title {
   font-size: 15px;
   font-weight: 600;
   color: #172b4d;
@@ -113,9 +112,8 @@ const CSS = `
   align-items: center;
   gap: 10px;
 }
-.cic__title-icon {
-  width: 30px;
-  height: 30px;
+.invoice-card .invoice-title .icon {
+  width: 30px; height: 30px;
   background: #ecfdf5;
   color: #15803d;
   border-radius: 8px;
@@ -124,21 +122,19 @@ const CSS = `
   justify-content: center;
   flex-shrink: 0;
 }
-.cic__approx {
-  font-size: 10px;
-  font-weight: 500;
-  padding: 3px 10px;
-  border-radius: 12px;
+.invoice-card .approx-chip {
+  font-size: 10px; font-weight: 500;
+  padding: 3px 10px; border-radius: 12px;
   background: #eef0f3;
   color: #5e6c84;
   font-style: italic;
   flex-shrink: 0;
 }
-.cic__list {
+.invoice-card .receipt-list {
   display: flex;
   flex-direction: column;
 }
-.cic__line {
+.invoice-card .receipt-line {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
@@ -147,37 +143,34 @@ const CSS = `
   border-bottom: 1px dotted #dfe3e8;
   color: #172b4d;
 }
-.cic__line:last-child { border-bottom: none; }
-.cic__label {
-  line-height: 1.3;
-  min-width: 0;
-}
-.cic__detail {
+.invoice-card .receipt-line:last-child { border-bottom: none; }
+.invoice-card .receipt-line .label { line-height: 1.3; min-width: 0; }
+.invoice-card .receipt-line .label .more {
   color: #5e6c84;
   font-size: 11px;
   font-style: italic;
   margin-left: 4px;
 }
-.cic__price {
+.invoice-card .receipt-line .price {
   font-variant-numeric: tabular-nums;
   font-weight: 500;
   white-space: nowrap;
   margin-left: 12px;
   color: #172b4d;
 }
-.cic__total {
+.invoice-card .receipt-total {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   padding-top: 14px;
   border-top: 2px solid #dfe3e8;
 }
-.cic__total-label {
+.invoice-card .receipt-total .label {
   font-size: 13px;
   font-weight: 500;
   color: #172b4d;
 }
-.cic__total-amount {
+.invoice-card .receipt-total .amount {
   font-size: 34px;
   font-weight: 300;
   font-variant-numeric: tabular-nums;
@@ -186,7 +179,7 @@ const CSS = `
   color: #166534;
   white-space: nowrap;
 }
-.cic__total-amount small {
+.invoice-card .receipt-total .amount small {
   font-size: 14px;
   font-weight: 300;
   opacity: 0.6;
@@ -194,7 +187,7 @@ const CSS = `
   letter-spacing: 0;
   color: #5e6c84;
 }
-.cic__warning {
+.invoice-card .warning-box {
   font-size: 12.5px;
   line-height: 1.5;
   padding: 10px 14px;
@@ -203,12 +196,12 @@ const CSS = `
   border: 1px dashed rgba(194, 65, 12, 0.35);
   color: #7c2d12;
 }
-.cic__warning b {
+.invoice-card .warning-box b {
   font-weight: 600;
   color: #c2410c;
   font-variant-numeric: tabular-nums;
 }
-.cic__footnote {
+.invoice-card .footnote {
   font-size: 10.5px;
   color: #8993a4;
   font-style: italic;
