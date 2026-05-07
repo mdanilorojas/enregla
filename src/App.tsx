@@ -18,6 +18,7 @@ import { NetworkMapPage } from '@/features/network/NetworkMapPage';
 import { DesignSystemView } from '@/features/design-system/DesignSystemView';
 import { DesignSystemShowcase } from '@/features/design-system/DesignSystemShowcase';
 import { SettingsView } from '@/features/settings/SettingsView';
+import { InternalCrmView } from '@/features/internal-crm/InternalCrmView';
 import { AppLoader } from '@/components/ui/app-loader';
 
 function OnboardingRoute() {
@@ -114,6 +115,7 @@ export default function App() {
           <Route path="/design-system-showcase" element={<DesignSystemShowcase />} />
           <Route path="/settings" element={<SettingsView />} />
           <Route path="/settings/notifications" element={<SettingsView />} />
+          <Route path="/internal/crm" element={<InternalCrmView />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
