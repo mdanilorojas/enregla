@@ -193,9 +193,6 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 # UI Version (v1 or v2)
 VITE_UI_VERSION=v2
-
-# Feature Flags (optional)
-VITE_ENABLE_PUBLIC_LINKS=true
 ```
 
 ### Available Scripts
