@@ -9,9 +9,53 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { Button } from '@/components/ui/button'
 import { Building2, Plus } from '@/lib/lucide-icons'
 import { SkeletonList } from '@/components/ui/skeleton'
+import { ComplianceWeatherCard, type WeatherState } from '@/components/ui/ComplianceWeatherCard'
+import { ComplianceInvoiceCard, type InvoiceLine } from '@/components/ui/ComplianceInvoiceCard'
+
+// Placeholder average cost per permit in USD — TODO: replace with real per-type costs.
+const AVG_PERMIT_COST = 45
+const FINE_MULTIPLIER: Record<WeatherState, number> = {
+  sunny: 3.2,
+  warn: 4.5,
+  err: 6,
+}
+
+function buildComplianceCopy(state: WeatherState, brand: string): {
+  chipLabel: string
+  headline: React.ReactNode
+} {
+  if (state === 'sunny') {
+    return {
+      chipLabel: 'Casi al día',
+      headline: (
+        <>
+          Vas bien, <span className="cwc__brand">{brand}</span>. Solo te falta ponerte al día en unos pocos permisos.
+        </>
+      ),
+    }
+  }
+  if (state === 'warn') {
+    return {
+      chipLabel: 'Te estás atrasando',
+      headline: (
+        <>
+          <span className="cwc__brand">{brand}</span>, se te están acumulando los papeles. <b>Ponte las pilas</b> antes que te caiga una multa.
+        </>
+      ),
+    }
+  }
+  return {
+    chipLabel: 'Te pueden cerrar',
+    headline: (
+      <>
+        <span className="cwc__brand">{brand}</span>, <b>te pueden clausurar el local</b> en cualquier momento. Hay que actuar ya.
+      </>
+    ),
+  }
+}
 
 export function DashboardView() {
-  const { companyId: authCompanyId } = useAuth()
+  const { companyId: authCompanyId, profile } = useAuth()
   const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true'
   const companyId = isDemoMode ? '50707999-f033-41c4-91c9-989966311972' : authCompanyId
 
@@ -21,15 +65,17 @@ export function DashboardView() {
   const loading = loadingLocs || loadingPermits
 
   const metrics = useMemo(() => {
-    const vigentes = permits.filter(p => p.is_active && p.status === 'vigente').length
-    const porVencer = permits.filter(p => p.is_active && p.status === 'por_vencer').length
-    const vencidos = permits.filter(p => p.is_active && p.status === 'vencido').length
+    const activePermits = permits.filter(p => p.is_active)
+    const vigentes = activePermits.filter(p => p.status === 'vigente').length
+    const porVencer = activePermits.filter(p => p.status === 'por_vencer').length
+    const vencidos = activePermits.filter(p => p.status === 'vencido').length
+    const total = activePermits.length
 
     const sedesWithPermits: SedeMapData[] = locations.map(loc => {
       const locPermits = permits.filter(p => p.location_id === loc.id && p.is_active)
       const active = locPermits.filter(p => p.status === 'vigente').length
-      const total = locPermits.length || 1
-      const percentage = (active / total) * 100
+      const totalLoc = locPermits.length || 1
+      const percentage = (active / totalLoc) * 100
 
       const status: 'success' | 'warning' | 'danger' =
         percentage >= 90 ? 'success' : percentage >= 50 ? 'warning' : 'danger'
@@ -42,13 +88,35 @@ export function DashboardView() {
         label: loc.name,
         code: loc.id.slice(0, 8).toUpperCase(),
         permits: active,
-        total,
+        total: totalLoc,
         status,
         risk,
       }
     })
 
-    return { vigentes, porVencer, vencidos, sedesWithPermits }
+    const percentage = total > 0 ? Math.round((vigentes / total) * 100) : 0
+    const missing = porVencer + vencidos
+    const state: WeatherState = vencidos > 0 && percentage < 50
+      ? 'err'
+      : percentage < 80 || vencidos > 0
+        ? 'warn'
+        : 'sunny'
+
+    const regularizeCost = Math.round(missing * AVG_PERMIT_COST)
+    const fineCost = Math.round(regularizeCost * FINE_MULTIPLIER[state])
+
+    return {
+      vigentes,
+      porVencer,
+      vencidos,
+      total,
+      percentage,
+      missing,
+      sedesWithPermits,
+      state,
+      regularizeCost,
+      fineCost,
+    }
   }, [locations, permits])
 
   if (loading) {
@@ -83,10 +151,60 @@ export function DashboardView() {
     )
   }
 
+  const brandName = profile?.company_id
+    ? locations[0]?.name?.split(' ')[0] ?? 'tu negocio'
+    : 'Hamburguesas La Española'
+
+  const { chipLabel, headline } = buildComplianceCopy(metrics.state, brandName)
+
+  const invoiceLines: InvoiceLine[] = [
+    ...(metrics.vencidos > 0
+      ? [{ label: 'Permisos vencidos', detail: `${metrics.vencidos} trámites`, amount: Math.round(metrics.vencidos * AVG_PERMIT_COST) }]
+      : []),
+    ...(metrics.porVencer > 0
+      ? [{ label: 'Permisos por vencer', detail: `próximos 30 días`, amount: Math.round(metrics.porVencer * AVG_PERMIT_COST) }]
+      : []),
+  ]
+
+  // If nothing is missing, show a celebratory placeholder
+  const showInvoice = metrics.missing > 0
+  const fallbackLines: InvoiceLine[] = [
+    { label: 'Sin trámites pendientes', detail: 'Estás al 100%', amount: 0 },
+  ]
+
   return (
     <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
       <div className="max-w-7xl mx-auto space-y-[var(--ds-space-400)]">
         <h1 className="text-[var(--ds-font-size-500)] font-bold text-[var(--ds-text)]">Dashboard</h1>
+
+        {/* New compliance summary: weather card + invoice card */}
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_440px] gap-5">
+          <ComplianceWeatherCard
+            state={metrics.state}
+            chipLabel={chipLabel}
+            headline={headline}
+            percentage={metrics.percentage}
+            permitsDone={metrics.vigentes}
+            permitsTotal={metrics.total}
+            locations={locations.length}
+          />
+          <ComplianceInvoiceCard
+            lines={showInvoice ? invoiceLines : fallbackLines}
+            total={metrics.regularizeCost}
+            warningAmount={showInvoice ? metrics.fineCost : undefined}
+            warningText={
+              showInvoice ? (
+                metrics.state === 'err'
+                  ? <>Clausura + multas hasta</>
+                  : metrics.state === 'warn'
+                    ? <>Si no arreglas esto, la multa puede llegar a</>
+                    : <>Si no los pagas, multa de hasta</>
+              ) : undefined
+            }
+            footnote="Valores aproximados según tarifa municipal. Los exactos los ves en cada permiso."
+          />
+        </div>
+
         <DashboardWidget
           totalSedes={locations.length}
           vigentes={metrics.vigentes}

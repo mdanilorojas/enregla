@@ -74,6 +74,7 @@ export {
   QrCode,
 
   // Misc
+  DollarSign,
   Loader2,
   MoreHorizontal,
   MoreVertical,
