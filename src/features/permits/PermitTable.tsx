@@ -18,7 +18,7 @@ import { Eye, Edit, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from '@/
 export interface PermitRow {
   id: string
   location: string
-  locationId: string
+  locationId: string | null
   type: string
   status: 'vigente' | 'por_vencer' | 'vencido' | 'en_tramite' | 'no_registrado'
   expires_at: string | null

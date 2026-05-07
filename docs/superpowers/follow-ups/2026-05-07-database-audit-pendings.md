@@ -93,6 +93,29 @@ En la próxima sesión:
 
 ## Completados
 
+### Task 2 — Fix errores TS null-safety post-regeneración types ✅
+
+**Terminado:** 2026-05-07 (misma sesión)
+
+Resueltos 10 errores TS en 7 archivos (fueron más de los 5 documentados originalmente, los atrapamos todos):
+
+- `useNotificationPreferences.ts:32` — default a `true` los campos nullable
+- `permits.ts:66` — guard para `location_id` null
+- `permits.ts:149` — `oldPermit.version ?? 1` fallback
+- `dashboard-metrics.ts:64` — fallback a `Date.now()` si `location.created_at` null
+- `dashboard-metrics.ts:129` — type predicate filter para narrow `location_id | expiry_date` no null
+- `PermitDetailView.tsx:430` — conditional render de `formatDate(doc.uploaded_at)`
+- `PermitTable.tsx:21` — cambio `locationId: string` a `string | null`
+- `PermitsTable.tsx:79` — cast con import de type `PermitStatus`
+- `DocumentList.tsx:129` — conditional render de `formatDate(doc.uploaded_at)`
+- `LocationDetailView.tsx:43` — `is_active ?? true` fallback
+- `PermitCardsGrid.tsx:205` — fallback a `statusConfig.no_registrado` si key no existe
+
+**Resultado:** `npx tsc -p config/tsconfig.app.json --noEmit` clean (0 errors).
+**Build:** exitoso en 708ms.
+
+---
+
 ### Task 1 — Simplificar LocationsStep UI ✅
 
 **Terminado:** 2026-05-07 (misma sesión del audit)

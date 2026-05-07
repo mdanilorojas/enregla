@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { StatusBadge } from '@/components/ui/StatusBadge';
+import { StatusBadge, type PermitStatus } from '@/components/ui/StatusBadge';
 import { PermitUploadForm } from '@/features/permits/PermitUploadForm';
 import type { Permit } from '@/types/database';
 
@@ -76,7 +76,7 @@ export function PermitsTable({
                 <TableCell className="font-medium">{permit.type}</TableCell>
                 <TableCell>{permit.permit_number || '-'}</TableCell>
                 <TableCell>
-                  <StatusBadge status={permit.status} />
+                  <StatusBadge status={permit.status as PermitStatus} />
                 </TableCell>
                 <TableCell>{formatDate(permit.issue_date)}</TableCell>
                 <TableCell>

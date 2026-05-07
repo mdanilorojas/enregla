@@ -57,6 +57,7 @@ export async function getPermitHistory(permitId: string): Promise<Permit[]> {
   // First get the current permit to find its type and location
   const currentPermit = await getPermit(permitId);
   if (!currentPermit) return [];
+  if (!currentPermit.location_id) return [currentPermit];
 
   // Get all permits with same type and location (all versions)
   const { data, error } = await supabase
@@ -146,7 +147,7 @@ export async function renewPermit(
     issuer: data.issuer || oldPermit.issuer,
     notes: data.notes,
     is_active: true,
-    version: oldPermit.version + 1,
+    version: (oldPermit.version ?? 1) + 1,
     superseded_by: null,
     archived_at: null,
   };

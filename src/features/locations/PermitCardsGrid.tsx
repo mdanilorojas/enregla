@@ -202,7 +202,7 @@ export function PermitCardsGrid({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {permits.map(permit => {
-        const config = statusConfig[permit.status];
+        const config = statusConfig[permit.status as PermitStatus] ?? statusConfig.no_registrado;
         const Icon = config.icon;
         const isUploading = uploadingIds.has(permit.id);
         const isDragOver = dragOverId === permit.id;
