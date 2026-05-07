@@ -12,8 +12,8 @@ import { LocationDetailView } from '@/features/locations/LocationDetailView';
 import { PermitListView } from '@/features/permits/PermitListView';
 import { PermitDetailView } from '@/features/permits/PermitDetailView';
 import { RenewalGridView } from '@/features/renewals/RenewalGridView';
-import { LegalReferenceView } from '@/features/legal/LegalReferenceView';
-import { LegalCategoryDetailView } from '@/features/legal/LegalCategoryDetailView';
+import { LegalIndexView } from '@/features/legal/LegalIndexView';
+import { LegalPermitDetailView } from '@/features/legal/LegalPermitDetailView';
 import { NetworkMapPage } from '@/features/network/NetworkMapPage';
 import { DesignSystemView } from '@/features/design-system/DesignSystemView';
 import { DesignSystemShowcase } from '@/features/design-system/DesignSystemShowcase';
@@ -108,8 +108,8 @@ export default function App() {
           <Route path="/permisos" element={<PermitListView />} />
           <Route path="/permisos/:id" element={<PermitDetailView />} />
           <Route path="/renovaciones" element={<RenewalGridView />} />
-          <Route path="/marco-legal" element={<LegalReferenceView />} />
-          <Route path="/marco-legal/:categoria" element={<LegalCategoryDetailView />} />
+          <Route path="/marco-legal" element={<LegalIndexView />} />
+          <Route path="/marco-legal/:permitType" element={<LegalPermitDetailView />} />
           <Route path="/design-system" element={<DesignSystemView />} />
           <Route path="/design-system-showcase" element={<DesignSystemShowcase />} />
           <Route path="/settings" element={<SettingsView />} />
