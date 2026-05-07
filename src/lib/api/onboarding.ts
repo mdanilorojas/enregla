@@ -148,13 +148,14 @@ export async function completeOnboarding(
   data: OnboardingData
 ): Promise<string> {
   // 1. Create company
+  // NOTA: regulatory_factors fue eliminado del schema en Ola 12.
+  // business_type define los permits via permit_requirements.
   const companyData: CompanyInsert = {
     name: data.company.name,
     ruc: data.company.ruc,
     business_type: data.company.business_type,
     city: data.company.city,
     location_count: data.locations.length,
-    regulatory_factors: data.regulatory_factors as any,
   };
 
   const companyResult = await (supabase
@@ -247,7 +248,7 @@ export async function saveProfile(
  * Step 2: Create company and link to user profile
  */
 export async function saveCompany(
-  userId: string,
+  _userId: string,
   companyData: {
     name: string;
     ruc: string;
@@ -255,24 +256,23 @@ export async function saveCompany(
     business_type: string;
   }
 ): Promise<string> {
+  // _userId queda como parametro para no romper callers; el trigger
+  // auto_assign_company_to_profile asigna el company_id al profile
+  // automaticamente usando auth.uid() en DB.
   // Validate RUC
   if (!/^\d{13}$/.test(companyData.ruc)) {
     throw new Error('RUC debe tener exactamente 13 dígitos numéricos');
   }
 
   // 1. Create company
+  // NOTA: El trigger companies_auto_assign_to_profile asigna company_id
+  // al profile automaticamente. No hacer UPDATE manual.
   const companyInsert: CompanyInsert = {
     name: companyData.name,
     ruc: companyData.ruc,
     city: companyData.city,
     business_type: companyData.business_type,
     location_count: 0,
-    regulatory_factors: {
-      alimentos: false,
-      alcohol: false,
-      salud: false,
-      quimicos: false,
-    } as any,
   };
 
   const { data: company, error: companyError } = await (supabase
@@ -283,14 +283,6 @@ export async function saveCompany(
 
   if (companyError) throw companyError;
   if (!company) throw new Error('Failed to create company');
-
-  // 2. Link company to profile
-  const { error: profileError } = await (supabase
-    .from('profiles') as any)
-    .update({ company_id: company.id })
-    .eq('id', userId);
-
-  if (profileError) throw profileError;
 
   return company.id;
 }
