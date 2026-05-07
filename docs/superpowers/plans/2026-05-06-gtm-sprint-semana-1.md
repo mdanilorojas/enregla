@@ -128,7 +128,7 @@ supabase functions deploy send-expiry-alerts --project-ref zqaqhapxqwkvninnyqiu
 
 En Supabase Dashboard → Edge Functions → Secrets, agregar:
 - `RESEND_API_KEY` = (del dashboard de Resend)
-- `RESEND_FROM_EMAIL` = `alertas@enregla.com` (requiere DNS verificado en Resend)
+- `RESEND_FROM_EMAIL` = `alertas@enregla.ec` (requiere DNS verificado en Resend)
 
 Verificar con:
 ```bash
@@ -1063,7 +1063,7 @@ export default function Sobre() {
           </p>
 
           <p className="text-[17px] text-ds-neutral-600">
-            ¿Preguntas? Escríbenos a <a href="mailto:hola@enregla.com" className="text-ds-orange-600 font-semibold">hola@enregla.com</a>.
+            ¿Preguntas? Escríbenos a <a href="mailto:hola@enregla.ec" className="text-ds-orange-600 font-semibold">hola@enregla.ec</a>.
           </p>
         </div>
       </main>
@@ -2030,10 +2030,10 @@ O si prefieres, trabajar contra deploy de preview de la branch.
 
 - [ ] **Step 13.2: Submit test desde landing**
 
-Abrir `enregla.com/diagnostico` (o preview URL), llenar form con datos falsos:
+Abrir `enregla.ec/diagnostico` (o preview URL), llenar form con datos falsos:
 - Nombre: "Test QA"
 - Negocio: "QA Restaurant"
-- Email: "qa+diagnostico@enregla.com"
+- Email: "qa+diagnostico@enregla.ec"
 - Telefono: "0999999999"
 - Ciudad: "Quito"
 - Sedes: 2
@@ -2043,13 +2043,13 @@ Submit. Expected: ver mensaje "¡Listo!"
 - [ ] **Step 13.3: Verificar en Supabase**
 
 ```sql
-SELECT * FROM leads WHERE email = 'qa+diagnostico@enregla.com';
+SELECT * FROM leads WHERE email = 'qa+diagnostico@enregla.ec';
 ```
 Expected: 1 row con status=`nuevo`, source=`diagnostico`, todos los campos completos.
 
 - [ ] **Step 13.4: Verificar en CRM interno**
 
-Login en producto (`app.enregla.com` o `localhost:5173`), ir a `/internal/crm`. Expected: ver el lead "Test QA" al tope de la lista.
+Login en producto (`app.enregla.ec` o `localhost:5173`), ir a `/internal/crm`. Expected: ver el lead "Test QA" al tope de la lista.
 
 - [ ] **Step 13.5: Probar cambio de status**
 
@@ -2057,14 +2057,14 @@ En CRM, cambiar status del lead a "demo_agendada". Refrescar página. Expected: 
 
 Verificar en DB:
 ```sql
-SELECT status FROM leads WHERE email = 'qa+diagnostico@enregla.com';
+SELECT status FROM leads WHERE email = 'qa+diagnostico@enregla.ec';
 ```
 Expected: `demo_agendada`.
 
 - [ ] **Step 13.6: Cleanup test data**
 
 ```sql
-DELETE FROM leads WHERE email = 'qa+diagnostico@enregla.com';
+DELETE FROM leads WHERE email = 'qa+diagnostico@enregla.ec';
 ```
 
 - [ ] **Step 13.7: Repetir para partners page**
@@ -2073,15 +2073,15 @@ Mismo flujo en `/partners`.
 
 - [ ] **Step 13.8: Test UTM capture**
 
-Abrir `enregla.com/diagnostico?utm_source=tiktok&utm_campaign=test123` y submit. Verificar en DB:
+Abrir `enregla.ec/diagnostico?utm_source=tiktok&utm_campaign=test123` y submit. Verificar en DB:
 ```sql
-SELECT utm_source, utm_campaign FROM leads WHERE email = 'qa+utm@enregla.com';
+SELECT utm_source, utm_campaign FROM leads WHERE email = 'qa+utm@enregla.ec';
 ```
 Expected: `utm_source=tiktok, utm_campaign=test123`.
 
 Cleanup:
 ```sql
-DELETE FROM leads WHERE email = 'qa+utm@enregla.com';
+DELETE FROM leads WHERE email = 'qa+utm@enregla.ec';
 ```
 
 ---
@@ -2112,8 +2112,8 @@ Crear PR en GitHub: `feature/internal-crm` → `main` (o `feature/atlassian-ds-m
 
 - [ ] **Step 14.3: Verificar producción**
 
-- Abrir `enregla.com/diagnostico` → lead form funciona
-- Login en `app.enregla.com` (o donde esté el producto) → `/internal/crm` funciona
+- Abrir `enregla.ec/diagnostico` → lead form funciona
+- Login en `app.enregla.ec` (o donde esté el producto) → `/internal/crm` funciona
 - Submit lead real de prueba → aparece en CRM
 
 - [ ] **Step 14.4: Documentación final**

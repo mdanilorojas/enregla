@@ -5,7 +5,7 @@
 **Estado:** Draft para revisión — v2, iterado con feedback Danilo
 **Horizonte:** 12 meses (2026-05-06 → 2027-05-06)
 **Meta:** 200 clientes pagando año 1
-**Dominio:** enregla.com · email comercial: hola@enregla.com
+**Dominio:** enregla.ec · email comercial: hola@enregla.ec
 **Marca / estudio propietario:** Aura (alias comercial de Danilo Rojas)
 **Target audience:** PYMES con 2-3 locales. Dueño operativo, jerga EC, sin equipo de compliance.
 
@@ -22,7 +22,7 @@ Este spec v2 corrige cuatro ejes respecto al v1:
 
 Y cuatro decisiones nuevas:
 
-5. **Dominio:** enregla.com (no .ec ni .app). Email: hola@enregla.com.
+5. **Dominio:** enregla.ec (no .ec ni .app). Email: hola@enregla.ec.
 6. **Marca:** HashUI → Aura en footer.
 7. **Landing:** rediseño completo en tono PYME, en repo separado `enregla-landing`, branch nueva.
 8. **Repos:** dos repos separados. `enregla` = producto. `enregla-landing` = marketing.
@@ -94,7 +94,7 @@ Lo que vende más allá del pitch minimalista:
 | Cara al micrófono | Avatar IA 90% · Danilo cara en LinkedIn mensual + página /sobre + diagnósticos en vivo desde mes 3 |
 | Idioma | Español Ecuador con jerga ("plata", "chévere", "de una", "man") |
 | Target | PYMES 2-3 locales, NO enterprise |
-| Dominio | enregla.com |
+| Dominio | enregla.ec |
 | Marca | Aura (estudio) / EnRegla (producto) |
 | Relación con enablers | Complementaria, NO competitiva |
 | Apetito ético | Agresivo pero no ilegal ni reputacionalmente dañino |
@@ -278,11 +278,11 @@ enregla-landing/
 ```
 
 **Rutas finales:**
-- `enregla.com/` — landing principal (tono PYME)
-- `enregla.com/diagnostico` — CTA diagnóstico 7 días
-- `enregla.com/partners` — B2B enablers
-- `enregla.com/sobre` — Danilo fundador
-- `app.enregla.com` — apunta al producto (repo `enregla`)
+- `enregla.ec/` — landing principal (tono PYME)
+- `enregla.ec/diagnostico` — CTA diagnóstico 7 días
+- `enregla.ec/partners` — B2B enablers
+- `enregla.ec/sobre` — Danilo fundador
+- `app.enregla.ec` — apunta al producto (repo `enregla`)
 
 **Tono del rediseño (nuevo):**
 
@@ -298,7 +298,7 @@ DESPUÉS (PYME jugoso):
 
 Regla: si el dueño de un café con 2 locales no entiende una palabra de la landing, esa palabra se va.
 
-**Footer:** Aura (no HashUI). Email: hola@enregla.com.
+**Footer:** Aura (no HashUI). Email: hola@enregla.ec.
 
 ### 7.2 Repo `enregla` (producto — solo CRM interno)
 
@@ -409,7 +409,7 @@ Output semana 1: landing PYME live en staging, infra de captura lista.
 - Retrospectiva + plan meses 2-3
 
 **Output sprint día 30:**
-- Landing PYME deployed en `enregla.com`
+- Landing PYME deployed en `enregla.ec`
 - 3 meses de contenido en banco (~90 piezas originales)
 - Infraestructura completa (landings + CRM + funnel + tracking)
 - ~180 llamadas hechas
