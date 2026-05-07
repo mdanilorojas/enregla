@@ -93,4 +93,15 @@ En la próxima sesión:
 
 ## Completados
 
-_(vacío por ahora — mover tasks aquí al terminarlas)_
+### Task 1 — Simplificar LocationsStep UI ✅
+
+**Terminado:** 2026-05-07 (misma sesión del audit)
+
+- Eliminada sección "Factores regulatorios" del `LocationsStep.tsx`
+- Simplificada interface `LocationInput` (sin campo `regulatory`)
+- Agregado banner informativo: "Los permisos se crean automáticamente según el tipo de negocio de la empresa."
+- Eliminada función `generateInitialPermits` de `onboarding.ts` (reemplazada por trigger DB)
+- Simplificada `saveLocationWithPermits` (solo INSERT location, trigger hace el resto)
+- Actualizada `completeOnboarding` (legacy, quitado paso de permits manuales y update profile)
+- Parchado `OnboardingWizard.tsx` legacy con type local `LocalOnboardingData` para que compile
+- Eliminada `regulatory_factors` de `OnboardingData` interface
