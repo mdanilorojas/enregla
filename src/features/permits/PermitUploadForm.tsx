@@ -41,6 +41,9 @@ interface PermitUploadFormProps {
   permit: Permit;
   onSuccess: () => void;
   onCancel: () => void;
+  /** Si se pasa, el form arranca con este archivo pre-seleccionado. Util cuando
+   *  el parent ya capturo un drag&drop o file-select y abre este form como modal. */
+  preloadedFile?: File | null;
   updatePermit: (
     permitId: string,
     updates: {
@@ -68,10 +71,11 @@ export function PermitUploadForm({
   permit,
   onSuccess,
   onCancel,
+  preloadedFile = null,
   updatePermit,
 }: PermitUploadFormProps) {
   // ========== State Management ==========
-  const [file, setFile] = useState<File | null>(null);
+  const [file, setFile] = useState<File | null>(preloadedFile);
   const [issueDate, setIssueDate] = useState<Date>(new Date());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -8,7 +8,9 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Banner } from '@/components/ui/banner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { PermitTimeline, type TimelineEvent } from './PermitTimeline';
+import { PermitUploadForm } from './PermitUploadForm';
 import { formatDate } from '@/lib/dates';
 import {
   Edit,
@@ -21,7 +23,7 @@ import {
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { uploadPermitDocument, deleteDocument } from '@/lib/api/documents';
+import { deleteDocument } from '@/lib/api/documents';
 import toast from 'react-hot-toast';
 import type { Document } from '@/types/database';
 
@@ -43,12 +45,14 @@ export function PermitDetailView() {
     ? '50707999-f033-41c4-91c9-989966311972'
     : profile?.company_id;
 
-  const { permits, loading: loadingPermits } = usePermits({ companyId });
+  const { permits, loading: loadingPermits, updatePermit } = usePermits({ companyId });
   const { locations, loading: loadingLocations } = useLocations(companyId);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loadingDocs, setLoadingDocs] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  // Modal de upload: cuando arrastras/seleccionas archivo, se guarda aqui
+  // y se abre el modal con PermitUploadForm (que pide fechas + actualiza permit).
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
 
   const permit = useMemo(() => permits.find((p) => p.id === id), [permits, id]);
   const location = useMemo(
@@ -95,12 +99,13 @@ export function PermitDetailView() {
     setDragOver(false);
   }, []);
 
-  const handleDrop = useCallback(async (e: React.DragEvent) => {
+  // En vez de subir directo, abre el modal de PermitUploadForm con el archivo
+  // pre-cargado. El modal pide fechas, calcula vencimiento y actualiza el permit
+  // a status='vigente'. Asi el drop/click devuelve permits listos en un solo paso.
+  const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragOver(false);
-
-    if (!id) return;
 
     const files = Array.from(e.dataTransfer.files);
     if (files.length === 0) return;
@@ -112,22 +117,10 @@ export function PermitDetailView() {
       return;
     }
 
-    setUploading(true);
-    try {
-      await uploadPermitDocument(id, file);
-      toast.success('Documento subido exitosamente');
-      fetchDocuments();
-    } catch (err) {
-      console.error('Upload error:', err);
-      toast.error(err instanceof Error ? err.message : 'Error al subir');
-    } finally {
-      setUploading(false);
-    }
-  }, [id, fetchDocuments]);
+    setPendingFile(file);
+  }, []);
 
-  const handleFileInput = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!id) return;
-
+  const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -138,18 +131,16 @@ export function PermitDetailView() {
       return;
     }
 
-    setUploading(true);
-    try {
-      await uploadPermitDocument(id, file);
-      toast.success('Documento subido exitosamente');
-      fetchDocuments();
-    } catch (err) {
-      console.error('Upload error:', err);
-      toast.error(err instanceof Error ? err.message : 'Error al subir');
-    } finally {
-      setUploading(false);
-    }
-  }, [id, fetchDocuments]);
+    setPendingFile(file);
+    // reset input para que pueda re-seleccionarse el mismo archivo despues
+    e.target.value = '';
+  }, []);
+
+  const handleUploadSuccess = useCallback(() => {
+    setPendingFile(null);
+    toast.success('Permiso actualizado');
+    fetchDocuments();
+  }, [fetchDocuments]);
 
   const loading = loadingPermits || loadingLocations;
 
@@ -364,49 +355,41 @@ export function PermitDetailView() {
             </div>
           ) : (
             <div className="space-y-[var(--ds-space-200)]">
-              <div
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                className={cn(
-                  'relative border-2 border-dashed rounded-[var(--ds-radius-100)] p-[var(--ds-space-300)] transition-all',
-                  dragOver
-                    ? 'border-[var(--ds-background-brand)] bg-[var(--ds-blue-50)]'
-                    : 'border-[var(--ds-border)] hover:border-[var(--ds-text-subtle)]',
-                  uploading && 'opacity-50 pointer-events-none'
-                )}
-              >
-                <label className="flex flex-col items-center justify-center cursor-pointer">
-                  <input
-                    type="file"
-                    accept={ACCEPTED_TYPES.join(',')}
-                    className="hidden"
-                    onChange={handleFileInput}
-                    disabled={uploading}
-                  />
-                  {uploading ? (
-                    <>
-                      <div className="w-8 h-8 border-4 border-[var(--ds-blue-100)] border-t-[var(--ds-background-brand)] rounded-full animate-spin mb-2" />
-                      <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)]">
-                        Subiendo...
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="w-6 h-6 text-[var(--ds-text-subtle)] mb-2" />
-                      <p className="text-[var(--ds-font-size-100)] font-medium text-[var(--ds-text)]">
-                        Arrastra documento aquí
-                      </p>
-                      <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mt-1">
-                        o haz clic para seleccionar
-                      </p>
-                      <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtlest)] mt-2">
-                        PDF, PNG, JPG (máx. 5MB)
-                      </p>
-                    </>
+              {/* Solo mostrar zona de upload si no hay documento todavia.
+                  Un permit = un documento activo. Para reemplazar, se usa
+                  la accion de "renovar" (que crea una nueva version). */}
+              {documents.length === 0 && (
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={cn(
+                    'relative border-2 border-dashed rounded-[var(--ds-radius-100)] p-[var(--ds-space-300)] transition-all',
+                    dragOver
+                      ? 'border-[var(--ds-background-brand)] bg-[var(--ds-blue-50)]'
+                      : 'border-[var(--ds-border)] hover:border-[var(--ds-text-subtle)]'
                   )}
-                </label>
-              </div>
+                >
+                  <label className="flex flex-col items-center justify-center cursor-pointer">
+                    <input
+                      type="file"
+                      accept={ACCEPTED_TYPES.join(',')}
+                      className="hidden"
+                      onChange={handleFileInput}
+                    />
+                    <Upload className="w-6 h-6 text-[var(--ds-text-subtle)] mb-2" />
+                    <p className="text-[var(--ds-font-size-100)] font-medium text-[var(--ds-text)]">
+                      Arrastra documento aquí
+                    </p>
+                    <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mt-1">
+                      o haz clic para seleccionar
+                    </p>
+                    <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtlest)] mt-2">
+                      PDF, PNG, JPG (máx. 5MB)
+                    </p>
+                  </label>
+                </div>
+              )}
 
               {documents.length > 0 && (
                 <div className="space-y-[var(--ds-space-100)]">
@@ -472,6 +455,24 @@ export function PermitDetailView() {
           )}
         </Card>
       </div>
+
+      {/* Modal con PermitUploadForm cuando hay archivo pendiente */}
+      <Dialog open={!!pendingFile} onOpenChange={(open) => { if (!open) setPendingFile(null); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Confirmar datos del permiso</DialogTitle>
+          </DialogHeader>
+          {pendingFile && permit && (
+            <PermitUploadForm
+              permit={permit}
+              preloadedFile={pendingFile}
+              updatePermit={updatePermit}
+              onSuccess={handleUploadSuccess}
+              onCancel={() => setPendingFile(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
