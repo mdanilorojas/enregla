@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlassian Design System - EnRegla Custom Theme</title>
+    <style>
+        /* Custom Theme - Atlassian DS with EnRegla Colors */
+        :root {
+            /* Primary Blue Scale (Base: #0f265c) */
+            --ds-blue-50: #e8ebf3;
+            --ds-blue-100: #d1d7e7;
+            --ds-blue-200: #a3afcf;
+            --ds-blue-300: #7587b7;
+            --ds-blue-400: #475f9f;
+            --ds-blue-500: #0f265c;
+            --ds-blue-600: #0d2153;
+            --ds-blue-700: #0b1c4a;
+            --ds-blue-800: #091741;
+            --ds-blue-900: #071238;
+
+            /* Accent Orange Scale (Base: #ff7043) */
+            --ds-orange-50: #fff4f0;
+            --ds-orange-100: #ffe8e0;
+            --ds-orange-200: #ffd1c1;
+            --ds-orange-300: #ffb99d;
+            --ds-orange-400: #ff9670;
+            --ds-orange-500: #ff7043;
+            --ds-orange-600: #ff5722;
+            --ds-orange-700: #f44336;
+            --ds-orange-800: #e53935;
+            --ds-orange-900: #d32f2f;
+
+            /* Success Green */
+            --ds-green-500: #36B37E;
+            --ds-green-600: #2A9D66;
+
+            /* Error Red */
+            --ds-red-500: #DE350B;
+            --ds-red-600: #BF2600;
+
+            /* Warning Yellow */
+            --ds-yellow-500: #FFAB00;
+            --ds-yellow-600: #FF991F;
+
+            /* Neutral Grays */
+            --ds-neutral-0: #FFFFFF;
+            --ds-neutral-50: #F7F8F9;
+            --ds-neutral-100: #F1F2F4;
+            --ds-neutral-200: #DCDFE4;
+            --ds-neutral-300: #B3B9C4;
+            --ds-neutral-400: #8993A4;
+            --ds-neutral-500: #626F86;
+            --ds-neutral-600: #44546F;
+            --ds-neutral-700: #2C3E5D;
+            --ds-neutral-800: #172B4D;
+            --ds-neutral-900: #091E42;
+
+            /* Semantic Colors */
+            --ds-background-brand-bold: var(--ds-blue-500);
+            --ds-background-brand-bold-hovered: var(--ds-blue-600);
+            --ds-background-brand-bold-pressed: var(--ds-blue-700);
+            --ds-background-accent-orange-subtle: var(--ds-orange-50);
+            --ds-background-accent-orange-bold: var(--ds-orange-500);
+            --ds-background-success: var(--ds-green-500);
+            --ds-background-danger: var(--ds-red-500);
+            --ds-background-warning: var(--ds-yellow-500);
+            --ds-background-neutral: var(--ds-neutral-100);
+            --ds-text-brand: var(--ds-blue-500);
+            --ds-text-accent: var(--ds-orange-600);
+            --ds-text: var(--ds-neutral-900);
+            --ds-text-subtle: var(--ds-neutral-600);
+            --ds-text-subtlest: var(--ds-neutral-400);
+            --ds-border: var(--ds-neutral-200);
+            --ds-border-bold: var(--ds-neutral-400);
+
+            /* Elevation Shadows */
+            --ds-shadow-raised: 0px 1px 1px rgba(9, 30, 66, 0.25), 0px 0px 1px rgba(9, 30, 66, 0.31);
+            --ds-shadow-overflow: 0px 0px 8px rgba(9, 30, 66, 0.08), 0px 2px 4px rgba(9, 30, 66, 0.12);
+            --ds-shadow-overlay: 0px 8px 12px rgba(9, 30, 66, 0.15), 0px 0px 1px rgba(9, 30, 66, 0.31);
+
+            /* Border Radius */
+            --ds-radius-050: 2px;
+            --ds-radius-100: 3px;
+            --ds-radius-200: 6px;
+            --ds-radius-300: 8px;
+            --ds-radius-400: 12px;
+            --ds-radius-round: 50%;
+
+            /* Spacing */
+            --ds-space-025: 2px;
+            --ds-space-050: 4px;
+            --ds-space-075: 6px;
+            --ds-space-100: 8px;
+            --ds-space-150: 12px;
+            --ds-space-200: 16px;
+            --ds-space-250: 20px;
+            --ds-space-300: 24px;
+            --ds-space-400: 32px;
+            --ds-space-500: 40px;
+            --ds-space-600: 48px;
+
+            /* Typography */
+            --ds-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            --ds-font-size-small: 11px;
+            --ds-font-size-default: 14px;
+            --ds-font-size-medium: 16px;
+            --ds-font-size-large: 20px;
+            --ds-font-size-xlarge: 24px;
+            --ds-font-size-xxlarge: 29px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--ds-font-family);
+            font-size: var(--ds-font-size-default);
+            line-height: 1.5;
+            color: var(--ds-text);
+            background: var(--ds-neutral-50);
+            padding: var(--ds-space-400);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: var(--ds-font-size-xxlarge);
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: var(--ds-space-100);
+        }
+
+        h2 {
+            font-size: var(--ds-font-size-xlarge);
+            font-weight: 600;
+            margin-top: var(--ds-space-500);
+            margin-bottom: var(--ds-space-300);
+            padding-bottom: var(--ds-space-100);
+            border-bottom: 2px solid var(--ds-border);
+        }
+
+        h3 {
+            font-size: var(--ds-font-size-large);
+            font-weight: 500;
+            margin-top: var(--ds-space-400);
+            margin-bottom: var(--ds-space-200);
+        }
+
+        .subtitle {
+            font-size: var(--ds-font-size-default);
+            color: var(--ds-text-subtle);
+            margin-bottom: var(--ds-space-400);
+        }
+
+        /* Button Component */
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--ds-space-050);
+            padding: 0 var(--ds-space-150);
+            height: 32px;
+            font-size: var(--ds-font-size-default);
+            font-weight: 500;
+            border-radius: var(--ds-radius-100);
+            border: 0;
+            cursor: pointer;
+            transition: background 0.2s ease, box-shadow 0.2s ease;
+            text-decoration: none;
+            font-family: var(--ds-font-family);
+        }
+
+        .button-primary {
+            background: var(--ds-background-brand-bold);
+            color: var(--ds-neutral-0);
+        }
+
+        .button-primary:hover {
+            background: var(--ds-background-brand-bold-hovered);
+        }
+
+        .button-primary:active {
+            background: var(--ds-background-brand-bold-pressed);
+        }
+
+        .button-default {
+            background: var(--ds-neutral-0);
+            color: var(--ds-text);
+            box-shadow: 0 0 0 1px var(--ds-border);
+        }
+
+        .button-default:hover {
+            background: var(--ds-neutral-100);
+        }
+
+        .button-subtle {
+            background: transparent;
+            color: var(--ds-text-subtle);
+        }
+
+        .button-subtle:hover {
+            background: var(--ds-neutral-100);
+        }
+
+        .button-link {
+            background: transparent;
+            color: var(--ds-text-brand);
+            padding: 0;
+            height: auto;
+        }
+
+        .button-link:hover {
+            text-decoration: underline;
+        }
+
+        .button-danger {
+            background: var(--ds-background-danger);
+            color: var(--ds-neutral-0);
+        }
+
+        .button-warning {
+            background: var(--ds-background-accent-orange-bold);
+            color: var(--ds-neutral-0);
+        }
+
+        .button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* Badge/Lozenge Component */
+        .lozenge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--ds-space-050);
+            padding: var(--ds-space-025) var(--ds-space-075);
+            font-size: var(--ds-font-size-small);
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: var(--ds-radius-100);
+            line-height: 1;
+        }
+
+        .lozenge-default {
+            background: var(--ds-neutral-200);
+            color: var(--ds-neutral-700);
+        }
+
+        .lozenge-success {
+            background: #E3FCEF;
+            color: #006644;
+        }
+
+        .lozenge-removed {
+            background: #FFEBE6;
+            color: #BF2600;
+        }
+
+        .lozenge-inprogress {
+            background: var(--ds-orange-50);
+            color: var(--ds-orange-700);
+        }
+
+        .lozenge-new {
+            background: #E9F2FF;
+            color: #0055CC;
+        }
+
+        .lozenge-moved {
+            background: #FFF0B3;
+            color: #FF991F;
+        }
+
+        /* Card Component */
+        .card {
+            background: var(--ds-neutral-0);
+            border-radius: var(--ds-radius-200);
+            padding: var(--ds-space-300);
+            box-shadow: var(--ds-shadow-raised);
+            transition: box-shadow 0.2s ease;
+        }
+
+        .card-clickable {
+            cursor: pointer;
+        }
+
+        .card-clickable:hover {
+            box-shadow: var(--ds-shadow-overlay);
+        }
+
+        /* Form Components */
+        .textfield {
+            width: 100%;
+            padding: var(--ds-space-100);
+            font-size: var(--ds-font-size-default);
+            font-family: var(--ds-font-family);
+            color: var(--ds-text);
+            background: var(--ds-neutral-0);
+            border: 2px solid var(--ds-border);
+            border-radius: var(--ds-radius-100);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .textfield:hover {
+            border-color: var(--ds-border-bold);
+        }
+
+        .textfield:focus {
+            outline: none;
+            border-color: var(--ds-background-brand-bold);
+            box-shadow: 0 0 0 2px var(--ds-blue-100);
+        }
+
+        .select {
+            width: 100%;
+            padding: var(--ds-space-100);
+            font-size: var(--ds-font-size-default);
+            font-family: var(--ds-font-family);
+            color: var(--ds-text);
+            background: var(--ds-neutral-0);
+            border: 2px solid var(--ds-border);
+            border-radius: var(--ds-radius-100);
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+        }
+
+        .select:hover {
+            border-color: var(--ds-border-bold);
+        }
+
+        .select:focus {
+            outline: none;
+            border-color: var(--ds-background-brand-bold);
+            box-shadow: 0 0 0 2px var(--ds-blue-100);
+        }
+
+        /* Grid Layouts */
+        .grid {
+            display: grid;
+            gap: var(--ds-space-200);
+        }
+
+        .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+        .flex {
+            display: flex;
+            gap: var(--ds-space-100);
+        }
+
+        .flex-wrap {
+            flex-wrap: wrap;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        /* Color Swatch */
+        .color-swatch {
+            width: 100%;
+            height: 60px;
+            border-radius: var(--ds-radius-100);
+            margin-bottom: var(--ds-space-075);
+            border: 1px solid var(--ds-border);
+        }
+
+        .color-label {
+            font-size: var(--ds-font-size-small);
+            color: var(--ds-text-subtle);
+            text-align: center;
+        }
+
+        /* Table Component */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--ds-neutral-0);
+            border-radius: var(--ds-radius-100);
+            overflow: hidden;
+            box-shadow: var(--ds-shadow-raised);
+        }
+
+        .table th {
+            padding: var(--ds-space-100) var(--ds-space-150);
+            text-align: left;
+            font-size: var(--ds-font-size-small);
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--ds-text-subtle);
+            background: var(--ds-neutral-50);
+            border-bottom: 2px solid var(--ds-border);
+        }
+
+        .table td {
+            padding: var(--ds-space-150);
+            border-bottom: 1px solid var(--ds-border);
+        }
+
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table tr:hover {
+            background: var(--ds-neutral-50);
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--ds-neutral-100);
+            border-radius: var(--ds-radius-round);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--ds-background-brand-bold);
+            border-radius: var(--ds-radius-round);
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.success {
+            background: var(--ds-background-success);
+        }
+
+        .progress-fill.warning {
+            background: var(--ds-background-accent-orange-bold);
+        }
+
+        /* Icon placeholder */
+        .icon {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+        }
+
+        /* Banner Component */
+        .banner {
+            padding: var(--ds-space-200);
+            border-radius: var(--ds-radius-100);
+            margin-bottom: var(--ds-space-200);
+            display: flex;
+            gap: var(--ds-space-150);
+        }
+
+        .banner-info {
+            background: #E9F2FF;
+            color: #0055CC;
+        }
+
+        .banner-success {
+            background: #E3FCEF;
+            color: #006644;
+        }
+
+        .banner-warning {
+            background: var(--ds-orange-50);
+            color: var(--ds-orange-700);
+        }
+
+        .banner-error {
+            background: #FFEBE6;
+            color: #BF2600;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Atlassian Design System</h1>
+        <p class="subtitle">Customizado con los colores de EnRegla: Azul #0f265c + Naranja #ff7043</p>
+
+        <div class="banner banner-info">
+            <strong>ℹ️ Info:</strong> Este es un preview del Atlassian Design System con nuestros colores personalizados.
+        </div>
+
+        <!-- Color Tokens -->
+        <h2>Design Tokens</h2>
+
+        <h3>Colores Principales</h3>
+        <div class="grid grid-4">
+            <div>
+                <div class="color-swatch" style="background: var(--ds-blue-500);"></div>
+                <div class="color-label">Primary Blue</div>
+                <div class="color-label" style="font-family: monospace;">#0f265c</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--ds-orange-500);"></div>
+                <div class="color-label">Accent Orange</div>
+                <div class="color-label" style="font-family: monospace;">#ff7043</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--ds-green-500);"></div>
+                <div class="color-label">Success Green</div>
+                <div class="color-label" style="font-family: monospace;">#36B37E</div>
+            </div>
+            <div>
+                <div class="color-swatch" style="background: var(--ds-red-500);"></div>
+                <div class="color-label">Error Red</div>
+                <div class="color-label" style="font-family: monospace;">#DE350B</div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <h2>Buttons</h2>
+
+        <h3>Variantes</h3>
+        <div class="flex flex-wrap items-center">
+            <button class="button button-primary">Primary</button>
+            <button class="button button-default">Default</button>
+            <button class="button button-subtle">Subtle</button>
+            <button class="button button-link">Link</button>
+            <button class="button button-warning">Warning</button>
+            <button class="button button-danger">Danger</button>
+        </div>
+
+        <h3>Estados</h3>
+        <div class="flex flex-wrap items-center">
+            <button class="button button-primary">Normal</button>
+            <button class="button button-primary" disabled>Disabled</button>
+        </div>
+
+        <!-- Lozenges (Badges) -->
+        <h2>Lozenges (Badges)</h2>
+
+        <h3>Estados</h3>
+        <div class="flex flex-wrap items-center">
+            <span class="lozenge lozenge-default">Default</span>
+            <span class="lozenge lozenge-success">Success</span>
+            <span class="lozenge lozenge-removed">Removed</span>
+            <span class="lozenge lozenge-inprogress">In Progress</span>
+            <span class="lozenge lozenge-new">New</span>
+            <span class="lozenge lozenge-moved">Moved</span>
+        </div>
+
+        <h3>Custom - Niveles de Riesgo</h3>
+        <div class="flex flex-wrap items-center">
+            <span class="lozenge" style="background: #FFEBE6; color: #BF2600;">Crítico</span>
+            <span class="lozenge lozenge-inprogress">Alto</span>
+            <span class="lozenge lozenge-moved">Medio</span>
+            <span class="lozenge" style="background: #E9F2FF; color: #0055CC;">Bajo</span>
+        </div>
+
+        <!-- Cards -->
+        <h2>Cards</h2>
+
+        <div class="grid grid-2">
+            <div class="card">
+                <h3 style="margin-top: 0;">Card Estándar</h3>
+                <p style="color: var(--ds-text-subtle);">Contenedor básico con elevación sutil y bordes redondeados.</p>
+            </div>
+            <div class="card card-clickable">
+                <h3 style="margin-top: 0;">Card Clickable</h3>
+                <p style="color: var(--ds-text-subtle);">Pasa el mouse para ver el efecto de elevación en hover.</p>
+            </div>
+        </div>
+
+        <!-- Form Components -->
+        <h2>Form Components</h2>
+
+        <div class="grid grid-2">
+            <div>
+                <h3>Text Field</h3>
+                <input type="text" class="textfield" placeholder="Escribe algo...">
+            </div>
+            <div>
+                <h3>Select</h3>
+                <select class="select">
+                    <option>Selecciona una opción</option>
+                    <option>Opción 1</option>
+                    <option>Opción 2</option>
+                    <option>Opción 3</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Banners -->
+        <h2>Banners</h2>
+
+        <div class="banner banner-info">
+            <strong>ℹ️ Info:</strong> Mensaje informativo para el usuario.
+        </div>
+        <div class="banner banner-success">
+            <strong>✓ Success:</strong> La operación se completó correctamente.
+        </div>
+        <div class="banner banner-warning">
+            <strong>⚠️ Warning:</strong> Ten cuidado con esta acción.
+        </div>
+        <div class="banner banner-error">
+            <strong>✕ Error:</strong> Algo salió mal, por favor intenta de nuevo.
+        </div>
+
+        <!-- Table -->
+        <h2>Table</h2>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Sede</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th>Vencimiento</th>
+                    <th>Riesgo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Sede Central</strong></td>
+                    <td>Funcionamiento</td>
+                    <td><span class="lozenge lozenge-success">Vigente</span></td>
+                    <td>2026-12-31</td>
+                    <td><span class="lozenge" style="background: #E9F2FF; color: #0055CC;">Bajo</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Sucursal Norte</strong></td>
+                    <td>Sanitario</td>
+                    <td><span class="lozenge lozenge-inprogress">Próximo</span></td>
+                    <td>2026-06-15</td>
+                    <td><span class="lozenge lozenge-moved">Medio</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Bodega Sur</strong></td>
+                    <td>Ambiental</td>
+                    <td><span class="lozenge lozenge-removed">Vencido</span></td>
+                    <td>2026-01-10</td>
+                    <td><span class="lozenge" style="background: #FFEBE6; color: #BF2600;">Crítico</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Progress Bars -->
+        <h2>Progress Bars</h2>
+
+        <div class="grid grid-3">
+            <div>
+                <p style="margin-bottom: var(--ds-space-100); font-weight: 500;">Completo (100%)</p>
+                <div class="progress-bar">
+                    <div class="progress-fill success" style="width: 100%;"></div>
+                </div>
+            </div>
+            <div>
+                <p style="margin-bottom: var(--ds-space-100); font-weight: 500;">En progreso (62%)</p>
+                <div class="progress-bar">
+                    <div class="progress-fill warning" style="width: 62%;"></div>
+                </div>
+            </div>
+            <div>
+                <p style="margin-bottom: var(--ds-space-100); font-weight: 500;">Bajo (25%)</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 25%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sede Card Example (Custom) -->
+        <h2>Sede Card - Diseño Custom</h2>
+
+        <div class="grid grid-2">
+            <div class="card card-clickable">
+                <div style="display: flex; gap: var(--ds-space-200); margin-bottom: var(--ds-space-200);">
+                    <div style="width: 40px; height: 40px; border-radius: var(--ds-radius-100); background: var(--ds-neutral-100); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <span style="font-size: 20px;">🏢</span>
+                    </div>
+                    <div style="flex: 1;">
+                        <h3 style="margin: 0 0 var(--ds-space-025) 0;">Sede Central</h3>
+                        <p style="font-size: var(--ds-font-size-small); color: var(--ds-text-subtle); font-family: monospace;">SEDE-001</p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--ds-space-150); margin-bottom: var(--ds-space-200); font-size: var(--ds-font-size-default); color: var(--ds-text-subtle);">
+                    <span>Operativa</span>
+                    <span style="color: var(--ds-border-bold);">|</span>
+                    <span class="lozenge" style="background: #E9F2FF; color: #0055CC;">Bajo</span>
+                </div>
+                <div>
+                    <p style="font-size: var(--ds-font-size-small); color: var(--ds-text-subtle); margin-bottom: var(--ds-space-100);">8/8 permisos vigentes</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill success" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-clickable">
+                <div style="display: flex; gap: var(--ds-space-200); margin-bottom: var(--ds-space-200);">
+                    <div style="width: 40px; height: 40px; border-radius: var(--ds-radius-100); background: var(--ds-neutral-100); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <span style="font-size: 20px;">🏢</span>
+                    </div>
+                    <div style="flex: 1;">
+                        <h3 style="margin: 0 0 var(--ds-space-025) 0;">Sucursal Norte</h3>
+                        <p style="font-size: var(--ds-font-size-small); color: var(--ds-text-subtle); font-family: monospace;">SEDE-002</p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--ds-space-150); margin-bottom: var(--ds-space-200); font-size: var(--ds-font-size-default); color: var(--ds-text-subtle);">
+                    <span>Operativa</span>
+                    <span style="color: var(--ds-border-bold);">|</span>
+                    <span class="lozenge lozenge-inprogress">Medio</span>
+                </div>
+                <div>
+                    <p style="font-size: var(--ds-font-size-small); color: var(--ds-text-subtle); margin-bottom: var(--ds-space-100);">5/8 permisos vigentes</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill warning" style="width: 62.5%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div style="margin-top: var(--ds-space-600); padding: var(--ds-space-400); background: var(--ds-neutral-0); border-radius: var(--ds-radius-200); box-shadow: var(--ds-shadow-raised);">
+            <h3 style="margin-top: 0; color: var(--ds-text-brand);">✅ Atlassian Design System + EnRegla Theme</h3>
+            <ul style="list-style: none; padding: 0; color: var(--ds-text-subtle);">
+                <li style="padding: var(--ds-space-100) 0;">✓ Sistema profesional y mantenido por Atlassian</li>
+                <li style="padding: var(--ds-space-100) 0;">✓ Componentes React optimizados y testeados</li>
+                <li style="padding: var(--ds-space-100) 0;">✓ Accesibilidad WCAG 2.1 incluida</li>
+                <li style="padding: var(--ds-space-100) 0;">✓ Theme customizado: Azul #0f265c + Naranja #ff7043</li>
+                <li style="padding: var(--ds-space-100) 0;">✓ Tokens organizados (colores, espaciado, tipografía, elevación)</li>
+                <li style="padding: var(--ds-space-100) 0;">✓ Documentación completa en atlassian.design</li>
+            </ul>
+            <div style="margin-top: var(--ds-space-300);">
+                <strong>Próximos pasos:</strong>
+                <ol style="margin-top: var(--ds-space-100); padding-left: var(--ds-space-300); color: var(--ds-text-subtle);">
+                    <li>Instalar packages de @atlaskit (button, lozenge, textfield, select, etc.)</li>
+                    <li>Configurar theme tokens en el proyecto React</li>
+                    <li>Migrar componentes existentes a Atlassian DS</li>
+                    <li>Mantener customizaciones mínimas (solo colores de marca)</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

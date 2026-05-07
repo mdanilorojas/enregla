@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard unificado + cambios sidebar</title>
+<style>
+:root {
+  --ds-blue-900: #0f265c;
+  --ds-blue-800: #143374;
+  --ds-blue-50: #e7edf7;
+  --ds-blue-100: #dbeafe;
+  --ds-green-500: #16a34a;
+  --ds-green-600: #15803d;
+  --ds-green-700: #166534;
+  --ds-orange-500: #ff7043;
+  --ds-orange-600: #f4511e;
+  --ds-red-500: #dc2626;
+  --ds-red-700: #991b1b;
+  --ds-green-50: #ecfdf5;
+  --ds-orange-50: #fff4e6;
+  --ds-red-50: #fef2f2;
+  --ds-neutral-0: #ffffff;
+  --ds-neutral-50: #f7f8fa;
+  --ds-neutral-100: #eef0f3;
+  --ds-neutral-200: #dfe3e8;
+  --ds-text: #172b4d;
+  --ds-text-subtle: #5e6c84;
+  --ds-text-subtlest: #8993a4;
+  --ds-border: #dfe3e8;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI Variable', 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Inter', Roboto, sans-serif;
+  margin: 0;
+  padding: 40px 24px;
+  background: var(--ds-neutral-50);
+  color: var(--ds-text);
+  -webkit-font-smoothing: antialiased;
+}
+.page-header { max-width: 1400px; margin: 0 auto 28px; }
+.section-title-wrap { max-width: 1400px; margin: 48px auto 20px; padding-top: 24px; border-top: 1px solid var(--ds-neutral-200); }
+h1 { font-size: 28px; font-weight: 300; letter-spacing: -0.5px; margin: 0 0 8px; }
+h2.sec { font-size: 22px; font-weight: 400; letter-spacing: -0.3px; margin: 0 0 8px; }
+.subtitle { color: var(--ds-text-subtle); margin: 0; font-size: 14px; font-weight: 300; max-width: 820px; line-height: 1.55; }
+.notes {
+  background: white; border: 1px solid var(--ds-border);
+  border-left: 3px solid var(--ds-blue-900);
+  padding: 16px 22px; margin: 20px 0 0;
+  font-size: 13px; line-height: 1.6; border-radius: 4px;
+}
+.notes b { color: var(--ds-blue-900); font-weight: 500; }
+.notes ul { margin: 6px 0 0; padding-left: 18px; color: var(--ds-text-subtle); }
+.notes li { margin-bottom: 3px; }
+.notes li b { color: var(--ds-text); font-weight: 500; }
+
+/* ================================================================
+ * APP FRAME (simulated)
+ * ================================================================ */
+.app-frame {
+  max-width: 1400px;
+  margin: 0 auto;
+  background: var(--ds-neutral-0);
+  border: 1px solid var(--ds-border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 6px 32px rgba(0,0,0,0.06);
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 900px;
+}
+
+/* ================================================================
+ * SIDEBAR
+ * ================================================================ */
+.sidebar {
+  background: var(--ds-neutral-0);
+  border-right: 1px solid var(--ds-border);
+  padding: 20px 14px;
+  display: flex; flex-direction: column;
+  gap: 20px;
+  font-size: 14px;
+}
+.sidebar-brand {
+  display: flex; align-items: center; gap: 10px;
+  padding: 4px 8px 14px;
+  border-bottom: 1px solid var(--ds-neutral-100);
+}
+.sidebar-brand-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--ds-blue-900), var(--ds-blue-800));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+}
+.sidebar-brand-icon svg { width: 18px; height: 18px; }
+.sidebar-brand-text { display: flex; flex-direction: column; gap: 2px; }
+.sidebar-brand-text .name { font-size: 14px; font-weight: 600; color: var(--ds-text); }
+.sidebar-brand-text .sub { font-size: 11px; color: var(--ds-text-subtle); }
+
+.sidebar-section-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px;
+  color: var(--ds-text-subtlest); font-weight: 600;
+  padding: 0 10px; margin-bottom: 2px;
+}
+.sidebar-nav { display: flex; flex-direction: column; gap: 2px; }
+.sidebar-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: var(--ds-text-subtle);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.sidebar-item:hover { background: var(--ds-neutral-50); color: var(--ds-text); }
+.sidebar-item.active {
+  background: var(--ds-blue-50);
+  color: var(--ds-blue-900);
+  font-weight: 500;
+}
+.sidebar-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+.sidebar-item.removed {
+  background: var(--ds-red-50);
+  color: var(--ds-red-700);
+  text-decoration: line-through;
+  opacity: 0.7;
+  position: relative;
+}
+.sidebar-item.removed::after {
+  content: '× ELIMINAR';
+  position: absolute; right: 10px;
+  font-size: 9px; font-weight: 700; letter-spacing: 1px;
+  color: var(--ds-red-700);
+  opacity: 1;
+}
+.sidebar-item.moved {
+  background: var(--ds-orange-50);
+  color: var(--ds-orange-600);
+  position: relative;
+}
+.sidebar-item.moved::after {
+  content: '→ MOVER';
+  position: absolute; right: 10px;
+  font-size: 9px; font-weight: 700; letter-spacing: 1px;
+  color: var(--ds-orange-600);
+}
+
+/* ================================================================
+ * MAIN CONTENT AREA
+ * ================================================================ */
+.main-content {
+  padding: 28px 32px 40px;
+  background: var(--ds-neutral-50);
+}
+
+.topbar {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 24px;
+}
+.topbar h1.title { font-size: 26px; font-weight: 600; letter-spacing: -0.3px; margin: 0; color: var(--ds-text); }
+.topbar .count-badge {
+  font-size: 12px; color: var(--ds-text-subtle); margin-top: 6px;
+}
+.topbar .count-badge b { font-weight: 600; color: var(--ds-text); }
+.topbar .create-btn {
+  background: var(--ds-blue-900);
+  color: white;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  font-size: 13px; font-weight: 500;
+  display: inline-flex; align-items: center; gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(15, 38, 92, 0.2);
+}
+.topbar .create-btn svg { width: 14px; height: 14px; }
+.topbar .create-btn:hover { background: var(--ds-blue-800); }
+
+/* ================================================================
+ * ATMOSPHERIC CARD (simplified for layout view)
+ * ================================================================ */
+.hero-card {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  min-height: 340px;
+  margin-bottom: 28px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  isolation: isolate;
+  background: linear-gradient(180deg, #6ab0ff 0%, #a6c8eb 35%, #d7e4f3 65%, #f4f1ea 100%);
+}
+.hero-card .sun-halo {
+  position: absolute;
+  top: -120px; right: 160px;
+  width: 340px; height: 340px;
+  background: radial-gradient(circle, rgba(255, 248, 220, 0.8) 0%, rgba(255, 230, 160, 0.5) 30%, transparent 70%);
+  border-radius: 50%;
+  animation: sunBreathe 5s ease-in-out infinite;
+  filter: blur(2px);
+  z-index: 1;
+}
+.hero-card .sun-core {
+  position: absolute;
+  top: 40px; right: 250px;
+  width: 90px; height: 90px;
+  background: radial-gradient(circle, rgba(255, 252, 240, 1) 0%, rgba(255, 240, 180, 0.85) 40%, transparent 100%);
+  border-radius: 50%;
+  filter: blur(3px);
+  animation: sunCorePulse 3s ease-in-out infinite;
+  z-index: 1;
+}
+@keyframes sunBreathe { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.95; } }
+@keyframes sunCorePulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+
+.hero-card .shield-wm {
+  position: absolute;
+  top: 50%; right: -130px;
+  transform: translateY(-50%);
+  width: 380px; height: 450px;
+  z-index: 2;
+  pointer-events: none;
+  filter: blur(1.4px);
+  opacity: 0.2;
+  animation: shieldBreathe 5s ease-in-out infinite;
+}
+@keyframes shieldBreathe { 0%,100% { transform: translateY(-50%) scale(1); } 50% { transform: translateY(-50%) scale(1.012); } }
+.hero-card .shield-wm svg { width: 100%; height: 100%; }
+
+.hero-card .grid-2 {
+  position: relative; z-index: 10;
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  min-height: 340px;
+}
+.hero-card .main-pane {
+  padding: 28px 32px 26px 36px;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--ds-blue-900);
+}
+.hero-card .side-pane {
+  padding: 26px 28px 26px 24px;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  position: relative;
+  color: var(--ds-text);
+}
+.hero-card .side-pane::before {
+  content: '';
+  position: absolute;
+  top: 28px; bottom: 28px; left: 0;
+  width: 1px; background: currentColor; opacity: 0.15;
+}
+
+.hero-card .state-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 12px; border-radius: 100px;
+  font-size: 10px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase;
+  background: var(--ds-green-600); color: white;
+  box-shadow: 0 2px 8px rgba(21, 128, 61, 0.25);
+  align-self: flex-start;
+}
+.hero-card .state-chip .dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #bbf7d0; box-shadow: 0 0 6px #bbf7d0;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.55; transform: scale(1.15); } }
+
+.hero-card .headline {
+  font-size: 22px; font-weight: 400; letter-spacing: -0.2px;
+  line-height: 1.35; margin: 0; max-width: 460px;
+}
+.hero-card .headline b { font-weight: 600; }
+
+.hero-card .big-pct {
+  font-size: 108px; font-weight: 100; line-height: 0.9;
+  letter-spacing: -5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ds-green-700);
+  text-shadow: 0 2px 14px rgba(255,255,255,0.5);
+}
+.hero-card .big-pct small {
+  font-size: 36px; font-weight: 200; opacity: 0.75;
+  margin-left: 2px; letter-spacing: -1.4px;
+}
+
+.hero-card .data-pill {
+  display: inline-flex; align-items: center; gap: 20px;
+  padding: 9px 16px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(15, 38, 92, 0.12);
+  backdrop-filter: blur(14px);
+  align-self: flex-start;
+}
+.hero-card .data-pill .k { font-size: 10px; font-weight: 500; opacity: 0.75; }
+.hero-card .data-pill .v { font-size: 19px; font-weight: 300; margin-top: 3px; font-variant-numeric: tabular-nums; letter-spacing: -0.3px; }
+.hero-card .data-pill .vdiv { width: 1px; height: 24px; background: currentColor; opacity: 0.22; }
+
+.hero-card .side-title {
+  font-size: 12px; font-weight: 500;
+  display: flex; align-items: center; gap: 8px;
+}
+.hero-card .side-title .approx {
+  font-size: 9px; padding: 2px 7px; border-radius: 10px;
+  border: 1px solid currentColor; opacity: 0.65; font-style: italic;
+}
+.hero-card .receipt-line {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: 13px; padding: 4px 0;
+  border-bottom: 1px dotted rgba(15, 38, 92, 0.2);
+}
+.hero-card .receipt-line:last-child { border-bottom: none; }
+.hero-card .receipt-line .more { opacity: 0.55; font-size: 11px; font-style: italic; margin-left: 4px; }
+.hero-card .receipt-line .price { font-variant-numeric: tabular-nums; font-weight: 500; white-space: nowrap; margin-left: 10px; }
+.hero-card .receipt-total {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-top: 10px;
+  border-top: 1px solid rgba(15, 38, 92, 0.25);
+}
+.hero-card .receipt-total .label { font-size: 12px; font-weight: 500; }
+.hero-card .receipt-total .amount { font-size: 26px; font-weight: 300; letter-spacing: -0.6px; font-variant-numeric: tabular-nums; }
+.hero-card .receipt-total .amount small { font-size: 13px; opacity: 0.7; font-weight: 300; margin-left: 2px; }
+.hero-card .warning-line {
+  font-size: 12px; line-height: 1.45;
+  padding: 8px 12px; border-radius: 8px;
+  background: rgba(15, 38, 92, 0.06);
+  border: 1px dashed rgba(15, 38, 92, 0.18);
+}
+.hero-card .warning-line b { font-weight: 600; }
+.hero-card .side-footnote { font-size: 10px; opacity: 0.55; font-style: italic; }
+
+/* ================================================================
+ * LOCATION CARDS GRID (same as Sedes view)
+ * ================================================================ */
+.section-divider {
+  display: flex; align-items: center; gap: 16px;
+  margin: 8px 0 18px;
+}
+.section-divider h2 {
+  font-size: 17px; font-weight: 600; color: var(--ds-text); margin: 0; letter-spacing: -0.2px;
+}
+.section-divider .count {
+  font-size: 12px; color: var(--ds-text-subtle);
+  padding: 3px 10px; border-radius: 20px;
+  background: var(--ds-neutral-100);
+  font-variant-numeric: tabular-nums;
+}
+.section-divider .line { flex: 1; height: 1px; background: var(--ds-neutral-200); }
+
+.locations-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.location-card {
+  background: white;
+  border: 1px solid var(--ds-border);
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.location-card:hover {
+  border-color: var(--ds-blue-900);
+  box-shadow: 0 4px 14px rgba(15, 38, 92, 0.08);
+  transform: translateY(-1px);
+}
+
+.location-card .header {
+  display: flex; align-items: flex-start; gap: 12px;
+  margin-bottom: 14px;
+}
+.location-card .icon {
+  width: 40px; height: 40px;
+  background: var(--ds-neutral-100);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ds-text-subtle);
+  flex-shrink: 0;
+}
+.location-card .icon svg { width: 20px; height: 20px; }
+.location-card .title-block { flex: 1; min-width: 0; }
+.location-card .name { font-size: 16px; font-weight: 600; color: var(--ds-text); line-height: 1.2; margin-bottom: 3px; }
+.location-card .code { font-size: 11px; font-family: ui-monospace, monospace; color: var(--ds-text-subtlest); }
+
+.location-card .meta-row {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--ds-text-subtle);
+  margin-bottom: 14px;
+}
+.location-card .meta-row .sep { color: var(--ds-neutral-300); }
+.location-card .risk-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px; border-radius: 20px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.3px;
+}
+.location-card .risk-badge .dot { width: 5px; height: 5px; border-radius: 50%; }
+.location-card .risk-badge.low   { background: var(--ds-green-50); color: var(--ds-green-700); }
+.location-card .risk-badge.low .dot { background: var(--ds-green-500); }
+.location-card .risk-badge.med   { background: #fef3c7; color: #854d0e; }
+.location-card .risk-badge.med .dot { background: #ca8a04; }
+.location-card .risk-badge.high  { background: var(--ds-orange-50); color: var(--ds-orange-600); }
+.location-card .risk-badge.high .dot { background: var(--ds-orange-500); }
+
+.location-card .permits-line {
+  font-size: 12px; color: var(--ds-text-subtle);
+  margin-bottom: 6px;
+}
+.location-card .permits-line b { color: var(--ds-text); font-weight: 600; }
+
+.location-card .progress-bar {
+  height: 6px; background: var(--ds-neutral-100);
+  border-radius: 4px; overflow: hidden;
+}
+.location-card .progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+.location-card.ok   .progress-fill { background: var(--ds-green-500); }
+.location-card.warn .progress-fill { background: var(--ds-orange-500); }
+.location-card.err  .progress-fill { background: var(--ds-red-500); }
+
+/* Small callout */
+.callout {
+  max-width: 1400px; margin: 32px auto 0;
+  background: white; border: 1px solid var(--ds-border);
+  border-left: 3px solid var(--ds-orange-500);
+  padding: 14px 18px; border-radius: 4px;
+  font-size: 13px; color: var(--ds-text-subtle);
+}
+.callout b { color: var(--ds-text); font-weight: 500; }
+.callout .diff { color: var(--ds-orange-600); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- Shield SVG (inline for the hero card) -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <pattern id="hex-ok" x="0" y="0" width="16" height="18.475" patternUnits="userSpaceOnUse">
+      <path d="M8 0 L16 4.619 L16 13.856 L8 18.475 L0 13.856 L0 4.619 Z" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="0.6"/>
+    </pattern>
+  </defs>
+</svg>
+
+<div class="page-header">
+  <h1>Dashboard unificado — layout completo + cambios en sidebar</h1>
+  <p class="subtitle">
+    Con el diseño híbrido del "Resumen General" ya aprobado, ahora toca el layout completo: <b>dónde vive esa card en la página</b>, qué va debajo, dónde está el botón "Crear sede", y qué se elimina del sidebar.
+  </p>
+  <div class="notes">
+    <b>Los cambios estructurales que pediste</b>:
+    <ul>
+      <li><b>Dashboard (/)</b>: hero card atmosférica arriba + abajo las <b>mismas cards que hoy están en /sedes</b>, no las simples del dashboard actual.</li>
+      <li><b>Botón "Crear sede"</b> vive en el Dashboard, al lado derecho del título de la sección "Mis locales".</li>
+      <li><b>/sedes ruta eliminada</b>: la página deja de existir. Queda solo <code>/sedes/:id</code> para el detalle de cada sede (al hacer clic en una card).</li>
+      <li><b>Sidebar</b>: quitar "Sedes" (redundante con Dashboard) y quitar "Mapa de Permisos" (no se usa). "Mapa Interactivo" se queda.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ================================================================
+ * FULL APP MOCKUP
+ * ================================================================ -->
+<div class="app-frame">
+
+  <!-- Sidebar (new, clean) -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </div>
+      <div class="sidebar-brand-text">
+        <div class="name">EnRegla</div>
+        <div class="sub">Control operativo</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sidebar-section-label">Menú principal</div>
+      <div class="sidebar-nav">
+        <div class="sidebar-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          Dashboard
+        </div>
+        <div class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+          </svg>
+          Mapa Interactivo
+        </div>
+        <div class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+          </svg>
+          Permisos
+        </div>
+        <div class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          Renovaciones
+        </div>
+        <div class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6l9 3 9-3"/><path d="M3 6v12l9 3 9-3V6"/>
+          </svg>
+          Marco Legal
+        </div>
+        <div class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 10v6m11-11h-6M7 12H1"/>
+          </svg>
+          Configuración
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content: Dashboard -->
+  <div class="main-content">
+    <div class="topbar">
+      <div>
+        <h1 class="title">Dashboard</h1>
+        <div class="count-badge">Hola <b>Doña María</b> · resumen de tus 3 locales</div>
+      </div>
+    </div>
+
+    <!-- Hero atmospheric card -->
+    <div class="hero-card">
+      <div class="sun-halo"></div>
+      <div class="sun-core"></div>
+
+      <div class="shield-wm">
+        <svg viewBox="0 0 560 650">
+          <path fill="rgba(255, 255, 255, 0.4)" stroke="rgba(255, 255, 255, 0.55)" stroke-width="1.5"
+                d="M280 40 L500 130 L500 330 Q500 480 280 610 Q60 480 60 330 L60 130 Z"/>
+          <path fill="url(#hex-ok)" opacity="0.3"
+                d="M280 40 L500 130 L500 330 Q500 480 280 610 Q60 480 60 330 L60 130 Z"/>
+          <path fill="none" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1"
+                d="M280 70 L472 150 L472 328 Q472 464 280 584 Q88 464 88 328 L88 150 Z"/>
+          <path fill="rgba(22, 163, 74, 0.2)"
+                d="M88 174 L472 174 L472 328 Q472 464 280 584 Q88 464 88 328 Z"/>
+          <path fill="none" stroke="rgba(255, 255, 255, 0.6)" stroke-width="2" stroke-linejoin="round"
+                d="M280 48 L492 134 L492 250"/>
+          <g transform="translate(280, 320)">
+            <circle fill="rgba(22, 163, 74, 0.4)" stroke="rgba(255, 255, 255, 0.6)" stroke-width="1.5" cx="0" cy="0" r="58"/>
+            <path fill="none" stroke="rgba(255, 255, 255, 0.9)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M-25 -2 L-8 18 L25 -20"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="grid-2">
+        <div class="main-pane">
+          <div>
+            <div class="state-chip"><span class="dot"></span>Casi al día</div>
+            <h2 class="headline" style="margin-top: 10px;">Vas bien, Doña María. Solo te falta ponerte al día en unos pocos permisos.</h2>
+          </div>
+          <div class="big-pct">84<small>%</small></div>
+          <div class="data-pill">
+            <div><div class="k">Permisos</div><div class="v">48 de 57</div></div>
+            <div class="vdiv"></div>
+            <div><div class="k">Locales</div><div class="v">3</div></div>
+          </div>
+        </div>
+
+        <div class="side-pane">
+          <div class="side-title">Lo que te falta pagar <span class="approx">aprox.</span></div>
+          <div>
+            <div class="receipt-line"><div>Patente municipal</div><div class="price">$35</div></div>
+            <div class="receipt-line"><div>Permiso de bomberos</div><div class="price">$30</div></div>
+            <div class="receipt-line"><div>Uso de suelo<span class="more">· local 2</span></div><div class="price">$40</div></div>
+            <div class="receipt-line"><div>Otros <span class="more">6 trámites menores</span></div><div class="price">$275</div></div>
+          </div>
+          <div class="receipt-total">
+            <div class="label">Total pendiente</div>
+            <div class="amount">$380<small> USD</small></div>
+          </div>
+          <div class="warning-line">Si no los pagas, multa de hasta <b>$1 200</b> en tu próxima inspección.</div>
+          <div class="side-footnote">Valores aproximados. Los exactos los ves en cada permiso.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- "Mis locales" section -->
+    <div class="section-divider">
+      <h2>Mis locales</h2>
+      <span class="count">3</span>
+      <div class="line"></div>
+      <button class="create-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Crear sede
+      </button>
+    </div>
+
+    <div class="locations-grid">
+
+      <!-- Location card 1 - OK -->
+      <div class="location-card ok">
+        <div class="header">
+          <div class="icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <div class="title-block">
+            <div class="name">El Rincón Centro</div>
+            <div class="code">SEDE-A1B2C3D4</div>
+          </div>
+        </div>
+        <div class="meta-row">
+          <span>Operativa</span>
+          <span class="sep">|</span>
+          <span class="risk-badge low"><span class="dot"></span>Riesgo bajo</span>
+        </div>
+        <div class="permits-line"><b>18</b> de 19 permisos vigentes</div>
+        <div class="progress-bar"><div class="progress-fill" style="width: 94%"></div></div>
+      </div>
+
+      <!-- Location card 2 - OK -->
+      <div class="location-card ok">
+        <div class="header">
+          <div class="icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <div class="title-block">
+            <div class="name">El Rincón Cumbayá</div>
+            <div class="code">SEDE-E5F6G7H8</div>
+          </div>
+        </div>
+        <div class="meta-row">
+          <span>Operativa</span>
+          <span class="sep">|</span>
+          <span class="risk-badge low"><span class="dot"></span>Riesgo bajo</span>
+        </div>
+        <div class="permits-line"><b>17</b> de 19 permisos vigentes</div>
+        <div class="progress-bar"><div class="progress-fill" style="width: 89%"></div></div>
+      </div>
+
+      <!-- Location card 3 - WARN -->
+      <div class="location-card warn">
+        <div class="header">
+          <div class="icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <div class="title-block">
+            <div class="name">El Rincón Valle</div>
+            <div class="code">SEDE-I9J0K1L2</div>
+          </div>
+        </div>
+        <div class="meta-row">
+          <span>Operativa</span>
+          <span class="sep">|</span>
+          <span class="risk-badge high"><span class="dot"></span>Riesgo alto</span>
+        </div>
+        <div class="permits-line"><b>13</b> de 19 permisos vigentes</div>
+        <div class="progress-bar"><div class="progress-fill" style="width: 68%"></div></div>
+      </div>
+
+      <!-- Location card 4 - empty slot showing "+ crear" -->
+      <div class="location-card" style="border: 2px dashed var(--ds-neutral-200); background: transparent; display: flex; align-items: center; justify-content: center; min-height: 180px; color: var(--ds-text-subtle); font-size: 13px; flex-direction: column; gap: 8px; cursor: pointer;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        <span>Agregar otro local</span>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ================================================================
+ * SIDEBAR COMPARISON — Before vs After
+ * ================================================================ -->
+<div class="section-title-wrap">
+  <h2 class="sec">Sidebar — antes y después</h2>
+  <p class="subtitle">Quedan 6 items en el menú principal, antes eran 8. Los cambios están marcados visualmente.</p>
+</div>
+
+<div style="max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+
+  <!-- BEFORE -->
+  <div>
+    <div style="font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--ds-red-700); margin-bottom: 10px;">Antes · 8 items</div>
+    <div style="background: white; border: 1px solid var(--ds-border); border-radius: 12px; padding: 16px; overflow: hidden;">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div class="sidebar-brand-text">
+          <div class="name">EnRegla</div>
+          <div class="sub">Control operativo</div>
+        </div>
+      </div>
+      <div class="sidebar-nav" style="margin-top: 16px;">
+        <div class="sidebar-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Dashboard
+        </div>
+        <div class="sidebar-item removed">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Sedes
+        </div>
+        <div class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82"/></svg>
+          Mapa Interactivo
+        </div>
+        <div class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Permisos
+        </div>
+        <div class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/></svg>
+          Renovaciones
+        </div>
+        <div class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>
+          Configuración
+        </div>
+        <div class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6l9 3 9-3"/></svg>
+          Marco Legal
+        </div>
+        <div class="sidebar-item removed">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h10a2 2 0 012 2v8"/></svg>
+          Mapa de Permisos
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AFTER -->
+  <div>
+    <div style="font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--ds-green-700); margin-bottom: 10px;">Después · 6 items</div>
+    <div style="background: white; border: 1px solid var(--ds-border); border-radius: 12px; padding: 16px; overflow: hidden;">
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div class="sidebar-brand-text">
+          <div class="name">EnRegla</div>
+          <div class="sub">Control operativo</div>
+        </div>
+      </div>
+      <div class="sidebar-nav" style="margin-top: 16px;">
+        <div class="sidebar-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Dashboard
+        </div>
+        <div class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82"/></svg>
+          Mapa Interactivo
+        </div>
+        <div class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Permisos
+        </div>
+        <div class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/></svg>
+          Renovaciones
+        </div>
+        <div class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6l9 3 9-3"/></svg>
+          Marco Legal
+        </div>
+        <div class="sidebar-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>
+          Configuración
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="callout">
+  <b>Algunas preguntas pendientes antes de armar el plan</b>:
+  <ol style="margin: 8px 0 0; padding-left: 20px; color: var(--ds-text-subtle);">
+    <li>El botón <b>"Crear sede"</b> — ¿te gusta al lado del título "Mis locales", o lo prefieres arriba al lado del título "Dashboard"?</li>
+    <li>El <b>saludo personalizado</b> ("Hola Doña María · resumen de tus 3 locales") — ¿te gusta o prefieres algo más neutral?</li>
+    <li>La <b>card "Agregar otro local"</b> punteada — ¿la quieres como placeholder al final del grid, o solo el botón del header?</li>
+    <li>Cuando haya <b>1 sola sede</b>, ¿ocultamos la sección "Mis locales" y mostramos solo la atmosférica + opción "Crear otra sede"?</li>
+    <li><b>/sedes</b> se elimina completamente — ¿redirigimos a <code>/</code> con un 301, o simplemente quitamos la ruta?</li>
+  </ol>
+</div>
+
+</body>
+</html>
