@@ -278,7 +278,7 @@ export function PublicVerificationPage() {
         <footer className="text-center mt-[var(--ds-space-400)] text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)]">
           Powered by{' '}
           <a
-            href="https://enregla.com"
+            href="https://enregla.ec"
             className="text-[var(--ds-text-brand)] hover:underline"
           >
             EnRegla
