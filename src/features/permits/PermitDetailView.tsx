@@ -13,7 +13,6 @@ import { PermitTimeline, type TimelineEvent } from './PermitTimeline';
 import { PermitUploadForm } from './PermitUploadForm';
 import { formatDate } from '@/lib/dates';
 import {
-  Edit,
   Trash2,
   Upload,
   FileText,
@@ -22,7 +21,7 @@ import {
 } from '@/lib/lucide-icons';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { deleteDocument } from '@/lib/api/documents';
 import toast from 'react-hot-toast';
 import type { Document } from '@/types/database';
@@ -53,6 +52,7 @@ export function PermitDetailView() {
   // Modal de upload: cuando arrastras/seleccionas archivo, se guarda aqui
   // y se abre el modal con PermitUploadForm (que pide fechas + actualiza permit).
   const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const headerFileInputRef = useRef<HTMLInputElement>(null);
 
   const permit = useMemo(() => permits.find((p) => p.id === id), [permits, id]);
   const location = useMemo(
@@ -247,13 +247,19 @@ export function PermitDetailView() {
             </p>
           </div>
           <div className="flex gap-[var(--ds-space-100)]">
-            <Button variant="outline">
-              <Edit className="w-4 h-4" />
-              Editar
-            </Button>
-            <Button variant="destructive">
-              <Trash2 className="w-4 h-4" />
-              Eliminar
+            <input
+              ref={headerFileInputRef}
+              type="file"
+              accept={ACCEPTED_TYPES.join(',')}
+              className="hidden"
+              onChange={handleFileInput}
+            />
+            <Button
+              variant="default"
+              onClick={() => headerFileInputRef.current?.click()}
+            >
+              <Upload className="w-4 h-4" />
+              Subir documento
             </Button>
           </div>
         </div>
@@ -269,7 +275,7 @@ export function PermitDetailView() {
           </Banner>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-[var(--ds-space-300)]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[var(--ds-space-300)]">
           <Card className="p-[var(--ds-space-300)]">
             <h2 className="text-[var(--ds-font-size-300)] font-semibold mb-[var(--ds-space-200)]">
               Información
@@ -340,120 +346,24 @@ export function PermitDetailView() {
             </h2>
             <PermitTimeline events={timeline} />
           </Card>
+
+          <Card className="p-[var(--ds-space-300)]">
+            <h2 className="text-[var(--ds-font-size-300)] font-semibold mb-[var(--ds-space-200)]">
+              Documento
+            </h2>
+            <DocumentPanel
+              loading={loadingDocs}
+              documents={documents}
+              dragOver={dragOver}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onFileInput={handleFileInput}
+              onRefresh={fetchDocuments}
+              acceptedTypes={ACCEPTED_TYPES}
+            />
+          </Card>
         </div>
-
-        <Card className="p-[var(--ds-space-300)]">
-          <h2 className="text-[var(--ds-font-size-300)] font-semibold mb-[var(--ds-space-200)]">
-            Documentos
-          </h2>
-          {loadingDocs ? (
-            <div className="text-center py-8">
-              <div className="w-8 h-8 border-4 border-[var(--ds-neutral-200)] border-t-[var(--ds-text)] rounded-full animate-spin mx-auto mb-2" />
-              <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)]">
-                Cargando documentos...
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-[var(--ds-space-200)]">
-              {/* Solo mostrar zona de upload si no hay documento todavia.
-                  Un permit = un documento activo. Para reemplazar, se usa
-                  la accion de "renovar" (que crea una nueva version). */}
-              {documents.length === 0 && (
-                <div
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  className={cn(
-                    'relative border-2 border-dashed rounded-[var(--ds-radius-100)] p-[var(--ds-space-300)] transition-all',
-                    dragOver
-                      ? 'border-[var(--ds-background-brand)] bg-[var(--ds-blue-50)]'
-                      : 'border-[var(--ds-border)] hover:border-[var(--ds-text-subtle)]'
-                  )}
-                >
-                  <label className="flex flex-col items-center justify-center cursor-pointer">
-                    <input
-                      type="file"
-                      accept={ACCEPTED_TYPES.join(',')}
-                      className="hidden"
-                      onChange={handleFileInput}
-                    />
-                    <Upload className="w-6 h-6 text-[var(--ds-text-subtle)] mb-2" />
-                    <p className="text-[var(--ds-font-size-100)] font-medium text-[var(--ds-text)]">
-                      Arrastra documento aquí
-                    </p>
-                    <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mt-1">
-                      o haz clic para seleccionar
-                    </p>
-                    <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtlest)] mt-2">
-                      PDF, PNG, JPG (máx. 5MB)
-                    </p>
-                  </label>
-                </div>
-              )}
-
-              {documents.length > 0 && (
-                <div className="space-y-[var(--ds-space-100)]">
-                  <p className="text-[var(--ds-font-size-075)] font-medium text-[var(--ds-text-subtle)] uppercase tracking-wider">
-                    Documentos subidos ({documents.length})
-                  </p>
-                  <div className="space-y-[var(--ds-space-100)]">
-                    {documents.map((doc) => (
-                      <div
-                        key={doc.id}
-                        className="flex items-center gap-[var(--ds-space-150)] p-[var(--ds-space-150)] bg-[var(--ds-neutral-50)] rounded-[var(--ds-radius-100)] border border-[var(--ds-border)]"
-                      >
-                        <div className="w-10 h-10 rounded-[var(--ds-radius-100)] bg-white border border-[var(--ds-border)] flex items-center justify-center shrink-0">
-                          <FileText className="w-4 h-4 text-[var(--ds-text-subtle)]" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[var(--ds-font-size-100)] font-medium text-[var(--ds-text)] truncate">
-                            {doc.file_name}
-                          </p>
-                          <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)]">
-                            {doc.uploaded_at ? formatDate(doc.uploaded_at) : 'Sin fecha'}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-[var(--ds-space-050)]">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => {
-                              const { data } = supabase.storage
-                                .from('permit-documents')
-                                .getPublicUrl(doc.file_path);
-                              window.open(data.publicUrl, '_blank');
-                            }}
-                            title="Ver documento"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={async () => {
-                              if (!confirm('¿Eliminar este documento?')) return;
-                              try {
-                                await deleteDocument(doc.id, doc.file_path);
-                                toast.success('Documento eliminado');
-                                fetchDocuments();
-                              } catch (error) {
-                                toast.error('Error al eliminar');
-                              }
-                            }}
-                            title="Eliminar"
-                            className="text-[var(--ds-text-danger)] hover:text-[var(--ds-text-danger)]"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </Card>
       </div>
 
       {/* Modal con PermitUploadForm cuando hay archivo pendiente */}
@@ -473,6 +383,151 @@ export function PermitDetailView() {
           )}
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+interface DocumentPanelProps {
+  loading: boolean;
+  documents: Document[];
+  dragOver: boolean;
+  onDragOver: (e: React.DragEvent) => void;
+  onDragLeave: (e: React.DragEvent) => void;
+  onDrop: (e: React.DragEvent) => void;
+  onFileInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onRefresh: () => void;
+  acceptedTypes: string[];
+}
+
+function DocumentPanel({
+  loading,
+  documents,
+  dragOver,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+  onFileInput,
+  onRefresh,
+  acceptedTypes,
+}: DocumentPanelProps) {
+  if (loading) {
+    return (
+      <div className="text-center py-8">
+        <div className="w-8 h-8 border-4 border-[var(--ds-neutral-200)] border-t-[var(--ds-text)] rounded-full animate-spin mx-auto mb-2" />
+        <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)]">
+          Cargando...
+        </p>
+      </div>
+    );
+  }
+
+  if (documents.length === 0) {
+    return (
+      <div
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+        onDrop={onDrop}
+        className={cn(
+          'relative border-2 border-dashed rounded-[var(--ds-radius-100)] p-[var(--ds-space-300)] transition-all',
+          dragOver
+            ? 'border-[var(--ds-background-brand)] bg-[var(--ds-blue-50)]'
+            : 'border-[var(--ds-border)] hover:border-[var(--ds-text-subtle)]'
+        )}
+      >
+        <label className="flex flex-col items-center justify-center text-center cursor-pointer">
+          <input
+            type="file"
+            accept={acceptedTypes.join(',')}
+            className="hidden"
+            onChange={onFileInput}
+          />
+          <Upload className="w-6 h-6 text-[var(--ds-text-subtle)] mb-[var(--ds-space-150)]" />
+          <p className="text-[var(--ds-font-size-100)] font-medium text-[var(--ds-text)]">
+            Subí el permiso
+          </p>
+          <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mt-[var(--ds-space-050)]">
+            Arrastrá el archivo aquí o hacé clic
+          </p>
+          <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtlest)] mt-[var(--ds-space-150)]">
+            PDF, PNG, JPG · máx. 5MB
+          </p>
+        </label>
+      </div>
+    );
+  }
+
+  const doc = documents[0];
+  const { data } = supabase.storage.from('permit-documents').getPublicUrl(doc.file_path);
+  const publicUrl = data.publicUrl;
+  const isImage = /\.(png|jpg|jpeg)$/i.test(doc.file_name);
+  const isPdf = /\.pdf$/i.test(doc.file_name);
+
+  return (
+    <div className="flex flex-col gap-[var(--ds-space-200)]">
+      <a
+        href={publicUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block bg-[var(--ds-neutral-50)] border border-[var(--ds-border)] rounded-[var(--ds-radius-100)] overflow-hidden hover:border-[var(--ds-border-bold)] transition-colors group"
+        aria-label="Abrir documento"
+      >
+        <div className="aspect-[4/3] w-full bg-white flex items-center justify-center overflow-hidden">
+          {isImage ? (
+            <img
+              src={publicUrl}
+              alt={doc.file_name}
+              className="w-full h-full object-contain"
+            />
+          ) : isPdf ? (
+            <iframe
+              src={`${publicUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+              title={doc.file_name}
+              className="w-full h-full pointer-events-none"
+            />
+          ) : (
+            <FileText className="w-12 h-12 text-[var(--ds-text-subtle)]" />
+          )}
+        </div>
+      </a>
+
+      <div className="min-w-0">
+        <p className="text-[var(--ds-font-size-100)] font-medium text-[var(--ds-text)] truncate" title={doc.file_name}>
+          {doc.file_name}
+        </p>
+        <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)]">
+          {doc.uploaded_at ? `Subido el ${formatDate(doc.uploaded_at)}` : 'Sin fecha'}
+        </p>
+      </div>
+
+      <div className="flex gap-[var(--ds-space-100)]">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => window.open(publicUrl, '_blank')}
+          className="flex-1"
+        >
+          <Eye className="w-4 h-4" />
+          Ver
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={async () => {
+            if (!confirm('¿Eliminar este documento?')) return;
+            try {
+              await deleteDocument(doc.id, doc.file_path);
+              toast.success('Documento eliminado');
+              onRefresh();
+            } catch {
+              toast.error('Error al eliminar');
+            }
+          }}
+          className="text-[var(--ds-text-danger)] hover:text-[var(--ds-text-danger)]"
+          aria-label="Eliminar documento"
+        >
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      </div>
     </div>
   );
 }
