@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { format } from 'date-fns';
-import { Upload, Calendar as CalendarIcon, AlertCircle } from '@/lib/lucide-icons';
+import { Upload, Calendar as CalendarIcon, AlertCircle, FileText } from '@/lib/lucide-icons';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -84,6 +84,16 @@ export function PermitUploadForm({
   const expiryDate = useMemo(() => {
     return calculateExpiryDate(permit.type, issueDate);
   }, [permit.type, issueDate]);
+
+  const previewUrl = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  const isImage = !!file && file.type.startsWith('image/');
+  const isPdf = !!file && file.type === 'application/pdf';
 
   // ========== Event Handlers ==========
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -206,37 +216,36 @@ export function PermitUploadForm({
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Documento del permiso
         </label>
-        <div
-          className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-            file
-              ? 'border-green-300 bg-green-50'
-              : 'border-gray-300 hover:border-gray-400 bg-white'
-          }`}
-        >
-          {file ? (
-            <div className="space-y-2">
-              <Upload className="h-8 w-8 text-green-600 mx-auto" />
-              <div>
-                <p className="font-medium text-gray-900 truncate" title={file.name}>{file.name}</p>
-                <p className="text-sm text-gray-500 font-mono">
+        {file && previewUrl ? (
+          <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
+            <div className="aspect-[4/3] w-full bg-gray-50 flex items-center justify-center overflow-hidden">
+              {isImage ? (
+                <img
+                  src={previewUrl}
+                  alt={file.name}
+                  className="w-full h-full object-contain"
+                />
+              ) : isPdf ? (
+                <iframe
+                  src={`${previewUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+                  title={file.name}
+                  className="w-full h-full pointer-events-none"
+                />
+              ) : (
+                <FileText className="h-12 w-12 text-gray-400" />
+              )}
+            </div>
+            <div className="flex items-center gap-3 p-3 border-t border-gray-100">
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-gray-900 truncate text-sm" title={file.name}>
+                  {file.name}
+                </p>
+                <p className="text-xs text-gray-500 font-mono">
                   {formatFileSize(file.size)}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => setFile(null)}
-                className="text-sm text-gray-600 hover:text-gray-900 underline"
-              >
+              <label className="shrink-0 cursor-pointer text-sm text-gray-700 hover:text-gray-900 underline font-medium">
                 Cambiar archivo
-              </button>
-            </div>
-          ) : (
-            <div>
-              <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-              <label className="cursor-pointer">
-                <span className="text-primary hover:text-primary/80 font-medium">
-                  Seleccionar archivo
-                </span>
                 <input
                   type="file"
                   accept=".pdf,.jpg,.jpeg,.png"
@@ -245,12 +254,28 @@ export function PermitUploadForm({
                   disabled={loading}
                 />
               </label>
-              <p className="text-xs text-gray-500 mt-2">
-                PDF, JPG o PNG (máximo 10MB)
-              </p>
             </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="border-2 border-dashed border-gray-300 hover:border-gray-400 bg-white rounded-lg p-6 text-center transition-colors">
+            <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+            <label className="cursor-pointer">
+              <span className="text-primary hover:text-primary/80 font-medium">
+                Seleccionar archivo
+              </span>
+              <input
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                onChange={handleFileChange}
+                className="hidden"
+                disabled={loading}
+              />
+            </label>
+            <p className="text-xs text-gray-500 mt-2">
+              PDF, JPG o PNG (máximo 10MB)
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Issue date picker */}
