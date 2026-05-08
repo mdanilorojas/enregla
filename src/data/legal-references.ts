@@ -1,5 +1,69 @@
 import type { LegalReference, PermitType } from '@/types';
 
+export type LegalCategory =
+  | 'funcionamiento'
+  | 'sanitario'
+  | 'ambiental'
+  | 'laboral'
+  | 'seguridad';
+
+export const PERMIT_TO_CATEGORY: Record<PermitType, LegalCategory> = {
+  ruc: 'funcionamiento',
+  patente_municipal: 'funcionamiento',
+  uso_suelo: 'funcionamiento',
+  rotulacion: 'funcionamiento',
+  bomberos: 'seguridad',
+  arcsa: 'sanitario',
+};
+
+export interface CategoryMeta {
+  slug: LegalCategory;
+  label: string;
+  iconName: 'Building2' | 'FileText' | 'Shield' | 'Users' | 'AlertTriangle';
+  description: string;
+}
+
+export const CATEGORY_META: Record<LegalCategory, CategoryMeta> = {
+  funcionamiento: {
+    slug: 'funcionamiento',
+    label: 'Funcionamiento',
+    iconName: 'Building2',
+    description: 'Tributarios, municipales y licencias de operación',
+  },
+  seguridad: {
+    slug: 'seguridad',
+    label: 'Seguridad',
+    iconName: 'AlertTriangle',
+    description: 'Prevención de incendios y emergencias',
+  },
+  sanitario: {
+    slug: 'sanitario',
+    label: 'Sanitario',
+    iconName: 'FileText',
+    description: 'Control sanitario de alimentos, medicamentos y salud',
+  },
+  ambiental: {
+    slug: 'ambiental',
+    label: 'Ambiental',
+    iconName: 'Shield',
+    description: 'Regulaciones del Ministerio del Ambiente',
+  },
+  laboral: {
+    slug: 'laboral',
+    label: 'Laboral',
+    iconName: 'Users',
+    description: 'Obligaciones con el Ministerio del Trabajo e IESS',
+  },
+};
+
+export const CATEGORY_ORDER: LegalCategory[] = [
+  'funcionamiento',
+  'seguridad',
+  'sanitario',
+  'ambiental',
+  'laboral',
+];
+
 export const LEGAL_REFERENCES: Record<PermitType, LegalReference> = {
   ruc: {
     permitType: 'ruc',

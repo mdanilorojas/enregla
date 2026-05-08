@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Marco Legal — Mobile patterns</title>
+<style>
+  :root {
+    --brand: #0f265c;
+    --brand-600: #143e7a;
+    --bg: #F7F8F9;
+    --card: #ffffff;
+    --border: #DFE1E6;
+    --text: #172B4D;
+    --text-subtle: #5E6C84;
+    --text-muted: #97A0AF;
+    --red: #DE350B;
+    --red-soft: #FFEBE6;
+    --amber: #FF8B00;
+    --green: #00875A;
+    --blue-soft: #DEEBFF;
+    --blue-text: #0747A6;
+    --yellow-soft: #FFFAE6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 32px;
+  }
+  h1.page-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  p.page-sub {
+    color: var(--text-subtle);
+    margin-bottom: 28px;
+  }
+  .comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  .option {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .option-label {
+    background: var(--brand);
+    color: #fff;
+    padding: 12px 16px;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .option-label .tag {
+    font-size: 11px;
+    background: rgba(255,255,255,0.2);
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+  .option-desc {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-subtle);
+  }
+  .mockup-area {
+    background: #e5e7eb;
+    padding: 28px 16px;
+    min-height: 720px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  /* Phone frame */
+  .phone {
+    width: 300px;
+    background: var(--bg);
+    border-radius: 28px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15), 0 0 0 8px #1a1a1a;
+    overflow: hidden;
+    position: relative;
+  }
+  .phone::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70px;
+    height: 5px;
+    background: #000;
+    border-radius: 10px;
+    z-index: 10;
+  }
+  .phone-status {
+    background: #fff;
+    padding: 18px 16px 10px;
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+    color: var(--text);
+  }
+  .phone-nav {
+    background: #fff;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .nav-back {
+    font-size: 20px;
+    color: var(--brand);
+    font-weight: 600;
+  }
+  .nav-title {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .phone-body {
+    padding: 12px;
+    min-height: 420px;
+    max-height: 460px;
+    overflow-y: auto;
+  }
+  .phone-label {
+    position: absolute;
+    bottom: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: var(--text-subtle);
+    white-space: nowrap;
+  }
+
+  /* Common bits */
+  .search {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .chips {
+    display: flex;
+    gap: 5px;
+    overflow-x: auto;
+    margin-bottom: 10px;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-subtle);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .chip.active {
+    background: var(--brand);
+    color: #fff;
+    border-color: var(--brand);
+  }
+  .permit-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .permit-ico {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    background: var(--blue-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .permit-name {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .permit-entity {
+    font-size: 10px;
+    color: var(--text-subtle);
+  }
+  .permit-tag {
+    font-size: 9px;
+    padding: 2px 5px;
+    border-radius: 4px;
+    background: var(--blue-soft);
+    color: var(--blue-text);
+    display: inline-block;
+    margin-top: 4px;
+  }
+
+  /* Detail view */
+  .detail-head {
+    background: #fff;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+  }
+  .detail-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .detail-name {
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .detail-entity {
+    font-size: 11px;
+    color: var(--text-subtle);
+  }
+
+  /* Option A — tabs horizontales scroll */
+  .tabs-h {
+    display: flex;
+    gap: 0;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px 8px 0 0;
+    border-bottom: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs-h::-webkit-scrollbar { display: none; }
+  .tab {
+    padding: 10px 14px;
+    font-size: 11px;
+    color: var(--text-subtle);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .tab.active {
+    color: var(--brand);
+    border-bottom-color: var(--brand);
+    font-weight: 600;
+  }
+  .tab-panel {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    padding: 12px;
+    font-size: 12px;
+    line-height: 1.55;
+  }
+  .panel-h {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin: 10px 0 4px;
+  }
+  .panel-h:first-child { margin-top: 0; }
+  .panel-list {
+    list-style: none;
+    padding: 0;
+  }
+  .panel-list li {
+    font-size: 11px;
+    padding: 4px 0;
+    padding-left: 14px;
+    position: relative;
+  }
+  .panel-list li::before {
+    content: "•";
+    color: var(--brand);
+    position: absolute;
+    left: 0;
+  }
+
+  /* Option B — Segmented control / sheet */
+  .segmented {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 3px;
+    margin-bottom: 8px;
+  }
+  .seg {
+    text-align: center;
+    padding: 7px 4px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-subtle);
+    border-radius: 6px;
+  }
+  .seg.active {
+    background: #fff;
+    color: var(--brand);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+
+  /* Option C — Accordion (1 column, no tabs at all on mobile) */
+  .acc {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    overflow: hidden;
+  }
+  .acc-head {
+    padding: 10px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .acc-body {
+    padding: 0 12px 12px;
+    font-size: 11px;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+  }
+  .chev { color: var(--text-muted); font-size: 10px; }
+
+  /* Legend */
+  .legend {
+    margin-top: 32px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .legend h3 {
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: var(--brand);
+  }
+  .legend ul {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+  .legend li {
+    padding-left: 20px;
+    position: relative;
+  }
+  .legend li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    background: var(--brand);
+  }
+  .legend li.b::before { background: #4C9AFF; }
+  .legend li.c::before { background: #00875A; }
+  .legend small {
+    color: var(--text-subtle);
+    display: block;
+    font-size: 12px;
+  }
+
+  .flow {
+    font-size: 11px;
+    color: var(--text-subtle);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">Marco Legal — Pregunta 3 de N (mobile)</h1>
+<p class="page-sub">En pantallas pequeñas los tabs horizontales tienen trade-offs. Comparación de 3 enfoques mobile.</p>
+
+<div class="comparison">
+
+  <!-- ============= Option A — Tabs con scroll horizontal ============= -->
+  <div class="option">
+    <div class="option-label">
+      A — Tabs con scroll horizontal
+      <span class="tag">Simple</span>
+    </div>
+    <div class="option-desc">
+      Mismos tabs que desktop (Resumen / Legal / Proceso / Riesgos), pero en mobile hacen scroll horizontal si no caben.
+    </div>
+    <div class="mockup-area">
+      <div class="phone">
+        <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="phone-nav"><span class="nav-back">‹</span><span class="nav-title">RUC</span></div>
+        <div class="phone-body">
+          <div class="detail-head">
+            <div class="detail-row">
+              <div class="permit-ico">📋</div>
+              <div>
+                <div class="detail-name">RUC</div>
+                <div class="detail-entity">SRI · Funcionamiento</div>
+              </div>
+            </div>
+          </div>
+          <div class="tabs-h">
+            <div class="tab active">Resumen</div>
+            <div class="tab">Legal</div>
+            <div class="tab">Proceso</div>
+            <div class="tab">Riesgos</div>
+          </div>
+          <div class="tab-panel">
+            <div class="panel-h">Descripción</div>
+            <p style="font-size:11px">El RUC es el número de identificación tributaria para personas naturales y jurídicas. Requisito previo para actividad económica formal.</p>
+            <div class="panel-h">Puntos clave</div>
+            <ul class="panel-list">
+              <li>Obtención una vez</li>
+              <li>Actualizar en 30 días</li>
+              <li>Gratuito</li>
+            </ul>
+          </div>
+        </div>
+        <div class="phone-label">Un tab a la vez · scroll horizontal</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============= Option B — Segmented control + tab single view ============= -->
+  <div class="option">
+    <div class="option-label">
+      B — Segmented control nativo
+      <span class="tag">Recomendada</span>
+    </div>
+    <div class="option-desc">
+      Los 4 tabs se convierten en segmented control (iOS-style). Todos visibles sin scroll. Abrevia si es necesario.
+    </div>
+    <div class="mockup-area">
+      <div class="phone">
+        <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="phone-nav"><span class="nav-back">‹</span><span class="nav-title">RUC</span></div>
+        <div class="phone-body">
+          <div class="detail-head">
+            <div class="detail-row">
+              <div class="permit-ico">📋</div>
+              <div>
+                <div class="detail-name">RUC</div>
+                <div class="detail-entity">SRI · Funcionamiento</div>
+              </div>
+            </div>
+          </div>
+          <div class="segmented">
+            <div class="seg active">Resumen</div>
+            <div class="seg">Legal</div>
+            <div class="seg">Proceso</div>
+            <div class="seg">Riesgos</div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px;font-size:12px;line-height:1.55">
+            <p style="font-size:11px;margin-bottom:10px">El RUC es el número de identificación tributaria para personas naturales y jurídicas en Ecuador.</p>
+            <div class="panel-h" style="margin-top:0">Puntos clave</div>
+            <ul class="panel-list">
+              <li>Obtención una vez</li>
+              <li>Actualizar en 30 días</li>
+              <li>Gratuito en el SRI</li>
+              <li>Cada sede se registra</li>
+            </ul>
+          </div>
+        </div>
+        <div class="phone-label">Todo visible · switch rápido</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============= Option C — Accordion full mobile (sin tabs) ============= -->
+  <div class="option">
+    <div class="option-label">
+      C — Accordion en mobile, tabs en desktop
+      <span class="tag">Responsive split</span>
+    </div>
+    <div class="option-desc">
+      Desktop mantiene tabs. Mobile convierte cada tab en un accordion colapsable. Scroll vertical puro.
+    </div>
+    <div class="mockup-area">
+      <div class="phone">
+        <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+        <div class="phone-nav"><span class="nav-back">‹</span><span class="nav-title">RUC</span></div>
+        <div class="phone-body">
+          <div class="detail-head">
+            <div class="detail-row">
+              <div class="permit-ico">📋</div>
+              <div>
+                <div class="detail-name">RUC</div>
+                <div class="detail-entity">SRI · Funcionamiento</div>
+              </div>
+            </div>
+          </div>
+          <div class="acc">
+            <div class="acc-head">📖 Resumen <span class="chev">▾</span></div>
+            <div class="acc-body">
+              <p style="font-size:11px">El RUC es el número de identificación tributaria para personas naturales y jurídicas en Ecuador. Requisito para actividad económica formal.</p>
+            </div>
+          </div>
+          <div class="acc">
+            <div class="acc-head">⚖️ Legal <span class="chev">▸</span></div>
+          </div>
+          <div class="acc">
+            <div class="acc-head">🪜 Proceso <span class="chev">▸</span></div>
+          </div>
+          <div class="acc">
+            <div class="acc-head">⚠️ Riesgos <span class="chev">▸</span></div>
+          </div>
+        </div>
+        <div class="phone-label">1 columna · scroll vertical</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="legend">
+  <h3>Trade-offs</h3>
+  <ul>
+    <li>
+      <strong>A — Tabs con scroll horizontal</strong>
+      <small>Mismo patrón que desktop. Pero en mobile 4 tabs cortos no deberían requerir scroll — es un patrón torpe. Se rompe si las etiquetas son largas.</small>
+    </li>
+    <li class="b">
+      <strong>B — Segmented control</strong>
+      <small>Patrón nativo iOS/Android. Los 4 caben perfecto en pantalla pequeña. Switch inmediato, sin scroll. Mejor UX mobile.</small>
+    </li>
+    <li class="c">
+      <strong>C — Accordion en mobile, tabs en desktop</strong>
+      <small>Dos patrones distintos según breakpoint. Más código. Puede ser mejor para lectura larga, pero inconsistencia visual.</small>
+    </li>
+  </ul>
+</div>
+
+</body>
+</html>

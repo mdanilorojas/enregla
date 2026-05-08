@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Marco Legal — Layout comparison</title>
+<style>
+  :root {
+    --brand: #0f265c;
+    --brand-600: #143e7a;
+    --bg: #F7F8F9;
+    --card: #ffffff;
+    --border: #DFE1E6;
+    --text: #172B4D;
+    --text-subtle: #5E6C84;
+    --text-muted: #97A0AF;
+    --red: #DE350B;
+    --amber: #FF8B00;
+    --green: #00875A;
+    --blue-soft: #DEEBFF;
+    --blue-text: #0747A6;
+    --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 8px rgba(0,0,0,0.04);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 32px;
+  }
+  h1.page-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  p.page-sub {
+    color: var(--text-subtle);
+    margin-bottom: 32px;
+  }
+  .comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+  .option {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .option-label {
+    background: var(--brand);
+    color: #fff;
+    padding: 12px 16px;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .option-label .tag {
+    font-size: 11px;
+    background: rgba(255,255,255,0.2);
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+  .option-desc {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-subtle);
+  }
+  .mockup {
+    background: var(--bg);
+    padding: 20px;
+    min-height: 600px;
+  }
+
+  /* Mock app header/toolbar */
+  .mock-header {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .mock-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .mock-sub {
+    font-size: 12px;
+    color: var(--text-subtle);
+  }
+
+  /* Search bar */
+  .search {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .search::before {
+    content: "🔍";
+    font-size: 12px;
+    opacity: 0.6;
+  }
+
+  /* Option A — Categorías primero */
+  .cat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .cat-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    position: relative;
+  }
+  .cat-card.selected {
+    border-color: var(--brand);
+    background: #F4F5F7;
+  }
+  .cat-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: var(--blue-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+  .cat-title {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .cat-count {
+    font-size: 11px;
+    color: var(--text-subtle);
+  }
+  .cat-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--bg);
+    color: var(--text-muted);
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+  }
+
+  /* Option B — Filtros como chips */
+  .chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .chip {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-subtle);
+    cursor: pointer;
+  }
+  .chip.active {
+    background: var(--brand);
+    color: #fff;
+    border-color: var(--brand);
+  }
+  .chip .count {
+    opacity: 0.7;
+    margin-left: 4px;
+    font-size: 11px;
+  }
+
+  /* Permit cards list */
+  .permits {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .permit-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .permit-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: var(--blue-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .permit-main {
+    flex: 1;
+    min-width: 0;
+  }
+  .permit-name {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .permit-entity {
+    font-size: 11px;
+    color: var(--text-subtle);
+    margin-bottom: 6px;
+  }
+  .permit-tags {
+    display: flex;
+    gap: 4px;
+  }
+  .permit-tag {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--text-subtle);
+  }
+  .permit-tag.cat {
+    background: var(--blue-soft);
+    color: var(--blue-text);
+  }
+
+  /* Option C — Split view */
+  .split {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 12px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .split-nav {
+    background: var(--bg);
+    padding: 10px 0;
+    border-right: 1px solid var(--border);
+  }
+  .nav-item {
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text-subtle);
+    cursor: pointer;
+    border-left: 3px solid transparent;
+  }
+  .nav-item.active {
+    background: #fff;
+    color: var(--brand);
+    border-left-color: var(--brand);
+    font-weight: 600;
+  }
+  .nav-item .cnt {
+    color: var(--text-muted);
+    font-size: 10px;
+    margin-left: 4px;
+  }
+  .split-content {
+    padding: 12px;
+  }
+  .split-header {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .split-sub {
+    font-size: 11px;
+    color: var(--text-subtle);
+    margin-bottom: 12px;
+  }
+
+  /* Legend */
+  .legend {
+    margin-top: 28px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .legend h3 {
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: var(--brand);
+  }
+  .legend ul {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+  .legend li {
+    padding-left: 20px;
+    position: relative;
+  }
+  .legend li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    background: var(--brand);
+  }
+  .legend li.b::before { background: #4C9AFF; }
+  .legend li.c::before { background: #00875A; }
+  .legend small {
+    color: var(--text-subtle);
+    display: block;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">Marco Legal — Pregunta 1 de N</h1>
+<p class="page-sub">¿Cómo debería ser la vista principal? Comparación de 3 estructuras.</p>
+
+<div class="comparison">
+
+  <!-- ============= Option A ============= -->
+  <div class="option">
+    <div class="option-label">
+      Opción A — Grid de categorías
+      <span class="tag">Actual rediseñada</span>
+    </div>
+    <div class="option-desc">
+      Pantalla principal son las 5 categorías como cards grandes. Click abre vista de detalle con los permisos de esa categoría.
+    </div>
+    <div class="mockup">
+      <div class="mock-header">
+        <div class="mock-title">Marco Legal</div>
+        <div class="mock-sub">Referencia de normativas por categoría</div>
+      </div>
+      <div class="search">Buscar normativa, ley, permiso...</div>
+      <div class="cat-grid">
+        <div class="cat-card">
+          <div class="cat-icon">🏛️</div>
+          <div class="cat-title">Funcionamiento</div>
+          <div class="cat-count">3 permisos</div>
+        </div>
+        <div class="cat-card">
+          <div class="cat-icon">🛡️</div>
+          <div class="cat-title">Seguridad</div>
+          <div class="cat-count">2 permisos</div>
+        </div>
+        <div class="cat-card">
+          <div class="cat-icon">🏥</div>
+          <div class="cat-title">Sanitario</div>
+          <div class="cat-count">1 permiso</div>
+        </div>
+        <div class="cat-card">
+          <div class="cat-icon">🌿</div>
+          <div class="cat-title">Ambiental</div>
+          <div class="cat-count">Próximamente</div>
+          <div class="cat-badge">Vacío</div>
+        </div>
+        <div class="cat-card">
+          <div class="cat-icon">👥</div>
+          <div class="cat-title">Laboral</div>
+          <div class="cat-count">Próximamente</div>
+          <div class="cat-badge">Vacío</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============= Option B ============= -->
+  <div class="option">
+    <div class="option-label">
+      Opción B — Chips + lista de permisos
+      <span class="tag">Recomendada</span>
+    </div>
+    <div class="option-desc">
+      Pantalla principal muestra TODOS los permisos. Categorías son chips de filtro arriba. Sin pantalla intermedia.
+    </div>
+    <div class="mockup">
+      <div class="mock-header">
+        <div class="mock-title">Marco Legal</div>
+        <div class="mock-sub">6 permisos registrados · 5 categorías</div>
+      </div>
+      <div class="search">Buscar "RUC", "bomberos", "LUAE"...</div>
+      <div class="chips">
+        <div class="chip active">Todos <span class="count">6</span></div>
+        <div class="chip">Funcionamiento <span class="count">3</span></div>
+        <div class="chip">Seguridad <span class="count">2</span></div>
+        <div class="chip">Sanitario <span class="count">1</span></div>
+      </div>
+      <div class="permits">
+        <div class="permit-card">
+          <div class="permit-icon">📋</div>
+          <div class="permit-main">
+            <div class="permit-name">RUC</div>
+            <div class="permit-entity">Servicio de Rentas Internas (SRI)</div>
+            <div class="permit-tags">
+              <span class="permit-tag cat">Funcionamiento</span>
+              <span class="permit-tag">Nacional</span>
+            </div>
+          </div>
+        </div>
+        <div class="permit-card">
+          <div class="permit-icon">🏛️</div>
+          <div class="permit-main">
+            <div class="permit-name">Patente Municipal (LUAE)</div>
+            <div class="permit-entity">Municipio de Quito</div>
+            <div class="permit-tags">
+              <span class="permit-tag cat">Funcionamiento</span>
+              <span class="permit-tag">Municipal</span>
+            </div>
+          </div>
+        </div>
+        <div class="permit-card">
+          <div class="permit-icon">🔥</div>
+          <div class="permit-main">
+            <div class="permit-name">Permiso de Bomberos</div>
+            <div class="permit-entity">Cuerpo de Bomberos</div>
+            <div class="permit-tags">
+              <span class="permit-tag cat">Seguridad</span>
+              <span class="permit-tag">Municipal</span>
+            </div>
+          </div>
+        </div>
+        <div class="permit-card">
+          <div class="permit-icon">🏥</div>
+          <div class="permit-main">
+            <div class="permit-name">Permiso ARCSA</div>
+            <div class="permit-entity">Agencia de Control Sanitario</div>
+            <div class="permit-tags">
+              <span class="permit-tag cat">Sanitario</span>
+              <span class="permit-tag">Nacional</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============= Option C ============= -->
+  <div class="option">
+    <div class="option-label">
+      Opción C — Split view (nav lateral)
+      <span class="tag">Densidad alta</span>
+    </div>
+    <div class="option-desc">
+      Dos paneles: categorías a la izquierda (sticky), permisos a la derecha. Estilo documentación técnica.
+    </div>
+    <div class="mockup">
+      <div class="mock-header">
+        <div class="mock-title">Marco Legal</div>
+        <div class="mock-sub">Referencia de normativas ecuatorianas</div>
+      </div>
+      <div class="search">Buscar normativa...</div>
+      <div class="split">
+        <div class="split-nav">
+          <div class="nav-item active">Todos <span class="cnt">6</span></div>
+          <div class="nav-item">Funcionamiento <span class="cnt">3</span></div>
+          <div class="nav-item">Seguridad <span class="cnt">2</span></div>
+          <div class="nav-item">Sanitario <span class="cnt">1</span></div>
+          <div class="nav-item">Ambiental <span class="cnt">0</span></div>
+          <div class="nav-item">Laboral <span class="cnt">0</span></div>
+        </div>
+        <div class="split-content">
+          <div class="split-header">Funcionamiento</div>
+          <div class="split-sub">3 permisos en esta categoría</div>
+          <div class="permits">
+            <div class="permit-card" style="padding:10px 12px">
+              <div class="permit-icon" style="width:26px;height:26px;font-size:12px">📋</div>
+              <div class="permit-main">
+                <div class="permit-name" style="font-size:12px">RUC</div>
+                <div class="permit-entity">SRI</div>
+              </div>
+            </div>
+            <div class="permit-card" style="padding:10px 12px">
+              <div class="permit-icon" style="width:26px;height:26px;font-size:12px">🏛️</div>
+              <div class="permit-main">
+                <div class="permit-name" style="font-size:12px">Patente Municipal</div>
+                <div class="permit-entity">Municipio</div>
+              </div>
+            </div>
+            <div class="permit-card" style="padding:10px 12px">
+              <div class="permit-icon" style="width:26px;height:26px;font-size:12px">📍</div>
+              <div class="permit-main">
+                <div class="permit-name" style="font-size:12px">Uso de Suelo</div>
+                <div class="permit-entity">Municipio</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="legend">
+  <h3>Criterios de comparación</h3>
+  <ul>
+    <li>
+      <strong>A — Grid de categorías</strong>
+      <small>Menos denso, obliga a 2 clicks (categoría → permiso). Categorías vacías se notan.</small>
+    </li>
+    <li class="b">
+      <strong>B — Chips + lista</strong>
+      <small>Ver todo de una. Filtro rápido. Búsqueda dominante. Un solo click al detalle.</small>
+    </li>
+    <li class="c">
+      <strong>C — Split view</strong>
+      <small>Estilo docs técnicas. Siempre ves categorías. Requiere más ancho de pantalla.</small>
+    </li>
+  </ul>
+</div>
+
+</body>
+</html>
