@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProtectedRoute } from '@/components/Auth';
 import { useAuth } from '@/hooks/useAuth';
+import { DEMO_MODE } from '@/lib/demo';
 import { LoginView } from '@/features/auth/LoginView';
 import { AuthCallback } from '@/features/auth/AuthCallback';
 import { IncrementalWizard } from '@/features/onboarding-incremental/IncrementalWizard';
@@ -43,7 +44,7 @@ function OnboardingRoute() {
 
 function ProtectedOnboardingRoute() {
   const { profile, loading } = useAuth();
-  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
+  const isDemoMode = DEMO_MODE;
 
   if (loading) {
     return <AppLoader />;
@@ -64,7 +65,7 @@ function ProtectedOnboardingRoute() {
 
 export default function App() {
   const { isAuthenticated, loading } = useAuth();
-  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
+  const isDemoMode = DEMO_MODE;
 
   return (
     <BrowserRouter>

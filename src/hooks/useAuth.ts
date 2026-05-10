@@ -2,16 +2,14 @@ import { useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { logout } from '@/lib/api/auth';
 import { supabase } from '@/lib/supabase';
+import { queryClient } from '@/lib/queryClient';
+import { DEMO_MODE, DEMO_USER_ID } from '@/lib/demo';
 import type { Profile } from '@/types/database';
 
 // Global flag to ensure auth check only happens once
 let authInitialized = false;
 let authSubscription: any = null;
 let initializationPromise: Promise<void> | null = null;
-
-// Demo mode configuration
-const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true';
-const DEMO_USER_ID = '4bb8066b-0807-4eb7-81a8-29436b6875ea'; // demo@enregla.ec
 
 export function useAuth() {
   const { user, profile, loading, setAuth, clear } = useAuthStore();
@@ -183,7 +181,9 @@ export function useAuth() {
               setAuth(session.user, null);
             }
           } else if (event === 'SIGNED_OUT') {
-            // console.log('[useAuth] Handling SIGNED_OUT event');
+            // Drop all cached React Query data so the next user cannot see the previous user's data
+            queryClient.cancelQueries();
+            queryClient.clear();
             clear();
           } else if (event === 'TOKEN_REFRESHED' && session) {
             // Don't reset profile on token refresh - just keep existing state
@@ -206,6 +206,9 @@ export function useAuth() {
 
   const signOut = async () => {
     await logout();
+    // Drop all cached React Query data so a subsequent user cannot see this user's data
+    queryClient.cancelQueries();
+    queryClient.clear();
     clear();
   };
 

@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
+import { resolveCompanyId } from '@/lib/demo'
 import { useLocations } from '@/hooks/useLocations'
 import { usePermits } from '@/hooks/usePermits'
 import { LocationsGrid } from '@/features/locations/LocationsGrid'
@@ -60,8 +61,7 @@ function buildWarningText(state: WeatherState): React.ReactNode {
 
 export function DashboardView() {
   const { companyId: authCompanyId, profile } = useAuth()
-  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true'
-  const companyId = isDemoMode ? '50707999-f033-41c4-91c9-989966311972' : authCompanyId
+  const companyId = resolveCompanyId(authCompanyId) ?? undefined
 
   const { locations, loading: loadingLocs } = useLocations(companyId)
   const { permits, loading: loadingPermits } = usePermits({ companyId })

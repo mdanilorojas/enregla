@@ -1,6 +1,8 @@
 import { supabase } from '../supabase';
 import type { PublicLink } from '@/types/database';
 
+const SIGNED_URL_TTL_SECONDS = 300; // 5 minutes
+
 export interface CreatePublicLinkData {
   companyId: string;
   locationId?: string | null;
@@ -11,16 +13,10 @@ export interface CreatePublicLinkData {
  * Create a new public verification link
  */
 export async function createPublicLink(data: CreatePublicLinkData): Promise<PublicLink> {
-  // Generate unique token
   const token = crypto.randomUUID();
 
-  // Get current user
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError) {
-    console.error('Error getting user:', userError);
-  }
+  const { data: { user } } = await supabase.auth.getUser();
 
-  // Insert into database
   const query = supabase.from('public_links') as any;
   const { data: link, error } = await query
     .insert({
@@ -42,9 +38,6 @@ export async function createPublicLink(data: CreatePublicLinkData): Promise<Publ
   return link;
 }
 
-/**
- * Get all public links for a company
- */
 export async function getCompanyPublicLinks(companyId: string): Promise<PublicLink[]> {
   const { data, error } = await supabase
     .from('public_links')
@@ -59,28 +52,21 @@ export async function getCompanyPublicLinks(companyId: string): Promise<PublicLi
   return data || [];
 }
 
-/**
- * Get public link for a specific location
- */
 export async function getLocationPublicLink(locationId: string): Promise<PublicLink | null> {
   const { data, error } = await supabase
     .from('public_links')
     .select('*')
     .eq('location_id', locationId)
     .eq('is_active', true)
-    .single();
+    .maybeSingle();
 
   if (error) {
-    if (error.code === 'PGRST116') return null; // Not found
     throw new Error(`Error al obtener link público: ${error.message}`);
   }
 
   return data;
 }
 
-/**
- * Deactivate a public link
- */
 export async function deactivatePublicLink(linkId: string): Promise<void> {
   const { error } = await (supabase
     .from('public_links') as any)
@@ -99,12 +85,9 @@ export async function deactivatePublicLink(linkId: string): Promise<void> {
  * Generate the full public URL for a token
  */
 export function getPublicUrl(token: string): string {
-  // In production, this would be https://enregla.ec/p/{token}
-  // For development, use the current origin
   const baseUrl = import.meta.env.PROD
     ? 'https://enregla.ec'
     : window.location.origin;
-
   return `${baseUrl}/p/${token}`;
 }
 
@@ -127,63 +110,46 @@ export interface PublicLinkData {
 }
 
 /**
- * Get public link data by token for the public verification page
- * Increments view analytics and returns location with permits
+ * Get public link data by token for the public verification page.
+ *
+ * Uses a single nested select + async view-count increment (fire-and-forget)
+ * to minimize round-trips. Document URLs are short-lived signed URLs, not
+ * forever-valid public URLs — this is the revocation-safe path post-audit.
  */
 export async function getPublicLinkData(token: string): Promise<PublicLinkData | null> {
-  // Fetch public link by token
   const { data: link, error: linkError } = await (supabase
     .from('public_links') as any)
-    .select('id, location_id, is_active')
-    .eq('token', token)
-    .single();
-
-  if (linkError || !link || !link.is_active || !link.location_id) {
-    return null;
-  }
-
-  // Increment view analytics - get current view_count first
-  const { data: currentLink } = await (supabase
-    .from('public_links') as any)
-    .select('view_count')
-    .eq('id', link.id)
-    .single();
-
-  const { error: updateError } = await (supabase
-    .from('public_links') as any)
-    .update({
-      view_count: (currentLink?.view_count || 0) + 1,
-      last_viewed_at: new Date().toISOString(),
-    })
-    .eq('id', link.id);
-
-  if (updateError) {
-    console.error('Error updating view analytics:', updateError);
-  }
-
-  // Fetch location data
-  const { data: location, error: locationError } = await (supabase
-    .from('locations') as any)
-    .select('id, name, address')
-    .eq('id', link.location_id)
-    .single();
-
-  if (locationError || !location) {
-    return null;
-  }
-
-  // Fetch permits for the location
-  const { data: permits, error: permitsError } = await (supabase
-    .from('permits') as any)
     .select(`
       id,
-      type,
-      issuer,
-      status,
-      issue_date,
-      expiry_date,
-      documents(id, file_path)
+      location_id,
+      is_active,
+      expires_at,
+      location:locations!inner(id, name, address)
     `)
+    .eq('token', token)
+    .eq('is_active', true)
+    .maybeSingle();
+
+  if (linkError || !link || !link.location_id || !link.location) {
+    return null;
+  }
+
+  if (link.expires_at && new Date(link.expires_at) < new Date()) {
+    return null;
+  }
+
+  // Fire-and-forget analytics — do not block render on the counter update
+  (supabase.rpc as any)('increment_public_link_view', { link_token: token }).then(
+    ({ error }: { error: { message: string } | null }) => {
+      if (error && import.meta.env.DEV) {
+        console.error('increment_public_link_view failed:', error.message);
+      }
+    }
+  );
+
+  const { data: permits, error: permitsError } = await (supabase
+    .from('permits') as any)
+    .select('id, type, issuer, status, issue_date, expiry_date, documents(id, file_path)')
     .eq('location_id', link.location_id)
     .eq('is_active', true);
 
@@ -191,25 +157,40 @@ export async function getPublicLinkData(token: string): Promise<PublicLinkData |
     throw permitsError;
   }
 
-  // Transform permits with document URLs
-  const transformedPermits = (permits || []).map((p: any) => ({
+  // Resolve signed URLs in parallel for permits that have a document
+  const permitDocs: Array<{ p: any; doc: { id: string; file_path: string | null } | null }> =
+    (permits || []).map((p: any) => ({ p, doc: p.documents?.[0] ?? null }));
+
+  const signedUrls = await Promise.all(
+    permitDocs.map(async ({ doc }) => {
+      if (!doc?.file_path) return null;
+      const { data, error } = await supabase.storage
+        .from('permit-documents')
+        .createSignedUrl(doc.file_path, SIGNED_URL_TTL_SECONDS);
+      if (error) {
+        if (import.meta.env.DEV) console.error('createSignedUrl failed:', error.message);
+        return null;
+      }
+      return data?.signedUrl ?? null;
+    })
+  );
+
+  const transformedPermits = permitDocs.map(({ p, doc }, i: number) => ({
     id: p.id,
     type: p.type,
     issuer: p.issuer,
-    status: p.status as 'vigente' | 'por_vencer' | 'vencido' | 'en_tramite' | 'no_registrado',
+    status: p.status,
     issue_date: p.issue_date,
     expiry_date: p.expiry_date,
-    has_document: p.documents && p.documents.length > 0,
-    document_url: p.documents?.[0]
-      ? supabase.storage.from('permit-documents').getPublicUrl(p.documents[0].file_path).data.publicUrl
-      : null,
+    has_document: !!doc,
+    document_url: signedUrls[i],
   }));
 
   return {
     location: {
-      id: location.id,
-      name: location.name,
-      address: location.address,
+      id: link.location.id,
+      name: link.location.name,
+      address: link.location.address,
     },
     permits: transformedPermits,
   };

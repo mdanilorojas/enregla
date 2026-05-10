@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocations } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
+import { resolveCompanyId } from '@/lib/demo';
 import { Building2 as BuildingIcon, Plus as PlusIcon } from '@/lib/lucide-icons';
 import { LocationCardV2 } from './LocationCardV2';
 import { Button } from '@/components/ui';
@@ -22,10 +23,7 @@ export interface LocationsGridProps {
  */
 export function LocationsGrid({ standalone = true }: LocationsGridProps) {
   const { profile } = useAuth();
-  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
-  const companyId = isDemoMode
-    ? '50707999-f033-41c4-91c9-989966311972'
-    : profile?.company_id;
+  const companyId = resolveCompanyId(profile?.company_id) ?? undefined;
 
   const { locations, loading: loadingLocations, error: locationsError } = useLocations(companyId);
   const { permits, loading: loadingPermits, error: permitsError } = usePermits({ companyId });

@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocations } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
+import { resolveCompanyId } from '@/lib/demo';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -13,11 +14,7 @@ import { exportPermitsCSV } from './exportPermitsCSV';
 
 export function PermitListView() {
   const { profile } = useAuth();
-  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
-
-  const companyId = isDemoMode
-    ? '50707999-f033-41c4-91c9-989966311972'
-    : profile?.company_id;
+  const companyId = resolveCompanyId(profile?.company_id) ?? undefined;
 
   const { locations, loading: loadingLocations } = useLocations(companyId);
   const { permits, loading: loadingPermits } = usePermits({ companyId });

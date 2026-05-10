@@ -190,13 +190,15 @@ export function PermitCardsGrid({
     }
   }, [onDocumentUpdated, onDocumentDeleted]);
 
-  const handleViewDocument = useCallback((filePath: string) => {
-    // Construct Supabase public URL
-    const { data } = supabase.storage
+  const handleViewDocument = useCallback(async (filePath: string) => {
+    const { data, error } = await supabase.storage
       .from('permit-documents')
-      .getPublicUrl(filePath);
-
-    window.open(data.publicUrl, '_blank');
+      .createSignedUrl(filePath, 300);
+    if (error || !data?.signedUrl) {
+      toast.error('No se pudo abrir el documento');
+      return;
+    }
+    window.open(data.signedUrl, '_blank');
   }, []);
 
   return (

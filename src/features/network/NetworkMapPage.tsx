@@ -2,14 +2,14 @@ import { useMemo } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useLocations } from '@/hooks/useLocations'
 import { usePermits } from '@/hooks/usePermits'
+import { resolveCompanyId } from '@/lib/demo'
 import { NetworkMapCanvas } from './NetworkMapCanvas'
 import { MapLegend } from './MapLegend'
 import type { SedeMapData } from '@/features/dashboard/DashboardMap'
 
 export function NetworkMapPage() {
   const { profile } = useAuth()
-  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true'
-  const companyId = isDemoMode ? '50707999-f033-41c4-91c9-989966311972' : profile?.company_id
+  const companyId = resolveCompanyId(profile?.company_id) ?? undefined
 
   const { locations } = useLocations(companyId)
   const { permits } = usePermits({ companyId })
