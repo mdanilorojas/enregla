@@ -5,111 +5,113 @@ import {
   getUserPreferences,
   getCompanyName,
   logNotification,
+  getAlreadySentLogsToday,
 } from './queries.ts';
 import { sendEmailsBatch } from './email-service.ts';
 import type { SendResult, UserAlerts, PermitAlert } from './types.ts';
 
-console.log('[send-expiry-alerts] Function initialized');
+const CRON_SECRET = Deno.env.get('CRON_SECRET');
+const ALLOWED_ORIGIN = Deno.env.get('ALLOWED_ORIGIN') ?? 'https://app.enregla.se';
+
+function corsHeaders(origin: string | null): Record<string, string> {
+  const allow = origin === ALLOWED_ORIGIN ? origin : ALLOWED_ORIGIN;
+  return {
+    'Access-Control-Allow-Origin': allow,
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'content-type, x-cron-secret',
+    'Vary': 'Origin',
+  };
+}
 
 serve(async (req) => {
-  // CORS headers
+  const origin = req.headers.get('origin');
+
   if (req.method === 'OPTIONS') {
-    return new Response('ok', {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST',
-        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-      },
-    });
+    return new Response('ok', { headers: corsHeaders(origin) });
+  }
+
+  if (req.method !== 'POST') {
+    return new Response('method not allowed', { status: 405, headers: corsHeaders(origin) });
+  }
+
+  if (!CRON_SECRET) {
+    console.error('[send-expiry-alerts] CRON_SECRET env var not set — refusing to run');
+    return new Response('server misconfigured', { status: 500, headers: corsHeaders(origin) });
+  }
+
+  if (req.headers.get('x-cron-secret') !== CRON_SECRET) {
+    return new Response('unauthorized', { status: 401, headers: corsHeaders(origin) });
   }
 
   try {
-    console.log('[send-expiry-alerts] Starting notification process');
-
-    // Step 1: Get all expiring permits
     const expiringPermits = await getExpiringPermits();
-    console.log(`[send-expiry-alerts] Found ${expiringPermits.length} expiring permits`);
+    console.log(`[send-expiry-alerts] ${expiringPermits.length} expiring permits`);
 
     if (expiringPermits.length === 0) {
       return new Response(
         JSON.stringify({ message: 'No permits expiring today', sent: 0, failed: 0, skipped: 0 }),
-        { headers: { 'Content-Type': 'application/json' } }
+        { headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' } }
       );
     }
 
-    // Step 2: Group permits by company
     const permitsByCompany = expiringPermits.reduce((acc, permit) => {
-      if (!acc[permit.company_id]) {
-        acc[permit.company_id] = [];
-      }
-      acc[permit.company_id].push(permit);
+      (acc[permit.company_id] ??= []).push(permit);
       return acc;
     }, {} as Record<string, PermitAlert[]>);
 
     const companyIds = Object.keys(permitsByCompany);
-    console.log(`[send-expiry-alerts] Processing ${companyIds.length} companies`);
+    console.log(`[send-expiry-alerts] processing ${companyIds.length} companies`);
 
-    // Step 3: Build user alerts list
     const userAlertsList: UserAlerts[] = [];
+    let skipped = 0;
 
     for (const companyId of companyIds) {
       const companyPermits = permitsByCompany[companyId];
-
-      // Get company users
       const users = await getCompanyUsers(companyId);
-      if (users.length === 0) {
-        console.warn(`[send-expiry-alerts] No users found for company ${companyId}`);
-        continue;
-      }
+      if (users.length === 0) continue;
 
-      // Get user preferences
       const userIds = users.map(u => u.user_id);
       const preferences = await getUserPreferences(userIds);
       const prefsMap = new Map(preferences.map(p => [p.user_id, p]));
-
-      // Get company name
       const companyName = await getCompanyName(companyId);
 
-      // Filter users with notifications enabled
       const enabledUsers = users.filter(user => {
         const prefs = prefsMap.get(user.user_id);
         return prefs?.email_enabled && prefs?.expiry_alerts_enabled;
       });
 
-      console.log(`[send-expiry-alerts] Company ${companyId}: ${enabledUsers.length}/${users.length} users have notifications enabled`);
+      // Idempotency guard: filter permits already logged today for each user
+      const permitIds = companyPermits.map(p => p.permit_id);
+      const alreadySent = await getAlreadySentLogsToday(userIds, permitIds);
+      const sentKey = (u: string, p: string, t: string) => `${u}|${p}|${t}`;
+      const sentSet = new Set(alreadySent.map(l => sentKey(l.user_id, l.permit_id, l.notification_type)));
 
-      // Create UserAlerts for each enabled user
       for (const user of enabledUsers) {
         const prefs = prefsMap.get(user.user_id)!;
+        const userPermits = companyPermits.filter(p => !sentSet.has(sentKey(user.user_id, p.permit_id, p.notification_type)));
+        skipped += companyPermits.length - userPermits.length;
+        if (userPermits.length === 0) continue;
+
         userAlertsList.push({
           user,
           preferences: prefs,
           company_name: companyName,
-          alerts: companyPermits,
+          alerts: userPermits,
         });
       }
     }
 
-    console.log(`[send-expiry-alerts] Sending emails to ${userAlertsList.length} users`);
+    console.log(`[send-expiry-alerts] sending to ${userAlertsList.length} users (skipped ${skipped} already-sent alerts)`);
 
-    // Step 4: Send emails
     const emailResults = await sendEmailsBatch(userAlertsList);
 
-    // Step 5: Log results
-    const result: SendResult = {
-      sent: 0,
-      failed: 0,
-      skipped: 0,
-      errors: [],
-    };
+    const result: SendResult = { sent: 0, failed: 0, skipped, errors: [] };
 
     for (const emailResult of emailResults) {
       const userAlerts = userAlertsList.find(ua => ua.user.user_id === emailResult.user_id)!;
 
       if (emailResult.success) {
         result.sent++;
-
-        // Log each permit notification
         for (const alert of userAlerts.alerts) {
           await logNotification({
             user_id: emailResult.user_id,
@@ -121,12 +123,7 @@ serve(async (req) => {
         }
       } else {
         result.failed++;
-        result.errors.push({
-          user_id: emailResult.user_id,
-          error: emailResult.error || 'Unknown error',
-        });
-
-        // Log failure
+        result.errors.push({ user_id: emailResult.user_id, error: emailResult.error || 'Unknown error' });
         for (const alert of userAlerts.alerts) {
           await logNotification({
             user_id: emailResult.user_id,
@@ -139,26 +136,18 @@ serve(async (req) => {
       }
     }
 
-    console.log(`[send-expiry-alerts] Process complete: ${result.sent} sent, ${result.failed} failed`);
+    console.log(`[send-expiry-alerts] done: ${result.sent} sent, ${result.failed} failed, ${result.skipped} skipped`);
 
-    return new Response(
-      JSON.stringify(result),
-      {
-        headers: { 'Content-Type': 'application/json' },
-        status: 200,
-      }
-    );
+    return new Response(JSON.stringify(result), {
+      headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
+      status: 200,
+    });
 
   } catch (error) {
-    console.error('[send-expiry-alerts] Fatal error:', error);
+    console.error('[send-expiry-alerts] fatal error:', error instanceof Error ? error.message : error);
     return new Response(
-      JSON.stringify({
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }),
-      {
-        headers: { 'Content-Type': 'application/json' },
-        status: 500,
-      }
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+      { headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' }, status: 500 }
     );
   }
 });

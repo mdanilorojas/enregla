@@ -6,23 +6,29 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-/**
- * Get all permits expiring in 30, 15, or 7 days
- */
+// Cache for auth email lookups — built once per function invocation.
+let emailMapCache: Map<string, string> | null = null;
+
+async function getEmailMap(): Promise<Map<string, string>> {
+  if (emailMapCache) return emailMapCache;
+  const { data, error } = await supabase.auth.admin.listUsers({ perPage: 1000 });
+  if (error) {
+    console.error('[queries] listUsers failed');
+    throw new Error(`Auth error: ${error.message}`);
+  }
+  emailMapCache = new Map(data.users.map(u => [u.id, u.email ?? '']));
+  return emailMapCache;
+}
+
 export async function getExpiringPermits(): Promise<PermitAlert[]> {
   const { data, error } = await supabase.rpc('get_expiring_permits');
-
   if (error) {
-    console.error('[queries] Error fetching expiring permits:', error);
+    console.error('[queries] get_expiring_permits failed');
     throw new Error(`Database error: ${error.message}`);
   }
-
   return data || [];
 }
 
-/**
- * Get all users for a specific company
- */
 export async function getCompanyUsers(companyId: string): Promise<UserProfile[]> {
   const { data, error } = await supabase
     .from('profiles')
@@ -31,23 +37,13 @@ export async function getCompanyUsers(companyId: string): Promise<UserProfile[]>
     .eq('is_active', true);
 
   if (error) {
-    console.error(`[queries] Error fetching users for company ${companyId}:`, error);
+    console.error(`[queries] getCompanyUsers failed for ${companyId}`);
     throw new Error(`Database error: ${error.message}`);
   }
 
-  if (!data || data.length === 0) {
-    return [];
-  }
+  if (!data || data.length === 0) return [];
 
-  // Get emails from auth.users
-  const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
-
-  if (authError) {
-    console.error(`[queries] Error fetching auth users:`, authError);
-    throw new Error(`Database error: ${authError.message}`);
-  }
-
-  const emailMap = new Map(authData.users.map(u => [u.id, u.email]));
+  const emailMap = await getEmailMap();
 
   return data.map(row => ({
     user_id: row.id,
@@ -57,9 +53,6 @@ export async function getCompanyUsers(companyId: string): Promise<UserProfile[]>
   }));
 }
 
-/**
- * Get notification preferences for specific users
- */
 export async function getUserPreferences(userIds: string[]): Promise<NotificationPreferences[]> {
   const { data, error } = await supabase
     .from('notification_preferences')
@@ -67,34 +60,52 @@ export async function getUserPreferences(userIds: string[]): Promise<Notificatio
     .in('user_id', userIds);
 
   if (error) {
-    console.error('[queries] Error fetching user preferences:', error);
+    console.error('[queries] getUserPreferences failed');
     throw new Error(`Database error: ${error.message}`);
   }
-
   return data || [];
 }
 
-/**
- * Get company name by ID
- */
 export async function getCompanyName(companyId: string): Promise<string> {
   const { data, error } = await supabase
     .from('companies')
     .select('name')
     .eq('id', companyId)
-    .single();
+    .maybeSingle();
 
   if (error) {
-    console.error(`[queries] Error fetching company name for ${companyId}:`, error);
+    console.error(`[queries] getCompanyName failed for ${companyId}`);
     return 'Tu empresa';
   }
-
   return data?.name || 'Tu empresa';
 }
 
 /**
- * Log notification send result
+ * Returns notification_logs entries already inserted today for any of the given users+permits.
+ * Used to short-circuit duplicate sends when the cron runs more than once per day.
  */
+export async function getAlreadySentLogsToday(
+  userIds: string[],
+  permitIds: string[],
+): Promise<Array<{ user_id: string; permit_id: string; notification_type: string }>> {
+  if (userIds.length === 0 || permitIds.length === 0) return [];
+  const startOfDay = new Date();
+  startOfDay.setUTCHours(0, 0, 0, 0);
+
+  const { data, error } = await supabase
+    .from('notification_logs')
+    .select('user_id, permit_id, notification_type')
+    .in('user_id', userIds)
+    .in('permit_id', permitIds)
+    .gte('sent_at', startOfDay.toISOString());
+
+  if (error) {
+    console.error('[queries] getAlreadySentLogsToday failed');
+    return [];
+  }
+  return data || [];
+}
+
 export async function logNotification(log: NotificationLog): Promise<void> {
   const { error } = await supabase
     .from('notification_logs')
@@ -107,8 +118,8 @@ export async function logNotification(log: NotificationLog): Promise<void> {
       resend_message_id: log.resend_message_id,
     });
 
-  if (error) {
-    console.error('[queries] Error logging notification:', error);
-    // Don't throw - logging failure shouldn't stop the process
+  if (error && error.code !== '23505') {
+    // 23505 = unique_violation, which is expected when the unique index catches a duplicate.
+    console.error('[queries] logNotification failed:', error.code);
   }
 }
