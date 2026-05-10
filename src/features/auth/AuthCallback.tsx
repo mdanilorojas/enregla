@@ -15,6 +15,8 @@ export function AuthCallback() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let redirectTimer: ReturnType<typeof setTimeout> | null = null;
+
     const handleCallback = async () => {
       try {
         // Obtener la sesión del hash de la URL
@@ -55,13 +57,19 @@ export function AuthCallback() {
         setError(err instanceof Error ? err.message : 'Error al procesar la autenticación');
 
         // Redirigir al login después de 3 segundos
-        setTimeout(() => {
+        redirectTimer = setTimeout(() => {
           navigate('/login', { replace: true });
         }, 3000);
       }
     };
 
     handleCallback();
+
+    return () => {
+      if (redirectTimer) {
+        clearTimeout(redirectTimer);
+      }
+    };
   }, [navigate, setAuth]);
 
   if (error) {

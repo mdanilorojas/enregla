@@ -25,7 +25,7 @@ export function LocationsGrid({ standalone = true }: LocationsGridProps) {
   const { profile } = useAuth();
   const companyId = resolveCompanyId(profile?.company_id) ?? undefined;
 
-  const { locations, loading: loadingLocations, error: locationsError } = useLocations(companyId);
+  const { locations, loading: loadingLocations, error: locationsError, refetch } = useLocations(companyId);
   const { permits, loading: loadingPermits, error: permitsError } = usePermits({ companyId });
 
   const loading = loadingLocations || loadingPermits;
@@ -69,7 +69,7 @@ export function LocationsGrid({ standalone = true }: LocationsGridProps) {
           <div className="text-center py-12">
             <p className="text-[var(--ds-red-600)] mb-4">Error al cargar sedes</p>
             <p className="text-sm text-[var(--ds-text-subtle)] mb-4">{error}</p>
-            <Button onClick={() => window.location.reload()}>Reintentar</Button>
+            <Button onClick={() => refetch()}>Reintentar</Button>
           </div>
         </div>
       </div>

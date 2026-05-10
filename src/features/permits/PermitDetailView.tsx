@@ -458,6 +458,7 @@ function DocumentPanel({
 
 function DocumentPanelWithDoc({ doc, onRefresh }: { doc: Document; onRefresh: () => void }) {
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const isImage = /\.(png|jpg|jpeg)$/i.test(doc.file_name);
   const isPdf = /\.pdf$/i.test(doc.file_name);
 
@@ -469,6 +470,14 @@ function DocumentPanelWithDoc({ doc, onRefresh }: { doc: Document; onRefresh: ()
     });
     return () => { cancelled = true; };
   }, [doc.file_path]);
+
+  if (!doc.file_path) {
+    return (
+      <div className="text-center py-8 text-[var(--ds-text-subtle)]">
+        Documento no disponible
+      </div>
+    );
+  }
 
   if (!signedUrl) {
     return (
@@ -529,20 +538,28 @@ function DocumentPanelWithDoc({ doc, onRefresh }: { doc: Document; onRefresh: ()
         <Button
           variant="ghost"
           size="sm"
+          disabled={deleting}
           onClick={async () => {
             if (!confirm('¿Eliminar este documento?')) return;
+            setDeleting(true);
             try {
               await deleteDocument(doc.id, doc.file_path);
               toast.success('Documento eliminado');
               onRefresh();
             } catch {
               toast.error('Error al eliminar');
+            } finally {
+              setDeleting(false);
             }
           }}
           className="text-[var(--ds-text-danger)] hover:text-[var(--ds-text-danger)]"
           aria-label="Eliminar documento"
         >
-          <Trash2 className="w-4 h-4" />
+          {deleting ? (
+            <span className="text-xs">Eliminando...</span>
+          ) : (
+            <Trash2 className="w-4 h-4" />
+          )}
         </Button>
       </div>
     </div>
