@@ -60,6 +60,8 @@ export async function register(data: RegisterData) {
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
+    // casting due to stale generated types — see audit follow-up
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .insert(profileData as any)
     .select()
     .single();

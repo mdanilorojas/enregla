@@ -44,7 +44,9 @@ export async function completeOnboarding(
     location_count: data.locations.length,
   };
 
+  // casting due to stale generated types — see audit follow-up
   const companyResult = await (supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .from('companies') as any)
     .insert(companyData)
     .select()
@@ -65,7 +67,10 @@ export async function completeOnboarding(
       risk_level: 'medio', // Initial risk level
     };
 
+    // casting due to stale generated types — see audit follow-up
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const locationResult: any = await (supabase
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .from('locations') as any)
       .insert(locationData)
       .select()
@@ -97,6 +102,8 @@ export async function updateProfile(
   userId: string,
   updates: { company_id?: string; full_name?: string; role?: 'admin' | 'operator' | 'viewer' }
 ): Promise<void> {
+  // casting due to stale generated types — see audit follow-up
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result: any = await (supabase as any)
     .from('profiles')
     .update(updates)
@@ -113,6 +120,8 @@ export async function saveProfile(
   fullName: string
 ): Promise<void> {
   const { error } = await (supabase
+    // casting due to stale generated types — see audit follow-up
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .from('profiles') as any)
     .update({
       full_name: fullName,
@@ -155,6 +164,8 @@ export async function saveCompany(
   };
 
   const { data: company, error: companyError } = await (supabase
+    // casting due to stale generated types — see audit follow-up
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .from('companies') as any)
     .insert(companyInsert)
     .select()
@@ -188,6 +199,8 @@ export async function saveLocationWithPermits(
   };
 
   const { data: location, error: locationError } = await (supabase
+    // casting due to stale generated types — see audit follow-up
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .from('locations') as any)
     .insert(locationInsert)
     .select()

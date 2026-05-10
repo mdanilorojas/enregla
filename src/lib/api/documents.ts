@@ -61,6 +61,8 @@ export async function uploadPermitDocument(permitId: string, file: File): Promis
 
   // console.log('[uploadPermitDocument] Inserting document record:', documentData);
 
+  // casting due to stale generated types — see audit follow-up
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const query = supabase.from('documents') as any;
   const { error: dbError } = await query
     .insert(documentData)

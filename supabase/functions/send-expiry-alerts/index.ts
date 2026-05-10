@@ -1,3 +1,4 @@
+/* eslint-disable no-console -- Edge function runtime logs via console for Supabase observability */
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import {
   getExpiringPermits,

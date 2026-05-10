@@ -5,7 +5,9 @@ export interface LocationDocumentsTabProps {
   locationId: string
 }
 
-export function LocationDocumentsTab({ locationId: _locationId }: LocationDocumentsTabProps) {
+// locationId reserved for future per-location document filter (currently a placeholder)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function LocationDocumentsTab(_props: LocationDocumentsTabProps) {
   return (
     <EmptyState
       icon={FolderOpen}

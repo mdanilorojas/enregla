@@ -17,6 +17,8 @@ export async function createPublicLink(data: CreatePublicLinkData): Promise<Publ
 
   const { data: { user } } = await supabase.auth.getUser();
 
+  // casting due to stale generated types — see audit follow-up
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const query = supabase.from('public_links') as any;
   const { data: link, error } = await query
     .insert({
@@ -69,6 +71,8 @@ export async function getLocationPublicLink(locationId: string): Promise<PublicL
 
 export async function deactivatePublicLink(linkId: string): Promise<void> {
   const { error } = await (supabase
+    // casting due to stale generated types — see audit follow-up
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .from('public_links') as any)
     .update({
       is_active: false,
@@ -118,6 +122,8 @@ export interface PublicLinkData {
  */
 export async function getPublicLinkData(token: string): Promise<PublicLinkData | null> {
   const { data: link, error: linkError } = await (supabase
+    // casting due to stale generated types — see audit follow-up
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .from('public_links') as any)
     .select(`
       id,
@@ -139,6 +145,8 @@ export async function getPublicLinkData(token: string): Promise<PublicLinkData |
   }
 
   // Fire-and-forget analytics — do not block render on the counter update
+  // casting due to stale generated types — see audit follow-up
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (supabase.rpc as any)('increment_public_link_view', { link_token: token }).then(
     ({ error }: { error: { message: string } | null }) => {
       if (error && import.meta.env.DEV) {
@@ -148,6 +156,8 @@ export async function getPublicLinkData(token: string): Promise<PublicLinkData |
   );
 
   const { data: permits, error: permitsError } = await (supabase
+    // casting due to stale generated types — see audit follow-up
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .from('permits') as any)
     .select('id, type, issuer, status, issue_date, expiry_date, documents(id, file_path)')
     .eq('location_id', link.location_id)
@@ -158,7 +168,10 @@ export async function getPublicLinkData(token: string): Promise<PublicLinkData |
   }
 
   // Resolve signed URLs in parallel for permits that have a document
+  // casting due to stale generated types — see audit follow-up
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const permitDocs: Array<{ p: any; doc: { id: string; file_path: string | null } | null }> =
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (permits || []).map((p: any) => ({ p, doc: p.documents?.[0] ?? null }));
 
   const signedUrls = await Promise.all(

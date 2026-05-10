@@ -15,7 +15,7 @@ export function NotificationPreferences() {
     try {
       await updatePreferences({ [key]: value });
       toast.success('Preferencias actualizadas');
-    } catch (err) {
+    } catch {
       toast.error('Error al actualizar preferencias');
     }
   };

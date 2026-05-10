@@ -102,16 +102,18 @@ export function calculateExpiryDate(
   }
 
   switch (duration.type) {
-    case 'calendar':
+    case 'calendar': {
       const expiry = new Date(issueDate);
       expiry.setFullYear(expiry.getFullYear() + (duration.years || 1));
       return expiry;
+    }
 
-    case 'fiscal':
+    case 'fiscal': {
       // Fiscal year = 1 year from issue date
       const fiscalExpiry = new Date(issueDate);
       fiscalExpiry.setFullYear(fiscalExpiry.getFullYear() + 1);
       return fiscalExpiry;
+    }
 
     case 'year_end':
       // Expires 31-Dec of issue year

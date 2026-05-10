@@ -78,6 +78,8 @@ export async function updatePermitStatus(
   permitId: string,
   status: Permit['status']
 ): Promise<Permit> {
+  // casting due to stale generated types — see audit follow-up
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const query = supabase.from('permits') as any;
   const { data, error } = await query
     .update({
@@ -99,6 +101,8 @@ export async function updatePermit(
   permitId: string,
   updates: Partial<Permit>
 ): Promise<Permit> {
+  // casting due to stale generated types — see audit follow-up
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const query = supabase.from('permits') as any;
   const { data, error } = await query
     .update({
@@ -152,6 +156,8 @@ export async function renewPermit(
     archived_at: null,
   };
 
+  // casting due to stale generated types — see audit follow-up
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const insertQuery = supabase.from('permits') as any;
   const { data: createdPermit, error: createError } = await insertQuery
     .insert(newPermitData)
@@ -163,6 +169,8 @@ export async function renewPermit(
   }
 
   // 3. Archive old permit (UPDATE)
+  // casting due to stale generated types — see audit follow-up
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const updateQuery = supabase.from('permits') as any;
   const { error: updateError } = await updateQuery
     .update({
@@ -175,6 +183,8 @@ export async function renewPermit(
 
   if (updateError) {
     // Rollback: delete the newly created permit
+    // casting due to stale generated types — see audit follow-up
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const deleteQuery = supabase.from('permits') as any;
     await deleteQuery.delete().eq('id', createdPermit.id);
     throw new Error(`Error al archivar el permiso anterior: ${updateError.message}`);

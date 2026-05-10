@@ -1,3 +1,4 @@
+/* eslint-disable no-console -- Edge function runtime logs via console for Supabase observability */
 import { Resend } from 'https://esm.sh/resend@3.2.0';
 import { render } from 'https://esm.sh/@react-email/components@0.0.14';
 import { ExpiryAlertEmail } from './templates/expiry-alert.tsx';
@@ -19,7 +20,9 @@ function maskEmail(email: string): string {
 
 /** Sanitize a string for use in an email subject (strip control chars, limit length). */
 function sanitizeHeader(raw: string, max = 80): string {
+  // Intentional control-char regex: strips header-injection payloads (CR/LF/NUL/DEL, etc.).
   // deno-lint-ignore no-control-regex
+  // eslint-disable-next-line no-control-regex
   return raw.replace(/[\r\n\x00-\x1f\x7f]/g, '').slice(0, max);
 }
 

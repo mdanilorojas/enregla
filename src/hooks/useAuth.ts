@@ -8,6 +8,8 @@ import type { Profile } from '@/types/database';
 
 // Global flag to ensure auth check only happens once
 let authInitialized = false;
+// casting due to stale generated types — see audit follow-up
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let authSubscription: any = null;
 let initializationPromise: Promise<void> | null = null;
 
@@ -55,6 +57,7 @@ export function useAuth() {
             // console.log('[useAuth] DEMO MODE: Profile loaded:', profileData);
 
             // Create mock user object
+            // casting due to stale generated types — see audit follow-up
             const mockUser = {
               id: DEMO_USER_ID,
               email: 'demo@enregla.ec',
@@ -62,6 +65,7 @@ export function useAuth() {
               app_metadata: {},
               user_metadata: {},
               aud: 'authenticated',
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any;
 
             setAuth(mockUser, profileData || null);

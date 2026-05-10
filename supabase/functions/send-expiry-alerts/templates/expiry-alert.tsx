@@ -9,7 +9,7 @@ interface ExpiryAlertEmailProps {
   appUrl: string;
 }
 
-export function ExpiryAlertEmail({ userName, companyName, alerts, appUrl }: ExpiryAlertEmailProps) {
+export function ExpiryAlertEmail({ userName, alerts, appUrl }: ExpiryAlertEmailProps) {
   // Determine urgency level (all alerts should be same type)
   const notificationType = alerts[0]?.notification_type || 'expiry_30d';
 
