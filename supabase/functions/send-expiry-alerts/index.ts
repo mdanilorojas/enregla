@@ -12,7 +12,7 @@ import { sendEmailsBatch } from './email-service.ts';
 import type { SendResult, UserAlerts, PermitAlert } from './types.ts';
 
 const CRON_SECRET = Deno.env.get('CRON_SECRET');
-const ALLOWED_ORIGIN = Deno.env.get('ALLOWED_ORIGIN') ?? 'https://app.enregla.se';
+const ALLOWED_ORIGIN = Deno.env.get('ALLOWED_ORIGIN') ?? 'https://app.enregla.ec';
 
 function corsHeaders(origin: string | null): Record<string, string> {
   const allow = origin === ALLOWED_ORIGIN ? origin : ALLOWED_ORIGIN;
