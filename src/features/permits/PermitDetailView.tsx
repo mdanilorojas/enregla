@@ -12,6 +12,9 @@ import { Banner } from '@/components/ui/banner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { PermitTimeline, type TimelineEvent } from './PermitTimeline';
 import { PermitUploadForm } from './PermitUploadForm';
+import { PermitInfoCard } from './PermitInfoCard';
+import { AssigneePicker } from './AssigneePicker';
+import { PermitEventsTimeline } from './PermitEventsTimeline';
 import { formatDate } from '@/lib/dates';
 import {
   Trash2,
@@ -359,6 +362,27 @@ export function PermitDetailView() {
               onRefresh={fetchDocuments}
               acceptedTypes={ACCEPTED_TYPES}
             />
+          </Card>
+
+          <PermitInfoCard permit={permit} />
+
+          <Card className="p-[var(--ds-space-300)]">
+            <div className="text-[var(--ds-font-size-100)] font-semibold mb-[var(--ds-space-200)]">Asignado a</div>
+            {permit.company_id ? (
+              <AssigneePicker
+                permitId={permit.id}
+                permitType={permit.type}
+                companyId={permit.company_id}
+                currentAssigneeId={(permit as unknown as { assigned_to_profile_id: string | null }).assigned_to_profile_id ?? null}
+              />
+            ) : (
+              <div className="text-sm text-[var(--ds-text-subtlest)] italic">Sin empresa asociada</div>
+            )}
+          </Card>
+
+          <Card className="p-[var(--ds-space-300)]">
+            <div className="text-[var(--ds-font-size-100)] font-semibold mb-[var(--ds-space-200)]">Historial</div>
+            <PermitEventsTimeline permitId={permit.id} />
           </Card>
         </div>
       </div>
