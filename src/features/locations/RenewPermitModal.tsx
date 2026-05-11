@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import {
   Dialog,
   DialogContent,
@@ -21,17 +22,31 @@ interface RenewPermitModalProps {
 export function RenewPermitModal({ permit, open, onClose, onConfirm }: RenewPermitModalProps) {
   const [expiryDate, setExpiryDate] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      setError(null);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    setError(null);
+  }, [expiryDate]);
 
   const handleConfirm = async () => {
     if (!permit || !expiryDate) return;
 
     setLoading(true);
+    setError(null);
     try {
       await onConfirm(permit.id, expiryDate);
       onClose();
       setExpiryDate('');
-    } catch (error) {
-      console.error('Error renovando permiso:', error);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error al renovar permiso';
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -73,6 +88,12 @@ export function RenewPermitModal({ permit, open, onClose, onConfirm }: RenewPerm
             </div>
           )}
         </div>
+
+        {error && (
+          <div className="text-red-600 text-sm mb-2" role="alert">
+            {error}
+          </div>
+        )}
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={loading}>

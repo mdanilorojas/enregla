@@ -31,6 +31,16 @@
   --input: var(--color-border);
   --ring: var(--color-primary);
   --foreground: var(--color-text);
+
+  /* Surface tokens used by shadcn primitives (Select/Popover/Dropdown/Dialog).
+     Must be opaque — transparent backgrounds make dropdown options impossible
+     to read/click against page content. */
+  --background: var(--color-bg, #FFFFFF);
+  --card: var(--color-bg, #FFFFFF);
+  --card-foreground: var(--color-text);
+  --popover: #FFFFFF;
+  --popover-foreground: var(--color-text);
+  --border: var(--color-border);
 }
 
 body {

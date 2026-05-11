@@ -15,6 +15,7 @@ export function usePermits({ companyId, locationId }: UsePermitsOptions) {
 
   useEffect(() => {
     if (!companyId && !locationId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPermits([]);
       setLoading(false);
       return;
@@ -73,6 +74,8 @@ export function usePermits({ companyId, locationId }: UsePermitsOptions) {
       notes?: string | null;
     }
   ) => {
+    // casting due to stale generated types — see audit follow-up
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase.from('permits') as any)
       .update({
         ...updates,

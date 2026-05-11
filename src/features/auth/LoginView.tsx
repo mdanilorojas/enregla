@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { login } from '@/lib/api/auth';
 import { signInWithGoogle } from '@/lib/auth';
 import { useAuthStore } from '@/store/authStore';
+import { DEMO_MODE } from '@/lib/demo';
 import { Shield, CheckCircle2 } from '@/lib/lucide-icons';
 import { Button } from '@/components/ui/button';
 import { Banner } from '@/components/ui/banner';
@@ -24,7 +25,7 @@ export function LoginView() {
   const [error, setError] = useState('');
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
+  const isDemoMode = DEMO_MODE;
   const hasSupabase = Boolean(import.meta.env.VITE_SUPABASE_URL);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,32 +60,6 @@ export function LoginView() {
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión con Google');
       setGoogleLoading(false);
     }
-  };
-
-  const handleDevLogin = () => {
-    const mockUser = {
-      id: 'dev-user-123',
-      email: 'dev@supermaxi.com',
-      created_at: new Date().toISOString(),
-      app_metadata: {},
-      user_metadata: {},
-      aud: 'authenticated',
-      role: 'authenticated',
-    } as any;
-
-    const mockProfile = {
-      id: 'dev-user-123',
-      company_id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
-      full_name: 'Demo User (Dev)',
-      role: 'admin' as const,
-      avatar_url: null,
-      is_active: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-
-    setAuth(mockUser, mockProfile);
-    navigate('/', { replace: true });
   };
 
   return (
@@ -238,17 +213,6 @@ export function LoginView() {
               Entrar
             </Button>
 
-            {import.meta.env.DEV && (
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                className="w-full"
-                onClick={handleDevLogin}
-              >
-                Dev Login (Skip Auth)
-              </Button>
-            )}
           </form>
 
           {hasSupabase && (

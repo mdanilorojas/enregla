@@ -48,6 +48,8 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
         ? `${user.user_metadata.given_name} ${user.user_metadata.family_name}`
         : '');
   const [savedProfile, setSavedProfile] = useState(profile?.full_name || googleName);
+  // casting due to stale generated types — see audit follow-up
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [savedCompany, setSavedCompany] = useState<any>(null);
   const [companyId, setCompanyId] = useState<string | null>(profile?.company_id || null);
 
@@ -70,6 +72,7 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleCompanyNext = async (companyData: any) => {
     if (!user) return;
 
@@ -90,6 +93,7 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleLocationsComplete = async (locations: any[]) => {
     if (!user || !companyId) return;
 

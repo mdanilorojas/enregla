@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pregunta 4 — Rol requerido para ejecutar cada permiso</title>
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --text: #111827;
+    --muted: #6b7280;
+    --brand: #1e3a8a;
+    --brand-bg: #eef2ff;
+    --ok: #15803d;
+    --ok-bg: #ecfdf5;
+    --warn: #b45309;
+    --warn-bg: #fffbeb;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    font-size: 14px;
+  }
+  .container { max-width: 1240px; margin: 0 auto; padding: 48px 24px 96px; }
+  header { margin-bottom: 32px; }
+  .eyebrow { color: var(--brand); font-weight: 600; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+  h1 { font-size: 30px; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .lead { color: var(--muted); max-width: 820px; }
+  h2 { font-size: 18px; margin: 32px 0 12px; letter-spacing: -0.01em; }
+  h3 { font-size: 14px; margin: 18px 0 6px; }
+
+  .two-col { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 22px; }
+  @media (max-width: 980px) { .two-col { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 12px;
+  }
+
+  /* Role definitions */
+  .role {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #fafbfc;
+    margin-bottom: 8px;
+  }
+  .role .badge {
+    flex-shrink: 0;
+    width: 38px; height: 38px;
+    border-radius: 8px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-size: 13px;
+  }
+  .role-anyone   .badge { background: #6b7280; }
+  .role-legal    .badge { background: #1e3a8a; }
+  .role-contador .badge { background: #0f766e; }
+  .role-tecnico  .badge { background: #a16207; }
+  .role .name { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+  .role .desc { color: #374151; font-size: 12.5px; }
+  .role .examples { color: var(--muted); font-size: 11.5px; margin-top: 4px; font-style: italic; }
+
+  /* Matrix */
+  .matrix-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); background: var(--card); }
+  table.matrix { border-collapse: collapse; font-size: 13px; width: 100%; }
+  table.matrix th, table.matrix td {
+    padding: 9px 11px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  table.matrix thead th { background: #f3f4f6; font-weight: 600; font-size: 12px; color: #374151; }
+  table.matrix tbody tr:last-child td { border-bottom: none; }
+  .role-cell {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+  .rc-anyone   { background: #f3f4f6; color: #374151; }
+  .rc-legal    { background: #dbeafe; color: #1d4ed8; }
+  .rc-contador { background: #ccfbf1; color: #0f766e; }
+  .rc-tecnico  { background: #fef3c7; color: #a16207; }
+  .rc-legal-strong { background: #1e3a8a; color: white; font-weight: 700; }
+
+  /* Mock UI */
+  .mock-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 13px;
+  }
+  .mock-card .title { font-weight: 600; font-size: 14px; margin-bottom: 8px; }
+  .mock-card .row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed var(--border); }
+  .mock-card .row:last-child { border: none; }
+  .mock-card .label { color: var(--muted); font-size: 12px; }
+  .mock-card .value { font-weight: 500; }
+  .mock-alert {
+    background: #fef3c7;
+    border-left: 3px solid #a16207;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    color: #78350f;
+    margin-top: 10px;
+  }
+  .mock-alert strong { color: #78350f; }
+
+  /* Approach options */
+  .approach {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 900px) { .approach { grid-template-columns: 1fr; } }
+  .approach .option {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    position: relative;
+  }
+  .approach .option.recommended { border-color: #15803d; box-shadow: 0 0 0 3px #dcfce7; }
+  .approach .option .tag {
+    position: absolute;
+    top: -11px;
+    right: 14px;
+    background: var(--ok);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 3px 10px;
+    border-radius: 999px;
+    text-transform: uppercase;
+  }
+  .pros-cons { font-size: 13px; }
+  .pros-cons ul { margin: 4px 0 0 18px; padding: 0; }
+  .pros-cons .pros li { color: #065f46; }
+  .pros-cons .cons li { color: #991b1b; }
+  .pros-cons h4 { margin: 10px 0 4px; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+
+  .schema {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 12px;
+    border-radius: 8px;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 11.5px;
+    line-height: 1.55;
+    overflow-x: auto;
+    margin-top: 8px;
+  }
+  .schema .kw { color: #93c5fd; }
+  .schema .type { color: #fcd34d; }
+  .schema .str { color: #86efac; }
+  .schema .cmt { color: #94a3b8; font-style: italic; }
+
+  .nav-help {
+    position: sticky;
+    bottom: 16px;
+    background: #111827;
+    color: #f3f4f6;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 13px;
+    margin-top: 28px;
+  }
+  .nav-help strong { color: #fbbf24; }
+  code { font-family: ui-monospace, Consolas, monospace; background: #f3f4f6; padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="eyebrow">Pregunta 4 · Rol requerido</div>
+  <h1>¿Quién dentro de la empresa puede ejecutar cada trámite?</h1>
+  <p class="lead">
+    No es lo mismo pagar la Patente Municipal que tramitar el RUC. El primero lo hace cualquiera; el segundo lo firma el
+    Representante Legal. Esta distinción existe en la realidad jurídica ecuatoriana — el producto tiene que reflejarla
+    para que el cliente confíe.
+  </p>
+</header>
+
+<h2>A · Los 4 roles propuestos</h2>
+<div class="card">
+  <div class="role role-anyone">
+    <div class="badge">ALL</div>
+    <div>
+      <div class="name">Cualquiera</div>
+      <div class="desc">Cualquier miembro del equipo puede ejecutarlo. Típicamente pagos, renovaciones automáticas, subida de documentos.</div>
+      <div class="examples">Ejemplos: pagar Patente vencida, subir PDF del permiso renovado, marcar vigente.</div>
+    </div>
+  </div>
+
+  <div class="role role-legal">
+    <div class="badge">RL</div>
+    <div>
+      <div class="name">Representante Legal</div>
+      <div class="desc">El titular jurídico de la empresa. Solo él firma, presencial o con firma electrónica. Es el nombre que aparece en el RUC.</div>
+      <div class="examples">Ejemplos: alta / actualización de RUC, firma de LUAE, apertura de sede.</div>
+    </div>
+  </div>
+
+  <div class="role role-contador">
+    <div class="badge">CT</div>
+    <div>
+      <div class="name">Contador</div>
+      <div class="desc">Profesional contable (CPA o equivalente). Muchos trámites tributarios o declaraciones requieren su firma o presencia.</div>
+      <div class="examples">Ejemplos: declaraciones mensuales SRI, anexos transaccionales.</div>
+    </div>
+  </div>
+
+  <div class="role role-tecnico">
+    <div class="badge">TR</div>
+    <div>
+      <div class="name">Técnico responsable</div>
+      <div class="desc">Profesional con título habilitante (químico farmacéutico, médico, ingeniero en alimentos, etc). Exigido en permisos sanitarios y farmacéuticos.</div>
+      <div class="examples">Ejemplos: farmacia (químico farmacéutico), laboratorio clínico (bioquímico), consultorio médico (médico).</div>
+    </div>
+  </div>
+</div>
+
+<h2>B · Matriz: rol requerido por permiso</h2>
+<p class="lead">Propuesta. La columna "Principal" es quien firma/presenta; "Secundarios" son otros roles que pueden verse involucrados.</p>
+
+<div class="matrix-wrap">
+<table class="matrix">
+  <thead>
+    <tr>
+      <th>Permiso</th>
+      <th>Emisor</th>
+      <th>Rol principal</th>
+      <th>Secundarios</th>
+      <th>Comentario</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>RUC</strong></td><td>SRI</td>
+      <td><span class="role-cell rc-legal-strong">Representante Legal</span></td>
+      <td><span class="role-cell rc-contador">Contador</span></td>
+      <td>Alta inicial solo RL. Actualizaciones típicas las hace el contador.</td>
+    </tr>
+    <tr>
+      <td><strong>Patente municipal</strong></td><td>GAD Quito</td>
+      <td><span class="role-cell rc-anyone">Cualquiera</span></td>
+      <td><span class="role-cell rc-contador">Contador</span></td>
+      <td>Pago y renovación anual son procedurales.</td>
+    </tr>
+    <tr>
+      <td><strong>Uso de suelo</strong></td><td>GAD Quito</td>
+      <td><span class="role-cell rc-legal">Representante Legal</span></td>
+      <td>—</td>
+      <td>Certificado que habilita la actividad en el local.</td>
+    </tr>
+    <tr>
+      <td><strong>LUAE</strong></td><td>GAD Quito</td>
+      <td><span class="role-cell rc-legal-strong">Representante Legal</span></td>
+      <td><span class="role-cell rc-contador">Contador</span></td>
+      <td>Licencia única metropolitana. Firma RL obligatoria.</td>
+    </tr>
+    <tr>
+      <td><strong>Bomberos</strong></td><td>Bomberos Quito</td>
+      <td><span class="role-cell rc-anyone">Cualquiera</span></td>
+      <td>—</td>
+      <td>Inspección técnica. Quien atienda la inspección puede ser cualquier empleado.</td>
+    </tr>
+    <tr>
+      <td><strong>ARCSA</strong></td><td>ARCSA</td>
+      <td><span class="role-cell rc-tecnico">Técnico responsable</span></td>
+      <td><span class="role-cell rc-legal">Representante Legal</span></td>
+      <td>Registro sanitario. Depende del tipo de producto.</td>
+    </tr>
+    <tr>
+      <td><strong>Rotulación</strong></td><td>GAD Quito</td>
+      <td><span class="role-cell rc-anyone">Cualquiera</span></td>
+      <td>—</td>
+      <td>Permiso para letrero/publicidad exterior.</td>
+    </tr>
+    <tr>
+      <td><strong>Permiso MSP</strong></td><td>MSP</td>
+      <td><span class="role-cell rc-tecnico">Técnico responsable</span></td>
+      <td><span class="role-cell rc-legal">Representante Legal</span></td>
+      <td>Consultorios, farmacias: el técnico con título habilitante firma.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>C · Cómo se ve esto en el producto</h2>
+<div class="two-col">
+  <div>
+    <div class="mock-card">
+      <div class="title">Detalle de permiso: LUAE</div>
+      <div class="row"><span class="label">Estado</span><span class="value" style="color:var(--warn)">Por vencer · 23 días</span></div>
+      <div class="row"><span class="label">Emisor</span><span class="value">GAD Quito</span></div>
+      <div class="row"><span class="label">Costo estimado</span><span class="value">$120</span></div>
+      <div class="row"><span class="label">Rol requerido</span><span class="value"><span class="role-cell rc-legal-strong">Representante Legal</span></span></div>
+      <div class="row"><span class="label">Asignado a</span><span class="value">— sin asignar —</span></div>
+      <div class="mock-alert">
+        <strong>⚠️ Atención:</strong> este trámite requiere firma del Representante Legal.
+        Asignalo a alguien con ese rol para que EnRegla te avise con tiempo.
+      </div>
+    </div>
+
+    <div class="mock-card" style="margin-top:12px">
+      <div class="title">Detalle de permiso: Patente municipal</div>
+      <div class="row"><span class="label">Estado</span><span class="value" style="color:var(--ok)">Vigente · hasta 2027-03-15</span></div>
+      <div class="row"><span class="label">Emisor</span><span class="value">GAD Quito</span></div>
+      <div class="row"><span class="label">Costo estimado</span><span class="value">$80</span></div>
+      <div class="row"><span class="label">Rol requerido</span><span class="value"><span class="role-cell rc-anyone">Cualquiera</span></span></div>
+      <div class="row"><span class="label">Asignado a</span><span class="value">María López</span></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card" style="background: var(--brand-bg); border-color: #c7d2fe;">
+      <h3 style="margin-top: 0; color: var(--brand);">Valor diferencial</h3>
+      <p style="font-size: 13px; margin: 0 0 8px;">El <strong>rol requerido</strong> te da tres cosas que hoy no hay:</p>
+      <ul style="margin: 0 0 0 18px; padding: 0; font-size: 13px;">
+        <li><strong>Alerta inteligente:</strong> "30 días antes de LUAE, avisá al RL" vs "avisá a cualquiera".</li>
+        <li><strong>Delegación responsable:</strong> impide asignar Bomberos al Representante Legal si vos como dueño no querés atender eso — dropdown filtra.</li>
+        <li><strong>Posicionamiento de marca:</strong> "EnRegla sabe tu flow" vs "tracker bonito". Ningún compe lo tiene.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<h2>D · Dos alternativas técnicas de modelado</h2>
+<div class="approach">
+  <div class="option recommended">
+    <span class="tag">Recomendada</span>
+    <h3>1 · Enum simple, un rol por permiso</h3>
+    <p style="font-size:13px; color:#374151;">Columna <code>required_role</code> en <code>permit_requirements</code>. Cuatro valores: <em>anyone, representante_legal, contador, tecnico_responsable</em>.</p>
+    <div class="schema">
+<span class="kw">ALTER TABLE</span> permit_requirements
+  <span class="kw">ADD COLUMN</span> required_role <span class="type">text</span> <span class="kw">NOT NULL</span>
+    <span class="kw">DEFAULT</span> <span class="str">'anyone'</span>
+    <span class="kw">CHECK</span> (required_role <span class="kw">IN</span> (
+      <span class="str">'anyone'</span>,
+      <span class="str">'representante_legal'</span>,
+      <span class="str">'contador'</span>,
+      <span class="str">'tecnico_responsable'</span>
+    ));
+
+<span class="cmt">-- Alternativamente, si un permiso puede tener varios roles válidos
+-- (ej: LUAE puede hacerla RL o contador con delegación), usar ARRAY:
+-- required_roles text[] DEFAULT ARRAY['representante_legal']</span>
+    </div>
+    <div class="pros-cons">
+      <h4>Pros</h4>
+      <ul class="pros">
+        <li>Un valor por permiso, claro.</li>
+        <li>Filtro fácil en UI de asignación.</li>
+        <li>Fácil de explicar al cliente.</li>
+      </ul>
+      <h4>Contras</h4>
+      <ul class="cons">
+        <li>Algunos permisos tienen ambigüedad RL/Contador. En esos casos, elegimos el más estricto.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="option">
+    <h3>2 · Array de roles + jerarquía "who can delegate"</h3>
+    <p style="font-size:13px; color:#374151;">Un permiso puede tener múltiples roles válidos. Además, hay una jerarquía: <em>RL puede delegar a Contador, Contador no puede delegar a RL</em>.</p>
+    <div class="schema">
+<span class="kw">ALTER TABLE</span> permit_requirements
+  <span class="kw">ADD COLUMN</span> required_roles <span class="type">text[]</span> <span class="kw">DEFAULT</span> <span class="str">'{}'</span>,
+  <span class="kw">ADD COLUMN</span> delegation_rules <span class="type">jsonb</span>;
+    </div>
+    <div class="pros-cons">
+      <h4>Pros</h4>
+      <ul class="pros">
+        <li>Modela la realidad con más fidelidad.</li>
+      </ul>
+      <h4>Contras</h4>
+      <ul class="cons">
+        <li>Complejidad de dominio sin demanda real todavía.</li>
+        <li>UI de asignación mucho más difícil.</li>
+        <li>YAGNI para MVP.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<h2>E · Decisiones sub-menores (si eligen 1)</h2>
+<div class="card">
+  <ul style="margin:0 0 0 18px; padding:0; font-size:13px;">
+    <li><strong>¿Cómo sabemos quién es RL/Contador en un equipo?</strong>
+      Nueva columna en <code>profiles</code>: <code>business_role</code> con los mismos 4 valores.
+      Por default, el owner de la company (quien creó el onboarding) es <em>representante_legal</em>; miembros nuevos entran como <em>empleado</em> (= anyone) y el admin puede cambiar el rol.</li>
+    <li><strong>¿Bloqueamos la asignación?</strong> No — mostramos warning suave.
+      "Este permiso requiere RL y estás asignándolo a un empleado. ¿Seguro?" El cliente sabe su realidad mejor que nosotros.</li>
+    <li><strong>¿En onboarding preguntamos nombre del RL?</strong> Sí, paso opcional ("Completa después" permitido). Sin él, todas las notificaciones tipo "el RL debe firmar" quedan genéricas.</li>
+    <li><strong>¿Qué pasa con asignado_a si la persona se va del equipo?</strong> <code>permits.assigned_to_profile_id</code> con <code>ON DELETE SET NULL</code>. Permiso queda "sin asignar" y aparece en un filtro específico en el dashboard.</li>
+  </ul>
+</div>
+
+<div class="nav-help">
+  <strong>¿Cómo respondo?</strong>
+  <span>
+    (1) ¿4 roles bien, falta alguno, sobra alguno?
+    (2) ¿Matriz de rol por permiso — alguna celda mal?
+    (3) ¿Opción técnica 1 (simple) u 2 (multi-rol)?
+    (4) ¿Las 4 sub-decisiones te cuadran?
+  </span>
+</div>
+
+</div>
+</body>
+</html>

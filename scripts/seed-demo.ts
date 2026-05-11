@@ -16,6 +16,8 @@
  *   - Demo user created: demo@supermaxi.com / Demo2026!
  */
 
+/* eslint-disable no-console -- CLI seed script; progress output is intentional */
+
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../src/lib/supabase/types';
 
@@ -413,8 +415,8 @@ async function main() {
     if (demoUser) {
       try {
         await seedUserProfile(demoUser.id);
-      } catch (error: any) {
-        if (error.code === '23505') {
+      } catch (error: unknown) {
+        if ((error as { code?: string }).code === '23505') {
           console.log('ℹ️  Profile already exists for demo user');
         } else {
           throw error;

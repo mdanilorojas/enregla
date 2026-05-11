@@ -1,28 +1,104 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Search, Scale } from '@/lib/lucide-icons';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { PermitCard } from './PermitCard';
 import { CategoryChips, type ChipValue } from './CategoryChips';
 import { LegalDisclaimer } from './LegalDisclaimer';
-import {
-  getAllPermits,
-  getPermitsByCategory,
-  searchPermits,
-} from './selectors';
+import { useAuth } from '@/hooks/useAuth';
+import { resolveCompanyId } from '@/lib/demo';
+import { useCompany } from '@/hooks/useCompany';
+import { useLegalReferences, type LegalReferenceRow } from '@/lib/domain/legal-references-db';
+import { PERMIT_TO_CATEGORY } from '@/data/legal-references';
+import { PERMIT_TYPE_LABELS } from '@/types';
+import type { LegalReference, PermitType } from '@/types';
+
+function isKnownPermitType(pt: string): pt is PermitType {
+  return pt in PERMIT_TYPE_LABELS;
+}
+
+/**
+ * Adapts a DB legal_references row to the legacy LegalReference shape
+ * consumed by PermitCard/LegalPermitDetailView. Fields that don't exist
+ * in the DB (sources[], consequences[], requiredDocuments[], typicalProcess[])
+ * are populated minimally from DB columns so the existing UI keeps working.
+ */
+function toLegalReference(row: LegalReferenceRow): LegalReference | null {
+  if (!isKnownPermitType(row.permit_type)) return null;
+  const portalName = row.government_portal_name ?? '';
+  const portalUrl = row.government_portal_url ?? undefined;
+  return {
+    permitType: row.permit_type,
+    description: row.description,
+    sources: [
+      {
+        name: portalName || 'Portal oficial',
+        shortName: portalName || 'Portal',
+        type: 'normativa',
+        url: portalUrl,
+        entity: portalName || '—',
+        scope: 'nacional',
+      },
+    ],
+    frequencyBasis: row.frequency_basis,
+    consequences: [],
+    requiredDocuments: [],
+    typicalProcess: [],
+    estimatedCost: row.estimated_cost ?? undefined,
+    disclaimer: row.disclaimer ?? undefined,
+  };
+}
+
+function stripAccents(s: string): string {
+  return s.normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+function normalize(s: string): string {
+  return stripAccents(s).toLowerCase().trim();
+}
 
 export function LegalIndexView() {
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<ChipValue>('all');
+  const [showAll, setShowAll] = useState(false);
 
-  const totalCount = useMemo(() => getAllPermits().length, []);
+  const { companyId: authCompanyId } = useAuth();
+  const companyId = resolveCompanyId(authCompanyId) ?? undefined;
+  const { data: company } = useCompany(companyId);
+
+  const filter = showAll ? null : company?.business_type ?? null;
+  const { data: rows } = useLegalReferences(filter);
+
+  const allRefs = useMemo<LegalReference[]>(() => {
+    return (rows ?? [])
+      .map(toLegalReference)
+      .filter((r): r is LegalReference => r !== null);
+  }, [rows]);
+
+  const totalCount = allRefs.length;
 
   const results = useMemo(() => {
     const trimmed = query.trim();
-    if (trimmed) return searchPermits(trimmed);
-    return getPermitsByCategory(activeCategory);
-  }, [query, activeCategory]);
+    if (trimmed) {
+      const q = normalize(trimmed);
+      return allRefs.filter((ref) => {
+        const haystack = [
+          PERMIT_TYPE_LABELS[ref.permitType],
+          ref.description,
+          ref.sources.map((s) => `${s.name} ${s.shortName} ${s.entity}`).join(' '),
+        ]
+          .map(normalize)
+          .join(' ');
+        return haystack.includes(q);
+      });
+    }
+    if (activeCategory === 'all') return allRefs;
+    return allRefs.filter((ref) => PERMIT_TO_CATEGORY[ref.permitType] === activeCategory);
+  }, [query, activeCategory, allRefs]);
 
   const searching = query.trim().length > 0;
+  const hasBusinessType = !!company?.business_type;
 
   return (
     <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
@@ -44,6 +120,29 @@ export function LegalIndexView() {
         </header>
 
         <LegalDisclaimer />
+
+        <div className="flex flex-wrap items-center justify-between gap-[var(--ds-space-200)]">
+          {hasBusinessType ? (
+            <label className="flex items-center gap-[var(--ds-space-100)] text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] cursor-pointer">
+              <Checkbox
+                checked={showAll}
+                onCheckedChange={(v) => setShowAll(v === true)}
+                aria-label="Ver todos los permisos (no solo los de mi giro)"
+              />
+              <span>Ver todos los permisos (no solo los de mi giro)</span>
+            </label>
+          ) : (
+            <span className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)]">
+              Mostrando todos los permisos
+            </span>
+          )}
+          <Link
+            to="/marco-legal/matriz"
+            className="text-[var(--ds-font-size-075)] font-medium text-[var(--ds-background-brand)] hover:underline"
+          >
+            Ver matriz completa
+          </Link>
+        </div>
 
         <div className="relative">
           <Search className="absolute left-[var(--ds-space-200)] top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--ds-text-muted)]" />

@@ -27,6 +27,11 @@ export function DocumentList({ documents, onDocumentDeleted }: DocumentListProps
   const handleDownload = async (doc: Document) => {
     try {
       const url = await getDocumentUrl(doc.file_path);
+      if (!url) {
+        setError('No se pudo generar el enlace de descarga');
+        setTimeout(() => setError(null), 3000);
+        return;
+      }
       window.open(url, '_blank');
     } catch (err) {
       console.error('Error downloading document:', err);

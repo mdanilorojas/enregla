@@ -10,6 +10,8 @@ export {
   Landmark,         // Empresa
   Users,            // People
   User,             // Person
+  UserCheck,        // Asignado
+  UserMinus,        // Desasignado
 
   // Actions
   Plus,
@@ -27,6 +29,7 @@ export {
   // Status
   AlertTriangle,    // Warning
   AlertCircle,      // Error subtle
+  CheckCircle,      // Success (rounded)
   CheckCircle2,     // Success
   XCircle,          // Error
   Info,             // Information

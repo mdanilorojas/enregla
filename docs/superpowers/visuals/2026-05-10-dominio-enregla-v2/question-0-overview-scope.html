@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>EnRegla v2 — Alcance del rediseño de dominio</title>
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --text: #111827;
+    --muted: #6b7280;
+    --brand: #1e3a8a;
+    --brand-bg: #eef2ff;
+    --ok: #15803d;
+    --ok-bg: #ecfdf5;
+    --warn: #b45309;
+    --warn-bg: #fffbeb;
+    --maybe: #6b21a8;
+    --maybe-bg: #faf5ff;
+    --no: #b91c1c;
+    --no-bg: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    font-size: 15px;
+  }
+  .container { max-width: 1180px; margin: 0 auto; padding: 48px 24px 96px; }
+  header { margin-bottom: 40px; }
+  .eyebrow { color: var(--brand); font-weight: 600; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+  h1 { font-size: 32px; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .lead { color: var(--muted); font-size: 15px; max-width: 760px; }
+  h2 { font-size: 20px; margin: 48px 0 14px; letter-spacing: -0.01em; }
+  h2 .sub { font-weight: 400; color: var(--muted); font-size: 14px; margin-left: 10px; }
+  h3 { font-size: 15px; margin: 22px 0 10px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 14px;
+  }
+  .item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .item .head { display: flex; align-items: center; gap: 10px; margin-bottom: 2px; }
+  .item .title { font-weight: 600; font-size: 15px; }
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 4px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .pill-mvp  { background: var(--ok-bg);    color: var(--ok);    }
+  .pill-after { background: var(--warn-bg); color: var(--warn);  }
+  .pill-maybe { background: var(--maybe-bg); color: var(--maybe); }
+  .pill-skip  { background: var(--no-bg);   color: var(--no);    }
+  .item .desc { color: #374151; font-size: 14px; }
+  .item .why  { color: var(--muted); font-size: 13px; border-top: 1px dashed var(--border); padding-top: 8px; margin-top: 4px; }
+  .item .why strong { color: #374151; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 28px;
+  }
+  .metric-row { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 12px; }
+  .metric { flex: 1; min-width: 160px; }
+  .metric .n { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
+  .metric .l { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+  .metric.ok .n  { color: var(--ok); }
+  .metric.warn .n { color: var(--warn); }
+  .metric.maybe .n { color: var(--maybe); }
+  .metric.no .n { color: var(--no); }
+  .legend {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin: 12px 0 0;
+    font-size: 13px;
+    color: #374151;
+  }
+  .legend .dot {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  .principle {
+    background: var(--brand-bg);
+    border: 1px solid #c7d2fe;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  .principle strong { color: var(--brand); }
+  .footer-note {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="eyebrow">Brainstorming · 2026-05-10</div>
+  <h1>Rediseño del dominio EnRegla — alcance y prioridades</h1>
+  <p class="lead">
+    Esta es la vista panorámica. El objetivo: decidir qué entra al MVP antes de venderle al primer cliente,
+    qué se posterga, y qué no vale la pena hacer nunca. Cada tarjeta tiene mi recomendación.
+    Cambialas como quieras; después bajamos al detalle una por una.
+  </p>
+</header>
+
+<div class="summary-card">
+  <h3 style="margin-top:0">Resumen ejecutivo</h3>
+  <p style="margin:0 0 6px; color:#374151">
+    Detecté <strong>14 decisiones</strong> en lo que me contaste + lo que vi en tu código. Mi propuesta:
+  </p>
+  <div class="metric-row">
+    <div class="metric ok"><div class="n">7</div><div class="l">entran al MVP</div></div>
+    <div class="metric warn"><div class="n">3</div><div class="l">sprint inmediato post-MVP</div></div>
+    <div class="metric maybe"><div class="n">2</div><div class="l">depende de feedback</div></div>
+    <div class="metric no"><div class="n">2</div><div class="l">sacar / no construir</div></div>
+  </div>
+  <div class="legend">
+    <span><span class="dot" style="background:#15803d"></span>MVP</span>
+    <span><span class="dot" style="background:#b45309"></span>Sprint siguiente</span>
+    <span><span class="dot" style="background:#6b21a8"></span>Depende</span>
+    <span><span class="dot" style="background:#b91c1c"></span>No</span>
+  </div>
+</div>
+
+<div class="principle">
+  <strong>Principio guía:</strong> el MVP debe responder a un solo cliente pagante: "¿qué permisos debo tener,
+  cuándo vencen, cuánto cuestan, y quién en mi empresa es responsable?" Todo lo demás es diferible.
+</div>
+
+<h2>1 · Tipos de negocio <span class="sub">hoy: 4 hardcoded (restaurante, retail, food_truck, consultorio)</span></h2>
+<div class="grid">
+  <div class="item">
+    <div class="head"><span class="pill pill-mvp">MVP</span><span class="title">Ampliar catálogo a ~10-12 tipos</span></div>
+    <div class="desc">Agregar: panadería, cafetería, bar/discoteca, farmacia, gimnasio, salón de belleza, taller mecánico, centro educativo, oficina profesional, laboratorio clínico.</div>
+    <div class="why"><strong>Por qué:</strong> sin esto, cualquier PyME que no sea uno de tus 4 actuales no puede usarla. Es la pieza que te contaba el usuario (“si elegí restaurante, quiero ver permisos de restaurante”).</div>
+  </div>
+  <div class="item">
+    <div class="head"><span class="pill pill-after">DESPUÉS</span><span class="title">Business type por <em>sede</em> (no por empresa)</span></div>
+    <div class="desc">Hoy el tipo vive en <code>companies.business_type</code>. Una misma empresa podría tener un restaurante + una oficina administrativa.</div>
+    <div class="why"><strong>Por qué después:</strong> en Ecuador la mayoría de PyMEs tienen un único giro. Abordable con edición manual del permit por sede. Medir si se pide.</div>
+  </div>
+  <div class="item">
+    <div class="head"><span class="pill pill-skip">NO</span><span class="title">Taxonomía jerárquica (categoría → subcategoría)</span></div>
+    <div class="desc">Ej: "Alimentos → Restaurante → Menú con carnes crudas".</div>
+    <div class="why"><strong>Por qué no:</strong> overengineering. Un dropdown plano resuelve el 95% sin el costo de una taxonomía.</div>
+  </div>
+</div>
+
+<h2>2 · Permisos: modelo de datos <span class="sub">hoy: tipo texto libre, sin precio, sin rol, emisor string</span></h2>
+<div class="grid">
+  <div class="item">
+    <div class="head"><span class="pill pill-mvp">MVP</span><span class="title">Precio (rango + notas)</span></div>
+    <div class="desc">Columnas: <code>estimated_cost_min</code>, <code>estimated_cost_max</code>, <code>cost_notes</code>. Rango porque los permisos municipales varían por m² o facturación.</div>
+    <div class="why"><strong>Por qué:</strong> es lo que le da al dashboard su número (“te falta pagar $X”). Sin precio, la tabla de pendientes es inútil — justo lo que vos viste.</div>
+  </div>
+  <div class="item">
+    <div class="head"><span class="pill pill-mvp">MVP</span><span class="title">Emisor como catálogo (no texto libre)</span></div>
+    <div class="desc">Nueva tabla <code>permit_issuers</code>: id, name, short_name, scope (nacional / municipal), url, logo_url. Ejemplo: SRI, ARCSA, Cuerpo de Bomberos, GAD Quito.</div>
+    <div class="why"><strong>Por qué:</strong> hoy <code>issuer</code> es string, se escriben mil variantes (“CBomberos”, “Bomberos Quito”). Con catálogo, agrupás, linkeás al portal, y habilitás métricas “tienes X trámites con ARCSA”.</div>
+  </div>
+  <div class="item">
+    <div class="head"><span class="pill pill-mvp">MVP</span><span class="title">Rol requerido</span></div>
+    <div class="desc">Enum en <code>permit_requirements.required_role</code>: <em>cualquiera</em> | <em>representante_legal</em> | <em>contador</em> | <em>tecnico_responsable</em>.</div>
+    <div class="why"><strong>Por qué:</strong> no es lo mismo que el permiso de Bomberos lo saque cualquier empleado vs que sea el Representante Legal (muchos trámites lo exigen). Esto le da a EnRegla un posicionamiento “sabemos tu flow”.</div>
+  </div>
+  <div class="item">
+    <div class="head"><span class="pill pill-mvp">MVP</span><span class="title">Asignado a (persona)</span></div>
+    <div class="desc"><code>permits.assigned_to_profile_id</code> → apunta a un miembro del equipo (o queda null = sin asignar). UI: chip con avatar.</div>
+    <div class="why"><strong>Por qué:</strong> trazabilidad. Hoy nadie sabe quién debe hacer qué. Por sí solo, transforma EnRegla de “tracker” a “coordinador”.</div>
+  </div>
+  <div class="item">
+    <div class="head"><span class="pill pill-mvp">MVP</span><span class="title">Trazabilidad: tabla de eventos</span></div>
+    <div class="desc">Nueva <code>permit_events</code>: quien, cuándo, qué acción (creado, subido documento, marcado vigente, renovado). Render en timeline.</div>
+    <div class="why"><strong>Por qué:</strong> el auditor externo pregunta “¿cuándo se renovó esto?”. Hoy solo hay <code>created_at</code>/<code>updated_at</code>. Con eventos explícitos, hay historia.</div>
+  </div>
+  <div class="item">
+    <div class="head"><span class="pill pill-after">DESPUÉS</span><span class="title">Frecuencia / periodicidad estructurada</span></div>
+    <div class="desc"><code>renewal_frequency</code>: annual / biennial / one_time / on_change. Hoy sale solo de <code>expiry_date</code>.</div>
+    <div class="why"><strong>Por qué después:</strong> útil para proyectar calendario, pero la expiry_date ya cubre el caso urgente.</div>
+  </div>
+  <div class="item">
+    <div class="head"><span class="pill pill-maybe">DEPENDE</span><span class="title">Permisos condicionales</span></div>
+    <div class="desc">Ej: “solo se requiere permiso de ambiente si tenés generador eléctrico”.</div>
+    <div class="why"><strong>Depende:</strong> si vas a vender a negocios con operaciones complejas (industriales, laboratorios) — sí. Para MVP restaurantes/retail PyME — no.</div>
+  </div>
+  <div class="item">
+    <div class="head"><span class="pill pill-skip">NO</span><span class="title">Workflow de aprobación interno</span></div>
+    <div class="desc">Estado tipo “pendiente → en revisión gerente → aprobado”.</div>
+    <div class="why"><strong>Por qué no:</strong> tu cliente es una PyME, no una corporación. Más fricción de la que necesita.</div>
+  </div>
+</div>
+
+<h2>3 · Marco legal <span class="sub">hoy: data en código TS, tabla DB vacía; no filtra por tipo de negocio</span></h2>
+<div class="grid">
+  <div class="item">
+    <div class="head"><span class="pill pill-mvp">MVP</span><span class="title">Migrar data de TS a DB</span></div>
+    <div class="desc">Mover <code>src/data/legal-references.ts</code> a las tablas <code>legal_references</code>, <code>legal_sources</code>, etc. que ya existen vacías. Poder editar sin redeploy.</div>
+    <div class="why"><strong>Por qué:</strong> el marco legal cambia con ordenanzas municipales. Hoy cualquier cambio de ley = PR + deploy. Inviable.</div>
+  </div>
+  <div class="item">
+    <div class="head"><span class="pill pill-mvp">MVP</span><span class="title">Filtrar marco legal por business_type del cliente</span></div>
+    <div class="desc">Por defecto muestra solo los permisos aplicables al giro del cliente. Con switch visible “ver todos los permisos” para exploración. Ya existe <code>legal_references.business_categories</code> array.</div>
+    <div class="why"><strong>Por qué:</strong> exactamente lo que pediste. Un dueño de restaurante no quiere ver permisos de farmacia; cuando los necesite, puede activarlos.</div>
+  </div>
+  <div class="item">
+    <div class="head"><span class="pill pill-after">DESPUÉS</span><span class="title">Editor interno del marco legal</span></div>
+    <div class="desc">UI staff-only en <code>/internal/legal</code> para actualizar textos, precios, links sin SQL.</div>
+    <div class="why"><strong>Por qué después:</strong> mientras tengas acceso a Supabase podés editar directo. Vale la pena cuando tengas alguien que no sea dev.</div>
+  </div>
+  <div class="item">
+    <div class="head"><span class="pill pill-skip">NO</span><span class="title">Versionado histórico del marco legal</span></div>
+    <div class="desc">“Esta ordenanza cambió el 2024, antes decía X”.</div>
+    <div class="why"><strong>Por qué no:</strong> útil en teoría, caro en la práctica. Git del repo ya tiene historia si la migración está en migraciones.</div>
+  </div>
+</div>
+
+<h2>4 · Dashboard y listas <span class="sub">hoy: cuenta mal pendientes, no muestra plata</span></h2>
+<div class="grid">
+  <div class="item">
+    <div class="head"><span class="pill pill-mvp">MVP</span><span class="title">Fix: cálculo real de pendientes</span></div>
+    <div class="desc">“Tienes X trámites pendientes” cuenta <code>status IN ('no_registrado','vencido','por_vencer','en_tramite')</code>, agrupado por sede. Se arregla el bug que viste.</div>
+    <div class="why"><strong>Por qué:</strong> bug crítico de credibilidad. Reporta mal ahora y el cliente ya no vuelve a confiar.</div>
+  </div>
+  <div class="item">
+    <div class="head"><span class="pill pill-mvp">MVP</span><span class="title">Factura pendiente real con precios sumados</span></div>
+    <div class="desc">“Te falta pagar $X” = suma de <code>estimated_cost</code> de los permisos pendientes. Si un permit no tiene costo asociado, se muestra como “sin costo estimado” aparte (honesto).</div>
+    <div class="why"><strong>Por qué:</strong> conecta directo con la columna de precio (arriba). Es el “why pay for this” del cliente en un vistazo.</div>
+  </div>
+  <div class="item">
+    <div class="head"><span class="pill pill-maybe">DEPENDE</span><span class="title">Gráfica de cumplimiento en el tiempo</span></div>
+    <div class="desc">Serie de tiempo: % cumplimiento mes a mes.</div>
+    <div class="why"><strong>Depende:</strong> bonito en demos, requiere historia. Inútil en las primeras 3 semanas del cliente. Dejar para cuando haya datos que contar.</div>
+  </div>
+</div>
+
+<h2>5 · Sistema de datos maestros <span class="sub">habilita todo lo demás</span></h2>
+<div class="grid">
+  <div class="item">
+    <div class="head"><span class="pill pill-mvp">MVP</span><span class="title">Seed inicial: catálogo de emisores + permisos por giro</span></div>
+    <div class="desc">Migración con ~15 emisores reales + tabla cruzada <code>business_type × permit_type → requerido, mandatory, rol, costo estimado</code>. Esto va en git.</div>
+    <div class="why"><strong>Por qué:</strong> sin este seed, todas las features anteriores no tienen data. Es la fundación.</div>
+  </div>
+  <div class="item">
+    <div class="head"><span class="pill pill-after">DESPUÉS</span><span class="title">Catálogo de emisores municipal (por ciudad)</span></div>
+    <div class="desc">Hoy “GAD Quito”, “GAD Guayaquil” con sus ordenanzas específicas. Para MVP usamos solo Quito.</div>
+    <div class="why"><strong>Por qué después:</strong> no podés cubrir todo Ecuador con precisión legal. Empezá por una ciudad y expandí con clientes reales.</div>
+  </div>
+</div>
+
+<h2 style="color:var(--no)">Lo que recomiendo quitar / no construir</h2>
+<div class="grid">
+  <div class="item" style="border-left: 4px solid var(--no)">
+    <div class="head"><span class="pill pill-skip">QUITAR</span><span class="title">Ruta <code>/design-system</code> en producción</span></div>
+    <div class="desc">Hoy cualquier cliente autenticado puede navegar a tu showcase de componentes (la auditoría lo detectó).</div>
+    <div class="why"><strong>Solo DEV</strong>. Lo guardo en el cleanup.</div>
+  </div>
+  <div class="item" style="border-left: 4px solid var(--no)">
+    <div class="head"><span class="pill pill-skip">NO HACER</span><span class="title">Chat/comentarios dentro de la app</span></div>
+    <div class="desc">“Hablá con tu contador desde aquí”.</div>
+    <div class="why">Mucha superficie, poco valor por cliente. WhatsApp resuelve. No lo construyas.</div>
+  </div>
+</div>
+
+<div class="footer-note">
+  Siguiente paso: una vez que confirmes este alcance global, bajamos al detalle pregunta por pregunta (empezando por el modelo de negocio tipo + tipos de permisos, que es la base de todo lo demás).
+</div>
+
+</div>
+</body>
+</html>

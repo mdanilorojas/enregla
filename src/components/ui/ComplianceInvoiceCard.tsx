@@ -1,23 +1,35 @@
 import { memo } from 'react';
 import { DollarSign } from '@/lib/lucide-icons';
 
+export type InvoiceAmount = number | { min: number; max: number };
+
 export interface InvoiceLine {
   label: string;
   detail?: string;
-  amount: number;
+  amount: InvoiceAmount;
 }
 
 export interface ComplianceInvoiceCardProps {
   lines: InvoiceLine[];
-  total: number;
+  total: InvoiceAmount;
   currency?: string;
-  warningAmount?: number;
+  warningAmount?: InvoiceAmount;
   warningText?: React.ReactNode;
   footnote?: string;
 }
 
-function formatAmount(n: number): string {
+function formatNumber(n: number): string {
   return n.toLocaleString('en-US', { maximumFractionDigits: 0 }).replace(/,/g, ' ');
+}
+
+function formatAmount(a: InvoiceAmount): string {
+  if (typeof a === 'number') {
+    return `$${formatNumber(a)}`;
+  }
+  if (a.min === a.max) {
+    return `$${formatNumber(a.min)}`;
+  }
+  return `$${formatNumber(a.min)} – $${formatNumber(a.max)}`;
 }
 
 function ComplianceInvoiceCardImpl({
@@ -49,7 +61,7 @@ function ComplianceInvoiceCardImpl({
               {line.label}
               {line.detail && <span className="more"> · {line.detail}</span>}
             </div>
-            <div className="price">${formatAmount(line.amount)}</div>
+            <div className="price">{formatAmount(line.amount)}</div>
           </div>
         ))}
       </div>
@@ -57,7 +69,7 @@ function ComplianceInvoiceCardImpl({
       <div className="receipt-total">
         <div className="label">Total pendiente</div>
         <div className="amount">
-          <span>${formatAmount(total)}</span><small> {currency}</small>
+          <span>{formatAmount(total)}</span><small> {currency}</small>
         </div>
       </div>
 
@@ -65,7 +77,7 @@ function ComplianceInvoiceCardImpl({
         <div className="warning-box">
           {warningText}
           {warningAmount !== undefined && (
-            <> <b>${formatAmount(warningAmount)}</b>.</>
+            <> <b>{formatAmount(warningAmount)}</b>.</>
           )}
         </div>
       )}

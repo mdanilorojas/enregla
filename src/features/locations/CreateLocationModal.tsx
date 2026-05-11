@@ -99,9 +99,9 @@ export function CreateLocationModal({
 
       onSuccess(newLocation.id);
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('[CreateLocationModal] Error creating location:', error);
-      const errorMessage = error.message || 'Intenta nuevamente';
+      const errorMessage = error instanceof Error ? error.message : 'Intenta nuevamente';
       toast.error(`Error al crear sede: ${errorMessage}`, {
         duration: 5000,
       });
@@ -206,7 +206,7 @@ export function CreateLocationModal({
             <Select
               value={status}
               onValueChange={(value) => {
-                setStatus(value as any);
+                setStatus(value as 'operando' | 'en_preparacion' | 'cerrado' | '');
                 clearError('status');
               }}
               disabled={loading}

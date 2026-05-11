@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocations } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
+import { resolveCompanyId } from '@/lib/demo';
 import { Building2 as BuildingIcon, Plus as PlusIcon } from '@/lib/lucide-icons';
 import { LocationCardV2 } from './LocationCardV2';
 import { Button } from '@/components/ui';
@@ -22,12 +23,9 @@ export interface LocationsGridProps {
  */
 export function LocationsGrid({ standalone = true }: LocationsGridProps) {
   const { profile } = useAuth();
-  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
-  const companyId = isDemoMode
-    ? '50707999-f033-41c4-91c9-989966311972'
-    : profile?.company_id;
+  const companyId = resolveCompanyId(profile?.company_id) ?? undefined;
 
-  const { locations, loading: loadingLocations, error: locationsError } = useLocations(companyId);
+  const { locations, loading: loadingLocations, error: locationsError, refetch } = useLocations(companyId);
   const { permits, loading: loadingPermits, error: permitsError } = usePermits({ companyId });
 
   const loading = loadingLocations || loadingPermits;
@@ -71,7 +69,7 @@ export function LocationsGrid({ standalone = true }: LocationsGridProps) {
           <div className="text-center py-12">
             <p className="text-[var(--ds-red-600)] mb-4">Error al cargar sedes</p>
             <p className="text-sm text-[var(--ds-text-subtle)] mb-4">{error}</p>
-            <Button onClick={() => window.location.reload()}>Reintentar</Button>
+            <Button onClick={() => refetch()}>Reintentar</Button>
           </div>
         </div>
       </div>

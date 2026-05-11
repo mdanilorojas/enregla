@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { usePermits } from '@/hooks/usePermits'
 import { useLocations } from '@/hooks/useLocations'
+import { resolveCompanyId } from '@/lib/demo'
 import { YearSelector } from './YearSelector'
 import { MonthCard, type MonthRenewal } from './MonthCard'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -9,8 +10,7 @@ import { Calendar } from '@/lib/lucide-icons'
 
 export function RenewalGridView() {
   const { profile } = useAuth()
-  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true'
-  const companyId = isDemoMode ? '50707999-f033-41c4-91c9-989966311972' : profile?.company_id
+  const companyId = resolveCompanyId(profile?.company_id) ?? undefined
 
   const { permits } = usePermits({ companyId })
   const { locations } = useLocations(companyId)

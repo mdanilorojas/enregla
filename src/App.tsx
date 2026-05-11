@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProtectedRoute } from '@/components/Auth';
 import { useAuth } from '@/hooks/useAuth';
+import { DEMO_MODE } from '@/lib/demo';
 import { LoginView } from '@/features/auth/LoginView';
 import { AuthCallback } from '@/features/auth/AuthCallback';
 import { IncrementalWizard } from '@/features/onboarding-incremental/IncrementalWizard';
@@ -13,6 +14,7 @@ import { PermitListView } from '@/features/permits/PermitListView';
 import { PermitDetailView } from '@/features/permits/PermitDetailView';
 import { RenewalGridView } from '@/features/renewals/RenewalGridView';
 import { LegalIndexView } from '@/features/legal/LegalIndexView';
+import { LegalMatrixView } from '@/features/legal/LegalMatrixView';
 import { LegalPermitDetailView } from '@/features/legal/LegalPermitDetailView';
 import { NetworkMapPage } from '@/features/network/NetworkMapPage';
 import { DesignSystemView } from '@/features/design-system/DesignSystemView';
@@ -43,7 +45,7 @@ function OnboardingRoute() {
 
 function ProtectedOnboardingRoute() {
   const { profile, loading } = useAuth();
-  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
+  const isDemoMode = DEMO_MODE;
 
   if (loading) {
     return <AppLoader />;
@@ -64,7 +66,7 @@ function ProtectedOnboardingRoute() {
 
 export default function App() {
   const { isAuthenticated, loading } = useAuth();
-  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
+  const isDemoMode = DEMO_MODE;
 
   return (
     <BrowserRouter>
@@ -109,6 +111,7 @@ export default function App() {
           <Route path="/permisos/:id" element={<PermitDetailView />} />
           <Route path="/renovaciones" element={<RenewalGridView />} />
           <Route path="/marco-legal" element={<LegalIndexView />} />
+          <Route path="/marco-legal/matriz" element={<LegalMatrixView />} />
           <Route path="/marco-legal/:permitType" element={<LegalPermitDetailView />} />
           <Route path="/design-system" element={<DesignSystemView />} />
           <Route path="/design-system-showcase" element={<DesignSystemShowcase />} />

@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pregunta 5 — Dashboard rediseñado (3 layouts)</title>
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --text: #111827;
+    --muted: #6b7280;
+    --brand: #1e3a8a;
+    --brand-bg: #eef2ff;
+    --ok: #15803d;
+    --ok-bg: #ecfdf5;
+    --warn: #b45309;
+    --warn-bg: #fffbeb;
+    --danger: #b91c1c;
+    --danger-bg: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.45;
+    font-size: 14px;
+  }
+  .container { max-width: 1380px; margin: 0 auto; padding: 48px 24px 96px; }
+  header { margin-bottom: 32px; }
+  .eyebrow { color: var(--brand); font-weight: 600; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+  h1 { font-size: 30px; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .lead { color: var(--muted); max-width: 820px; font-size: 14px; }
+  h2 { font-size: 18px; margin: 36px 0 14px; letter-spacing: -0.01em; }
+  h3 { font-size: 15px; margin: 16px 0 10px; }
+
+  .layouts { display: flex; flex-direction: column; gap: 40px; }
+  .layout {
+    background: #fafbfc;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+  }
+  .layout.recommended { border-color: #15803d; box-shadow: 0 0 0 3px #dcfce7; }
+  .layout .tag {
+    position: absolute;
+    top: -11px;
+    right: 18px;
+    background: var(--ok);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 3px 10px;
+    border-radius: 999px;
+    text-transform: uppercase;
+  }
+  .layout h3 { margin-top: 0; font-size: 18px; }
+  .layout .summary { color: #374151; font-size: 13px; margin-bottom: 18px; }
+
+  /* Mock dashboard surface */
+  .surface {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  .surface.surface-compact { padding: 16px 18px; }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  /* Hero invoice */
+  .invoice {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    align-items: stretch;
+  }
+  @media (max-width: 760px) { .invoice { grid-template-columns: 1fr; } }
+  .invoice-left .label { font-size: 13px; color: var(--muted); }
+  .invoice-left .total {
+    font-size: 42px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--danger);
+    line-height: 1;
+    margin: 4px 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .invoice-left .range { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .invoice-left .pend { color: var(--danger); font-weight: 500; font-size: 13px; }
+  .invoice-right { border-left: 1px solid var(--border); padding-left: 18px; }
+  @media (max-width: 760px) { .invoice-right { border-left: none; padding-left: 0; border-top: 1px solid var(--border); padding-top: 14px; } }
+  .invoice-line { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; border-bottom: 1px dashed var(--border); }
+  .invoice-line:last-child { border: none; }
+  .invoice-line .dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .dot-red { background: var(--danger); }
+  .dot-amber { background: #f59e0b; }
+  .dot-gray { background: #9ca3af; }
+  .dot-green { background: var(--ok); }
+  .invoice-line .cost { color: var(--text); font-weight: 500; font-variant-numeric: tabular-nums; }
+  .invoice-line .cost.none { color: var(--muted); font-style: italic; font-weight: normal; }
+
+  /* Pipeline kanban */
+  .pipeline {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  @media (max-width: 980px) { .pipeline { grid-template-columns: repeat(2, 1fr); } }
+  .col {
+    background: #f3f4f6;
+    border-radius: 10px;
+    padding: 12px;
+    min-height: 180px;
+  }
+  .col .h { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .col.red .h { color: var(--danger); }
+  .col.amber .h { color: var(--warn); }
+  .col.blue .h { color: #1d4ed8; }
+  .col.green .h { color: var(--ok); }
+  .col .count {
+    font-size: 13px;
+    font-weight: 700;
+    background: white;
+    padding: 0 7px;
+    border-radius: 999px;
+    color: var(--text);
+  }
+  .chip {
+    background: white;
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 1px rgba(0,0,0,0.03);
+  }
+  .chip .name { font-weight: 600; font-size: 12.5px; }
+  .chip .meta { color: var(--muted); font-size: 11px; margin-top: 2px; display: flex; justify-content: space-between; }
+  .chip .rol {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 3px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .rol-all     { background: #f3f4f6; color: #374151; }
+  .rol-legal   { background: #dbeafe; color: #1d4ed8; }
+  .rol-contador{ background: #ccfbf1; color: #0f766e; }
+  .rol-tecnico { background: #fef3c7; color: #a16207; }
+
+  /* List view */
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .list-row {
+    display: grid;
+    grid-template-columns: 22px 1fr 120px 90px 110px 90px;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    background: white;
+    border: 1px solid var(--border);
+  }
+  @media (max-width: 800px) { .list-row { grid-template-columns: 22px 1fr 100px; } .list-row .hide-sm { display: none; } }
+  .list-row .icon { font-size: 16px; }
+  .list-row .status-chip {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .sc-venc { background: var(--danger-bg); color: var(--danger); }
+  .sc-pv   { background: var(--warn-bg);   color: var(--warn); }
+  .sc-nr   { background: #f3f4f6;          color: var(--muted); }
+  .sc-vg   { background: var(--ok-bg);     color: var(--ok); }
+  .sc-et   { background: #eff6ff;          color: #1d4ed8; }
+  .list-row .cost { font-variant-numeric: tabular-nums; color: var(--text); font-weight: 500; }
+  .list-row .cost.none { color: var(--muted); font-style: italic; font-weight: 400; }
+  .list-row .assignee { color: var(--muted); font-size: 12px; }
+
+  /* Metric card row (layout A) */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  @media (max-width: 900px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+  .metric {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .metric .l { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .metric .v { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin-top: 2px; }
+  .metric.red .v { color: var(--danger); }
+  .metric.amber .v { color: var(--warn); }
+  .metric.gray .v { color: var(--muted); }
+  .metric.green .v { color: var(--ok); }
+
+  /* Layout C weather */
+  .weather {
+    background: linear-gradient(180deg, #fef2f2 0%, #ffffff 100%);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  .weather .emoji { font-size: 48px; }
+  .weather .headline { font-size: 22px; font-weight: 700; color: var(--danger); margin-bottom: 2px; }
+  .weather .sub { color: #374151; font-size: 14px; }
+
+  .pros-cons { margin-top: 16px; font-size: 13px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 700px) { .pros-cons { grid-template-columns: 1fr; } }
+  .pros-cons .pros, .pros-cons .cons { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+  .pros-cons .pros h4 { color: var(--ok); margin: 0 0 6px; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+  .pros-cons .cons h4 { color: var(--danger); margin: 0 0 6px; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+  .pros-cons ul { margin: 0 0 0 16px; padding: 0; }
+
+  .nav-help {
+    position: sticky;
+    bottom: 16px;
+    background: #111827;
+    color: #f3f4f6;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 13px;
+    margin-top: 28px;
+  }
+  .nav-help strong { color: #fbbf24; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="eyebrow">Pregunta 5 · Dashboard rediseñado</div>
+  <h1>Tres layouts alternativos para la página de inicio</h1>
+  <p class="lead">
+    Datos de ejemplo: <strong>Restaurante "El Buen Sabor"</strong> · 2 sedes · 16 permisos totales · 4 vencidos · 3 por vencer · 2 en trámite · 7 vigentes · costo estimado pendiente $380 – $620.
+    Todos los layouts usan los mismos datos. La diferencia es el énfasis visual y la jerarquía.
+  </p>
+</header>
+
+<div class="layouts">
+
+<!-- ========= LAYOUT A — Factura-first ========= -->
+<div class="layout recommended">
+  <span class="tag">Recomendada</span>
+  <h3>A · Factura-first (financiero-céntrico)</h3>
+  <p class="summary">La plata manda. El número grande es lo que te falta pagar. Debajo, la lista ordenada por urgencia. Útil si el dueño mira esto de mañana y quiere "dime qué pago hoy".</p>
+
+  <div class="surface" style="margin-bottom: 12px;">
+    <div class="section-title">Factura pendiente · 2 sedes</div>
+    <div class="invoice">
+      <div class="invoice-left">
+        <div class="label">Total estimado</div>
+        <div class="total">$380 – $620</div>
+        <div class="range">según tarifa exacta del GAD y patrimonio declarado</div>
+        <div class="pend"><strong>9 trámites abiertos</strong> · 4 vencidos · 3 por vencer · 2 en trámite</div>
+      </div>
+      <div class="invoice-right">
+        <div class="section-title" style="margin-bottom: 6px;">Desglose por emisor</div>
+        <div class="invoice-line"><span><span class="dot dot-red"></span>GAD Quito · 4 trámites</span><span class="cost">$200 – $320</span></div>
+        <div class="invoice-line"><span><span class="dot dot-amber"></span>Bomberos · 2 trámites</span><span class="cost">$100 – $200</span></div>
+        <div class="invoice-line"><span><span class="dot dot-amber"></span>ARCSA · 2 trámites</span><span class="cost">$80 – $100</span></div>
+        <div class="invoice-line"><span><span class="dot dot-gray"></span>SRI · 1 trámite</span><span class="cost none">sin costo</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="surface" style="margin-bottom: 12px;">
+    <div class="section-title">Urgentes primero</div>
+    <div class="list">
+      <div class="list-row">
+        <span class="icon">🔥</span>
+        <div><strong>LUAE</strong> · Sede Centro · <span class="assignee">Sin asignar</span></div>
+        <span class="status-chip sc-venc">Vencido · hace 12d</span>
+        <span class="cost">$120</span>
+        <span class="rol rol-legal hide-sm" style="padding:2px 7px;border-radius:3px">RL</span>
+        <span class="assignee hide-sm">GAD Quito</span>
+      </div>
+      <div class="list-row">
+        <span class="icon">🚒</span>
+        <div><strong>Bomberos</strong> · Sede Sur · <span class="assignee">María López</span></div>
+        <span class="status-chip sc-venc">Vencido · hace 3d</span>
+        <span class="cost">$50 – $200</span>
+        <span class="rol rol-all hide-sm" style="padding:2px 7px;border-radius:3px">ALL</span>
+        <span class="assignee hide-sm">Bomberos Quito</span>
+      </div>
+      <div class="list-row">
+        <span class="icon">📄</span>
+        <div><strong>Patente municipal</strong> · Sede Centro · <span class="assignee">María López</span></div>
+        <span class="status-chip sc-pv">Por vencer · 8d</span>
+        <span class="cost">~ $80</span>
+        <span class="rol rol-all hide-sm" style="padding:2px 7px;border-radius:3px">ALL</span>
+        <span class="assignee hide-sm">GAD Quito</span>
+      </div>
+      <div class="list-row">
+        <span class="icon">⚕️</span>
+        <div><strong>ARCSA</strong> · Sede Centro · <span class="assignee">Sin asignar</span></div>
+        <span class="status-chip sc-nr">No registrado</span>
+        <span class="cost">$40 – $50</span>
+        <span class="rol rol-tecnico hide-sm" style="padding:2px 7px;border-radius:3px">TR</span>
+        <span class="assignee hide-sm">ARCSA</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <h4>Pros</h4>
+      <ul>
+        <li>Responde inmediatamente "¿cuánto te falta pagar?" → el punto de dolor #1.</li>
+        <li>El desglose por emisor sugiere que ir al GAD es la tarde más productiva.</li>
+        <li>Lista de urgentes es accionable: nombre, sede, asignado, rol requerido, emisor, costo.</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>Contras</h4>
+      <ul>
+        <li>Si el cliente tiene todo al día, el hero $0 queda un poco vacío. (Mitigable con estado alternativo "Todo al día ✅".)</li>
+        <li>Requiere datos de costo bien seedeados — si no, el número se ve "sin estimar" feo.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ========= LAYOUT B — Pipeline kanban ========= -->
+<div class="layout">
+  <h3>B · Pipeline kanban (flujo-céntrico)</h3>
+  <p class="summary">Cuatro columnas: <em>vencido → por vencer → en trámite → vigente</em>. Los permisos son tarjetas que migran entre columnas. Parece Trello. Útil si el cliente visualiza su trabajo como un flujo.</p>
+
+  <div class="surface" style="margin-bottom: 12px;">
+    <div class="metrics" style="margin-bottom: 16px;">
+      <div class="metric red"><div class="l">Vencidos</div><div class="v">4</div></div>
+      <div class="metric amber"><div class="l">Por vencer</div><div class="v">3</div></div>
+      <div class="metric gray"><div class="l">En trámite</div><div class="v">2</div></div>
+      <div class="metric green"><div class="l">Vigentes</div><div class="v">7</div></div>
+    </div>
+
+    <div class="pipeline">
+      <div class="col red">
+        <div class="h"><span>Vencidos</span><span class="count">4</span></div>
+        <div class="chip"><div class="name">LUAE</div><div class="meta"><span>Centro · hace 12d</span><span class="rol rol-legal">RL</span></div></div>
+        <div class="chip"><div class="name">Bomberos</div><div class="meta"><span>Sur · hace 3d</span><span class="rol rol-all">ALL</span></div></div>
+        <div class="chip"><div class="name">Uso suelo</div><div class="meta"><span>Sur · hace 20d</span><span class="rol rol-legal">RL</span></div></div>
+        <div class="chip" style="opacity:0.7"><div class="name">+ 1 más</div></div>
+      </div>
+      <div class="col amber">
+        <div class="h"><span>Por vencer</span><span class="count">3</span></div>
+        <div class="chip"><div class="name">Patente Centro</div><div class="meta"><span>8 días</span><span class="rol rol-all">ALL</span></div></div>
+        <div class="chip"><div class="name">Patente Sur</div><div class="meta"><span>18 días</span><span class="rol rol-all">ALL</span></div></div>
+        <div class="chip"><div class="name">LUAE Sur</div><div class="meta"><span>25 días</span><span class="rol rol-legal">RL</span></div></div>
+      </div>
+      <div class="col blue">
+        <div class="h"><span>En trámite</span><span class="count">2</span></div>
+        <div class="chip"><div class="name">ARCSA Centro</div><div class="meta"><span>Sin asignar</span><span class="rol rol-tecnico">TR</span></div></div>
+        <div class="chip"><div class="name">ARCSA Sur</div><div class="meta"><span>Paúl M.</span><span class="rol rol-tecnico">TR</span></div></div>
+      </div>
+      <div class="col green">
+        <div class="h"><span>Vigentes</span><span class="count">7</span></div>
+        <div class="chip" style="opacity:0.9"><div class="name">RUC · 2 sedes</div><div class="meta"><span>hasta 2027</span><span class="rol rol-legal">RL</span></div></div>
+        <div class="chip" style="opacity:0.8"><div class="name">5 más</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <h4>Pros</h4>
+      <ul>
+        <li>Vista operativa — clara para quien ya trabaja así (equipos de ops).</li>
+        <li>Muestra el "flujo" de trabajo sin esconder permisos vigentes.</li>
+        <li>Excelente para pantalla grande de oficina.</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>Contras</h4>
+      <ul>
+        <li>No enfatiza costos — queda como dato secundario.</li>
+        <li>Menos intuitivo para dueño PyME que no habla "kanban".</li>
+        <li>Se rompe feo en móvil (4 columnas → scroll horizontal).</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ========= LAYOUT C — Weather-first ========= -->
+<div class="layout">
+  <h3>C · Weather-first (emocional)</h3>
+  <p class="summary">Un "estado del clima" — iconos grandes y frase corta resumiendo la salud compliance. Debajo, CTA claro. Diseño actual extendido con los datos nuevos. Útil si querés que el producto se sienta amigable y sin-jerga.</p>
+
+  <div class="weather" style="margin-bottom: 12px;">
+    <div class="emoji">⛈️</div>
+    <div>
+      <div class="headline">Tu operación tiene 4 trámites vencidos</div>
+      <div class="sub">Si un inspector llega hoy a Sede Centro, podrías cerrar. Estimado para ponerte al día: <strong>$380 – $620</strong> · tiempo típico 3-5 días.</div>
+    </div>
+  </div>
+
+  <div class="surface surface-compact" style="margin-bottom: 12px;">
+    <div class="section-title">Empezá por esto (alta prioridad)</div>
+    <div class="list">
+      <div class="list-row">
+        <span class="icon">🔥</span>
+        <div><strong>LUAE</strong> · Sede Centro</div>
+        <span class="status-chip sc-venc">Vencido</span>
+        <span class="cost">$120</span>
+        <span class="rol rol-legal hide-sm" style="padding:2px 7px;border-radius:3px">RL</span>
+        <span class="assignee hide-sm">Asignar</span>
+      </div>
+      <div class="list-row">
+        <span class="icon">🚒</span>
+        <div><strong>Bomberos</strong> · Sede Sur</div>
+        <span class="status-chip sc-venc">Vencido</span>
+        <span class="cost">$50 – $200</span>
+        <span class="rol rol-all hide-sm" style="padding:2px 7px;border-radius:3px">ALL</span>
+        <span class="assignee hide-sm">María L.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="surface surface-compact">
+    <div class="section-title">Tus sedes</div>
+    <div class="list">
+      <div class="list-row">
+        <span class="icon">🏢</span>
+        <div><strong>Sede Centro</strong></div>
+        <span class="status-chip sc-venc">3 vencidos</span>
+        <span class="cost">6 trámites</span>
+        <span class="hide-sm">—</span>
+        <span class="hide-sm"></span>
+      </div>
+      <div class="list-row">
+        <span class="icon">🏢</span>
+        <div><strong>Sede Sur</strong></div>
+        <span class="status-chip sc-pv">1 vencido · 2 por vencer</span>
+        <span class="cost">10 trámites</span>
+        <span class="hide-sm">—</span>
+        <span class="hide-sm"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <h4>Pros</h4>
+      <ul>
+        <li>Lo más cercano al diseño actual — menos disruptivo.</li>
+        <li>Tono humano ("si un inspector llega hoy…") conecta emocionalmente.</li>
+        <li>Buen mobile.</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>Contras</h4>
+      <ul>
+        <li>El hero ocupa mucho espacio por un único mensaje.</li>
+        <li>El dato financiero queda enterrado en la frase.</li>
+        <li>Un poco "paternalista" — algunos clientes PyME quieren número seco, no frase.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<h2>Comparación rápida</h2>
+<div class="surface" style="margin-bottom: 20px;">
+<table style="width:100%; border-collapse: collapse; font-size:13px;">
+<thead>
+<tr style="background:#f9fafb">
+<th style="text-align:left; padding:8px 10px; border-bottom: 1px solid var(--border);">Criterio</th>
+<th style="padding:8px 10px; border-bottom: 1px solid var(--border);">A · Factura</th>
+<th style="padding:8px 10px; border-bottom: 1px solid var(--border);">B · Kanban</th>
+<th style="padding:8px 10px; border-bottom: 1px solid var(--border);">C · Weather</th>
+</tr>
+</thead>
+<tbody>
+<tr><td style="padding:6px 10px; border-bottom: 1px solid var(--border);">Responde "¿cuánto pago hoy?"</td><td align="center" style="padding:6px 10px; border-bottom: 1px solid var(--border); color:var(--ok)">★★★</td><td align="center" style="padding:6px 10px; border-bottom: 1px solid var(--border); color:var(--muted)">★</td><td align="center" style="padding:6px 10px; border-bottom: 1px solid var(--border); color:var(--warn)">★★</td></tr>
+<tr><td style="padding:6px 10px; border-bottom: 1px solid var(--border);">Responde "¿qué hago primero?"</td><td align="center" style="padding:6px 10px; border-bottom: 1px solid var(--border); color:var(--ok)">★★★</td><td align="center" style="padding:6px 10px; border-bottom: 1px solid var(--border); color:var(--ok)">★★★</td><td align="center" style="padding:6px 10px; border-bottom: 1px solid var(--border); color:var(--warn)">★★</td></tr>
+<tr><td style="padding:6px 10px; border-bottom: 1px solid var(--border);">Trabajo de equipo (asignados)</td><td align="center" style="padding:6px 10px; border-bottom: 1px solid var(--border); color:var(--warn)">★★</td><td align="center" style="padding:6px 10px; border-bottom: 1px solid var(--border); color:var(--ok)">★★★</td><td align="center" style="padding:6px 10px; border-bottom: 1px solid var(--border); color:var(--muted)">★</td></tr>
+<tr><td style="padding:6px 10px; border-bottom: 1px solid var(--border);">Mobile</td><td align="center" style="padding:6px 10px; border-bottom: 1px solid var(--border); color:var(--warn)">★★</td><td align="center" style="padding:6px 10px; border-bottom: 1px solid var(--border); color:var(--muted)">★</td><td align="center" style="padding:6px 10px; border-bottom: 1px solid var(--border); color:var(--ok)">★★★</td></tr>
+<tr><td style="padding:6px 10px; border-bottom: 1px solid var(--border);">Conexión a "esto me cuesta plata"</td><td align="center" style="padding:6px 10px; border-bottom: 1px solid var(--border); color:var(--ok)">★★★</td><td align="center" style="padding:6px 10px; border-bottom: 1px solid var(--border); color:var(--muted)">★</td><td align="center" style="padding:6px 10px; border-bottom: 1px solid var(--border); color:var(--warn)">★★</td></tr>
+<tr><td style="padding:6px 10px;">Esfuerzo de build</td><td align="center" style="padding:6px 10px; color:var(--warn)">medio</td><td align="center" style="padding:6px 10px; color:var(--danger)">alto</td><td align="center" style="padding:6px 10px; color:var(--ok)">bajo</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="surface" style="background: var(--brand-bg); border-color: #c7d2fe;">
+<p style="margin:0; font-size:14px;">
+<strong style="color:var(--brand)">Mi recomendación:</strong> <strong>A · Factura-first</strong>. Responde la pregunta número 1 de cualquier dueño PyME ("¿cuánto te estás gastando en burocracia este mes?"), tiene la lista accionable debajo, y se puede rematar con un pequeño componente del layout B (kanban compacto) más abajo si el equipo lo pide. Layout C es el que más se parece al actual y es tentador por efort — pero el mensaje financiero queda demasiado escondido; no agrega valor suficiente versus lo que ya existe.
+</p>
+</div>
+
+<h2>Estados alternativos del hero (Layout A)</h2>
+<div class="surface" style="margin-bottom: 12px;">
+  <div class="section-title">Si todo está al día</div>
+  <div class="invoice">
+    <div class="invoice-left">
+      <div class="label">Factura pendiente</div>
+      <div class="total" style="color: var(--ok);">$0</div>
+      <div class="range">todos los permisos vigentes</div>
+      <div class="pend" style="color:var(--ok)">✅ 16 trámites al día</div>
+    </div>
+    <div class="invoice-right">
+      <div class="section-title" style="margin-bottom: 6px;">Próxima renovación</div>
+      <div class="invoice-line"><span>Patente Centro</span><span class="cost">en 92 días</span></div>
+      <div class="invoice-line"><span>LUAE Sur</span><span class="cost">en 147 días</span></div>
+      <div class="invoice-line"><span>Bomberos Centro</span><span class="cost">en 200 días</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="nav-help">
+  <strong>¿Cómo respondo?</strong>
+  <span>
+    (1) ¿A, B o C? ¿O mezcla (ej: "A pero con kanban abajo")?
+    (2) Si A: ¿el hero va rojo cuando hay pendientes y verde cuando no, o siempre mismo color?
+    (3) ¿El dashboard debe ser global de la empresa o poder filtrarse por sede? (Mi voto: global por defecto, switch "Filtrar por sede" arriba).
+  </span>
+</div>
+
+</div>
+</body>
+</html>

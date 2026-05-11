@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Banner } from '@/components/ui/banner';
+import { BUSINESS_TYPES, businessTypeLabel } from '@/lib/domain/business-types';
 
 interface CompanyData {
   name: string;
@@ -22,13 +23,6 @@ const CITIES = [
   { value: 'Ambato', label: 'Ambato' },
   { value: 'Manta', label: 'Manta' },
   { value: 'Santo Domingo', label: 'Santo Domingo' },
-];
-
-const BUSINESS_TYPES = [
-  { value: 'restaurante', label: 'Restaurante' },
-  { value: 'retail', label: 'Retail (supermercado, minimarket, tienda)' },
-  { value: 'food_truck', label: 'Food truck' },
-  { value: 'consultorio', label: 'Consultorio' },
 ];
 
 export function CompanyStep({ initialData, onNext, loading }: CompanyStepProps) {
@@ -139,9 +133,9 @@ export function CompanyStep({ initialData, onNext, loading }: CompanyStepProps) 
             disabled={loading}
             className={`${baseInputClass} border-[var(--ds-border)] focus:ring-[var(--ds-background-brand)]/20 focus:border-[var(--ds-border-bold)]`}
           >
-            {BUSINESS_TYPES.map(({ value, label }) => (
-              <option key={value} value={value}>
-                {label}
+            {BUSINESS_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {businessTypeLabel(t)}
               </option>
             ))}
           </select>

@@ -8,6 +8,7 @@ export function useLeads() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setError(null);
 
@@ -49,6 +50,8 @@ export function useLeads() {
    * Update a lead record
    */
   const updateLead = async (id: string, updates: Partial<Lead>): Promise<boolean> => {
+    // casting due to stale generated types — see audit follow-up
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error: updateError } = await (supabase.from('leads') as any)
       .update({
         ...updates,

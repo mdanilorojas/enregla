@@ -39,6 +39,8 @@ export async function updateLocationRisk(
   locationId: string,
   riskLevel: Location['risk_level']
 ): Promise<Location> {
+  // casting due to stale generated types — see audit follow-up
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const query = supabase.from('locations') as any;
   const { data, error } = await query
     .update({
@@ -63,6 +65,8 @@ export async function createLocation(data: {
   address: string;
   status: 'operando' | 'en_preparacion' | 'cerrado';
 }): Promise<Location> {
+  // casting due to stale generated types — see audit follow-up
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const query = supabase.from('locations') as any;
   const { data: location, error } = await query
     .insert({

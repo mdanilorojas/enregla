@@ -52,6 +52,8 @@ export function useNotificationPreferences(userId: string | undefined) {
     if (!userId) return;
 
     try {
+      // casting due to stale generated types — see audit follow-up
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const query = supabase.from('notification_preferences') as any;
       const { error } = await query
         .update(updates)

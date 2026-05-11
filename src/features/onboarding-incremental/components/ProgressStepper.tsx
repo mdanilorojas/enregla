@@ -23,6 +23,7 @@ export function ProgressStepper({ currentStep, completedSteps }: ProgressStepper
       {STEPS.map((step) => {
         const Icon = step.icon;
         const isActive = step.id === currentStep;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const isCompleted = completedSteps.includes(step.id as any);
 
         return (

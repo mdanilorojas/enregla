@@ -14,6 +14,7 @@ export function useLocations(companyId: string | null | undefined) {
 
   useEffect(() => {
     if (!companyId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocations([]);
       setLoading(false);
       return;
@@ -68,6 +69,7 @@ export function useLocation(locationId: string | null | undefined) {
 
   useEffect(() => {
     if (!locationId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocation(null);
       setLoading(false);
       return;

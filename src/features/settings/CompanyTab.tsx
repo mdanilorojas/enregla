@@ -39,6 +39,7 @@ export function CompanyTab() {
 
   useEffect(() => {
     if (!companyId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(false)
       return
     }
@@ -94,6 +95,8 @@ export function CompanyTab() {
     setSaving(true)
     setError(null)
 
+    // casting due to stale generated types — see audit follow-up
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const query = supabase.from('companies') as any
     const { error: updateError } = await query
       .update({

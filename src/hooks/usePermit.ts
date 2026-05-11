@@ -10,6 +10,7 @@ export function usePermit(permitId: string | undefined) {
 
   useEffect(() => {
     if (!permitId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPermit(null);
       setHistory([]);
       setLoading(false);

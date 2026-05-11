@@ -2,7 +2,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { usePermits } from '@/hooks/usePermits';
 import { useLocations } from '@/hooks/useLocations';
-import { getPermitDocuments } from '@/lib/api/documents';
+import { getPermitDocuments, getDocumentUrl } from '@/lib/api/documents';
+import { resolveCompanyId } from '@/lib/demo';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +12,9 @@ import { Banner } from '@/components/ui/banner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { PermitTimeline, type TimelineEvent } from './PermitTimeline';
 import { PermitUploadForm } from './PermitUploadForm';
+import { PermitInfoCard } from './PermitInfoCard';
+import { AssigneePicker } from './AssigneePicker';
+import { PermitEventsTimeline } from './PermitEventsTimeline';
 import { formatDate } from '@/lib/dates';
 import {
   Trash2,
@@ -20,7 +24,6 @@ import {
   MapPin,
 } from '@/lib/lucide-icons';
 import { cn } from '@/lib/utils';
-import { supabase } from '@/lib/supabase';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { deleteDocument } from '@/lib/api/documents';
 import toast from 'react-hot-toast';
@@ -38,11 +41,7 @@ export function PermitDetailView() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
-
-  const companyId = isDemoMode
-    ? '50707999-f033-41c4-91c9-989966311972'
-    : profile?.company_id;
+  const companyId = resolveCompanyId(profile?.company_id) ?? undefined;
 
   const { permits, loading: loadingPermits, updatePermit } = usePermits({ companyId });
   const { locations, loading: loadingLocations } = useLocations(companyId);
@@ -71,6 +70,7 @@ export function PermitDetailView() {
   }, [id]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchDocuments();
   }, [fetchDocuments]);
 
@@ -363,6 +363,27 @@ export function PermitDetailView() {
               acceptedTypes={ACCEPTED_TYPES}
             />
           </Card>
+
+          <PermitInfoCard permit={permit} />
+
+          <Card className="p-[var(--ds-space-300)]">
+            <div className="text-[var(--ds-font-size-100)] font-semibold mb-[var(--ds-space-200)]">Asignado a</div>
+            {permit.company_id ? (
+              <AssigneePicker
+                permitId={permit.id}
+                permitType={permit.type}
+                companyId={permit.company_id}
+                currentAssigneeId={(permit as unknown as { assigned_to_profile_id: string | null }).assigned_to_profile_id ?? null}
+              />
+            ) : (
+              <div className="text-sm text-[var(--ds-text-subtlest)] italic">Sin empresa asociada</div>
+            )}
+          </Card>
+
+          <Card className="p-[var(--ds-space-300)]">
+            <div className="text-[var(--ds-font-size-100)] font-semibold mb-[var(--ds-space-200)]">Historial</div>
+            <PermitEventsTimeline permitId={permit.id} />
+          </Card>
         </div>
       </div>
 
@@ -457,15 +478,45 @@ function DocumentPanel({
   }
 
   const doc = documents[0];
-  const { data } = supabase.storage.from('permit-documents').getPublicUrl(doc.file_path);
-  const publicUrl = data.publicUrl;
+  return <DocumentPanelWithDoc doc={doc} onRefresh={onRefresh} />;
+}
+
+function DocumentPanelWithDoc({ doc, onRefresh }: { doc: Document; onRefresh: () => void }) {
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const isImage = /\.(png|jpg|jpeg)$/i.test(doc.file_name);
   const isPdf = /\.pdf$/i.test(doc.file_name);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!doc.file_path) return;
+    getDocumentUrl(doc.file_path).then(url => {
+      if (!cancelled) setSignedUrl(url);
+    });
+    return () => { cancelled = true; };
+  }, [doc.file_path]);
+
+  if (!doc.file_path) {
+    return (
+      <div className="text-center py-8 text-[var(--ds-text-subtle)]">
+        Documento no disponible
+      </div>
+    );
+  }
+
+  if (!signedUrl) {
+    return (
+      <div className="text-center py-8">
+        <div className="w-6 h-6 border-2 border-[var(--ds-neutral-200)] border-t-[var(--ds-text)] rounded-full animate-spin mx-auto mb-2" />
+        <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)]">Cargando documento...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-[var(--ds-space-200)]">
       <a
-        href={publicUrl}
+        href={signedUrl}
         target="_blank"
         rel="noopener noreferrer"
         className="block bg-[var(--ds-neutral-50)] border border-[var(--ds-border)] rounded-[var(--ds-radius-100)] overflow-hidden hover:border-[var(--ds-border-bold)] transition-colors group"
@@ -474,13 +525,13 @@ function DocumentPanel({
         <div className="aspect-[4/3] w-full bg-white flex items-center justify-center overflow-hidden">
           {isImage ? (
             <img
-              src={publicUrl}
+              src={signedUrl}
               alt={doc.file_name}
               className="w-full h-full object-contain"
             />
           ) : isPdf ? (
             <iframe
-              src={`${publicUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+              src={`${signedUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
               title={doc.file_name}
               className="w-full h-full pointer-events-none"
             />
@@ -503,7 +554,7 @@ function DocumentPanel({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => window.open(publicUrl, '_blank')}
+          onClick={() => window.open(signedUrl, '_blank')}
           className="flex-1"
         >
           <Eye className="w-4 h-4" />
@@ -512,20 +563,28 @@ function DocumentPanel({
         <Button
           variant="ghost"
           size="sm"
+          disabled={deleting}
           onClick={async () => {
             if (!confirm('¿Eliminar este documento?')) return;
+            setDeleting(true);
             try {
               await deleteDocument(doc.id, doc.file_path);
               toast.success('Documento eliminado');
               onRefresh();
             } catch {
               toast.error('Error al eliminar');
+            } finally {
+              setDeleting(false);
             }
           }}
           className="text-[var(--ds-text-danger)] hover:text-[var(--ds-text-danger)]"
           aria-label="Eliminar documento"
         >
-          <Trash2 className="w-4 h-4" />
+          {deleting ? (
+            <span className="text-xs">Eliminando...</span>
+          ) : (
+            <Trash2 className="w-4 h-4" />
+          )}
         </Button>
       </div>
     </div>

@@ -36,5 +36,7 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     storageKey: 'enregla-auth-token',
     lock: noopLock,
+    flowType: 'pkce',
+    detectSessionInUrl: true,
   },
 });

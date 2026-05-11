@@ -8,6 +8,7 @@ export function usePartners() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setError(null);
 
@@ -49,6 +50,8 @@ export function usePartners() {
    * Create a new partner. Returns the new partner id, or null on error.
    */
   const createPartner = async (input: Partial<Partner>): Promise<string | null> => {
+    // casting due to stale generated types — see audit follow-up
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error: insertError } = await (supabase.from('partners') as any)
       .insert(input)
       .select('id')
@@ -68,6 +71,8 @@ export function usePartners() {
    * Update a partner record
    */
   const updatePartner = async (id: string, updates: Partial<Partner>): Promise<boolean> => {
+    // casting due to stale generated types — see audit follow-up
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error: updateError } = await (supabase.from('partners') as any)
       .update({
         ...updates,
