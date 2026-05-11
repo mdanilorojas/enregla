@@ -14,6 +14,7 @@ import { PermitListView } from '@/features/permits/PermitListView';
 import { PermitDetailView } from '@/features/permits/PermitDetailView';
 import { RenewalGridView } from '@/features/renewals/RenewalGridView';
 import { LegalIndexView } from '@/features/legal/LegalIndexView';
+import { LegalMatrixView } from '@/features/legal/LegalMatrixView';
 import { LegalPermitDetailView } from '@/features/legal/LegalPermitDetailView';
 import { NetworkMapPage } from '@/features/network/NetworkMapPage';
 import { DesignSystemView } from '@/features/design-system/DesignSystemView';
@@ -110,6 +111,7 @@ export default function App() {
           <Route path="/permisos/:id" element={<PermitDetailView />} />
           <Route path="/renovaciones" element={<RenewalGridView />} />
           <Route path="/marco-legal" element={<LegalIndexView />} />
+          <Route path="/marco-legal/matriz" element={<LegalMatrixView />} />
           <Route path="/marco-legal/:permitType" element={<LegalPermitDetailView />} />
           <Route path="/design-system" element={<DesignSystemView />} />
           <Route path="/design-system-showcase" element={<DesignSystemShowcase />} />
