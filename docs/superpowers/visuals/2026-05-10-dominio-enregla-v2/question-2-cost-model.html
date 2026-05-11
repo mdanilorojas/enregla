@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Pregunta 2 — Modelo de costos de permisos</title>
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --text: #111827;
+    --muted: #6b7280;
+    --brand: #1e3a8a;
+    --brand-bg: #eef2ff;
+    --ok: #15803d;
+    --ok-bg: #ecfdf5;
+    --warn: #b45309;
+    --warn-bg: #fffbeb;
+    --danger: #b91c1c;
+    --danger-bg: #fef2f2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    font-size: 14px;
+  }
+  .container { max-width: 1240px; margin: 0 auto; padding: 48px 24px 96px; }
+  header { margin-bottom: 32px; }
+  .eyebrow { color: var(--brand); font-weight: 600; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+  h1 { font-size: 30px; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .lead { color: var(--muted); max-width: 820px; }
+  h2 { font-size: 18px; margin: 32px 0 12px; letter-spacing: -0.01em; }
+
+  .options { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 14px; }
+  @media (max-width: 980px) { .options { grid-template-columns: 1fr; } }
+
+  .option {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+  }
+  .option.recommended { border-color: #15803d; box-shadow: 0 0 0 3px #dcfce7; }
+  .option .tag {
+    position: absolute;
+    top: -11px;
+    right: 14px;
+    background: var(--ok);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 3px 10px;
+    border-radius: 999px;
+    text-transform: uppercase;
+  }
+  .option h3 { font-size: 16px; margin: 0; }
+  .option .desc { color: #374151; font-size: 13px; }
+
+  .schema {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 12px;
+    border-radius: 8px;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 11.5px;
+    line-height: 1.6;
+    overflow-x: auto;
+  }
+  .schema .kw { color: #93c5fd; }
+  .schema .type { color: #fcd34d; }
+  .schema .str { color: #86efac; }
+  .schema .cmt { color: #94a3b8; font-style: italic; }
+
+  .invoice-mock {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 13px;
+  }
+  .invoice-mock .title { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+  .invoice-mock .line { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed var(--border); }
+  .invoice-mock .line:last-child { border: none; font-weight: 700; padding-top: 8px; font-size: 14px; }
+  .invoice-mock .line .name { color: #374151; }
+  .invoice-mock .line .val  { color: #111827; font-variant-numeric: tabular-nums; }
+  .invoice-mock .total { margin-top: 4px; display: flex; justify-content: space-between; font-weight: 700; color: var(--ok); border-top: 2px solid var(--text); padding-top: 6px; margin-top: 6px; }
+
+  .pros-cons { font-size: 13px; }
+  .pros-cons ul { margin: 6px 0 0 18px; padding: 0; }
+  .pros-cons .pros li { color: #065f46; }
+  .pros-cons .cons li { color: #991b1b; }
+  .pros-cons h4 { margin: 12px 0 4px; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+
+  .followups {
+    background: var(--brand-bg);
+    border: 1px solid #c7d2fe;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-top: 28px;
+    font-size: 14px;
+  }
+  .followups strong { color: var(--brand); }
+  .followups ul { margin: 10px 0 0 20px; padding: 0; }
+
+  .price-label-example {
+    display: inline-block;
+    background: #f3f4f6;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 12px;
+    color: #374151;
+  }
+  .nav-help {
+    position: sticky;
+    bottom: 16px;
+    background: #111827;
+    color: #f3f4f6;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 13px;
+    margin-top: 28px;
+  }
+  .nav-help strong { color: #fbbf24; }
+  code { font-family: ui-monospace, Consolas, monospace; background: #f3f4f6; padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="eyebrow">Pregunta 2 · Modelo de datos</div>
+  <h1>¿Cómo guardamos el costo de un permiso?</h1>
+  <p class="lead">
+    Tres enfoques posibles. Elegimos uno (o combinado). Esto determina si el dashboard puede mostrar
+    <em>“te falta pagar $X”</em> de forma confiable o si queda como adorno cualitativo.
+  </p>
+</header>
+
+<div class="options">
+
+  <!-- OPCIÓN A -->
+  <div class="option">
+    <h3>A · Texto libre</h3>
+    <div class="desc">Una columna de texto. Lo que hay hoy. Ej: <span class="price-label-example">"$50 aprox, varía por m²"</span></div>
+
+    <div class="schema">
+<span class="kw">ALTER TABLE</span> permit_requirements
+  <span class="kw">ADD COLUMN</span> estimated_cost <span class="type">text</span>;
+<span class="cmt">-- ejemplo:
+-- "$50-$200 según patrimonio"</span>
+    </div>
+
+    <div class="invoice-mock">
+      <div class="title">Factura pendiente (Dashboard)</div>
+      <div class="line"><span class="name">Bomberos</span><span class="val">"$50-$200 según patrimonio"</span></div>
+      <div class="line"><span class="name">LUAE</span><span class="val">"Depende del patrimonio"</span></div>
+      <div class="line"><span class="name">Patente</span><span class="val">"Variable"</span></div>
+      <div class="total"><span>Total</span><span>no calculable</span></div>
+    </div>
+
+    <div class="pros-cons">
+      <h4>Pros</h4>
+      <ul class="pros">
+        <li>Fácil: 1 columna nueva.</li>
+        <li>Cero decisiones técnicas de dominio.</li>
+      </ul>
+      <h4>Contras</h4>
+      <ul class="cons">
+        <li>Dashboard <strong>no puede sumar</strong> → la "factura pendiente" queda adorno.</li>
+        <li>Cada permit/giro tiene texto distinto → inconsistente.</li>
+        <li>Imposible hacer filtros tipo "permisos baratos" o "&lt; $100".</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- OPCIÓN B (recomendada) -->
+  <div class="option recommended">
+    <span class="tag">Recomendada</span>
+    <h3>B · Rango numérico + notas</h3>
+    <div class="desc">Tres columnas: <code>cost_min</code>, <code>cost_max</code>, <code>cost_notes</code>. Si ambos son iguales, es costo fijo. Si son distintos, es rango. Las notas explican la variable.</div>
+
+    <div class="schema">
+<span class="kw">ALTER TABLE</span> permit_requirements
+  <span class="kw">ADD COLUMN</span> cost_min <span class="type">numeric(10,2)</span>,
+  <span class="kw">ADD COLUMN</span> cost_max <span class="type">numeric(10,2)</span>,
+  <span class="kw">ADD COLUMN</span> cost_currency <span class="type">text</span> <span class="kw">DEFAULT</span> <span class="str">'USD'</span>,
+  <span class="kw">ADD COLUMN</span> cost_notes <span class="type">text</span>,
+  <span class="kw">ADD COLUMN</span> cost_updated_at <span class="type">date</span>;
+
+<span class="cmt">-- ejemplos:
+-- (0,     0,     'USD', NULL, '2026-01-15')        <- RUC (gratis)
+-- (50,    200,   'USD', 'Varía por patrimonio')    <- Bomberos
+-- (120,   120,   'USD', NULL)                      <- LUAE fijo Quito
+-- (NULL,  NULL,  'USD', 'Depende del giro')        <- desconocido</span>
+    </div>
+
+    <div class="invoice-mock">
+      <div class="title">Factura pendiente (Dashboard)</div>
+      <div class="line"><span class="name">Bomberos</span><span class="val">$50 – $200</span></div>
+      <div class="line"><span class="name">LUAE</span><span class="val">$120</span></div>
+      <div class="line"><span class="name">Patente</span><span class="val">~ $80</span></div>
+      <div class="line"><span class="name">ARCSA</span><span class="val" style="color:var(--muted); font-style:italic;">sin estimar</span></div>
+      <div class="total"><span>Total estimado</span><span>$250 – $400</span></div>
+      <div style="font-size:11px; color:var(--muted); margin-top:4px">+ 1 permiso sin costo estimado</div>
+    </div>
+
+    <div class="pros-cons">
+      <h4>Pros</h4>
+      <ul class="pros">
+        <li><strong>Se puede sumar</strong> → dashboard muestra rango honesto.</li>
+        <li>Los permisos gratis quedan explícitos (0,0) vs los desconocidos (NULL).</li>
+        <li><code>cost_updated_at</code> = puede mostrar "actualizado hace 3 meses" → confianza.</li>
+        <li>Permite filtros futuros sin migrar.</li>
+      </ul>
+      <h4>Contras</h4>
+      <ul class="cons">
+        <li>3 columnas en vez de 1.</li>
+        <li>Hay que maintain los precios base (operación de contenido).</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- OPCIÓN C -->
+  <div class="option">
+    <h3>C · Fórmula dinámica</h3>
+    <div class="desc">Costo se calcula a partir de datos del negocio (patrimonio, m², empleados). Columna <code>cost_formula</code> que se evalúa.</div>
+
+    <div class="schema">
+<span class="kw">ALTER TABLE</span> permit_requirements
+  <span class="kw">ADD COLUMN</span> cost_formula <span class="type">jsonb</span>;
+
+<span class="cmt">-- ejemplo Patente Municipal Quito:
+-- { "base": 0, "per_1000_patrimonio": 1.5,
+--   "min": 25, "max": 25000 }</span>
+
+<span class="cmt">-- requiere nuevos campos en sede/company:
+-- patrimonio, m², empleados, facturacion</span>
+    </div>
+
+    <div class="invoice-mock">
+      <div class="title">Factura pendiente (Dashboard)</div>
+      <div class="line"><span class="name">Bomberos</span><span class="val">$85</span></div>
+      <div class="line"><span class="name">LUAE</span><span class="val">$120</span></div>
+      <div class="line"><span class="name">Patente</span><span class="val">$75</span></div>
+      <div class="total"><span>Total calculado</span><span>$280</span></div>
+      <div style="font-size:11px; color:var(--muted); margin-top:4px">Según tu patrimonio declarado: $50,000</div>
+    </div>
+
+    <div class="pros-cons">
+      <h4>Pros</h4>
+      <ul class="pros">
+        <li>Número exacto (cuando la fórmula está bien).</li>
+        <li>Demo impresionante.</li>
+      </ul>
+      <h4>Contras</h4>
+      <ul class="cons">
+        <li><strong>Cada municipio tiene fórmulas distintas</strong> → mantener 10 GADs es un dominio propio.</li>
+        <li>Requiere capturar datos adicionales del negocio (patrimonio real, m², etc) — fricción en onboarding.</li>
+        <li>Precisión falsa: si la fórmula está mal calibrada, el cliente cree $75 y paga $200 → pérdida de confianza mayor que rango.</li>
+        <li>YAGNI para MVP: demasiado para 1er cliente.</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<h2>Mi recomendación: <strong>B</strong></h2>
+<div class="option recommended" style="margin-top:8px; grid-column: 1 / -1;">
+  <p style="margin:0">
+    <strong>Rango numérico + notas</strong> es el balance correcto: suficientemente estructurado para sumar, suficientemente honesto para no prometer precisión que no tenés.
+    El "total estimado $250 – $400" es más creíble que un número exacto mal calibrado (Opción C) o que un adorno inútil (Opción A).
+    Si después del primer cliente ves que necesitás precisión por giro, se construye la Opción C encima — pero no antes.
+  </p>
+</div>
+
+<div class="followups">
+  <strong>Si elegís B, decisiones sub-menores:</strong>
+  <ul>
+    <li><strong>Moneda:</strong> ¿Solo USD (Ecuador) o multi-moneda desde día 1? Mi voto: solo USD para MVP.</li>
+    <li><strong>Precio por sede vs global:</strong> ¿Patente Municipal cuesta lo mismo en Quito que en Guayaquil? No. ¿Guardamos precio por <code>(permit_type, city)</code> o solo por <code>permit_type</code> con nota "Quito"? Mi voto: por ciudad ya desde MVP usando <code>locations.city</code>. No agrega complejidad y habilita Guayaquil sin re-migración.</li>
+    <li><strong>Precios en la matriz del Marco Legal:</strong> la visualización pública del Marco Legal mostraría rango junto a cada permiso: "Bomberos — $50–$200". ¿OK?</li>
+    <li><strong>Quién actualiza precios:</strong> staff-only via <code>/internal/legal</code> (futuro) o vos via SQL directo en prod. En ambos casos <code>cost_updated_at</code> deja huella.</li>
+  </ul>
+</div>
+
+<div class="nav-help">
+  <strong>¿Cómo respondo?</strong>
+  <span>Decime: (a) qué opción (A/B/C) o combinación, (b) las 4 sub-decisiones del cuadro azul.</span>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Spec · EnRegla v2 — Rediseño del dominio</title>
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --text: #111827;
+    --muted: #6b7280;
+    --brand: #1e3a8a;
+    --brand-bg: #eef2ff;
+    --ok: #15803d;
+    --ok-bg: #ecfdf5;
+    --warn: #b45309;
+    --warn-bg: #fffbeb;
+    --danger: #b91c1c;
+    --danger-bg: #fef2f2;
+    --info: #1d4ed8;
+    --info-bg: #eff6ff;
+    --code-bg: #0f172a;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    font-size: 14.5px;
+  }
+  .container { max-width: 1180px; margin: 0 auto; padding: 48px 24px 96px; }
+  header { margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+  .eyebrow { color: var(--brand); font-weight: 600; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+  h1 { font-size: 34px; font-weight: 700; margin: 0 0 8px; letter-spacing: -0.02em; }
+  .meta { color: var(--muted); font-size: 13.5px; }
+  h2 { font-size: 22px; margin: 44px 0 14px; letter-spacing: -0.01em; }
+  h3 { font-size: 16px; margin: 22px 0 8px; }
+  p { margin: 6px 0 12px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-bottom: 14px;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, var(--brand-bg) 0%, #ffffff 100%);
+    border: 1px solid #c7d2fe;
+    border-radius: 14px;
+    padding: 22px 26px;
+    margin-bottom: 24px;
+  }
+  .hero h2 { margin: 0 0 6px; font-size: 18px; color: var(--brand); }
+
+  .scorecard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin: 10px 0 24px;
+  }
+  .m { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+  .m .l { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .m .v { font-size: 22px; font-weight: 700; margin-top: 2px; letter-spacing: -0.01em; }
+  .m.ok .v { color: var(--ok); }
+  .m.warn .v { color: var(--warn); }
+  .m.danger .v { color: var(--danger); }
+  .m.brand .v { color: var(--brand); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  th { background: #f9fafb; font-weight: 600; font-size: 12.5px; color: #374151; }
+  td code, th code { background: #f3f4f6; padding: 1px 5px; border-radius: 3px; font-family: var(--mono); font-size: 12px; }
+
+  .matrix-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); background: var(--card); }
+  table.matrix { min-width: 900px; font-size: 13px; }
+  table.matrix th.row-head {
+    text-align: left; font-weight: 600; background: #f9fafb;
+    position: sticky; left: 0; z-index: 1; min-width: 200px;
+    padding: 8px 10px;
+  }
+  table.matrix th.row-head .issuer { font-weight: 400; color: var(--muted); font-size: 11px; display: block; margin-top: 2px; }
+  table.matrix td { text-align: center; padding: 8px 6px; }
+  .m-req { background: #16a34a; color: white; font-weight: 700; border-radius: 3px; padding: 2px 6px; font-size: 12px; }
+  .m-opt { background: #f59e0b; color: white; font-weight: 700; border-radius: 3px; padding: 2px 6px; font-size: 12px; }
+  .m-tri { background: #60a5fa; color: white; font-weight: 700; border-radius: 3px; padding: 2px 6px; font-size: 12px; }
+  .m-na { color: var(--muted); }
+
+  .sev {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .sev-mvp { background: var(--ok-bg); color: var(--ok); }
+  .sev-after { background: var(--warn-bg); color: var(--warn); }
+  .sev-no { background: var(--danger-bg); color: var(--danger); }
+
+  .pill-role {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .role-all { background: #f3f4f6; color: #374151; }
+  .role-legal { background: #dbeafe; color: #1d4ed8; }
+  .role-contador { background: #ccfbf1; color: #0f766e; }
+  .role-tecnico { background: #fef3c7; color: #a16207; }
+
+  pre {
+    background: var(--code-bg);
+    color: #e2e8f0;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.55;
+    overflow-x: auto;
+    margin: 12px 0;
+  }
+  pre .kw { color: #93c5fd; }
+  pre .type { color: #fcd34d; }
+  pre .str { color: #86efac; }
+  pre .cmt { color: #94a3b8; font-style: italic; }
+
+  .flow {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    overflow-x: auto;
+  }
+  .flow svg { display: block; margin: 0 auto; max-width: 100%; }
+
+  details {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+  }
+  details[open] { padding-bottom: 16px; }
+  details summary { cursor: pointer; font-weight: 500; list-style: none; display: flex; align-items: center; gap: 12px; }
+  details summary::before { content: '▸'; color: var(--muted); transition: transform 0.15s; }
+  details[open] summary::before { transform: rotate(90deg); }
+
+  ul { margin: 4px 0 12px 20px; padding: 0; }
+  ul li { margin: 4px 0; }
+
+  code { background: #f3f4f6; padding: 1px 5px; border-radius: 3px; font-family: var(--mono); font-size: 12.5px; }
+
+  .legend {
+    display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; margin: 8px 0 14px;
+    align-items: center;
+  }
+  .legend .sw {
+    display: inline-block; width: 20px; height: 18px; line-height: 18px;
+    text-align: center; color: white; font-weight: 700; font-size: 11px; border-radius: 3px;
+    vertical-align: middle; margin-right: 4px;
+  }
+
+  .issuers {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .issuer-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+  .issuer-card .name { font-weight: 600; font-size: 13px; line-height: 1.3; margin-bottom: 2px; }
+  .issuer-card .short { font-family: var(--mono); color: var(--brand); font-size: 12px; font-weight: 600; }
+  .issuer-card .meta-line { color: var(--muted); font-size: 11.5px; margin-top: 6px; line-height: 1.4; }
+
+  .note {
+    background: var(--info-bg);
+    border-left: 3px solid var(--info);
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13.5px;
+    color: #1e40af;
+    margin: 10px 0;
+  }
+  .note strong { color: var(--info); }
+
+  .footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="eyebrow">Spec · 2026-05-10</div>
+  <h1>EnRegla v2 — Rediseño del dominio</h1>
+  <div class="meta">
+    Branch propuesta <code>feat/dominio-v2</code> · Basado en brainstorming de 6 HTMLs · Canonical <code>docs/superpowers/specs/2026-05-10-dominio-enregla-v2-design.md</code>
+  </div>
+</header>
+
+<div class="hero">
+  <h2>El objetivo</h2>
+  <p style="margin:0;">
+    Convertir EnRegla de un tracker con data mock a un producto que responde cuatro preguntas claras para cualquier dueño de PyME en Quito:
+    <strong>¿qué permisos debo tener · cuánto me cuesta ponerme al día · quién es responsable · qué pasa si no lo hago?</strong>
+  </p>
+  <p style="margin:8px 0 0; font-size:14px; color:#374151;">
+    <em>El diseño del dashboard no se toca.</em> El trabajo es plomería de datos + schema. El diseño ya es bueno — le falta data real.
+  </p>
+</div>
+
+<h2>Scorecard de decisiones</h2>
+<div class="scorecard">
+  <div class="m ok"><div class="l">Decisiones tomadas</div><div class="v">14 / 14</div></div>
+  <div class="m brand"><div class="l">Migraciones nuevas</div><div class="v">9</div></div>
+  <div class="m brand"><div class="l">Tablas nuevas</div><div class="v">2</div></div>
+  <div class="m brand"><div class="l">Filas de seed</div><div class="v">~85</div></div>
+  <div class="m warn"><div class="l">Follow-ups</div><div class="v">1</div></div>
+</div>
+
+<h2>Flujo del usuario post-v2</h2>
+<div class="flow">
+<svg viewBox="0 0 960 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Flujo de usuario rediseñado">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6b7280"/>
+    </marker>
+    <style>
+      .n rect { fill: #ffffff; stroke: #1e3a8a; stroke-width: 1.5; rx: 8; }
+      .n.pos rect { fill: #ecfdf5; stroke: #15803d; }
+      .n.neg rect { fill: #fef2f2; stroke: #b91c1c; }
+      .n.act rect { fill: #eef2ff; stroke: #1e3a8a; }
+      .n.q rect  { fill: #fffbeb; stroke: #b45309; }
+      .n text { font-family: inherit; font-size: 12.5px; fill: #111827; }
+      .n .t { font-weight: 600; }
+      .lk { stroke: #6b7280; stroke-width: 1.5; fill: none; }
+      .lbl { font-size: 11px; fill: #6b7280; }
+    </style>
+  </defs>
+
+  <g class="n"><rect x="20" y="30" width="160" height="46"/>
+    <text x="100" y="53" text-anchor="middle" class="t">Usuario ingresa</text>
+    <text x="100" y="70" text-anchor="middle">/ dashboard</text>
+  </g>
+  <g class="n"><rect x="220" y="30" width="180" height="46"/>
+    <text x="310" y="53" text-anchor="middle" class="t">Dashboard global</text>
+    <text x="310" y="70" text-anchor="middle">datos reales, no mock</text>
+  </g>
+  <g class="n q"><rect x="440" y="30" width="160" height="46"/>
+    <text x="520" y="53" text-anchor="middle" class="t">¿Hay pendientes?</text>
+    <text x="520" y="70" text-anchor="middle">count real de status</text>
+  </g>
+  <g class="n neg"><rect x="640" y="10" width="280" height="46"/>
+    <text x="780" y="33" text-anchor="middle" class="t">Factura $380 – $620</text>
+    <text x="780" y="50" text-anchor="middle">agrupada por emisor · multa documentada</text>
+  </g>
+  <g class="n pos"><rect x="640" y="66" width="280" height="46"/>
+    <text x="780" y="89" text-anchor="middle" class="t">"Todo al día ✅"</text>
+    <text x="780" y="106" text-anchor="middle">próxima renovación destacada</text>
+  </g>
+
+  <g class="n"><rect x="220" y="120" width="320" height="46"/>
+    <text x="380" y="143" text-anchor="middle" class="t">Cards por sede</text>
+    <text x="380" y="160" text-anchor="middle">contadores reales por sede</text>
+  </g>
+  <g class="n"><rect x="220" y="190" width="320" height="46"/>
+    <text x="380" y="213" text-anchor="middle" class="t">Detalle de sede</text>
+    <text x="380" y="230" text-anchor="middle">permits filtrados por giro del negocio</text>
+  </g>
+  <g class="n"><rect x="220" y="260" width="320" height="46"/>
+    <text x="380" y="283" text-anchor="middle" class="t">Detalle de permit</text>
+    <text x="380" y="300" text-anchor="middle">emisor · costo · multa · rol · asignado · timeline</text>
+  </g>
+
+  <g class="n act"><rect x="600" y="260" width="140" height="46"/>
+    <text x="670" y="283" text-anchor="middle" class="t">Asignar a persona</text>
+    <text x="670" y="300" text-anchor="middle">warning si rol no cuadra</text>
+  </g>
+  <g class="n act"><rect x="760" y="260" width="140" height="46"/>
+    <text x="830" y="283" text-anchor="middle" class="t">Subir documento</text>
+    <text x="830" y="300" text-anchor="middle">status → vigente</text>
+  </g>
+
+  <g class="n"><rect x="220" y="340" width="320" height="46"/>
+    <text x="380" y="363" text-anchor="middle" class="t">permit_events (nuevo)</text>
+    <text x="380" y="380" text-anchor="middle">trazabilidad automática · timeline visible</text>
+  </g>
+
+  <g class="n"><rect x="20" y="340" width="160" height="46"/>
+    <text x="100" y="363" text-anchor="middle" class="t">Marco Legal</text>
+    <text x="100" y="380" text-anchor="middle">filtrado por giro</text>
+  </g>
+  <g class="n"><rect x="20" y="410" width="160" height="40"/>
+    <text x="100" y="435" text-anchor="middle" class="t">Matriz 10×8 pública</text>
+  </g>
+
+  <path class="lk" d="M 180 53 L 220 53" marker-end="url(#ar)"/>
+  <path class="lk" d="M 400 53 L 440 53" marker-end="url(#ar)"/>
+  <path class="lk" d="M 600 45 L 640 35" marker-end="url(#ar)"/>
+  <text class="lbl" x="605" y="38">sí</text>
+  <path class="lk" d="M 600 65 L 640 85" marker-end="url(#ar)"/>
+  <text class="lbl" x="605" y="85">no</text>
+
+  <path class="lk" d="M 380 76 L 380 120" marker-end="url(#ar)"/>
+  <path class="lk" d="M 380 166 L 380 190" marker-end="url(#ar)"/>
+  <path class="lk" d="M 380 236 L 380 260" marker-end="url(#ar)"/>
+  <path class="lk" d="M 540 283 L 600 283" marker-end="url(#ar)"/>
+  <path class="lk" d="M 740 283 Q 760 283 762 283" marker-end="url(#ar)"/>
+  <path class="lk" d="M 670 306 L 670 340 L 540 363" marker-end="url(#ar)"/>
+  <path class="lk" d="M 830 306 L 830 360 L 540 363" marker-end="url(#ar)"/>
+
+  <path class="lk" d="M 100 76 L 100 340" marker-end="url(#ar)"/>
+  <path class="lk" d="M 100 386 L 100 410" marker-end="url(#ar)"/>
+</svg>
+</div>
+
+<h2>Alcance</h2>
+<h3>Entra al MVP</h3>
+<div class="card">
+  <ul>
+    <li><span class="sev sev-mvp">MVP</span> 10 giros (restaurante, retail, food_truck, consultorio, cafetería, panadería, bar, farmacia, gimnasio, salón, oficina + "otro")</li>
+    <li><span class="sev sev-mvp">MVP</span> 8 permisos (RUC, patente, uso suelo, LUAE, bomberos, ARCSA, rotulación, MSP — IESS postergado)</li>
+    <li><span class="sev sev-mvp">MVP</span> Catálogo cerrado de 5 emisores con datos reales (scraping hecho)</li>
+    <li><span class="sev sev-mvp">MVP</span> Costos rango min/max + notas (USD, Quito)</li>
+    <li><span class="sev sev-mvp">MVP</span> Multas reales documentadas con link a fuente legal</li>
+    <li><span class="sev sev-mvp">MVP</span> Rol requerido por permiso (enum simple: empleado/RL/contador/técnico)</li>
+    <li><span class="sev sev-mvp">MVP</span> Asignar permit a persona (warning, no bloqueo)</li>
+    <li><span class="sev sev-mvp">MVP</span> Trazabilidad vía tabla <code>permit_events</code></li>
+    <li><span class="sev sev-mvp">MVP</span> Marco Legal en DB + filtrado por giro + toggle "ver todos"</li>
+    <li><span class="sev sev-mvp">MVP</span> Matriz 10×8 visible públicamente en Marco Legal</li>
+    <li><span class="sev sev-mvp">MVP</span> Fix bug "sin trámites pendientes" + factura real</li>
+    <li><span class="sev sev-mvp">MVP</span> <code>brandName</code> del dashboard desde <code>companies.name</code></li>
+  </ul>
+</div>
+
+<h3>Sprint siguiente (out of scope)</h3>
+<div class="card">
+  <ul>
+    <li><span class="sev sev-after">DESPUÉS</span> Business type por sede (hoy por empresa)</li>
+    <li><span class="sev sev-after">DESPUÉS</span> Multi-rol + delegation rules</li>
+    <li><span class="sev sev-after">DESPUÉS</span> Editor staff de Marco Legal</li>
+    <li><span class="sev sev-after">DESPUÉS</span> Expansión a Guayaquil + otros municipios</li>
+    <li><span class="sev sev-after">DESPUÉS</span> IESS como producto paralelo RRHH</li>
+  </ul>
+</div>
+
+<h3>Fuera de producto</h3>
+<div class="card">
+  <ul>
+    <li><span class="sev sev-no">NO</span> Taxonomía jerárquica de giros</li>
+    <li><span class="sev sev-no">NO</span> Fórmulas dinámicas de precio por municipio</li>
+    <li><span class="sev sev-no">NO</span> Workflow de aprobación interno</li>
+    <li><span class="sev sev-no">NO</span> Chat/comentarios in-app</li>
+  </ul>
+</div>
+
+<h2>Catálogo de emisores (seed con datos reales)</h2>
+<div class="issuers">
+  <div class="issuer-card">
+    <div class="name">Servicio de Rentas Internas</div>
+    <div class="short">sri</div>
+    <div class="meta-line">
+      Nacional · sri.gob.ec<br>
+      02 393 6300<br>
+      Av. Amazonas, Plataforma Financiera, Quito
+    </div>
+  </div>
+  <div class="issuer-card">
+    <div class="name">GAD Distrito Metropolitano de Quito</div>
+    <div class="short">gad_quito</div>
+    <div class="meta-line">
+      Municipal · quito.gob.ec<br>
+      (593-2) 3952300 · 1800 510 510<br>
+      Venezuela entre Espejo y Chile, Quito
+    </div>
+  </div>
+  <div class="issuer-card">
+    <div class="name">Cuerpo de Bomberos de Quito</div>
+    <div class="short">bomberos_quito</div>
+    <div class="meta-line">
+      Municipal · bomberosquito.gob.ec<br>
+      102 (emergencia)<br>
+      Portal trámites online
+    </div>
+  </div>
+  <div class="issuer-card">
+    <div class="name">ARCSA</div>
+    <div class="short">arcsa</div>
+    <div class="meta-line">
+      Nacional · controlsanitario.gob.ec<br>
+      +593 4 3727 440<br>
+      Sede principal Guayaquil
+    </div>
+  </div>
+  <div class="issuer-card">
+    <div class="name">Ministerio de Salud Pública</div>
+    <div class="short">msp</div>
+    <div class="meta-line">
+      Nacional · salud.gob.ec<br>
+      (593-2) 381-4400<br>
+      Av. Quitumbe Ñan, Plataforma Desarrollo Social
+    </div>
+  </div>
+</div>
+
+<h2>Matriz 10 × 8 (MVP)</h2>
+<div class="legend">
+  <span><span class="sw" style="background:#16a34a">R</span>Obligatorio</span>
+  <span><span class="sw" style="background:#f59e0b">O</span>Opcional / depende</span>
+  <span><span class="sw" style="background:#60a5fa">T</span>Condicional</span>
+  <span style="color:var(--muted)">—  No aplica</span>
+</div>
+<div class="matrix-wrap">
+<table class="matrix">
+  <thead>
+    <tr>
+      <th class="row-head">Permiso<span class="issuer">Emisor · Rol</span></th>
+      <th>Resto</th><th>Retail</th><th>Food truck</th><th>Consultorio</th><th>Cafetería</th><th>Panadería</th><th>Bar</th><th>Farmacia</th><th>Gimnasio</th><th>Salón</th><th>Oficina</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th class="row-head">RUC<span class="issuer">SRI · <span class="pill-role role-legal">RL</span></span></th>
+      <td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td>
+    </tr>
+    <tr>
+      <th class="row-head">Patente municipal<span class="issuer">GAD Quito · <span class="pill-role role-all">ALL</span></span></th>
+      <td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td>
+    </tr>
+    <tr>
+      <th class="row-head">Uso de suelo<span class="issuer">GAD Quito · <span class="pill-role role-legal">RL</span></span></th>
+      <td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td class="m-na">—</td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td>
+    </tr>
+    <tr>
+      <th class="row-head">LUAE<span class="issuer">GAD Quito · <span class="pill-role role-legal">RL</span></span></th>
+      <td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-opt">O</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td>
+    </tr>
+    <tr>
+      <th class="row-head">Bomberos<span class="issuer">Bomberos · <span class="pill-role role-all">ALL</span></span></th>
+      <td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td>
+    </tr>
+    <tr>
+      <th class="row-head">ARCSA<span class="issuer">ARCSA · <span class="pill-role role-tecnico">TR</span></span></th>
+      <td><span class="m-req">R</span></td><td class="m-na">—</td><td><span class="m-req">R</span></td><td><span class="m-opt">O</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td><span class="m-req">R</span></td><td class="m-na">—</td><td><span class="m-opt">O</span></td><td class="m-na">—</td>
+    </tr>
+    <tr>
+      <th class="row-head">Rotulación<span class="issuer">GAD Quito · <span class="pill-role role-all">ALL</span></span></th>
+      <td><span class="m-tri">T</span></td><td><span class="m-tri">T</span></td><td class="m-na">—</td><td><span class="m-tri">T</span></td><td><span class="m-tri">T</span></td><td><span class="m-tri">T</span></td><td><span class="m-tri">T</span></td><td><span class="m-tri">T</span></td><td><span class="m-tri">T</span></td><td><span class="m-tri">T</span></td><td><span class="m-tri">T</span></td>
+    </tr>
+    <tr>
+      <th class="row-head">Permiso MSP<span class="issuer">MSP · <span class="pill-role role-tecnico">TR</span></span></th>
+      <td class="m-na">—</td><td class="m-na">—</td><td class="m-na">—</td><td><span class="m-req">R</span></td><td class="m-na">—</td><td class="m-na">—</td><td class="m-na">—</td><td><span class="m-req">R</span></td><td><span class="m-opt">O</span></td><td><span class="m-opt">O</span></td><td class="m-na">—</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Modelo de datos</h2>
+
+<h3>Nueva tabla <code>permit_issuers</code></h3>
+<pre>
+<span class="kw">CREATE TABLE</span> <span class="type">public.permit_issuers</span> (
+  id                     <span class="type">uuid</span> <span class="kw">PRIMARY KEY DEFAULT</span> gen_random_uuid(),
+  slug                   <span class="type">text</span> <span class="kw">UNIQUE NOT NULL</span>,
+  name                   <span class="type">text</span> <span class="kw">NOT NULL</span>,
+  short_name             <span class="type">text</span> <span class="kw">NOT NULL</span>,
+  scope                  <span class="type">text</span> <span class="kw">NOT NULL CHECK</span> (scope <span class="kw">IN</span> (<span class="str">'nacional'</span>, <span class="str">'municipal'</span>)),
+  city                   <span class="type">text</span>,                        <span class="cmt">-- NULL si nacional</span>
+  portal_url             <span class="type">text</span>,
+  procedures_portal_url  <span class="type">text</span>,
+  contact_url            <span class="type">text</span>,                        <span class="cmt">-- formulario web, no email</span>
+  phone                  <span class="type">text</span>,
+  address                <span class="type">text</span>,
+  notes                  <span class="type">text</span>,                        <span class="cmt">-- ej: "Sede principal en Guayaquil" para ARCSA</span>
+  logo_url               <span class="type">text</span>,
+  created_at             <span class="type">timestamptz</span> <span class="kw">DEFAULT</span> now(),
+  updated_at             <span class="type">timestamptz</span> <span class="kw">DEFAULT</span> now()
+);
+</pre>
+
+<h3>Extensión a <code>permit_requirements</code></h3>
+<pre>
+<span class="kw">ALTER TABLE</span> <span class="type">public.permit_requirements</span>
+  <span class="kw">ADD COLUMN</span> issuer_id        <span class="type">uuid</span> <span class="kw">REFERENCES</span> permit_issuers(id),
+  <span class="kw">ADD COLUMN</span> required_role    <span class="type">text</span> <span class="kw">NOT NULL DEFAULT</span> <span class="str">'anyone'</span>
+    <span class="kw">CHECK</span> (required_role <span class="kw">IN</span> (<span class="str">'anyone'</span>,<span class="str">'representante_legal'</span>,<span class="str">'contador'</span>,<span class="str">'tecnico_responsable'</span>)),
+  <span class="kw">ADD COLUMN</span> cost_min         <span class="type">numeric(10,2)</span>,
+  <span class="kw">ADD COLUMN</span> cost_max         <span class="type">numeric(10,2)</span>,
+  <span class="kw">ADD COLUMN</span> cost_currency    <span class="type">text</span> <span class="kw">DEFAULT</span> <span class="str">'USD'</span>,
+  <span class="kw">ADD COLUMN</span> cost_notes       <span class="type">text</span>,
+  <span class="kw">ADD COLUMN</span> cost_updated_at  <span class="type">date</span>,
+  <span class="kw">ADD COLUMN</span> fine_min         <span class="type">numeric(10,2)</span>,
+  <span class="kw">ADD COLUMN</span> fine_max         <span class="type">numeric(10,2)</span>,
+  <span class="kw">ADD COLUMN</span> fine_source      <span class="type">text</span>,             <span class="cmt">-- URL o cita legal</span>
+  <span class="kw">ADD COLUMN</span> applies_when     <span class="type">text</span>;             <span class="cmt">-- descripción condicional (T)</span>
+</pre>
+
+<h3>Extensión a <code>permits</code> + <code>profiles</code></h3>
+<pre>
+<span class="kw">ALTER TABLE</span> <span class="type">public.permits</span>
+  <span class="kw">ADD COLUMN</span> issuer_id              <span class="type">uuid</span> <span class="kw">REFERENCES</span> permit_issuers(id),
+  <span class="kw">ADD COLUMN</span> assigned_to_profile_id <span class="type">uuid</span> <span class="kw">REFERENCES</span> profiles(id) <span class="kw">ON DELETE SET NULL</span>;
+
+<span class="kw">ALTER TABLE</span> <span class="type">public.profiles</span>
+  <span class="kw">ADD COLUMN</span> business_role <span class="type">text</span> <span class="kw">NOT NULL DEFAULT</span> <span class="str">'empleado'</span>
+    <span class="kw">CHECK</span> (business_role <span class="kw">IN</span> (<span class="str">'empleado'</span>,<span class="str">'representante_legal'</span>,<span class="str">'contador'</span>,<span class="str">'tecnico_responsable'</span>));
+</pre>
+
+<h3>Nueva tabla <code>permit_events</code> (trazabilidad)</h3>
+<pre>
+<span class="kw">CREATE TABLE</span> <span class="type">public.permit_events</span> (
+  id          <span class="type">uuid</span> <span class="kw">PRIMARY KEY DEFAULT</span> gen_random_uuid(),
+  permit_id   <span class="type">uuid</span> <span class="kw">NOT NULL REFERENCES</span> permits(id) <span class="kw">ON DELETE CASCADE</span>,
+  actor_id    <span class="type">uuid</span> <span class="kw">REFERENCES</span> profiles(id) <span class="kw">ON DELETE SET NULL</span>,
+  event_type  <span class="type">text</span> <span class="kw">NOT NULL CHECK</span> (event_type <span class="kw">IN</span> (
+    <span class="str">'created'</span>, <span class="str">'status_changed'</span>, <span class="str">'document_uploaded'</span>, <span class="str">'document_deleted'</span>,
+    <span class="str">'assigned'</span>, <span class="str">'unassigned'</span>, <span class="str">'renewed'</span>, <span class="str">'dates_updated'</span>
+  )),
+  from_value  <span class="type">text</span>,
+  to_value    <span class="type">text</span>,
+  metadata    <span class="type">jsonb</span>,
+  created_at  <span class="type">timestamptz</span> <span class="kw">DEFAULT</span> now()
+);
+</pre>
+
+<h2>Bugs del dashboard que quedan arreglados</h2>
+<div class="card">
+<table>
+<thead><tr><th>Bug</th><th>Causa raíz</th><th>Fix</th></tr></thead>
+<tbody>
+<tr>
+  <td>"Sin trámites pendientes" cuando sí los hay</td>
+  <td>Código filtra solo <code>por_vencer</code> y <code>vencido</code>; ignora <code>no_registrado</code> y <code>en_tramite</code>.</td>
+  <td>Filter: <code>['no_registrado','vencido','por_vencer','en_tramite']</code>.</td>
+</tr>
+<tr>
+  <td>Factura muestra números mock</td>
+  <td>Constante <code>AVG_PERMIT_COST = 45</code> hardcoded.</td>
+  <td>Suma real: <code>Σ cost_min – Σ cost_max</code> de pendientes, con JOIN a <code>permit_requirements</code>.</td>
+</tr>
+<tr>
+  <td>"Multa estimada" ficticia (multiplicador 3.2x/4.5x/6x)</td>
+  <td>No hay dato real de multas.</td>
+  <td>Nuevo seed con <code>fine_min</code>/<code>fine_max</code> + <code>fine_source</code> (link legal) por permiso.</td>
+</tr>
+<tr>
+  <td>Nombre de empresa = primera sede</td>
+  <td>No se fetchea la company, solo las locations.</td>
+  <td>Hook nuevo <code>useCompany()</code> o agregarlo al store.</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<h2>Orden de migraciones</h2>
+<div class="card">
+  <ol>
+    <li><code>2026-05-11_issuers_schema.sql</code> — <code>permit_issuers</code> + seed 5 filas</li>
+    <li><code>2026-05-11_business_types_expand.sql</code> — 4 → 12 giros</li>
+    <li><code>2026-05-11_permit_requirements_fields.sql</code> — costos, multas, rol, issuer_id</li>
+    <li><code>2026-05-11_permits_domain.sql</code> — <code>issuer_id</code> + <code>assigned_to_profile_id</code></li>
+    <li><code>2026-05-11_profiles_business_role.sql</code> — <code>business_role</code> + extender trigger</li>
+    <li><code>2026-05-11_permit_events.sql</code> — tabla + índice + RLS + triggers</li>
+    <li><code>2026-05-11_legal_tables_seed.sql</code> — migra TS → DB</li>
+    <li><code>2026-05-11_permit_requirements_seed.sql</code> — matriz 10×8 con costos/multas</li>
+    <li><code>2026-05-11_cleanup_deprecated.sql</code> — drop <code>permits.issuer</code> string (release posterior)</li>
+  </ol>
+  <p class="note"><strong>Nota:</strong> las migraciones son atómicas y rollback-friendly. <code>permits.issuer</code> string queda deprecado pero vivo durante la migración — se elimina en un release siguiente cuando todos los datos estén en <code>issuer_id</code>.</p>
+</div>
+
+<h2>Estado de decisiones</h2>
+<details>
+<summary><strong>14 / 14 decisiones tomadas</strong> · click para expandir</summary>
+<div style="margin-top:10px">
+<table>
+<thead><tr><th>#</th><th>Decisión</th><th>Valor</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Giros</td><td>10 (+otro)</td></tr>
+<tr><td>2</td><td>Permisos MVP</td><td>8 (IESS afuera)</td></tr>
+<tr><td>3</td><td>Matriz</td><td>Aprobada, pulido posterior OK</td></tr>
+<tr><td>4</td><td>Modelo de costos</td><td>B (rango + notas)</td></tr>
+<tr><td>5</td><td>Moneda/ciudad</td><td>USD / solo Quito</td></tr>
+<tr><td>6</td><td>Catálogo emisores</td><td>Cerrado, staff-only</td></tr>
+<tr><td>7</td><td>Datos emisor</td><td>Todo lo disponible (tel, dir, URLs)</td></tr>
+<tr><td>8</td><td>Roles</td><td>4: empleado/RL/contador/técnico</td></tr>
+<tr><td>9</td><td>Modelo rol</td><td>Opción 1 simple (un rol por permiso)</td></tr>
+<tr><td>10</td><td>Bloqueo asignación</td><td>Warning, no bloqueo</td></tr>
+<tr><td>11</td><td>Diseño dashboard</td><td>No se toca — solo datos</td></tr>
+<tr><td>12</td><td>Filtro por sede</td><td>No necesario (cards ya están abajo)</td></tr>
+<tr><td>13</td><td>Multas</td><td>Reales en seed</td></tr>
+<tr><td>14</td><td>Matriz en Marco Legal</td><td>Sí, como tabla visual pública</td></tr>
+</tbody>
+</table>
+</div>
+</details>
+
+<h2>Follow-ups guardados</h2>
+<div class="card">
+  <ul>
+    <li>Task #18 — Multi-rol + delegation rules (post-MVP)</li>
+  </ul>
+</div>
+
+<div class="footer">
+  EnRegla v2 · Spec completo · 2026-05-10 · Generado tras 5 rondas de brainstorming visual con el usuario
+</div>
+
+</div>
+</body>
+</html>
