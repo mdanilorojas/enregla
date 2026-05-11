@@ -23,7 +23,6 @@ function ComplianceWeatherCardImpl({
 }: ComplianceWeatherCardProps) {
   const dustCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const warnCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const rainCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const flashRef = useRef<HTMLDivElement | null>(null);
   const bolt1Ref = useRef<HTMLDivElement | null>(null);
   const bolt2Ref = useRef<HTMLDivElement | null>(null);
@@ -126,50 +125,6 @@ function ComplianceWeatherCardImpl({
 
   useEffect(() => {
     if (state !== 'err') return;
-    const canvas = rainCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    const drops: Array<{ x: number; y: number; length: number; speed: number; alpha: number; thickness: number; drift: number }> = [];
-    const N = 180;
-    let raf = 0;
-    function resize() {
-      canvas!.width = canvas!.offsetWidth * devicePixelRatio;
-      canvas!.height = canvas!.offsetHeight * devicePixelRatio;
-      ctx!.setTransform(1, 0, 0, 1, 0, 0);
-      ctx!.scale(devicePixelRatio, devicePixelRatio);
-    }
-    resize();
-    window.addEventListener('resize', resize);
-    for (let i = 0; i < N; i++) {
-      const depth = Math.random();
-      drops.push({
-        x: Math.random() * canvas.offsetWidth,
-        y: Math.random() * canvas.offsetHeight,
-        length: depth * 16 + 6,
-        speed: depth * 11 + 5,
-        alpha: depth * 0.5 + 0.1,
-        thickness: depth * 1.2 + 0.4,
-        drift: depth * 2 + 1,
-      });
-    }
-    function tick() {
-      ctx!.clearRect(0, 0, canvas!.offsetWidth, canvas!.offsetHeight);
-      drops.forEach(d => {
-        d.y += d.speed;
-        d.x -= d.drift;
-        if (d.y > canvas!.offsetHeight + 20) { d.y = -20; d.x = Math.random() * (canvas!.offsetWidth + 100); }
-        if (d.x < -20) d.x = canvas!.offsetWidth + 20;
-        ctx!.beginPath();
-        ctx!.moveTo(d.x, d.y);
-        ctx!.lineTo(d.x - d.drift * 1.5, d.y + d.length);
-        ctx!.strokeStyle = `rgba(180, 200, 230, ${d.alpha})`;
-        ctx!.lineWidth = d.thickness;
-        ctx!.stroke();
-      });
-      raf = requestAnimationFrame(tick);
-    }
-    tick();
 
     let strikeTimeout: ReturnType<typeof setTimeout>;
     function strike() {
@@ -189,7 +144,7 @@ function ComplianceWeatherCardImpl({
       strikeTimeout = setTimeout(strike, nextDelay);
     }
     strikeTimeout = setTimeout(strike, 1500);
-    return () => { window.removeEventListener('resize', resize); cancelAnimationFrame(raf); clearTimeout(strikeTimeout); };
+    return () => { clearTimeout(strikeTimeout); };
   }, [state]);
 
   return (
@@ -378,10 +333,6 @@ function ComplianceWeatherCardImpl({
             <div className="dark-cloud dk-2"><svg viewBox="0 0 520 150"><ellipse cx="90" cy="80" rx="100" ry="40" /><ellipse cx="200" cy="60" rx="110" ry="50" /><ellipse cx="320" cy="74" rx="110" ry="44" /><ellipse cx="440" cy="86" rx="100" ry="40" /></svg></div>
             <div className="dark-cloud dk-3"><svg viewBox="0 0 460 130"><ellipse cx="80" cy="70" rx="90" ry="34" /><ellipse cx="180" cy="56" rx="100" ry="44" /><ellipse cx="290" cy="68" rx="96" ry="38" /><ellipse cx="400" cy="78" rx="80" ry="34" /></svg></div>
             <div className="dark-cloud dk-4"><svg viewBox="0 0 380 110"><ellipse cx="70" cy="60" rx="80" ry="30" /><ellipse cx="160" cy="48" rx="88" ry="36" /><ellipse cx="260" cy="58" rx="80" ry="32" /><ellipse cx="340" cy="64" rx="60" ry="28" /></svg></div>
-            <div className="rain-overlay" />
-          </div>
-          <div className="bg-layer rain">
-            <canvas ref={rainCanvasRef} />
           </div>
           <div className="bg-layer lightning">
             <div className="lightning-bolt" ref={bolt1Ref} style={{ top: '10%', left: '25%' }}>
@@ -453,7 +404,6 @@ const CSS = `
 .hero-card .bg-layer.shield    { z-index: 2; }
 .hero-card .bg-layer.clouds    { z-index: 3; }
 .hero-card .bg-layer.particles { z-index: 4; }
-.hero-card .bg-layer.rain      { z-index: 4; }
 .hero-card .bg-layer.lightning { z-index: 7; }
 
 /* canvas */
@@ -524,18 +474,6 @@ const CSS = `
 .hero-card .dk-3 { top: 70px; left: 45%; width: 320px; opacity: 0.88; animation: hcStormRoll 45s ease-in-out infinite -25s; }
 .hero-card .dk-4 { top: 100px; left: 0; width: 280px; opacity: 0.8; animation: hcStormRoll 55s ease-in-out infinite -35s; }
 @keyframes hcStormRoll { 0% { transform: translateX(-40px); } 50% { transform: translateX(20px); } 100% { transform: translateX(-40px); } }
-
-.hero-card .rain-overlay {
-  position: absolute; inset: 0;
-  background-image: linear-gradient(105deg,
-    transparent 0%, transparent 49.5%,
-    rgba(160, 180, 220, 0.16) 49.5%, rgba(160, 180, 220, 0.16) 50.5%,
-    transparent 50.5%, transparent 100%);
-  background-size: 3px 26px;
-  animation: hcRainFall 0.5s linear infinite;
-  opacity: 0.5;
-}
-@keyframes hcRainFall { from { background-position: 0 0; } to { background-position: -10px 26px; } }
 
 /* ============ lightning (err) ============ */
 .hero-card .lightning-bolt {
