@@ -74,12 +74,9 @@ export function LocationDetailView() {
   const porVencer = locationPermits.filter(p => p.status === 'por_vencer').length;
   const vencidos = locationPermits.filter(p => p.status === 'vencido').length;
 
-  const handleConfirmRenewal = async (permitId: string, newExpiryDate: string) => {
-    await updatePermit(permitId, {
-      expiry_date: newExpiryDate,
-      status: 'vigente',
-    });
-  };
+  // Legacy handler (no longer used — RenewPermitModal ahora usa RPC renew_permit
+  // por default y crea nueva versión archivando la anterior)
+  void updatePermit;
 
   return (
     <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
@@ -164,7 +161,9 @@ export function LocationDetailView() {
             setRenewModalOpen(false);
             setSelectedPermit(null);
           }}
-          onConfirm={handleConfirmRenewal}
+          onRenewed={(newPermitId) => {
+            navigate(`/permisos/${newPermitId}`);
+          }}
         />
 
         <ShareLocationModal

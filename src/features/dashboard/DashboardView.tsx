@@ -9,51 +9,16 @@ import { usePermitRequirements } from '@/lib/domain/permit-requirements'
 import { LocationsGrid } from '@/features/locations/LocationsGrid'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Building2, Plus } from '@/lib/lucide-icons'
 import { SkeletonList } from '@/components/ui/skeleton'
-import { ComplianceWeatherCard, type WeatherState } from '@/components/ui/ComplianceWeatherCard'
-import { ComplianceInvoiceCard, type InvoiceLine, type InvoiceAmount } from '@/components/ui/ComplianceInvoiceCard'
+import { TodayInbox } from './TodayInbox'
 
 const PENDING_STATUSES = ['no_registrado','vencido','por_vencer','en_tramite'] as const
 
-function buildComplianceCopy(state: WeatherState, brand: string): {
-  chipLabel: string
-  headline: React.ReactNode
-} {
-  if (state === 'sunny') {
-    return {
-      chipLabel: 'Casi al día',
-      headline: (
-        <>
-          Vas bien, <span className="brand">{brand}</span>. Solo te falta ponerte al día en unos pocos permisos.
-        </>
-      ),
-    }
-  }
-  if (state === 'warn') {
-    return {
-      chipLabel: 'Te estás atrasando',
-      headline: (
-        <>
-          <span className="brand">{brand}</span>, se te están acumulando los papeles. <b>Ponte las pilas</b> antes que te caiga una multa.
-        </>
-      ),
-    }
-  }
-  return {
-    chipLabel: 'Te pueden cerrar',
-    headline: (
-      <>
-        <span className="brand">{brand}</span>, <b>te pueden clausurar el local</b> en cualquier momento. Hay que actuar ya.
-      </>
-    ),
-  }
-}
-
-function buildWarningText(state: WeatherState): React.ReactNode {
-  if (state === 'sunny') return <>Si no los pagas, la multa puede llegar a</>
-  if (state === 'warn') return <>Si no arreglas esto, la multa puede llegar a</>
-  return <>Clausura + multas hasta</>
+function formatUSD(n: number): string {
+  // Convención EC: punto como separador de miles, sin decimales para rangos amplios
+  return n.toLocaleString('es-EC', { maximumFractionDigits: 0 })
 }
 
 export function DashboardView() {
@@ -98,19 +63,21 @@ export function DashboardView() {
       if (req.fine_max != null) fineMax += Number(req.fine_max ?? 0)
     }
 
-    const state: WeatherState = vencidos > 0 && percentage < 50
-      ? 'err'
-      : percentage < 80 || vencidos > 0
-        ? 'warn'
-        : 'sunny'
+    const riskLevel: 'low' | 'medium' | 'high' =
+      vencidos > 0 && percentage < 50 ? 'high' : percentage < 80 || vencidos > 0 ? 'medium' : 'low'
 
     return {
       pending: pending.length,
       vigentes, porVencer, vencidos, noRegistrado, enTramite, total,
-      percentage, state,
+      percentage, riskLevel,
       costMin, costMax, fineMin, fineMax, pendingWithoutCost,
     }
   }, [permits, requirements])
+
+  const locationsById = useMemo(
+    () => new Map(locations.map((l) => [l.id, { id: l.id, name: l.name }])),
+    [locations]
+  )
 
   if (loading) {
     return (
@@ -145,52 +112,71 @@ export function DashboardView() {
   }
 
   const brandName = company?.name ?? 'tu negocio'
-
-  const { chipLabel, headline } = buildComplianceCopy(metrics.state, brandName)
-
-  const invoiceLines: InvoiceLine[] =
-    metrics.pending === 0
-      ? [{ label: 'Todo al día', detail: `${metrics.total} permisos vigentes`, amount: 0 }]
-      : [
-          ...(metrics.vencidos > 0
-            ? [{ label: 'Vencidos', detail: `${metrics.vencidos} trámite${metrics.vencidos>1?'s':''}`, amount: 0 as InvoiceAmount }]
-            : []),
-          ...(metrics.porVencer > 0
-            ? [{ label: 'Por vencer', detail: `${metrics.porVencer} próximos 30 días`, amount: 0 as InvoiceAmount }]
-            : []),
-          ...(metrics.noRegistrado > 0
-            ? [{ label: 'No registrados', detail: `${metrics.noRegistrado} permisos`, amount: 0 as InvoiceAmount }]
-            : []),
-          ...(metrics.enTramite > 0
-            ? [{ label: 'En trámite', detail: `${metrics.enTramite} en proceso`, amount: 0 as InvoiceAmount }]
-            : []),
-        ]
+  const riskLabel =
+    metrics.riskLevel === 'high' ? 'alto' : metrics.riskLevel === 'medium' ? 'medio' : 'bajo'
+  const riskColor =
+    metrics.riskLevel === 'high'
+      ? 'text-[var(--ds-red-700)]'
+      : metrics.riskLevel === 'medium'
+        ? 'text-[var(--ds-orange-700)]'
+        : 'text-[var(--ds-green-700)]'
 
   return (
     <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
       <div className="max-w-7xl mx-auto space-y-[var(--ds-space-400)]">
-        <h1 className="text-[var(--ds-font-size-500)] font-bold text-[var(--ds-text)]">Dashboard</h1>
-
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_440px] gap-5 items-stretch">
-          <ComplianceWeatherCard
-            state={metrics.state}
-            chipLabel={chipLabel}
-            headline={headline}
-            percentage={metrics.percentage}
-            permitsDone={metrics.vigentes}
-            permitsTotal={metrics.total}
-            locations={locations.length}
-          />
-          <ComplianceInvoiceCard
-            lines={invoiceLines}
-            total={metrics.pending > 0 ? { min: metrics.costMin, max: metrics.costMax } : 0}
-            warningAmount={metrics.pending > 0 ? { min: metrics.fineMin, max: metrics.fineMax } : undefined}
-            warningText={metrics.pending > 0 ? buildWarningText(metrics.state) : undefined}
-          />
+        <div>
+          <h1 className="text-[var(--ds-font-size-500)] font-bold text-[var(--ds-text)]">
+            {brandName}
+          </h1>
+          <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)] mt-1">
+            {metrics.vigentes} de {metrics.total} permisos vigentes · {locations.length} {locations.length === 1 ? 'sede' : 'sedes'} · Riesgo operativo <span className={`font-semibold ${riskColor}`}>{riskLabel}</span>
+          </p>
         </div>
+
+        <TodayInbox permits={permits} locationsById={locationsById} />
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-[var(--ds-space-200)]">
+          <SummaryStat label="Vigentes" value={metrics.vigentes} color="text-[var(--ds-green-700)]" />
+          <SummaryStat label="Por vencer" value={metrics.porVencer} color="text-[var(--ds-orange-700)]" />
+          <SummaryStat label="Vencidos" value={metrics.vencidos} color="text-[var(--ds-red-700)]" />
+          <SummaryStat label="No registrados" value={metrics.noRegistrado} color="text-[var(--ds-text-subtle)]" />
+        </div>
+
+        {metrics.pending > 0 && (metrics.fineMin > 0 || metrics.fineMax > 0) && (
+          <Card className="p-[var(--ds-space-300)] border-l-4 border-l-[var(--ds-orange-600)]">
+            <div className="flex items-start gap-[var(--ds-space-200)]">
+              <div>
+                <h3 className="text-[var(--ds-font-size-200)] font-semibold text-[var(--ds-text)]">
+                  Exposición a multas
+                </h3>
+                <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)] mt-1">
+                  Según la normativa ecuatoriana, los {metrics.pending} permisos pendientes exponen a tu negocio a multas entre{' '}
+                  <strong className="text-[var(--ds-text)]">
+                    ${formatUSD(metrics.fineMin)} – ${formatUSD(metrics.fineMax)}
+                  </strong>
+                  . Costos estimados de trámites: ${formatUSD(metrics.costMin)} – ${formatUSD(metrics.costMax)}.
+                  {metrics.pendingWithoutCost > 0 && (
+                    <> {metrics.pendingWithoutCost} sin costo registrado en catálogo.</>
+                  )}
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
 
         <LocationsGrid standalone={false} />
       </div>
     </div>
+  )
+}
+
+function SummaryStat({ label, value, color }: { label: string; value: number; color: string }) {
+  return (
+    <Card className="p-[var(--ds-space-250)]">
+      <div className="text-[var(--ds-font-size-075)] uppercase tracking-wider text-[var(--ds-text-subtle)] font-semibold">
+        {label}
+      </div>
+      <div className={`text-[var(--ds-font-size-500)] font-bold mt-1 ${color}`}>{value}</div>
+    </Card>
   )
 }

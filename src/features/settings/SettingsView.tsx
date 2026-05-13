@@ -3,6 +3,7 @@ import { ProfileTab } from './ProfileTab'
 import { CompanyTab } from './CompanyTab'
 import { NotificationPreferences } from './NotificationPreferences'
 import { SecurityTab } from './SecurityTab'
+import { MembersTab } from './MembersTab'
 
 export function SettingsView() {
   return (
@@ -14,11 +15,13 @@ export function SettingsView() {
           <TabsList>
             <TabsTrigger value="profile">Perfil</TabsTrigger>
             <TabsTrigger value="company">Empresa</TabsTrigger>
+            <TabsTrigger value="members">Miembros</TabsTrigger>
             <TabsTrigger value="notifications">Notificaciones</TabsTrigger>
             <TabsTrigger value="security">Seguridad</TabsTrigger>
           </TabsList>
           <TabsContent value="profile"><ProfileTab /></TabsContent>
           <TabsContent value="company"><CompanyTab /></TabsContent>
+          <TabsContent value="members"><MembersTab /></TabsContent>
           <TabsContent value="notifications"><NotificationPreferences /></TabsContent>
           <TabsContent value="security"><SecurityTab /></TabsContent>
         </Tabs>

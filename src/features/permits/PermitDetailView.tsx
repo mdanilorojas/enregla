@@ -430,12 +430,8 @@ export function PermitDetailView() {
         permit={permit ?? null}
         open={renewOpen}
         onClose={() => setRenewOpen(false)}
-        onConfirm={async (permitId, newExpiry) => {
-          await updatePermit(permitId, {
-            expiry_date: newExpiry,
-            status: 'vigente',
-          });
-          toast.success('Permiso renovado');
+        onRenewed={(newPermitId) => {
+          navigate(`/permisos/${newPermitId}`);
         }}
       />
     </div>
