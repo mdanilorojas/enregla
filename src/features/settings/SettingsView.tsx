@@ -1,7 +1,7 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { ProfileTab } from './ProfileTab'
 import { CompanyTab } from './CompanyTab'
-import { NotificationsTab } from './NotificationsTab'
+import { NotificationPreferences } from './NotificationPreferences'
 import { SecurityTab } from './SecurityTab'
 
 export function SettingsView() {
@@ -19,7 +19,7 @@ export function SettingsView() {
           </TabsList>
           <TabsContent value="profile"><ProfileTab /></TabsContent>
           <TabsContent value="company"><CompanyTab /></TabsContent>
-          <TabsContent value="notifications"><NotificationsTab /></TabsContent>
+          <TabsContent value="notifications"><NotificationPreferences /></TabsContent>
           <TabsContent value="security"><SecurityTab /></TabsContent>
         </Tabs>
       </div>

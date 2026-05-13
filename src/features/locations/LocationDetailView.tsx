@@ -137,7 +137,16 @@ export function LocationDetailView() {
               <TabsTrigger value="historial">Historial</TabsTrigger>
             </TabsList>
             <TabsContent value="permisos">
-              <LocationPermitsTab locationId={location.id} permits={permitSummaries} />
+              <LocationPermitsTab
+                locationId={location.id}
+                permits={permitSummaries}
+                onRenew={(permitId) => {
+                  const p = locationPermits.find((lp) => lp.id === permitId);
+                  if (!p) return;
+                  setSelectedPermit(p);
+                  setRenewModalOpen(true);
+                }}
+              />
             </TabsContent>
             <TabsContent value="documentos">
               <LocationDocumentsTab locationId={location.id} />

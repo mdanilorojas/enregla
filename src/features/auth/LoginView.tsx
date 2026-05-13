@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { login } from '@/lib/api/auth';
 import { signInWithGoogle } from '@/lib/auth';
 import { useAuthStore } from '@/store/authStore';
@@ -76,7 +76,7 @@ export function LoginView() {
           </div>
           <div>
             <div className="font-bold text-[var(--ds-font-size-200)] leading-tight">EnRegla</div>
-            <div className="text-[10px] font-semibold tracking-[0.2em] text-white/60 uppercase">Compliance</div>
+            <div className="text-[10px] font-semibold tracking-[0.2em] text-white/60 uppercase">Cumplimiento</div>
           </div>
         </div>
 
@@ -140,7 +140,7 @@ export function LoginView() {
             </div>
             <div>
               <div className="font-bold text-[var(--ds-font-size-200)] leading-tight text-[var(--ds-text)]">EnRegla</div>
-              <div className="text-[10px] font-semibold tracking-[0.2em] text-[var(--ds-text-subtle)] uppercase">Compliance</div>
+              <div className="text-[10px] font-semibold tracking-[0.2em] text-[var(--ds-text-subtle)] uppercase">Cumplimiento</div>
             </div>
           </div>
 
@@ -149,7 +149,7 @@ export function LoginView() {
               Iniciar sesión
             </h2>
             <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)]">
-              Accede a tu panel de compliance
+              Accede a tu panel de cumplimiento
             </p>
           </div>
 
@@ -185,12 +185,12 @@ export function LoginView() {
                 <label htmlFor="password" className="block text-[var(--ds-font-size-100)] font-medium text-[var(--ds-text)]">
                   Contraseña
                 </label>
-                <a
-                  href="#"
+                <Link
+                  to="/forgot-password"
                   className="text-[var(--ds-font-size-075)] text-[var(--ds-text-brand)] hover:underline focus-visible:outline-none focus-visible:underline"
                 >
                   ¿Olvidaste tu contraseña?
-                </a>
+                </Link>
               </div>
               <Input
                 id="password"
@@ -249,7 +249,10 @@ export function LoginView() {
 
           <p className="text-center text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)]">
             ¿No tienes cuenta?{' '}
-            <a href="#" className="text-[var(--ds-text-brand)] font-medium hover:underline focus-visible:outline-none focus-visible:underline">
+            <a
+              href="mailto:hola@enregla.ec?subject=Solicitud%20de%20acceso%20a%20EnRegla"
+              className="text-[var(--ds-text-brand)] font-medium hover:underline focus-visible:outline-none focus-visible:underline"
+            >
               Solicita acceso
             </a>
           </p>

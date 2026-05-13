@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { usePermits } from '@/hooks/usePermits';
 import { useLocations } from '@/hooks/useLocations';
@@ -22,7 +22,9 @@ import {
   FileText,
   Eye,
   MapPin,
+  RefreshCw,
 } from '@/lib/lucide-icons';
+import { RenewPermitModal } from '@/features/locations/RenewPermitModal';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { deleteDocument } from '@/lib/api/documents';
@@ -40,6 +42,7 @@ const PERMIT_STATUS_LABELS: Record<string, string> = {
 export function PermitDetailView() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { profile } = useAuth();
   const companyId = resolveCompanyId(profile?.company_id) ?? undefined;
 
@@ -48,10 +51,21 @@ export function PermitDetailView() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loadingDocs, setLoadingDocs] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [renewOpen, setRenewOpen] = useState(false);
   // Modal de upload: cuando arrastras/seleccionas archivo, se guarda aqui
   // y se abre el modal con PermitUploadForm (que pide fechas + actualiza permit).
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const headerFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Deep-link ?action=renew abre el modal automáticamente (se consume una sola vez)
+  const [renewParamConsumed, setRenewParamConsumed] = useState(false);
+  if (!renewParamConsumed && searchParams.get('action') === 'renew') {
+    setRenewParamConsumed(true);
+    setRenewOpen(true);
+    const next = new URLSearchParams(searchParams);
+    next.delete('action');
+    setSearchParams(next, { replace: true });
+  }
 
   const permit = useMemo(() => permits.find((p) => p.id === id), [permits, id]);
   const location = useMemo(
@@ -255,6 +269,13 @@ export function PermitDetailView() {
               onChange={handleFileInput}
             />
             <Button
+              variant="outline"
+              onClick={() => setRenewOpen(true)}
+            >
+              <RefreshCw className="w-4 h-4" />
+              Renovar
+            </Button>
+            <Button
               variant="default"
               onClick={() => headerFileInputRef.current?.click()}
             >
@@ -404,6 +425,19 @@ export function PermitDetailView() {
           )}
         </DialogContent>
       </Dialog>
+
+      <RenewPermitModal
+        permit={permit ?? null}
+        open={renewOpen}
+        onClose={() => setRenewOpen(false)}
+        onConfirm={async (permitId, newExpiry) => {
+          await updatePermit(permitId, {
+            expiry_date: newExpiry,
+            status: 'vigente',
+          });
+          toast.success('Permiso renovado');
+        }}
+      />
     </div>
   );
 }

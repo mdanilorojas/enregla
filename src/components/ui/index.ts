@@ -98,16 +98,6 @@ export { Calendar } from './calendar';
 export { Popover, PopoverTrigger, PopoverContent } from './popover';
 
 export {
-  Form,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormDescription,
-  FormMessage,
-  FormField,
-} from './form';
-
-export {
   Sheet,
   SheetPortal,
   SheetOverlay,

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
-import { FileText, Plus, ArrowRight } from '@/lib/lucide-icons'
+import { FileText, Plus, ArrowRight, RefreshCw } from '@/lib/lucide-icons'
 
 export interface LocationPermitSummary {
   id: string
@@ -15,10 +15,12 @@ export interface LocationPermitSummary {
 export interface LocationPermitsTabProps {
   locationId: string
   permits: LocationPermitSummary[]
+  onRenew?: (permitId: string) => void
 }
 
-export function LocationPermitsTab({ permits }: LocationPermitsTabProps) {
+export function LocationPermitsTab({ locationId, permits, onRenew }: LocationPermitsTabProps) {
   const active = permits.filter(p => p.is_active)
+  const newPermitHref = `/permisos/nuevo?location=${encodeURIComponent(locationId)}`
 
   if (active.length === 0) {
     return (
@@ -27,8 +29,8 @@ export function LocationPermitsTab({ permits }: LocationPermitsTabProps) {
         title="No hay permisos registrados"
         description="Registra el primer permiso para esta sede"
         action={
-          <Link to="/permisos">
-            <Button variant="default"><Plus className="w-4 h-4" />Nuevo Permiso</Button>
+          <Link to={newPermitHref}>
+            <Button variant="default"><Plus className="w-4 h-4" />Nuevo permiso</Button>
           </Link>
         }
       />
@@ -39,9 +41,14 @@ export function LocationPermitsTab({ permits }: LocationPermitsTabProps) {
     <div className="space-y-[var(--ds-space-200)]">
       <div className="flex justify-between items-center">
         <h3 className="text-[var(--ds-font-size-300)] font-semibold">Permisos ({active.length})</h3>
-        <Link to="/permisos">
-          <Button variant="link">Ver todos<ArrowRight className="w-4 h-4" /></Button>
-        </Link>
+        <div className="flex gap-[var(--ds-space-100)]">
+          <Link to={newPermitHref}>
+            <Button variant="outline"><Plus className="w-4 h-4" />Nuevo permiso</Button>
+          </Link>
+          <Link to="/permisos">
+            <Button variant="link">Ver todos<ArrowRight className="w-4 h-4" /></Button>
+          </Link>
+        </div>
       </div>
 
       <div className="space-y-[var(--ds-space-100)]">
@@ -54,22 +61,35 @@ export function LocationPermitsTab({ permits }: LocationPermitsTabProps) {
           }
           const statusVariant = statusMap[permit.status] ?? 'status-no-registrado'
 
+          const canRenew = onRenew && (permit.status === 'por_vencer' || permit.status === 'vencido' || permit.status === 'vigente')
+
           return (
-            <Link
+            <div
               key={permit.id}
-              to={`/permisos/${permit.id}`}
-              className="flex items-center justify-between p-[var(--ds-space-200)] bg-white rounded-[var(--ds-radius-200)] border border-[var(--ds-border)] hover:border-[var(--ds-border-bold)] transition-colors"
+              className="flex items-center justify-between gap-[var(--ds-space-150)] p-[var(--ds-space-200)] bg-white rounded-[var(--ds-radius-200)] border border-[var(--ds-border)] hover:border-[var(--ds-border-bold)] transition-colors"
             >
-              <div>
+              <Link to={`/permisos/${permit.id}`} className="flex-1 min-w-0">
                 <div className="font-medium text-[var(--ds-font-size-100)]">{permit.type}</div>
                 {permit.expires_at && (
                   <div className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)]">
                     Vence: {new Date(permit.expires_at).toLocaleDateString('es-EC')}
                   </div>
                 )}
+              </Link>
+              <div className="flex items-center gap-[var(--ds-space-100)]">
+                <Badge variant={statusVariant}>{permit.status.replace('_', ' ')}</Badge>
+                {canRenew && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onRenew(permit.id)}
+                    aria-label={`Renovar ${permit.type}`}
+                  >
+                    <RefreshCw className="w-4 h-4" />Renovar
+                  </Button>
+                )}
               </div>
-              <Badge variant={statusVariant}>{permit.status.replace('_', ' ')}</Badge>
-            </Link>
+            </div>
           )
         })}
       </div>

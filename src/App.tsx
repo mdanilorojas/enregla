@@ -5,6 +5,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { DEMO_MODE } from '@/lib/demo';
 import { LoginView } from '@/features/auth/LoginView';
 import { AuthCallback } from '@/features/auth/AuthCallback';
+import { ForgotPasswordView } from '@/features/auth/ForgotPasswordView';
+import { ResetPasswordView } from '@/features/auth/ResetPasswordView';
 import { IncrementalWizard } from '@/features/onboarding-incremental/IncrementalWizard';
 import { PublicVerificationPage } from '@/features/public-links/PublicVerificationPage';
 import { DashboardView } from '@/features/dashboard/DashboardView';
@@ -12,6 +14,7 @@ import { LocationsListViewV2 } from '@/features/locations/LocationsListViewV2';
 import { LocationDetailView } from '@/features/locations/LocationDetailView';
 import { PermitListView } from '@/features/permits/PermitListView';
 import { PermitDetailView } from '@/features/permits/PermitDetailView';
+import { PermitCreateView } from '@/features/permits/PermitCreateView';
 import { RenewalGridView } from '@/features/renewals/RenewalGridView';
 import { LegalIndexView } from '@/features/legal/LegalIndexView';
 import { LegalMatrixView } from '@/features/legal/LegalMatrixView';
@@ -88,6 +91,8 @@ export default function App() {
           }
         />
         <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/forgot-password" element={<ForgotPasswordView />} />
+        <Route path="/reset-password" element={<ResetPasswordView />} />
         <Route
           path="/setup"
           element={
@@ -108,6 +113,7 @@ export default function App() {
           <Route path="/sedes/:id" element={<LocationDetailView />} />
           <Route path="/mapa-red" element={<NetworkMapPage />} />
           <Route path="/permisos" element={<PermitListView />} />
+          <Route path="/permisos/nuevo" element={<PermitCreateView />} />
           <Route path="/permisos/:id" element={<PermitDetailView />} />
           <Route path="/renovaciones" element={<RenewalGridView />} />
           <Route path="/marco-legal" element={<LegalIndexView />} />
