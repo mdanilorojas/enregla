@@ -1,5 +1,6 @@
 /* eslint-disable no-console -- Edge function runtime logs via console for Supabase observability */
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0';
 import {
   getExpiringPermits,
   getCompanyUsers,
@@ -13,6 +14,21 @@ import type { SendResult, UserAlerts, PermitAlert } from './types.ts';
 
 const CRON_SECRET = Deno.env.get('CRON_SECRET');
 const ALLOWED_ORIGIN = Deno.env.get('ALLOWED_ORIGIN') ?? 'https://app.enregla.ec';
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+async function recordHeartbeat(status: 'success' | 'failed', error?: string) {
+  try {
+    const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    await admin.rpc('record_cron_heartbeat', {
+      p_job_name: 'send-expiry-alerts',
+      p_status: status,
+      p_error: error ?? null,
+    });
+  } catch (e) {
+    console.error('[send-expiry-alerts] heartbeat write failed:', e);
+  }
+}
 
 function corsHeaders(origin: string | null): Record<string, string> {
   const allow = origin === ALLOWED_ORIGIN ? origin : ALLOWED_ORIGIN;
@@ -139,15 +155,19 @@ serve(async (req) => {
 
     console.log(`[send-expiry-alerts] done: ${result.sent} sent, ${result.failed} failed, ${result.skipped} skipped`);
 
+    await recordHeartbeat('success');
+
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' },
       status: 200,
     });
 
   } catch (error) {
-    console.error('[send-expiry-alerts] fatal error:', error instanceof Error ? error.message : error);
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error('[send-expiry-alerts] fatal error:', msg);
+    await recordHeartbeat('failed', msg);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+      JSON.stringify({ error: msg }),
       { headers: { ...corsHeaders(origin), 'Content-Type': 'application/json' }, status: 500 }
     );
   }

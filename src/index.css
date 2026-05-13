@@ -11,36 +11,35 @@
 /*---break---
  */
 
-@custom-variant dark (&:is(.dark *));
-
 @theme {
   --font-sans: var(--font-family-sans);
   --font-heading: var(--font-family-sans);
 
-  /* shadcn/ui compatibility - map to design tokens */
-  --primary: var(--color-primary);
-  --primary-foreground: #FFFFFF;
-  --secondary: var(--color-secondary);
-  --secondary-foreground: #FFFFFF;
-  --accent: var(--color-accent);
-  --accent-foreground: #FFFFFF;
-  --destructive: var(--color-danger);
-  --destructive-foreground: #FFFFFF;
-  --muted: var(--color-text-muted);
-  --muted-foreground: var(--color-text-secondary);
-  --input: var(--color-border);
-  --ring: var(--color-primary);
-  --foreground: var(--color-text);
+  /* Tailwind 4 requiere prefijo --color-* dentro de @theme para que las
+     utilities (bg-primary, text-muted-foreground, border-input, etc.)
+     emitan CSS. Mapeo a los tokens canonicales del design system. */
+  --color-primary: var(--ds-background-brand);
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: var(--ds-neutral-500);
+  --color-secondary-foreground: #FFFFFF;
+  --color-accent: var(--ds-background-accent);
+  --color-accent-foreground: #FFFFFF;
+  --color-destructive: var(--ds-background-danger);
+  --color-destructive-foreground: #FFFFFF;
+  --color-muted: var(--ds-text-subtlest);
+  --color-muted-foreground: var(--ds-text-subtle);
+  --color-input: var(--ds-border);
+  --color-ring: var(--ds-background-brand);
+  --color-foreground: var(--ds-text);
 
-  /* Surface tokens used by shadcn primitives (Select/Popover/Dropdown/Dialog).
-     Must be opaque — transparent backgrounds make dropdown options impossible
-     to read/click against page content. */
-  --background: var(--color-bg, #FFFFFF);
-  --card: var(--color-bg, #FFFFFF);
-  --card-foreground: var(--color-text);
-  --popover: #FFFFFF;
-  --popover-foreground: var(--color-text);
-  --border: var(--color-border);
+  /* Surface tokens — opacos obligatoriamente (dropdowns transparentes
+     se mezclan con contenido y son ilegibles). */
+  --color-background: #FFFFFF;
+  --color-card: #FFFFFF;
+  --color-card-foreground: var(--ds-text);
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: var(--ds-text);
+  --color-border: var(--ds-border);
 }
 
 body {

@@ -45,6 +45,60 @@ export type Database = {
         }
         Relationships: []
       }
+      cron_heartbeat_alerts: {
+        Row: {
+          acknowledged_at: string | null
+          detected_at: string
+          id: string
+          job_name: string
+          message: string
+          severity: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          detected_at?: string
+          id?: string
+          job_name: string
+          message: string
+          severity: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          detected_at?: string
+          id?: string
+          job_name?: string
+          message?: string
+          severity?: string
+        }
+        Relationships: []
+      }
+      cron_heartbeats: {
+        Row: {
+          job_name: string
+          last_error: string | null
+          last_run_at: string
+          last_status: string
+          run_count: number
+          updated_at: string
+        }
+        Insert: {
+          job_name: string
+          last_error?: string | null
+          last_run_at: string
+          last_status: string
+          run_count?: number
+          updated_at?: string
+        }
+        Update: {
+          job_name?: string
+          last_error?: string | null
+          last_run_at?: string
+          last_status?: string
+          run_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           file_name: string
@@ -542,33 +596,177 @@ export type Database = {
         }
         Relationships: []
       }
-      permit_requirements: {
+      permit_events: {
         Row: {
-          business_type: string
+          actor_id: string | null
           created_at: string | null
+          event_type: string
+          from_value: string | null
           id: string
-          is_mandatory: boolean | null
-          permit_type: string
+          metadata: Json | null
+          permit_id: string
+          to_value: string | null
         }
         Insert: {
-          business_type: string
+          actor_id?: string | null
           created_at?: string | null
+          event_type: string
+          from_value?: string | null
           id?: string
-          is_mandatory?: boolean | null
-          permit_type: string
+          metadata?: Json | null
+          permit_id: string
+          to_value?: string | null
         }
         Update: {
-          business_type?: string
+          actor_id?: string | null
+          created_at?: string | null
+          event_type?: string
+          from_value?: string | null
+          id?: string
+          metadata?: Json | null
+          permit_id?: string
+          to_value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permit_events_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "permit_events_permit_id_fkey"
+            columns: ["permit_id"]
+            isOneToOne: false
+            referencedRelation: "permits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      permit_issuers: {
+        Row: {
+          address: string | null
+          city: string | null
+          contact_url: string | null
+          created_at: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          notes: string | null
+          phone: string | null
+          portal_url: string | null
+          procedures_portal_url: string | null
+          scope: string
+          short_name: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          contact_url?: string | null
           created_at?: string | null
           id?: string
-          is_mandatory?: boolean | null
-          permit_type?: string
+          logo_url?: string | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          portal_url?: string | null
+          procedures_portal_url?: string | null
+          scope: string
+          short_name: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          contact_url?: string | null
+          created_at?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          portal_url?: string | null
+          procedures_portal_url?: string | null
+          scope?: string
+          short_name?: string
+          slug?: string
+          updated_at?: string | null
         }
         Relationships: []
+      }
+      permit_requirements: {
+        Row: {
+          applies_when: string | null
+          business_type: string
+          cost_currency: string | null
+          cost_max: number | null
+          cost_min: number | null
+          cost_notes: string | null
+          cost_updated_at: string | null
+          created_at: string | null
+          fine_max: number | null
+          fine_min: number | null
+          fine_source: string | null
+          id: string
+          is_mandatory: boolean | null
+          issuer_id: string | null
+          permit_type: string
+          required_role: string
+        }
+        Insert: {
+          applies_when?: string | null
+          business_type: string
+          cost_currency?: string | null
+          cost_max?: number | null
+          cost_min?: number | null
+          cost_notes?: string | null
+          cost_updated_at?: string | null
+          created_at?: string | null
+          fine_max?: number | null
+          fine_min?: number | null
+          fine_source?: string | null
+          id?: string
+          is_mandatory?: boolean | null
+          issuer_id?: string | null
+          permit_type: string
+          required_role?: string
+        }
+        Update: {
+          applies_when?: string | null
+          business_type?: string
+          cost_currency?: string | null
+          cost_max?: number | null
+          cost_min?: number | null
+          cost_notes?: string | null
+          cost_updated_at?: string | null
+          created_at?: string | null
+          fine_max?: number | null
+          fine_min?: number | null
+          fine_source?: string | null
+          id?: string
+          is_mandatory?: boolean | null
+          issuer_id?: string | null
+          permit_type?: string
+          required_role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permit_requirements_issuer_id_fkey"
+            columns: ["issuer_id"]
+            isOneToOne: false
+            referencedRelation: "permit_issuers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       permits: {
         Row: {
           archived_at: string | null
+          assigned_to_profile_id: string | null
           company_id: string | null
           created_at: string | null
           expiry_date: string | null
@@ -576,6 +774,7 @@ export type Database = {
           is_active: boolean | null
           issue_date: string | null
           issuer: string | null
+          issuer_id: string | null
           location_id: string | null
           notes: string | null
           permit_number: string | null
@@ -587,6 +786,7 @@ export type Database = {
         }
         Insert: {
           archived_at?: string | null
+          assigned_to_profile_id?: string | null
           company_id?: string | null
           created_at?: string | null
           expiry_date?: string | null
@@ -594,6 +794,7 @@ export type Database = {
           is_active?: boolean | null
           issue_date?: string | null
           issuer?: string | null
+          issuer_id?: string | null
           location_id?: string | null
           notes?: string | null
           permit_number?: string | null
@@ -605,6 +806,7 @@ export type Database = {
         }
         Update: {
           archived_at?: string | null
+          assigned_to_profile_id?: string | null
           company_id?: string | null
           created_at?: string | null
           expiry_date?: string | null
@@ -612,6 +814,7 @@ export type Database = {
           is_active?: boolean | null
           issue_date?: string | null
           issuer?: string | null
+          issuer_id?: string | null
           location_id?: string | null
           notes?: string | null
           permit_number?: string | null
@@ -623,10 +826,24 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "permits_assigned_to_profile_id_fkey"
+            columns: ["assigned_to_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "permits_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "permits_issuer_id_fkey"
+            columns: ["issuer_id"]
+            isOneToOne: false
+            referencedRelation: "permit_issuers"
             referencedColumns: ["id"]
           },
           {
@@ -648,31 +865,37 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          business_role: string
           company_id: string | null
           created_at: string | null
           full_name: string
           id: string
           is_active: boolean | null
+          is_staff: boolean
           role: string
           updated_at: string | null
         }
         Insert: {
           avatar_url?: string | null
+          business_role?: string
           company_id?: string | null
           created_at?: string | null
           full_name: string
           id: string
           is_active?: boolean | null
+          is_staff?: boolean
           role?: string
           updated_at?: string | null
         }
         Update: {
           avatar_url?: string | null
+          business_role?: string
           company_id?: string | null
           created_at?: string | null
           full_name?: string
           id?: string
           is_active?: boolean | null
+          is_staff?: boolean
           role?: string
           updated_at?: string | null
         }
@@ -691,6 +914,7 @@ export type Database = {
           company_id: string | null
           created_at: string | null
           created_by: string | null
+          expires_at: string | null
           id: string
           is_active: boolean | null
           label: string
@@ -704,6 +928,7 @@ export type Database = {
           company_id?: string | null
           created_at?: string | null
           created_by?: string | null
+          expires_at?: string | null
           id?: string
           is_active?: boolean | null
           label: string
@@ -717,6 +942,7 @@ export type Database = {
           company_id?: string | null
           created_at?: string | null
           created_by?: string | null
+          expires_at?: string | null
           id?: string
           is_active?: boolean | null
           label?: string
@@ -748,6 +974,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_cron_heartbeats: { Args: never; Returns: undefined }
       get_expiring_permits: {
         Args: never
         Returns: {
@@ -773,6 +1000,14 @@ export type Database = {
           status: string
         }[]
       }
+      increment_public_link_view: {
+        Args: { link_token: string }
+        Returns: undefined
+      }
+      record_cron_heartbeat: {
+        Args: { p_error?: string; p_job_name: string; p_status: string }
+        Returns: undefined
+      }
       user_company_id: { Args: never; Returns: string }
       user_role: { Args: never; Returns: string }
     }
@@ -785,132 +1020,7 @@ export type Database = {
   }
 }
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
-
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
-
-export type Tables<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
-    }
-    ? R
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
-    : never
-
-export type TablesInsert<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
-    }
-    ? I
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I
-      }
-      ? I
-      : never
-    : never
-
-export type TablesUpdate<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
-    }
-    ? U
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U
-      }
-      ? U
-      : never
-    : never
-
-export type Enums<
-  DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
-    | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
-> = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-    : never
-
-export type CompositeTypes<
-  PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
-> = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never
-
-export const Constants = {
-  public: {
-    Enums: {},
-  },
-} as const
-
-// -----------------------------------------------
 // Helper type aliases (used throughout the app)
-// -----------------------------------------------
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 export type Company = Database["public"]["Tables"]["companies"]["Row"]
 export type Location = Database["public"]["Tables"]["locations"]["Row"]
