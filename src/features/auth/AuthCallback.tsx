@@ -25,24 +25,56 @@ export function AuthCallback() {
 
     const proceedWithSession = async (userId: string) => {
       log('proceedWithSession start', { userId });
-      const { data: profile, error: profileError } = await supabase
+
+      // Timeout defensivo: si el query nunca resuelve seguimos sin profile.
+      // useAuth.onAuthStateChange también dispara un fetch de profiles en paralelo;
+      // el cliente Supabase a veces se queda colgado en el segundo request con
+      // el mismo session. Mejor seguir y dejar que useAuth termine de hidratar.
+      const profileFetch = supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle<ProfileRow>();
 
+      const timeoutPromise = new Promise<{ data: null; error: { code: string; message: string } }>(
+        (resolve) =>
+          setTimeout(
+            () =>
+              resolve({
+                data: null,
+                error: { code: 'TIMEOUT', message: 'profile fetch took too long' },
+              }),
+            5000
+          )
+      );
+
+      const result = await Promise.race([profileFetch, timeoutPromise]);
+      const profile = result.data as ProfileRow | null;
+      const profileError = result.error as { code?: string; message?: string } | null;
+
       log('profile fetch done', { hasProfile: !!profile, errCode: profileError?.code });
       if (cancelled) return;
 
-      if (profileError && profileError.code !== 'PGRST116') {
+      if (profileError && profileError.code !== 'PGRST116' && profileError.code !== 'TIMEOUT') {
         console.error('[AuthCallback] Profile fetch error:', profileError);
       }
 
-      const { data: { user } } = await supabase.auth.getUser();
-      log('getUser done', { hasUser: !!user });
-      if (cancelled || !user) return;
+      // Si el getUser cuelga también (mismo bug del cliente Supabase), seguimos
+      // con session.user que ya tenemos.
+      const userPromise = supabase.auth.getUser();
+      const userTimeout = new Promise<{ data: { user: null } }>((resolve) =>
+        setTimeout(() => resolve({ data: { user: null } }), 3000)
+      );
+      const { data: { user: fetchedUser } } = await Promise.race([userPromise, userTimeout]);
+      log('getUser done', { hasUser: !!fetchedUser });
+      const fallbackUser = fetchedUser ?? (await supabase.auth.getSession()).data.session?.user ?? null;
 
-      setAuth(user, profile ?? null);
+      if (cancelled || !fallbackUser) {
+        log('proceedWithSession aborted', { cancelled, hasUser: !!fallbackUser });
+        return;
+      }
+
+      setAuth(fallbackUser, profile ?? null);
       log('setAuth done; redirecting', { destination: profile?.company_id ? '/' : '/setup' });
 
       if (profile?.company_id) {
