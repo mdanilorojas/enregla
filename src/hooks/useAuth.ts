@@ -101,6 +101,17 @@ export function useAuth() {
             return;
           }
 
+          // Si estamos en /auth/callback, AuthCallback maneja todo el flow
+          // (profile fetch + setAuth + navigate). Hacer un segundo query a
+          // profiles aquí en paralelo cuelga el cliente Supabase con noopLock.
+          const onAuthCallback = typeof window !== 'undefined' &&
+            window.location.pathname.startsWith('/auth/callback');
+
+          if (onAuthCallback) {
+            // AuthCallback hidratará el store cuando termine.
+            return;
+          }
+
           try {
             const { data: profileData, error: profileError } = await supabase
               .from('profiles')
@@ -139,6 +150,16 @@ export function useAuth() {
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
         async (event, session) => {
           // console.log('[useAuth] Auth state changed:', event, session ? 'with session' : 'no session');
+
+          // Skip profile fetch en /auth/callback: AuthCallback ya lo hace y un
+          // segundo query paralelo cuelga el cliente Supabase con noopLock.
+          const onAuthCallback = typeof window !== 'undefined' &&
+            window.location.pathname.startsWith('/auth/callback');
+
+          if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && onAuthCallback) {
+            // No-op; AuthCallback hidrata el authStore.
+            return;
+          }
 
           if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
             // console.log('[useAuth] Auth event - user:', session.user.id);
