@@ -16,14 +16,22 @@ export function AuthCallback() {
     let cancelled = false;
     let watchdog: ReturnType<typeof setTimeout> | null = null;
     let errorRedirectTimer: ReturnType<typeof setTimeout> | null = null;
+    const t0 = performance.now();
+    const log = (msg: string, extra?: unknown) => {
+      const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
+      console.log(`[AuthCallback +${elapsed}s] ${msg}`, extra ?? '');
+    };
+    log('mount; url=', window.location.href);
 
     const proceedWithSession = async (userId: string) => {
+      log('proceedWithSession start', { userId });
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle<ProfileRow>();
 
+      log('profile fetch done', { hasProfile: !!profile, errCode: profileError?.code });
       if (cancelled) return;
 
       if (profileError && profileError.code !== 'PGRST116') {
@@ -31,9 +39,11 @@ export function AuthCallback() {
       }
 
       const { data: { user } } = await supabase.auth.getUser();
+      log('getUser done', { hasUser: !!user });
       if (cancelled || !user) return;
 
       setAuth(user, profile ?? null);
+      log('setAuth done; redirecting', { destination: profile?.company_id ? '/' : '/setup' });
 
       if (profile?.company_id) {
         navigate('/', { replace: true });
@@ -78,7 +88,9 @@ export function AuthCallback() {
 
     const checkExistingSession = async () => {
       try {
+        log('getSession start');
         const { data, error: sessionError } = await supabase.auth.getSession();
+        log('getSession done', { hasSession: !!data.session, err: sessionError?.message });
         if (sessionError) throw sessionError;
         if (data.session) {
           await proceedWithSession(data.session.user.id);
@@ -92,6 +104,7 @@ export function AuthCallback() {
     };
 
     const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      log('onAuthStateChange event', { event, hasSession: !!session });
       if (cancelled) return;
       if (event === 'SIGNED_IN' && session) {
         if (watchdog) {
