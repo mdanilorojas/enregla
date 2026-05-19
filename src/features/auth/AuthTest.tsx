@@ -22,11 +22,106 @@ export function AuthTest() {
     const t0 = performance.now();
     const elapsed = () => `${((performance.now() - t0) / 1000).toFixed(2)}s`;
 
+    // Leer access_token directo de localStorage para bypassear cualquier lock
+    // interno del cliente Supabase. Si el cliente está colgado en gotrue, los
+    // calls a supabase.auth.* nunca resuelven; pero el token está persistido.
+    const storageKey = 'enregla-auth-token';
+    let cachedToken: string | null = null;
+    let cachedUserId: string | null = null;
     try {
-      // 1. getSession
-      const { data: sessionData, error: sessionErr } = await supabase.auth.getSession();
+      const raw = localStorage.getItem(storageKey);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        cachedToken = parsed?.access_token ?? parsed?.currentSession?.access_token ?? null;
+        cachedUserId = parsed?.user?.id ?? parsed?.currentSession?.user?.id ?? null;
+      }
+    } catch (e) {
+      console.error('storage parse', e);
+    }
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+    const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+
+    addCheck({
+      label: `[${elapsed()}] localStorage token`,
+      ok: !!cachedToken,
+      detail: cachedToken
+        ? `token=${cachedToken.slice(0, 30)}... userId=${cachedUserId}`
+        : 'no token en storage',
+    });
+
+    if (!cachedToken) {
+      setRunning(false);
+      return;
+    }
+
+    // Query directo via fetch (sin supabase-js)
+    try {
+      const res = await fetch(
+        `${supabaseUrl}/rest/v1/profiles?select=*&id=eq.${cachedUserId}`,
+        {
+          headers: {
+            apikey: anonKey,
+            Authorization: `Bearer ${cachedToken}`,
+          },
+        }
+      );
+      const text = await res.text();
       addCheck({
-        label: `[${elapsed()}] supabase.auth.getSession()`,
+        label: `[${elapsed()}] fetch /rest/v1/profiles direct`,
+        ok: res.ok,
+        detail: `status=${res.status} body=${text.slice(0, 200)}`,
+      });
+    } catch (err) {
+      addCheck({
+        label: `[${elapsed()}] fetch /rest/v1/profiles direct EXCEPTION`,
+        ok: false,
+        detail: (err as Error).message,
+      });
+    }
+
+    // Query getUser via fetch
+    try {
+      const res = await fetch(`${supabaseUrl}/auth/v1/user`, {
+        headers: {
+          apikey: anonKey,
+          Authorization: `Bearer ${cachedToken}`,
+        },
+      });
+      const text = await res.text();
+      addCheck({
+        label: `[${elapsed()}] fetch /auth/v1/user direct`,
+        ok: res.ok,
+        detail: `status=${res.status} body=${text.slice(0, 200)}`,
+      });
+    } catch (err) {
+      addCheck({
+        label: `[${elapsed()}] fetch /auth/v1/user direct EXCEPTION`,
+        ok: false,
+        detail: (err as Error).message,
+      });
+    }
+
+    try {
+      // 1. getSession (via supabase-js, puede colgar)
+      const sessionPromise = supabase.auth.getSession();
+      const sessionTimeout = new Promise<{ data: { session: null }; error: Error }>(
+        (resolve) =>
+          setTimeout(
+            () =>
+              resolve({
+                data: { session: null },
+                error: new Error('TIMEOUT supabase.auth.getSession 3s'),
+              }),
+            3000
+          )
+      );
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: sessionData, error: sessionErr } = (await Promise.race([
+        sessionPromise,
+        sessionTimeout,
+      ])) as any;
+      addCheck({
+        label: `[${elapsed()}] supabase.auth.getSession() (3s timeout)`,
         ok: !!sessionData.session && !sessionErr,
         detail: sessionErr
           ? `error: ${sessionErr.message}`
