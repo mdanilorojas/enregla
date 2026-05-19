@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   Building2,
@@ -6,6 +7,7 @@ import {
   Users,
   AlertTriangle,
   ArrowLeft,
+  Plus,
 } from '@/lib/lucide-icons';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
@@ -14,6 +16,8 @@ import { CATEGORY_META, PERMIT_TO_CATEGORY } from '@/data/legal-references';
 import { getPermitByType, getIssuerShort } from './selectors';
 import { LegalDisclaimer } from './LegalDisclaimer';
 import { PermitDetailTabs } from './PermitDetailTabs';
+import { AddPermitToLocationsModal } from './AddPermitToLocationsModal';
+import { useAuth } from '@/hooks/useAuth';
 
 const ICONS = {
   Building2,
@@ -26,6 +30,8 @@ const ICONS = {
 export function LegalPermitDetailView() {
   const { permitType } = useParams<{ permitType: string }>();
   const reference = permitType ? getPermitByType(permitType) : null;
+  const { isAuthenticated } = useAuth();
+  const [addModalOpen, setAddModalOpen] = useState(false);
 
   if (!reference) {
     return <PermitNotFound permitType={permitType} />;
@@ -78,8 +84,32 @@ export function LegalPermitDetailView() {
 
         <LegalDisclaimer />
 
+        {isAuthenticated && (
+          <div className="bg-white border border-[var(--ds-border)] rounded-[var(--ds-radius-200)] p-[var(--ds-space-300)] flex items-center justify-between gap-4">
+            <div>
+              <h3 className="text-[var(--ds-font-size-200)] font-semibold text-[var(--ds-text)]">
+                ¿Este permiso aplica a tus sedes?
+              </h3>
+              <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)] mt-1">
+                Crea un registro en EnRegla y súbelo cuando lo tengas.
+              </p>
+            </div>
+            <Button variant="default" onClick={() => setAddModalOpen(true)}>
+              <Plus className="w-4 h-4" />
+              Agregar a mis sedes
+            </Button>
+          </div>
+        )}
+
         <PermitDetailTabs reference={reference} />
       </div>
+
+      <AddPermitToLocationsModal
+        permitType={reference.permitType}
+        permitLabel={label}
+        open={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+      />
     </div>
   );
 }

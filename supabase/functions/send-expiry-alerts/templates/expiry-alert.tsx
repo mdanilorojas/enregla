@@ -72,16 +72,21 @@ export function ExpiryAlertEmail({ userName, alerts, appUrl }: ExpiryAlertEmailP
                     <strong>Sede:</strong> {alert.location_name}
                   </Text>
                   <Text style={permitDetails}>
-                    <strong>Vence:</strong> {new Date(alert.expiry_date).toLocaleDateString('es-CL')} ({daysUntil} días)
+                    <strong>Vence:</strong> {new Date(alert.expiry_date).toLocaleDateString('es-EC')} ({daysUntil} días)
                   </Text>
+                  <Section style={{ textAlign: 'center' as const, marginTop: '8px' }}>
+                    <Button style={inlineButton} href={`${appUrl}/permisos/${alert.permit_id}?action=renew`}>
+                      Renovar este permiso
+                    </Button>
+                  </Section>
                 </Section>
               ))}
             </Section>
 
             {/* CTA Button */}
             <Section style={buttonContainer}>
-              <Button style={button} href={`${appUrl}/dashboard`}>
-                Ver en EnRegla
+              <Button style={button} href={`${appUrl}/`}>
+                Abrir EnRegla
               </Button>
             </Section>
           </Section>
@@ -128,7 +133,7 @@ const header = {
 const logo = {
   fontSize: '24px',
   fontWeight: 'bold',
-  color: '#1E3A8A',
+  color: '#0f265c',
   margin: '0',
 };
 
@@ -192,7 +197,7 @@ const buttonContainer = {
 };
 
 const button = {
-  backgroundColor: '#1E3A8A',
+  backgroundColor: '#0f265c',
   borderRadius: '6px',
   color: '#ffffff',
   fontSize: '16px',
@@ -201,6 +206,19 @@ const button = {
   textAlign: 'center' as const,
   display: 'inline-block',
   padding: '12px 32px',
+};
+
+const inlineButton = {
+  backgroundColor: '#ffffff',
+  border: '1px solid #0f265c',
+  borderRadius: '4px',
+  color: '#0f265c',
+  fontSize: '13px',
+  fontWeight: '600',
+  textDecoration: 'none',
+  textAlign: 'center' as const,
+  display: 'inline-block',
+  padding: '6px 12px',
 };
 
 const hr = {
@@ -220,6 +238,6 @@ const footerText = {
 };
 
 const link = {
-  color: '#1E3A8A',
+  color: '#0f265c',
   textDecoration: 'underline',
 };

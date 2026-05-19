@@ -24,7 +24,7 @@ interface IncrementalWizardProps {
 }
 
 export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizardProps) {
-  const { user, profile } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<Step>(initialStep);
   const [completedSteps, setCompletedSteps] = useState<Step[]>(() => {
@@ -138,6 +138,16 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
     }
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/login');
+    } catch (err) {
+      console.error('Sign out error:', err);
+      setError(err instanceof Error ? err.message : 'Error al cerrar sesión');
+    }
+  };
+
   const canGoBack = currentStep !== 'profile';
   const showNextButton = currentStep !== 'locations';
 
@@ -154,10 +164,10 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
       <div className="w-[280px] bg-white border-r border-[var(--ds-border)] p-[var(--ds-space-300)] flex flex-col shrink-0">
         <div className="flex items-center gap-[var(--ds-space-100)] mb-[var(--ds-space-500)]">
           <div className="w-8 h-8 rounded-[var(--ds-radius-200)] bg-[var(--ds-text)] flex items-center justify-center">
-            <span className="text-white font-bold text-[var(--ds-font-size-050)]">PM</span>
+            <span className="text-white font-bold text-[var(--ds-font-size-050)]">ER</span>
           </div>
           <span className="text-[var(--ds-font-size-200)] font-semibold text-[var(--ds-text)] tracking-tight">
-            PermitOps
+            EnRegla
           </span>
         </div>
 
@@ -221,13 +231,23 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
 
         {/* Footer Actions */}
         <div className="border-t border-[var(--ds-border)] px-[var(--ds-space-400)] py-[var(--ds-space-200)] flex items-center justify-between bg-white/80 backdrop-blur-xl">
-          <Button
-            variant="ghost"
-            onClick={handleBack}
-            disabled={!canGoBack || loading}
-          >
-            Atrás
-          </Button>
+          {canGoBack ? (
+            <Button
+              variant="ghost"
+              onClick={handleBack}
+              disabled={loading}
+            >
+              Atrás
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              onClick={handleSignOut}
+              disabled={loading}
+            >
+              Cerrar sesión
+            </Button>
+          )}
 
           {showNextButton ? (
             <Button

@@ -77,61 +77,48 @@ export function useAuth() {
           return;
         }
 
-        // NORMAL MODE: Safety timeout
-        let safetyTimeout: ReturnType<typeof setTimeout> | undefined;
-
+        // NORMAL MODE: initial session fetch.
+        // Antes había un setTimeout(5000) que dejaba loading=false y reseteaba
+        // la sesión en redes lentas, expulsando al user a /login. Ahora confiamos
+        // en que getSession() resuelve o falla eventualmente; la UI muestra
+        // AppLoader mientras tanto, y onAuthStateChange sincroniza después.
         try {
-          safetyTimeout = setTimeout(() => {
-            // console.warn('[useAuth] Safety timeout triggered - forcing loading=false');
-            setAuth(null, null);
-            initializationPromise = null;
-          }, 5000);
-
-          // NORMAL MODE: Check initial session immediately
           const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
           if (sessionError) {
-            console.error('[useAuth] getSession failed:', sessionError);
-            clearTimeout(safetyTimeout);
+            const msg = sessionError.message?.toLowerCase() ?? '';
+            if (msg.includes('refresh token') || msg.includes('refresh_token')) {
+              await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+            } else {
+              console.error('[useAuth] getSession failed:', sessionError);
+            }
             clear();
             return;
           }
 
           if (!session) {
-            // console.log('[useAuth] No initial session found');
-            clearTimeout(safetyTimeout);
             clear();
             return;
           }
 
-          // Load profile for existing session
-          // console.log('[useAuth] Initial session found, loading profile...');
           try {
-            // console.log('[useAuth] Starting initial profile query...');
             const { data: profileData, error: profileError } = await supabase
               .from('profiles')
               .select('*')
               .eq('id', session.user.id)
               .single<Profile>();
 
-            // console.log('[useAuth] Initial profile query completed');
             if (profileError && profileError.code !== 'PGRST116') {
               console.error('[useAuth] Initial profile fetch error:', profileError);
             }
 
-            // console.log('[useAuth] Profile loaded:', profileData ? 'EXISTS' : 'NULL');
-            clearTimeout(safetyTimeout);
-            // console.log('[useAuth] About to call setAuth (initial load)...');
             setAuth(session.user, profileData || null);
-            // console.log('[useAuth] setAuth completed (initial load)');
           } catch (error) {
             console.error('[useAuth] Initial profile fetch failed:', error);
-            clearTimeout(safetyTimeout);
             setAuth(session.user, null);
           }
         } catch (error) {
           console.error('[useAuth] Initialization failed:', error);
-          if (safetyTimeout) clearTimeout(safetyTimeout);
           clear();
         } finally {
           initializationPromise = null;

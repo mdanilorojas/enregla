@@ -40,6 +40,8 @@ function createMockPermit({
     version: 1,
     superseded_by: null,
     archived_at: null,
+    issuer_id: null,
+    assigned_to_profile_id: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };

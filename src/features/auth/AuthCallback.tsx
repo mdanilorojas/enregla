@@ -19,11 +19,24 @@ export function AuthCallback() {
 
     const handleCallback = async () => {
       try {
-        // Obtener la sesión del hash de la URL
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        // PKCE: intercambiar el `code` de la URL por una sesión. El cliente usa
+        // flowType: 'pkce' (ver src/lib/supabase.ts), así que la sesión NO se
+        // establece automáticamente — hay que llamar exchangeCodeForSession.
+        // Fallback: si no hay code en la URL (ej. retorno de reset password con
+        // hash fragment), usar getSession que sí lee el hash.
+        const url = new URL(window.location.href);
+        const hasCode = url.searchParams.has('code');
 
-        if (sessionError) {
-          throw sessionError;
+        let session;
+        if (hasCode) {
+          const { data, error: exchangeError } =
+            await supabase.auth.exchangeCodeForSession(window.location.href);
+          if (exchangeError) throw exchangeError;
+          session = data.session;
+        } else {
+          const { data, error: sessionError } = await supabase.auth.getSession();
+          if (sessionError) throw sessionError;
+          session = data.session;
         }
 
         if (!session) {

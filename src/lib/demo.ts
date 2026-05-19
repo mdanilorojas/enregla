@@ -25,7 +25,7 @@ export function assertDemoModeNotInProduction(): void {
   if (!import.meta.env.PROD) return;
 
   const host = window.location.hostname;
-  if (host === 'app.enregla.se' || host === 'app.enregla.ec') {
+  if (host === 'app.enregla.ec' || host === 'app.enregla.se') {
     throw new Error(
       `Refusing to boot: VITE_DEMO_MODE=true on production host ${host}. ` +
       `Demo mode must run on a separate subdomain.`

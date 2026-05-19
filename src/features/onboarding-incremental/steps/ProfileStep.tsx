@@ -21,7 +21,7 @@ export function ProfileStep({ initialName = '', onNext, loading }: ProfileStepPr
   return (
     <form onSubmit={handleSubmit}>
       <h2 className="text-[var(--ds-font-size-400)] font-semibold text-[var(--ds-text)] mb-[var(--ds-space-050)] tracking-tight">
-        Bienvenido a PermitOps
+        Bienvenido a EnRegla
       </h2>
       <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mb-[var(--ds-space-400)]">
         Comencemos con tu información básica. Paso 1 de 3

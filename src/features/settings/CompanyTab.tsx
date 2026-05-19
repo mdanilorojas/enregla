@@ -7,13 +7,12 @@ import { Banner } from '@/components/ui/banner'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 import type { Company } from '@/types/database'
+import { BUSINESS_TYPES, businessTypeLabel } from '@/lib/domain/business-types'
 
-const BUSINESS_TYPES = [
-  { value: 'restaurante', label: 'Restaurante' },
-  { value: 'retail', label: 'Retail / Comercio' },
-  { value: 'food_truck', label: 'Food Truck' },
-  { value: 'consultorio', label: 'Consultorio' },
-] as const
+const BUSINESS_TYPE_OPTIONS = BUSINESS_TYPES.map((value) => ({
+  value,
+  label: businessTypeLabel(value),
+}))
 
 type Draft = {
   name: string
@@ -203,7 +202,7 @@ export function CompanyTab() {
             disabled={saving}
             className="w-full bg-white border border-[var(--ds-border)] rounded-[var(--ds-radius-200)] px-[var(--ds-space-150)] py-[var(--ds-space-100)] text-[var(--ds-font-size-100)] text-[var(--ds-text)] focus:outline-none focus:ring-2 focus:ring-[var(--ds-background-brand)]/20 focus:border-[var(--ds-border-bold)] transition-all disabled:opacity-50"
           >
-            {BUSINESS_TYPES.map((t) => (
+            {BUSINESS_TYPE_OPTIONS.map((t) => (
               <option key={t.value} value={t.value}>
                 {t.label}
               </option>

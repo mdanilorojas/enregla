@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { usePermits } from '@/hooks/usePermits';
 import { useLocations } from '@/hooks/useLocations';
@@ -9,7 +9,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Banner } from '@/components/ui/banner';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { PermitTimeline, type TimelineEvent } from './PermitTimeline';
 import { PermitUploadForm } from './PermitUploadForm';
 import { PermitInfoCard } from './PermitInfoCard';
@@ -22,12 +22,17 @@ import {
   FileText,
   Eye,
   MapPin,
+  RefreshCw,
 } from '@/lib/lucide-icons';
+import { RenewPermitModal } from '@/features/locations/RenewPermitModal';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { deleteDocument } from '@/lib/api/documents';
 import toast from 'react-hot-toast';
 import type { Document } from '@/types/database';
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_TYPES = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg'];
 
 const PERMIT_STATUS_LABELS: Record<string, string> = {
   vigente: 'Vigente',
@@ -40,6 +45,7 @@ const PERMIT_STATUS_LABELS: Record<string, string> = {
 export function PermitDetailView() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { profile } = useAuth();
   const companyId = resolveCompanyId(profile?.company_id) ?? undefined;
 
@@ -48,10 +54,23 @@ export function PermitDetailView() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loadingDocs, setLoadingDocs] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [renewOpen, setRenewOpen] = useState(false);
   // Modal de upload: cuando arrastras/seleccionas archivo, se guarda aqui
   // y se abre el modal con PermitUploadForm (que pide fechas + actualiza permit).
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const headerFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Deep-link ?action=renew abre el modal automáticamente (se consume una sola vez)
+  const renewParamConsumedRef = useRef(false);
+  useEffect(() => {
+    if (renewParamConsumedRef.current || searchParams.get('action') !== 'renew') return;
+    renewParamConsumedRef.current = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setRenewOpen(true);
+    const next = new URLSearchParams(searchParams);
+    next.delete('action');
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   const permit = useMemo(() => permits.find((p) => p.id === id), [permits, id]);
   const location = useMemo(
@@ -74,10 +93,7 @@ export function PermitDetailView() {
     fetchDocuments();
   }, [fetchDocuments]);
 
-  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-  const ACCEPTED_TYPES = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg'];
-
-  const validateFile = (file: File): string | null => {
+  const validateFile = useCallback((file: File): string | null => {
     if (!ACCEPTED_TYPES.includes(file.type)) {
       return 'Tipo no permitido. Solo PDF, PNG, JPG';
     }
@@ -85,7 +101,7 @@ export function PermitDetailView() {
       return 'Archivo muy grande. Máximo 5MB';
     }
     return null;
-  };
+  }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -118,7 +134,7 @@ export function PermitDetailView() {
     }
 
     setPendingFile(file);
-  }, []);
+  }, [validateFile]);
 
   const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -134,7 +150,7 @@ export function PermitDetailView() {
     setPendingFile(file);
     // reset input para que pueda re-seleccionarse el mismo archivo despues
     e.target.value = '';
-  }, []);
+  }, [validateFile]);
 
   const handleUploadSuccess = useCallback(() => {
     setPendingFile(null);
@@ -254,6 +270,13 @@ export function PermitDetailView() {
               className="hidden"
               onChange={handleFileInput}
             />
+            <Button
+              variant="outline"
+              onClick={() => setRenewOpen(true)}
+            >
+              <RefreshCw className="w-4 h-4" />
+              Renovar
+            </Button>
             <Button
               variant="default"
               onClick={() => headerFileInputRef.current?.click()}
@@ -392,6 +415,9 @@ export function PermitDetailView() {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Confirmar datos del permiso</DialogTitle>
+            <DialogDescription>
+              Revisa la fecha de emisión y el archivo antes de subir el documento del permiso.
+            </DialogDescription>
           </DialogHeader>
           {pendingFile && permit && (
             <PermitUploadForm
@@ -404,6 +430,15 @@ export function PermitDetailView() {
           )}
         </DialogContent>
       </Dialog>
+
+      <RenewPermitModal
+        permit={permit ?? null}
+        open={renewOpen}
+        onClose={() => setRenewOpen(false)}
+        onRenewed={(newPermitId) => {
+          navigate(`/permisos/${newPermitId}`);
+        }}
+      />
     </div>
   );
 }

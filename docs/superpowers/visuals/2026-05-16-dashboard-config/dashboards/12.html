@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"/><title>D12 · 4 mini-gauges grid</title>
+<link rel="stylesheet" href="../_ds.css"/></head>
+<body>
+<div class="mock-page"><div class="container">
+
+<div style="margin-bottom: var(--ds-space-400);">
+  <div style="display:flex; align-items:flex-end; justify-content:space-between; gap: var(--ds-space-300);">
+    <div>
+      <h1 style="font-size: var(--ds-font-size-500); font-weight:700; color: var(--ds-text);">Mariscos El Capitán</h1>
+      <p style="font-size: var(--ds-font-size-100); color: var(--ds-text-subtle); margin-top:4px;">
+        42 de 60 permisos vigentes · 3 sedes · Riesgo operativo
+        <span class="badge badge-alto" style="margin-left:6px;">Alto</span>
+      </p>
+    </div>
+    <div style="display:flex; gap: var(--ds-space-100);">
+      <button class="btn btn-secondary">Exportar reporte</button>
+      <button class="btn btn-primary">+ Nuevo permiso</button>
+    </div>
+  </div>
+</div>
+<div style="display:grid; grid-template-columns: 1fr 380px; gap: var(--ds-space-300); margin-bottom: var(--ds-space-400); align-items:start;">
+    <div><div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: var(--ds-space-150);">
+  <div class="card" style="padding: var(--ds-space-200); text-align:center;">
+    <div style="font-size:11px; color: var(--ds-text-subtle); text-transform:uppercase; letter-spacing:0.05em; font-weight:600;">Vigentes</div>
+    <div style="position:relative; width:100px; height:100px; margin: 8px auto;">
+      <svg viewBox="0 0 50 50" style="width:100%; height:100%; transform:rotate(-90deg);">
+        <circle cx="25" cy="25" r="19" fill="none" stroke="var(--ds-neutral-100)" stroke-width="4"/>
+        <circle cx="25" cy="25" r="19" fill="none" stroke="var(--ds-status-vigente)" stroke-width="4" stroke-dasharray="119.4" stroke-dashoffset="35.82000000000001" stroke-linecap="round"/>
+      </svg>
+      <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+        <div style="font-size: var(--ds-font-size-300); font-weight:700; color: var(--ds-status-vigente-text); line-height:1; font-variant-numeric:tabular-nums;">42</div>
+        <div style="font-size:10px; color: var(--ds-text-subtle);">de 60</div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="padding: var(--ds-space-200); text-align:center;">
+    <div style="font-size:11px; color: var(--ds-text-subtle); text-transform:uppercase; letter-spacing:0.05em; font-weight:600;">Por vencer</div>
+    <div style="position:relative; width:100px; height:100px; margin: 8px auto;">
+      <svg viewBox="0 0 50 50" style="width:100%; height:100%; transform:rotate(-90deg);">
+        <circle cx="25" cy="25" r="19" fill="none" stroke="var(--ds-neutral-100)" stroke-width="4"/>
+        <circle cx="25" cy="25" r="19" fill="none" stroke="var(--ds-status-por-vencer)" stroke-width="4" stroke-dasharray="119.4" stroke-dashoffset="66.864" stroke-linecap="round"/>
+      </svg>
+      <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+        <div style="font-size: var(--ds-font-size-300); font-weight:700; color: var(--ds-status-por-vencer-text); line-height:1; font-variant-numeric:tabular-nums;">8</div>
+        <div style="font-size:10px; color: var(--ds-text-subtle);">de 18</div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="padding: var(--ds-space-200); text-align:center;">
+    <div style="font-size:11px; color: var(--ds-text-subtle); text-transform:uppercase; letter-spacing:0.05em; font-weight:600;">Vencidos</div>
+    <div style="position:relative; width:100px; height:100px; margin: 8px auto;">
+      <svg viewBox="0 0 50 50" style="width:100%; height:100%; transform:rotate(-90deg);">
+        <circle cx="25" cy="25" r="19" fill="none" stroke="var(--ds-neutral-100)" stroke-width="4"/>
+        <circle cx="25" cy="25" r="19" fill="none" stroke="var(--ds-status-vencido)" stroke-width="4" stroke-dasharray="119.4" stroke-dashoffset="93.132" stroke-linecap="round"/>
+      </svg>
+      <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+        <div style="font-size: var(--ds-font-size-300); font-weight:700; color: var(--ds-status-vencido-text); line-height:1; font-variant-numeric:tabular-nums;">4</div>
+        <div style="font-size:10px; color: var(--ds-text-subtle);">de 18</div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="padding: var(--ds-space-200); text-align:center;">
+    <div style="font-size:11px; color: var(--ds-text-subtle); text-transform:uppercase; letter-spacing:0.05em; font-weight:600;">Sin doc</div>
+    <div style="position:relative; width:100px; height:100px; margin: 8px auto;">
+      <svg viewBox="0 0 50 50" style="width:100%; height:100%; transform:rotate(-90deg);">
+        <circle cx="25" cy="25" r="19" fill="none" stroke="var(--ds-neutral-100)" stroke-width="4"/>
+        <circle cx="25" cy="25" r="19" fill="none" stroke="var(--ds-status-no-registrado)" stroke-width="4" stroke-dasharray="119.4" stroke-dashoffset="79.99799999999999" stroke-linecap="round"/>
+      </svg>
+      <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+        <div style="font-size: var(--ds-font-size-300); font-weight:700; color: var(--ds-status-no-registrado-text); line-height:1; font-variant-numeric:tabular-nums;">6</div>
+        <div style="font-size:10px; color: var(--ds-text-subtle);">de 18</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+    
+<div class="invoice-card">
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <div class="invoice-title"><div class="icon">$</div>Lo que te falta pagar</div>
+    <div class="approx-chip">aprox.</div>
+  </div>
+  <div>
+    <div class="receipt-line"><div>Permiso de Bomberos<span class="more">Sede Centro</span></div><div class="price">$45 – $90</div></div>
+    <div class="receipt-line"><div>Patente Municipal<span class="more">Sede Norte</span></div><div class="price">$120 – $300</div></div>
+    <div class="receipt-line"><div>Salud · ARCSA<span class="more">Sede Centro</span></div><div class="price">$85 – $140</div></div>
+    <div class="receipt-line"><div>Uso de Suelo<span class="more">Sede Sur</span></div><div class="price">$60 – $120</div></div>
+    <div class="receipt-line"><div>+ 14 trámites más</div><div class="price">$230 – $530</div></div>
+  </div>
+  <div class="receipt-total">
+    <div class="label">Total pendiente</div>
+    <div class="amount"><span>$540 – $1 180</span><small>USD</small></div>
+  </div>
+  <div class="warning-box">Si no actuás, multas potenciales por <b>$3 420 – $12 800</b>.</div>
+  <div class="footnote">Valores aproximados según ARCSA, GAD y Bomberos.</div>
+</div>
+  </div>
+
+<div style="margin-bottom: var(--ds-space-300);">
+  <h2 style="font-size: var(--ds-font-size-300); font-weight:600; color: var(--ds-text); margin-bottom: var(--ds-space-150);">Sedes</h2>
+  <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: var(--ds-space-200);">
+    <div class="card" style="padding: var(--ds-space-300);">
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap: var(--ds-space-150);">
+      <div><div style="font-size: var(--ds-font-size-200); font-weight:600;">Sede Centro</div><div class="muted" style="font-size: var(--ds-font-size-075); margin-top:2px;">Av. 9 de Octubre 1234</div></div>
+      <span class="badge badge-alto">Alto</span>
+    </div>
+    <div style="display:flex; gap: var(--ds-space-100); margin-top: var(--ds-space-200); justify-content:space-between;"><div><div style="font-size:11px; color: var(--ds-text-subtle); text-transform:uppercase; letter-spacing:0.05em;">Vigentes</div><div style="font-weight:600; color: var(--ds-status-vigente-text);">5/8</div></div><div><div style="font-size:11px; color: var(--ds-text-subtle); text-transform:uppercase; letter-spacing:0.05em;">P. vencer</div><div style="font-weight:600; color: var(--ds-status-por-vencer-text);">1</div></div><div><div style="font-size:11px; color: var(--ds-text-subtle); text-transform:uppercase; letter-spacing:0.05em;">Vencidos</div><div style="font-weight:600; color: var(--ds-status-vencido-text);">2</div></div></div>
+    <div style="height:6px; background: var(--ds-neutral-100); border-radius:3px; overflow:hidden; display:flex; margin-top: var(--ds-space-150);"><div style="background: var(--ds-status-vigente); width:62%;"></div><div style="background: var(--ds-status-por-vencer); width:13%;"></div><div style="background: var(--ds-status-vencido); width:25%;"></div></div>
+  </div>
+    <div class="card" style="padding: var(--ds-space-300);">
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap: var(--ds-space-150);">
+      <div><div style="font-size: var(--ds-font-size-200); font-weight:600;">Sede Norte</div><div class="muted" style="font-size: var(--ds-font-size-075); margin-top:2px;">Vía Daule km 6</div></div>
+      <span class="badge badge-medio">Medio</span>
+    </div>
+    <div style="display:flex; gap: var(--ds-space-100); margin-top: var(--ds-space-200); justify-content:space-between;"><div><div style="font-size:11px; color: var(--ds-text-subtle); text-transform:uppercase; letter-spacing:0.05em;">Vigentes</div><div style="font-weight:600; color: var(--ds-status-vigente-text);">6/8</div></div><div><div style="font-size:11px; color: var(--ds-text-subtle); text-transform:uppercase; letter-spacing:0.05em;">P. vencer</div><div style="font-weight:600; color: var(--ds-status-por-vencer-text);">1</div></div><div><div style="font-size:11px; color: var(--ds-text-subtle); text-transform:uppercase; letter-spacing:0.05em;">En trámite</div><div style="font-weight:600; color: var(--ds-status-en-tramite-text);">1</div></div></div>
+    <div style="height:6px; background: var(--ds-neutral-100); border-radius:3px; overflow:hidden; display:flex; margin-top: var(--ds-space-150);"><div style="background: var(--ds-status-vigente); width:75%;"></div><div style="background: var(--ds-status-por-vencer); width:13%;"></div><div style="background: var(--ds-status-en-tramite); width:12%;"></div></div>
+  </div>
+    <div class="card" style="padding: var(--ds-space-300);">
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap: var(--ds-space-150);">
+      <div><div style="font-size: var(--ds-font-size-200); font-weight:600;">Sede Sur</div><div class="muted" style="font-size: var(--ds-font-size-075); margin-top:2px;">Sauces 9</div></div>
+      <span class="badge badge-critico">Crítico</span>
+    </div>
+    <div style="display:flex; gap: var(--ds-space-100); margin-top: var(--ds-space-200); justify-content:space-between;"><div><div style="font-size:11px; color: var(--ds-text-subtle); text-transform:uppercase; letter-spacing:0.05em;">Vigentes</div><div style="font-weight:600; color: var(--ds-status-vigente-text);">4/8</div></div><div><div style="font-size:11px; color: var(--ds-text-subtle); text-transform:uppercase; letter-spacing:0.05em;">Vencidos</div><div style="font-weight:600; color: var(--ds-status-vencido-text);">2</div></div><div><div style="font-size:11px; color: var(--ds-text-subtle); text-transform:uppercase; letter-spacing:0.05em;">Sin doc</div><div style="font-weight:600; color: var(--ds-status-no-registrado-text);">2</div></div></div>
+    <div style="height:6px; background: var(--ds-neutral-100); border-radius:3px; overflow:hidden; display:flex; margin-top: var(--ds-space-150);"><div style="background: var(--ds-status-vigente); width:50%;"></div><div style="background: var(--ds-status-vencido); width:25%;"></div><div style="background: var(--ds-status-no-registrado); width:25%;"></div></div>
+  </div>
+  </div>
+</div>
+</div></div>
+</body></html>

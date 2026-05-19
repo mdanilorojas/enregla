@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2 } from '@/lib/lucide-icons';
+import { Plus, Trash2, Copy, FileText } from '@/lib/lucide-icons';
 import { Button } from '@/components/ui/button';
 import { Banner } from '@/components/ui/banner';
 
@@ -52,6 +52,49 @@ export function LocationsStep({ onComplete, loading }: LocationsStepProps) {
     setLocations(newLocations);
   };
 
+  const duplicateLast = () => {
+    const last = locations[locations.length - 1];
+    if (!last) return;
+    setLocations([...locations, { ...last, name: '', address: last.address }]);
+  };
+
+  const [pasteOpen, setPasteOpen] = useState(false);
+  const [pasteText, setPasteText] = useState('');
+  const [pasteError, setPasteError] = useState<string | null>(null);
+
+  const handlePaste = () => {
+    setPasteError(null);
+    const lines = pasteText
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0 && !/^(nombre|name)\s*[,\t]/i.test(l));
+
+    if (lines.length === 0) {
+      setPasteError('Pega al menos una línea con formato: Nombre, Dirección');
+      return;
+    }
+
+    const parsed: LocationInput[] = [];
+    for (const line of lines) {
+      // Soporta CSV ("Nombre","Dirección") y TSV (tab)
+      const parts = line.includes('\t')
+        ? line.split('\t').map((s) => s.trim().replace(/^"|"$/g, ''))
+        : line.split(',').map((s) => s.trim().replace(/^"|"$/g, ''));
+      const [name, address] = parts;
+      if (!name || !address) {
+        setPasteError(`Línea inválida: "${line.slice(0, 40)}..." — necesita Nombre y Dirección`);
+        return;
+      }
+      parsed.push({ name, address, status: 'operando' });
+    }
+
+    // Reemplaza si la única sede actual está vacía, si no concatena
+    const hasEmptyFirst = locations.length === 1 && !locations[0].name && !locations[0].address;
+    setLocations(hasEmptyFirst ? parsed : [...locations, ...parsed]);
+    setPasteText('');
+    setPasteOpen(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canProceed) return;
@@ -78,6 +121,57 @@ export function LocationsStep({ onComplete, loading }: LocationsStepProps) {
       <Banner variant="info" className="mb-[var(--ds-space-300)]">
         Los permisos se crean automáticamente según el tipo de negocio de la empresa.
       </Banner>
+
+      <div className="flex flex-wrap gap-[var(--ds-space-100)] mb-[var(--ds-space-300)]">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setPasteOpen((o) => !o)}
+          disabled={loading}
+        >
+          <FileText className="w-4 h-4" />
+          {pasteOpen ? 'Ocultar paste' : 'Pegar desde Excel / CSV'}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={duplicateLast}
+          disabled={loading || locations.length === 0}
+        >
+          <Copy className="w-4 h-4" />
+          Duplicar última
+        </Button>
+      </div>
+
+      {pasteOpen && (
+        <div className="mb-[var(--ds-space-300)] p-[var(--ds-space-250)] bg-[var(--ds-neutral-50)] border border-[var(--ds-border)] rounded-[var(--ds-radius-200)]">
+          <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mb-[var(--ds-space-100)]">
+            Una sede por línea. Formato: <code>Nombre, Dirección</code> (o separado por tab desde Excel).
+          </p>
+          <textarea
+            value={pasteText}
+            onChange={(e) => setPasteText(e.target.value)}
+            rows={6}
+            className="w-full bg-white border border-[var(--ds-border)] rounded-[var(--ds-radius-200)] px-[var(--ds-space-150)] py-[var(--ds-space-100)] text-[var(--ds-font-size-100)] font-mono"
+            placeholder="Sucursal Quito Centro, Av. Amazonas N34-451&#10;Sucursal Guayaquil Urdesa, Circunvalación Sur 123"
+          />
+          {pasteError && (
+            <div className="mt-[var(--ds-space-100)]">
+              <Banner variant="error">{pasteError}</Banner>
+            </div>
+          )}
+          <div className="mt-[var(--ds-space-100)] flex gap-[var(--ds-space-100)]">
+            <Button type="button" variant="default" size="sm" onClick={handlePaste} disabled={!pasteText.trim()}>
+              Agregar sedes
+            </Button>
+            <Button type="button" variant="ghost" size="sm" onClick={() => { setPasteOpen(false); setPasteText(''); setPasteError(null); }}>
+              Cancelar
+            </Button>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-[var(--ds-space-200)]">
         {locations.map((location, index) => (

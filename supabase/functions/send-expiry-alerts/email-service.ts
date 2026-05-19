@@ -5,7 +5,7 @@ import { ExpiryAlertEmail } from './templates/expiry-alert.tsx';
 import type { UserAlerts, EmailSendResult } from './types.ts';
 
 const resendApiKey = Deno.env.get('RESEND_API_KEY')!;
-const appUrl = Deno.env.get('APP_URL') || 'https://app.enregla.se';
+const appUrl = Deno.env.get('APP_URL') || 'https://app.enregla.ec';
 const fromAddress = Deno.env.get('RESEND_FROM') || 'EnRegla <onboarding@resend.dev>';
 
 const resend = new Resend(resendApiKey);

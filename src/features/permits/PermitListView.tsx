@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocations } from '@/hooks/useLocations';
 import { usePermits } from '@/hooks/usePermits';
@@ -82,9 +83,11 @@ export function PermitListView() {
             <Button variant="outline" onClick={() => exportPermitsCSV(filtered)}>
               <Download className="w-4 h-4" />Exportar CSV
             </Button>
-            <Button variant="default">
-              <Plus className="w-4 h-4" />Nuevo Permiso
-            </Button>
+            <Link to="/permisos/nuevo">
+              <Button variant="default">
+                <Plus className="w-4 h-4" />Nuevo Permiso
+              </Button>
+            </Link>
           </div>
         </div>
 
@@ -109,9 +112,11 @@ export function PermitListView() {
               title="No hay permisos registrados"
               description="Crea el primer permiso para comenzar"
               action={
-                <Button variant="default">
-                  <Plus className="w-4 h-4" />Nuevo Permiso
-                </Button>
+                <Link to="/permisos/nuevo">
+                  <Button variant="default">
+                    <Plus className="w-4 h-4" />Nuevo Permiso
+                  </Button>
+                </Link>
               }
             />
           </Card>

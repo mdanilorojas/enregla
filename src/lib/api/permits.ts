@@ -133,72 +133,36 @@ export async function renewPermit(
   permitId: string,
   data: RenewPermitData
 ): Promise<Permit> {
-  // 1. Get the old permit
-  const oldPermit = await getPermit(permitId);
-  if (!oldPermit) {
-    throw new Error('Permiso no encontrado');
-  }
-
-  // 2. Create new version (INSERT)
-  const newPermitData = {
-    company_id: oldPermit.company_id,
-    location_id: oldPermit.location_id,
-    type: oldPermit.type,
-    status: 'vigente' as const,
-    permit_number: data.permit_number,
-    issue_date: data.issue_date,
-    expiry_date: data.expiry_date,
-    issuer: data.issuer || oldPermit.issuer,
-    notes: data.notes,
-    is_active: true,
-    version: (oldPermit.version ?? 1) + 1,
-    superseded_by: null,
-    archived_at: null,
-  };
-
-  // casting due to stale generated types — see audit follow-up
+  // Llamada atómica a la RPC renew_permit que inserta la nueva versión +
+  // archiva la anterior en una sola transacción y además registra el evento.
+  // Antes teníamos 3 operaciones sueltas que podían dejar el estado inconsistente
+  // si fallaba la segunda o tercera (ver audit 2026-05-13 · P-5).
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const insertQuery = supabase.from('permits') as any;
-  const { data: createdPermit, error: createError } = await insertQuery
-    .insert(newPermitData)
-    .select()
-    .single();
+  const { data: newPermitId, error: rpcError } = await (supabase as any).rpc('renew_permit', {
+    p_old_permit_id: permitId,
+    p_permit_number: data.permit_number,
+    p_issue_date: data.issue_date,
+    p_expiry_date: data.expiry_date,
+    p_issuer: data.issuer || null,
+    p_notes: data.notes,
+  });
 
-  if (createError) {
-    throw new Error(`Error al crear el nuevo permiso: ${createError.message}`);
+  if (rpcError) {
+    throw new Error(`No se pudo renovar el permiso: ${rpcError.message}`);
   }
 
-  // 3. Archive old permit (UPDATE)
-  // casting due to stale generated types — see audit follow-up
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const updateQuery = supabase.from('permits') as any;
-  const { error: updateError } = await updateQuery
-    .update({
-      is_active: false,
-      superseded_by: createdPermit.id,
-      archived_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', permitId);
-
-  if (updateError) {
-    // Rollback: delete the newly created permit
-    // casting due to stale generated types — see audit follow-up
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const deleteQuery = supabase.from('permits') as any;
-    await deleteQuery.delete().eq('id', createdPermit.id);
-    throw new Error(`Error al archivar el permiso anterior: ${updateError.message}`);
+  const createdPermit = await getPermit(newPermitId as string);
+  if (!createdPermit) {
+    throw new Error('Renovación creada pero no se pudo leer el nuevo permiso');
   }
 
-  // 4. Upload document if provided
+  // Upload del documento es post-hoc: si falla, el permit renovado queda
+  // sin documento pero la renovación en sí es consistente.
   if (data.document) {
     try {
       await uploadPermitDocument(createdPermit.id, data.document);
     } catch (uploadError) {
-      // Document upload failed, but permit renewal succeeded
-      // Log the error but don't fail the entire operation
       console.error('Error uploading document:', uploadError);
-      // You could optionally show a warning to the user that the document failed to upload
     }
   }
 

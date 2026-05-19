@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>EnRegla — Audit 2026-05-13 · Producto · UX · Flujos</title>
+<style>
+  :root {
+    --brand: #0f265c;
+    --brand-soft: #e3ecff;
+    --ink: #172b4d;
+    --ink-2: #42526e;
+    --ink-3: #6b778c;
+    --paper: #ffffff;
+    --paper-2: #f7f9fc;
+    --paper-3: #eef2f6;
+    --line: #dfe1e6;
+    --p0: #de350b;
+    --p0-soft: #ffebe6;
+    --p1: #ff8b00;
+    --p1-soft: #fff4e5;
+    --p2: #0052cc;
+    --p2-soft: #e9f2ff;
+    --p3: #6b778c;
+    --p3-soft: #f4f5f7;
+    --good: #006644;
+    --good-soft: #e3fcef;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper-2); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif; line-height: 1.5; }
+  .wrap { max-width: 1220px; margin: 0 auto; padding: 48px 32px 120px; }
+  header { background: linear-gradient(135deg, #0f265c 0%, #1d3b7a 100%); color: #fff; padding: 48px 32px 56px; margin-bottom: 48px; }
+  header .wrap { padding: 0; }
+  header h1 { font-size: 36px; margin: 0 0 8px; letter-spacing: -0.5px; font-weight: 800; }
+  header .subtitle { font-size: 16px; opacity: 0.85; margin: 0 0 24px; }
+  header .meta { display: flex; gap: 28px; flex-wrap: wrap; font-size: 13px; opacity: 0.9; }
+  header .meta strong { font-weight: 700; color: #fff; }
+  h2 { font-size: 24px; margin: 48px 0 16px; padding-bottom: 12px; border-bottom: 2px solid var(--line); color: var(--brand); font-weight: 800; }
+  h3 { font-size: 18px; margin: 32px 0 12px; color: var(--ink); font-weight: 700; }
+  h4 { font-size: 14px; margin: 20px 0 8px; color: var(--ink-2); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+  p, li { font-size: 14.5px; color: var(--ink); }
+  code { font-family: "SF Mono", Monaco, Menlo, Consolas, monospace; background: var(--paper-3); padding: 1px 6px; border-radius: 3px; font-size: 12.5px; color: #bf2600; }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 24px 0 40px; }
+  .kpi { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 20px 20px 16px; }
+  .kpi .num { font-size: 40px; font-weight: 800; line-height: 1; margin: 0 0 4px; }
+  .kpi .label { font-size: 13px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+  .kpi.p0 .num { color: var(--p0); }
+  .kpi.p1 .num { color: var(--p1); }
+  .kpi.p2 .num { color: var(--p2); }
+  .kpi.good .num { color: var(--good); }
+  .callout { background: var(--p0-soft); border-left: 4px solid var(--p0); padding: 16px 20px; border-radius: 0 6px 6px 0; margin: 20px 0; }
+  .callout.warn { background: var(--p1-soft); border-color: var(--p1); }
+  .callout.info { background: var(--p2-soft); border-color: var(--p2); }
+  .callout.good { background: var(--good-soft); border-color: var(--good); }
+  .callout strong { display: block; margin-bottom: 4px; color: inherit; }
+  .sev { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 3px; vertical-align: middle; letter-spacing: 0.04em; }
+  .sev.p0 { background: var(--p0); color: #fff; }
+  .sev.p1 { background: var(--p1); color: #fff; }
+  .sev.p2 { background: var(--p2); color: #fff; }
+  .sev.p3 { background: var(--p3); color: #fff; }
+  .sev.good { background: var(--good); color: #fff; }
+  .status { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 3px; vertical-align: middle; }
+  .status.fixed { background: var(--good-soft); color: var(--good); }
+  .status.partial { background: var(--p1-soft); color: var(--p1); }
+  .status.broken { background: var(--p0-soft); color: var(--p0); }
+  .status.missing { background: var(--p3-soft); color: var(--ink-2); }
+  .status.works { background: var(--good-soft); color: var(--good); }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; font-size: 13px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--paper-3); font-weight: 700; color: var(--ink-2); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; }
+  tr:last-child td { border-bottom: none; }
+  td code { font-size: 11.5px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin: 16px 0; }
+  .card { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 18px; }
+  .card h4 { margin: 0 0 6px; font-size: 14px; color: var(--ink); font-weight: 700; text-transform: none; letter-spacing: 0; }
+  .card p { margin: 6px 0 0; font-size: 13.5px; color: var(--ink-2); }
+  .card .tag { display: inline-block; font-size: 10.5px; padding: 2px 6px; background: var(--paper-3); color: var(--ink-3); border-radius: 3px; margin-right: 4px; font-weight: 600; }
+  details { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 12px 18px; margin: 12px 0; }
+  details summary { cursor: pointer; font-weight: 600; color: var(--brand); outline: none; font-size: 14.5px; }
+  details[open] summary { margin-bottom: 12px; }
+  .flow { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 24px; margin: 24px 0; overflow-x: auto; }
+  .flow svg { display: block; margin: 0 auto; max-width: 100%; }
+  .flow .legend { display: flex; gap: 20px; justify-content: center; margin-top: 16px; font-size: 12px; color: var(--ink-3); flex-wrap: wrap; }
+  .flow .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .flow .legend span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 2px; }
+  .flow .legend .lg-ok::before { background: var(--good); }
+  .flow .legend .lg-broken::before { background: var(--p0); }
+  .flow .legend .lg-partial::before { background: var(--p1); }
+  .flow .legend .lg-missing::before { background: var(--ink-3); }
+  .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+  .comparison .before, .comparison .after { padding: 18px; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); }
+  .comparison .before { border-left: 4px solid var(--p0); }
+  .comparison .after { border-left: 4px solid var(--good); }
+  .comparison h4 { margin-top: 0; font-size: 12px; letter-spacing: 0.05em; }
+  .comparison .before h4 { color: var(--p0); }
+  .comparison .after h4 { color: var(--good); }
+  .comparison p, .comparison li { font-size: 13px; color: var(--ink-2); margin: 4px 0; }
+  .mockup { font-family: "SF Mono", Monaco, Consolas, monospace; background: var(--paper-2); padding: 14px; border-radius: 6px; font-size: 12px; white-space: pre-wrap; color: var(--ink); line-height: 1.5; }
+  .mockup .bad { color: var(--p0); font-weight: 700; }
+  .mockup .good { color: var(--good); font-weight: 700; }
+  .mockup .muted { color: var(--ink-3); }
+  footer { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-3); }
+  .sticky-nav { position: sticky; top: 0; background: var(--paper-2); border-bottom: 1px solid var(--line); padding: 12px 0; margin: 0 -32px 24px; z-index: 10; }
+  .sticky-nav ul { list-style: none; padding: 0 32px; margin: 0; display: flex; flex-wrap: wrap; gap: 16px; }
+  .sticky-nav a { color: var(--ink-2); text-decoration: none; font-size: 13px; font-weight: 600; }
+  .sticky-nav a:hover { color: var(--brand); }
+  .tabs { display: flex; gap: 4px; margin: 20px 0 0; border-bottom: 2px solid var(--line); }
+  .tabs button { background: none; border: none; padding: 10px 16px; font-size: 13px; font-weight: 600; color: var(--ink-3); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+  .tabs button.active { color: var(--brand); border-bottom-color: var(--brand); }
+  .tab-panel { display: none; padding: 20px 0; }
+  .tab-panel.active { display: block; }
+  @media (max-width: 720px) { .kpis { grid-template-columns: repeat(2, 1fr); } .comparison { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>EnRegla — Audit 2026-05-13</h1>
+    <p class="subtitle">Verificación mega-audit + Producto · UX · Flujos · 62 findings nuevos o no cerrados</p>
+    <div class="meta">
+      <span><strong>Fecha:</strong> 2026-05-13</span>
+      <span><strong>Branch:</strong> feat/dominio-v2 (29 ahead main)</span>
+      <span><strong>Método:</strong> 6 agents paralelo · verify behavior, not shape</span>
+      <span><strong>DB real:</strong> 46 permits · 4 users admin · 2 eventos</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<nav class="sticky-nav">
+  <ul>
+    <li><a href="#resumen">Resumen</a></li>
+    <li><a href="#verify">Verificación mega-audit</a></li>
+    <li><a href="#flow">Mapa de flujos</a></li>
+    <li><a href="#producto">Producto</a></li>
+    <li><a href="#ux">UX</a></li>
+    <li><a href="#flujos">Flujos</a></li>
+    <li><a href="#comparativas">Comparativas</a></li>
+    <li><a href="#top30">Top-30 orden</a></li>
+  </ul>
+</nav>
+
+<section id="resumen">
+<div class="kpis">
+  <div class="kpi good"><div class="num">1</div><div class="label">Mega-audit FIXED</div></div>
+  <div class="kpi p1"><div class="num">6</div><div class="label">Mega-audit PARTIAL</div></div>
+  <div class="kpi p0"><div class="num">33</div><div class="label">Mega-audit BROKEN</div></div>
+  <div class="kpi p0"><div class="num">22</div><div class="label">Findings NUEVOS</div></div>
+</div>
+
+<div class="callout">
+  <strong>Top hallazgo — mega-audit sigue abierto</strong>
+  De 40 P0/P1 verificados del audit 2026-05-12: <strong>solo 1 FIXED</strong> (OAuth callback PKCE + <code>.ec</code>, commit <code>c493222</code>). <code>feat/dominio-v2</code> se dedicó a refactor de dominio (business_types, permit_requirements, marco legal DB-driven), no a ship-blockers. JWT <code>service_role</code> sigue en git. <code>handle_new_user</code> sigue rompiendo signup nuevo. 11 deps muertas intactas. Tailwind 4 tokens sin <code>--color-*</code>. 103 <code>console.*</code> en prod.
+</div>
+
+<div class="callout warn">
+  <strong>Segundo hallazgo — dashboard miente</strong>
+  <code>permit.type</code> tiene 22 valores mixtos en DB. Solo 5/22 matchean <code>permit_requirements.permit_type</code> (slugs). <code>DashboardView</code> joina por casing exacto → 13/22 permits no suman costo/multa al rollup. <code>ComplianceInvoiceCard</code> sub-estima multa esperada ~60%. Usuario confía en un número falso. Sumado: 4 permits <code>status='vigente'</code> con <code>expiry_date IS NULL</code> → % compliance inflado.
+</div>
+
+<div class="callout warn">
+  <strong>Tercer hallazgo — 5 días de alertas perdidas sin backfill</strong>
+  Cron <code>send-expiry-alerts-daily</code> falló los 5 días 2026-05-04, 05, 06, 08, 09, 10 (<code>extensions.http_post does not exist</code> + JSON syntax). Arreglado 2026-05-11, sin backfill. Todo permit que venció en esa ventana no disparó alerta. Dato perdido. Sin dead-man switch.
+</div>
+</section>
+
+<section id="verify">
+<h2>1 · Verificación mega-audit 2026-05-12</h2>
+<p>40 findings P0/P1 reverificados punto por punto contra código actual, DB y edge functions.</p>
+
+<div class="tabs">
+  <button class="active" onclick="showTab(event,'v-db')">DB · Security · Auth (13)</button>
+  <button onclick="showTab(event,'v-fe')">Frontend · UX (12)</button>
+  <button onclick="showTab(event,'v-ds')">DS · Build · Deps (15)</button>
+</div>
+
+<div id="v-db" class="tab-panel active">
+<table>
+  <thead><tr><th>ID</th><th>Hallazgo</th><th>Status</th><th>Evidencia</th></tr></thead>
+  <tbody>
+    <tr><td>DB-1</td><td><code>handle_new_user</code> inserta <code>role='member'</code> fuera del CHECK</td><td><span class="status broken">BROKEN</span></td><td><code>pg_proc.prosrc</code> contiene literal <code>'member'</code></td></tr>
+    <tr><td>DB-2</td><td><code>permits.type</code> 18 valores duplicados sin CHECK</td><td><span class="status broken">BROKEN</span></td><td>18 tipos: <code>bomberos</code>/<code>Bomberos</code>, <code>arcsa</code>/<code>Sanitario</code>/<code>Permiso Sanitario (ARCSA)</code>. Solo existe <code>permits_status_check</code></td></tr>
+    <tr><td>DB-3</td><td>Trigger <code>auto_create_location_permits</code> no popula <code>issuer_id</code></td><td><span class="status broken">BROKEN</span></td><td>46 permits, 5 con <code>issuer_id</code> (11%)</td></tr>
+    <tr><td>DB-4</td><td>Stale types + <code>as any</code></td><td><span class="status broken">BROKEN</span></td><td><code>database.ts</code> 920 líneas stale; <code>database.types.ts</code> 28 líneas placeholder; 36 <code>as any</code> en 19 archivos</td></tr>
+    <tr><td>SEC-1</td><td>JWT service_role en git público</td><td><span class="status broken">BROKEN</span></td><td><code>docs/superpowers/plans/2026-04-14-…:1266</code> aún contiene JWT. Role <code>service_role</code>, exp 2091</td></tr>
+    <tr><td>SEC-2</td><td><code>leads</code> INSERT <code>WITH CHECK (true)</code> público</td><td><span class="status broken">BROKEN</span></td><td>Policy <code>"Anyone can insert leads"</code> roles <code>{public}</code>. Advisor <code>rls_policy_always_true</code> WARN</td></tr>
+    <tr><td>SEC-3</td><td>Edge fn v8 con <code>.se</code></td><td><span class="status broken">BROKEN</span></td><td><code>send-expiry-alerts</code> v8. <code>ALLOWED_ORIGIN ?? 'https://app.enregla.se'</code>; <code>APP_URL || 'https://app.enregla.se'</code></td></tr>
+    <tr><td>SEC-4</td><td>public-link RLS sin token-binding</td><td><span class="status partial">PARTIAL</span></td><td><code>permits_select</code> es <code>TO public</code> sin referenciar <code>public_links</code>. Scoping real solo por <code>company_id+location_id</code></td></tr>
+    <tr><td>user_company_id</td><td>EXECUTE anon (commit 046b578)</td><td><span class="status broken">BROKEN</span></td><td><code>has_function_privilege('anon','user_company_id()','EXECUTE')=true</code></td></tr>
+    <tr><td>EMAIL-1</td><td>Resend fallback <code>onboarding@resend.dev</code></td><td><span class="status broken">BROKEN</span></td><td><code>email-service.ts:8</code> <code>RESEND_FROM || 'EnRegla &lt;onboarding@resend.dev&gt;'</code></td></tr>
+    <tr><td>AUTH callback</td><td>PKCE + <code>.ec</code></td><td><span class="status fixed">FIXED</span></td><td><code>AuthCallback.tsx:32-35</code> usa <code>exchangeCodeForSession</code>. Sin <code>.se</code> hardcoded</td></tr>
+    <tr><td>useAuth 5s</td><td>Timeout mata sesión</td><td><span class="status broken">BROKEN</span></td><td><code>useAuth.ts:84-88</code> sigue con <code>setTimeout(...,5000)</code></td></tr>
+    <tr><td>Advisors</td><td>8 security WARN + 13 perf INFO</td><td><span class="status broken">BROKEN</span></td><td><code>rls_policy_always_true</code>; 3× <code>anon_security_definer_function_executable</code>; <code>auth_leaked_password_protection</code> disabled; 13× <code>unused_index</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<div id="v-fe" class="tab-panel">
+<table>
+  <thead><tr><th>ID</th><th>Hallazgo</th><th>Status</th><th>Evidencia</th></tr></thead>
+  <tbody>
+    <tr><td>UX-1</td><td>"Nuevo Permiso" muerto ×3</td><td><span class="status broken">BROKEN</span></td><td><code>PermitListView.tsx:85-87,112-115</code> sin onClick. Sin ruta <code>/permisos/nuevo</code></td></tr>
+    <tr><td>UX-2</td><td>NotificationsTab sin persistencia</td><td><span class="status broken">BROKEN</span></td><td><code>SettingsView.tsx:22</code> importa <code>NotificationsTab</code>. <code>NotificationPreferences</code> funcional huérfano</td></tr>
+    <tr><td>UX-3</td><td>ProfileTab/SecurityTab botones sin onClick</td><td><span class="status broken">BROKEN</span></td><td><code>ProfileTab.tsx:17,30</code>; <code>SecurityTab.tsx:23</code></td></tr>
+    <tr><td>UX-4</td><td>CompanyTab 4 giros vs DB 12</td><td><span class="status broken">BROKEN</span></td><td><code>CompanyTab.tsx:11-16</code> no importa <code>BUSINESS_TYPES</code> canonical</td></tr>
+    <tr><td>UX-5</td><td>RenewPermitModal trigger nunca llamado</td><td><span class="status broken">BROKEN</span></td><td><code>LocationDetailView.tsx:25-27</code> estado; <code>:151-159</code> modal. Solo close handler se usa</td></tr>
+    <tr><td>UX-6</td><td>Copy "PermitOps"</td><td><span class="status broken">BROKEN</span></td><td><code>ProfileStep.tsx:24</code>; <code>IncrementalWizard.tsx:157,160</code> (logo PM + sidebar)</td></tr>
+    <tr><td>UX-7</td><td>CRM interno sin ruta</td><td><span class="status partial">PARTIAL</span></td><td><code>App.tsx</code> sin <code>/leads</code>/<code>/partners</code>. Componentes dead code. Sin landing activa — no riesgo inmediato</td></tr>
+    <tr><td>DATA-OBS</td><td>Hooks descartan <code>error</code></td><td><span class="status partial">PARTIAL</span></td><td><code>DashboardView.tsx:63-64</code>, <code>PermitListView.tsx:19-20</code>, <code>PermitDetailView.tsx:46-47</code></td></tr>
+    <tr><td>PUBLIC-RPC</td><td><code>/p/:token</code> usa PostgREST vs RPC</td><td><span class="status broken">BROKEN</span></td><td><code>PublicVerificationPage.tsx:25</code> llama <code>getPublicLinkData</code>. Sin <code>.rpc('get_public_permits')</code></td></tr>
+    <tr><td>WIN-OPEN</td><td>noopener,noreferrer</td><td><span class="status partial">PARTIAL</span></td><td><code>DocumentList.tsx:35</code> + <code>PermitDetailView.tsx:557</code> sin flags</td></tr>
+    <tr><td>ROUTE-RESET</td><td><code>/reset-password</code></td><td><span class="status broken">BROKEN</span></td><td><code>lib/auth.ts:61</code> redirect; <code>App.tsx</code> sin ruta → <code>Navigate to="/"</code></td></tr>
+    <tr><td>DS-COLOR</td><td>DesignSystemView stock vs brand</td><td><span class="status broken">BROKEN</span></td><td><code>DesignSystemView.tsx:83,112</code> aún <code>#1e3a8a</code> con label "Color principal de marca"</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div id="v-ds" class="tab-panel">
+<table>
+  <thead><tr><th>ID</th><th>Hallazgo</th><th>Status</th><th>Evidencia</th></tr></thead>
+  <tbody>
+    <tr><td>DS-1</td><td><code>@theme</code> sin prefijo <code>--color-*</code></td><td><span class="status broken">BROKEN</span></td><td><code>src/index.css:16-44</code> tokens sin <code>--color-</code> prefix. Tailwind 4 no emite utilities</td></tr>
+    <tr><td>DS-2</td><td>DesignSystemView stock vs brand</td><td><span class="status broken">BROKEN</span></td><td><code>DesignSystemView.tsx:83</code> <code>#1e3a8a</code> primary</td></tr>
+    <tr><td>DS-3</td><td><code>--ds-orange-700/800/900</code> rojos</td><td><span class="status broken">BROKEN</span></td><td><code>atlassian-tokens.css:32-34</code> → <code>#f44336</code>, <code>#e53935</code>, <code>#d32f2f</code>. <code>--ds-risk-alto-text</code> apunta ahí</td></tr>
+    <tr><td>DS-4</td><td><code>@custom-variant dark</code></td><td><span class="status broken">BROKEN</span></td><td><code>src/index.css:14</code> sigue presente</td></tr>
+    <tr><td>tsconfig</td><td>strict/strictNullChecks</td><td><span class="status broken">BROKEN</span></td><td><code>config/tsconfig.app.json</code> sin ninguna flag</td></tr>
+    <tr><td>CI</td><td>coverage/audit/budget</td><td><span class="status partial">PARTIAL</span></td><td>Corre lint+tsc+build+test. Falta coverage, <code>npm audit</code>, bundle-budget, Lighthouse</td></tr>
+    <tr><td>drop console</td><td>vite.config</td><td><span class="status broken">BROKEN</span></td><td><code>config/vite.config.ts</code> 17 líneas, sin <code>esbuild.drop</code></td></tr>
+    <tr><td>Deps muertas</td><td>11 removidas</td><td><span class="status broken">BROKEN</span></td><td>Las 11 siguen: <code>recharts</code>, <code>jspdf</code>, <code>html2canvas</code>, <code>framer-motion</code>, etc.</td></tr>
+    <tr><td>Code-split</td><td><code>/p/:token</code></td><td><span class="status broken">BROKEN</span></td><td><code>App.tsx</code> todos imports estáticos. <code>lazy(</code> → 0 matches</td></tr>
+    <tr><td>Sentry</td><td>Wireado</td><td><span class="status broken">BROKEN</span></td><td>Solo en docs. Sin dep, sin <code>Sentry.init()</code></td></tr>
+    <tr><td>console.*</td><td>Cantidad prod</td><td><span class="status broken">BROKEN</span></td><td><strong>103 matches</strong> en 26 archivos. Worst: <code>useAuth.ts</code> (38)</td></tr>
+    <tr><td>ErrorBoundary</td><td>Telemetry prod</td><td><span class="status broken">BROKEN</span></td><td><code>ErrorBoundary.tsx:19-23</code> solo bajo <code>import.meta.env.DEV</code></td></tr>
+    <tr><td>PermitTable a11y</td><td>Sort keyboard</td><td><span class="status broken">BROKEN</span></td><td><code>PermitTable.tsx:111-121</code> <code>&lt;th onClick&gt;</code> sin button/tabIndex/role/aria-sort</td></tr>
+    <tr><td>Modal focus trap</td><td>ShareLocationModal</td><td><span class="status broken">BROKEN</span></td><td><code>:128-134</code> sin trap, sin keydown Escape</td></tr>
+    <tr><td>Archivos muertos</td><td>Eliminados</td><td><span class="status partial">PARTIAL</span></td><td><code>.deprecated/</code> FIXED. <code>src/data/mock/</code>, <code>classification-rules.ts</code> siguen</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout warn" style="margin-top:24px;">
+  <strong>Riesgos nuevos descubiertos durante verificación</strong>
+  <ol style="margin: 8px 0 0 20px; padding: 0;">
+    <li><code>permits_select</code> RLS <code>TO public</code> sin referenciar <code>public_links</code> — peor que SEC-4 original</li>
+    <li><code>get_public_permits</code> + <code>increment_public_link_view</code> SECURITY DEFINER accesibles a <code>anon</code> sin validar token</li>
+    <li>Auth Leaked Password Protection (HIBP) <strong>disabled</strong></li>
+    <li><code>lucide-react@^1.14.0</code>, <code>typescript@~6.0.2</code>, <code>vite@^8</code> versiones sospechosas (canarias/fork)</li>
+    <li>Layout no-convencional: <code>config/vite.config.ts</code> en vez de root — puede romper Vercel/Sentry plugins</li>
+    <li><code>DesignSystemShowcase</code> + <code>DesignSystemView</code> duplicados en prod</li>
+    <li><code>--ds-orange-*</code> rojos anclados en <code>DashboardSedeCard</code>, <code>DashboardWidget</code>, <code>SedeNode</code></li>
+  </ol>
+</div>
+</section>
+
+<section id="flow">
+<h2>2 · Mapa de flujos — Golden path real hoy</h2>
+<p>Qué debería pasar vs qué pasa en <code>feat/dominio-v2</code>. Rojo = roto. Naranja = parcial. Gris = missing. Verde = funciona.</p>
+
+<div class="flow">
+<svg viewBox="0 0 1200 880" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="User flow actual de EnRegla">
+  <defs>
+    <marker id="ar-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#006644"/></marker>
+    <marker id="ar-br" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#de350b"/></marker>
+    <marker id="ar-pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ff8b00"/></marker>
+    <marker id="ar-ms" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#6b778c"/></marker>
+  </defs>
+
+  <g font-family="Inter, system-ui" font-size="12">
+
+    <!-- ENTRY -->
+    <rect x="20" y="20" width="170" height="52" rx="8" fill="#eef2f6" stroke="#dfe1e6"/>
+    <text x="105" y="42" text-anchor="middle" font-weight="700" font-size="13">Landing / /login</text>
+    <text x="105" y="58" text-anchor="middle" font-size="11" fill="#42526e">OAuth Google</text>
+
+    <rect x="210" y="20" width="170" height="52" rx="8" fill="#e3fcef" stroke="#006644"/>
+    <text x="295" y="42" text-anchor="middle" font-weight="700" font-size="13">/auth/callback</text>
+    <text x="295" y="58" text-anchor="middle" font-size="11" fill="#42526e">PKCE ok (c493222)</text>
+
+    <rect x="400" y="20" width="210" height="52" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="505" y="38" text-anchor="middle" font-weight="700" fill="#de350b" font-size="13">handle_new_user()</text>
+    <text x="505" y="54" text-anchor="middle" font-size="11" fill="#42526e">role='member' rechazado</text>
+    <text x="505" y="66" text-anchor="middle" font-size="10" fill="#42526e">exception swallowed</text>
+
+    <rect x="630" y="20" width="210" height="52" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="735" y="38" text-anchor="middle" font-weight="700" fill="#de350b" font-size="13">IncrementalWizard</text>
+    <text x="735" y="54" text-anchor="middle" font-size="11" fill="#42526e">"PermitOps" + logo PM</text>
+    <text x="735" y="66" text-anchor="middle" font-size="10" fill="#42526e">sin skip / CSV / duplicar sede</text>
+
+    <rect x="860" y="20" width="170" height="52" rx="8" fill="#fff4e5" stroke="#ff8b00"/>
+    <text x="945" y="38" text-anchor="middle" font-weight="700" font-size="13">Dashboard</text>
+    <text x="945" y="54" text-anchor="middle" font-size="11" fill="#42526e">weather metaphor</text>
+    <text x="945" y="66" text-anchor="middle" font-size="10" fill="#42526e">% miente (join broken)</text>
+
+    <rect x="1050" y="20" width="140" height="52" rx="8" fill="#f4f5f7" stroke="#6b778c" stroke-dasharray="4 3"/>
+    <text x="1120" y="38" text-anchor="middle" font-weight="700" fill="#6b778c" font-size="13">Billing</text>
+    <text x="1120" y="54" text-anchor="middle" font-size="11" fill="#6b778c">missing</text>
+    <text x="1120" y="66" text-anchor="middle" font-size="10" fill="#6b778c">sin modelo negocio</text>
+
+    <!-- LAYER: SEDES -->
+    <rect x="20" y="160" width="170" height="52" rx="8" fill="#e3fcef" stroke="#006644"/>
+    <text x="105" y="182" text-anchor="middle" font-weight="700" font-size="13">/sedes</text>
+    <text x="105" y="198" text-anchor="middle" font-size="11" fill="#42526e">CRUD ok</text>
+
+    <rect x="210" y="160" width="210" height="52" rx="8" fill="#fff4e5" stroke="#ff8b00"/>
+    <text x="315" y="178" text-anchor="middle" font-weight="700" font-size="13">auto_create_location_permits</text>
+    <text x="315" y="194" text-anchor="middle" font-size="11" fill="#42526e">sin issuer_id (41/46 NULL)</text>
+    <text x="315" y="206" text-anchor="middle" font-size="10" fill="#42526e">sin expiry_date (24/46)</text>
+
+    <rect x="440" y="160" width="170" height="52" rx="8" fill="#fff4e5" stroke="#ff8b00"/>
+    <text x="525" y="182" text-anchor="middle" font-weight="700" font-size="13">/permisos/:id</text>
+    <text x="525" y="198" text-anchor="middle" font-size="11" fill="#42526e">info + docs ok</text>
+    <text x="525" y="210" text-anchor="middle" font-size="10" fill="#42526e">?edit=true ignorado</text>
+
+    <rect x="630" y="160" width="210" height="52" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="735" y="178" text-anchor="middle" font-weight="700" fill="#de350b" font-size="13">"Nuevo Permiso"</text>
+    <text x="735" y="194" text-anchor="middle" font-size="11" fill="#42526e">sin onClick ×3</text>
+    <text x="735" y="206" text-anchor="middle" font-size="10" fill="#42526e">sin ruta /permisos/nuevo</text>
+
+    <rect x="860" y="160" width="170" height="52" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="945" y="178" text-anchor="middle" font-weight="700" fill="#de350b" font-size="13">"Renovar" permit</text>
+    <text x="945" y="194" text-anchor="middle" font-size="11" fill="#42526e">modal sin trigger</text>
+    <text x="945" y="206" text-anchor="middle" font-size="10" fill="#42526e">renewPermit() orphaned</text>
+
+    <rect x="1050" y="160" width="140" height="52" rx="8" fill="#fff4e5" stroke="#ff8b00"/>
+    <text x="1120" y="178" text-anchor="middle" font-weight="700" font-size="13">Subir doc</text>
+    <text x="1120" y="194" text-anchor="middle" font-size="11" fill="#42526e">works + rollback</text>
+    <text x="1120" y="206" text-anchor="middle" font-size="10" fill="#42526e">inmutable una vez</text>
+
+    <!-- LAYER: Settings -->
+    <rect x="20" y="300" width="170" height="52" rx="8" fill="#e3fcef" stroke="#006644"/>
+    <text x="105" y="322" text-anchor="middle" font-weight="700" font-size="13">/settings</text>
+    <text x="105" y="338" text-anchor="middle" font-size="11" fill="#42526e">4 tabs cargan</text>
+
+    <rect x="210" y="300" width="170" height="52" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="295" y="318" text-anchor="middle" font-weight="700" fill="#de350b" font-size="13">NotificationsTab</text>
+    <text x="295" y="334" text-anchor="middle" font-size="11" fill="#42526e">toggles cosméticos</text>
+    <text x="295" y="346" text-anchor="middle" font-size="10" fill="#42526e">NotifPrefs huérfano</text>
+
+    <rect x="400" y="300" width="170" height="52" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="485" y="318" text-anchor="middle" font-weight="700" fill="#de350b" font-size="13">ProfileTab</text>
+    <text x="485" y="334" text-anchor="middle" font-size="11" fill="#42526e">Guardar sin onClick</text>
+    <text x="485" y="346" text-anchor="middle" font-size="10" fill="#42526e">inputs uncontrolled</text>
+
+    <rect x="590" y="300" width="170" height="52" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="675" y="318" text-anchor="middle" font-weight="700" fill="#de350b" font-size="13">SecurityTab</text>
+    <text x="675" y="334" text-anchor="middle" font-size="11" fill="#42526e">"protegida Google" mentira</text>
+    <text x="675" y="346" text-anchor="middle" font-size="10" fill="#42526e">Cerrar sesiones sin onClick</text>
+
+    <rect x="780" y="300" width="170" height="52" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="865" y="318" text-anchor="middle" font-weight="700" fill="#de350b" font-size="13">CompanyTab</text>
+    <text x="865" y="334" text-anchor="middle" font-size="11" fill="#42526e">4 giros vs DB 12</text>
+    <text x="865" y="346" text-anchor="middle" font-size="10" fill="#42526e">save corrompe business_type</text>
+
+    <rect x="970" y="300" width="210" height="52" rx="8" fill="#f4f5f7" stroke="#6b778c" stroke-dasharray="4 3"/>
+    <text x="1075" y="322" text-anchor="middle" font-weight="700" fill="#6b778c" font-size="13">Miembros / Billing</text>
+    <text x="1075" y="338" text-anchor="middle" font-size="11" fill="#6b778c">tabs missing</text>
+
+    <!-- LAYER: Marco legal / network / renovaciones -->
+    <rect x="20" y="440" width="170" height="52" rx="8" fill="#fff4e5" stroke="#ff8b00"/>
+    <text x="105" y="462" text-anchor="middle" font-weight="700" font-size="13">/marco-legal</text>
+    <text x="105" y="478" text-anchor="middle" font-size="11" fill="#42526e">index lee DB</text>
+    <text x="105" y="490" text-anchor="middle" font-size="10" fill="#42526e">read-only, sin "añadir a sede"</text>
+
+    <rect x="210" y="440" width="170" height="52" rx="8" fill="#fff4e5" stroke="#ff8b00"/>
+    <text x="295" y="462" text-anchor="middle" font-weight="700" font-size="13">/marco-legal/matriz</text>
+    <text x="295" y="478" text-anchor="middle" font-size="11" fill="#42526e">colores stock Tailwind</text>
+    <text x="295" y="490" text-anchor="middle" font-size="10" fill="#42526e">códigos R/O/T sin leyenda</text>
+
+    <rect x="400" y="440" width="170" height="52" rx="8" fill="#fff4e5" stroke="#ff8b00"/>
+    <text x="485" y="462" text-anchor="middle" font-weight="700" font-size="13">/renovaciones</text>
+    <text x="485" y="478" text-anchor="middle" font-size="11" fill="#42526e">redundante con /permisos</text>
+
+    <rect x="590" y="440" width="170" height="52" rx="8" fill="#fff4e5" stroke="#ff8b00"/>
+    <text x="675" y="462" text-anchor="middle" font-weight="700" font-size="13">/mapa-red</text>
+    <text x="675" y="478" text-anchor="middle" font-size="11" fill="#42526e">decorativo, sin acciones</text>
+
+    <rect x="780" y="440" width="170" height="52" rx="8" fill="#fff4e5" stroke="#ff8b00"/>
+    <text x="865" y="462" text-anchor="middle" font-weight="700" font-size="13">/p/:token público</text>
+    <text x="865" y="478" text-anchor="middle" font-size="11" fill="#42526e">demo ok, tenants rotos</text>
+    <text x="865" y="490" text-anchor="middle" font-size="10" fill="#42526e">bundle 1.25 MB</text>
+
+    <rect x="970" y="440" width="210" height="52" rx="8" fill="#f4f5f7" stroke="#6b778c" stroke-dasharray="4 3"/>
+    <text x="1075" y="462" text-anchor="middle" font-weight="700" fill="#6b778c" font-size="13">Invitar colaboradores</text>
+    <text x="1075" y="478" text-anchor="middle" font-size="11" fill="#6b778c">missing (bloquea persona 1)</text>
+
+    <!-- LAYER: Data/email/cron -->
+    <rect x="20" y="580" width="210" height="52" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="125" y="598" text-anchor="middle" font-weight="700" fill="#de350b" font-size="13">Dashboard ← permit joins</text>
+    <text x="125" y="614" text-anchor="middle" font-size="11" fill="#42526e">13/22 types sin match</text>
+    <text x="125" y="626" text-anchor="middle" font-size="10" fill="#42526e">multa subestimada ~60%</text>
+
+    <rect x="250" y="580" width="210" height="52" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="355" y="598" text-anchor="middle" font-weight="700" fill="#de350b" font-size="13">send-expiry-alerts cron</text>
+    <text x="355" y="614" text-anchor="middle" font-size="11" fill="#42526e">5 días fallido 04-10 may</text>
+    <text x="355" y="626" text-anchor="middle" font-size="10" fill="#42526e">sin backfill, sin heartbeat</text>
+
+    <rect x="480" y="580" width="210" height="52" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="585" y="598" text-anchor="middle" font-weight="700" fill="#de350b" font-size="13">Email CTA</text>
+    <text x="585" y="614" text-anchor="middle" font-size="11" fill="#42526e">→ /dashboard (no existe)</text>
+    <text x="585" y="626" text-anchor="middle" font-size="10" fill="#42526e">deep-link a permit missing</text>
+
+    <rect x="710" y="580" width="210" height="52" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="815" y="598" text-anchor="middle" font-weight="700" fill="#de350b" font-size="13">renewPermit() API</text>
+    <text x="815" y="614" text-anchor="middle" font-size="11" fill="#42526e">100 LOC orphaned</text>
+    <text x="815" y="626" text-anchor="middle" font-size="10" fill="#42526e">sin transacción</text>
+
+    <rect x="940" y="580" width="240" height="52" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="1060" y="598" text-anchor="middle" font-weight="700" fill="#de350b" font-size="13">React Query half-migrated</text>
+    <text x="1060" y="614" text-anchor="middle" font-size="11" fill="#42526e">3/11 hooks en TanStack</text>
+    <text x="1060" y="626" text-anchor="middle" font-size="10" fill="#42526e">invalidate ['permits'] = no-op</text>
+
+    <!-- LAYER: Git/CI/Security -->
+    <rect x="20" y="720" width="260" height="52" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="150" y="738" text-anchor="middle" font-weight="700" fill="#de350b" font-size="13">git: service_role JWT commiteado</text>
+    <text x="150" y="754" text-anchor="middle" font-size="11" fill="#42526e">aún sin rotar/purgar</text>
+
+    <rect x="300" y="720" width="220" height="52" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="410" y="738" text-anchor="middle" font-weight="700" fill="#de350b" font-size="13">leads anon WITH CHECK (true)</text>
+    <text x="410" y="754" text-anchor="middle" font-size="11" fill="#42526e">sin captcha, sin rate-limit</text>
+
+    <rect x="540" y="720" width="260" height="52" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="670" y="738" text-anchor="middle" font-weight="700" fill="#de350b" font-size="13">Tailwind 4 sin --color-*</text>
+    <text x="670" y="754" text-anchor="middle" font-size="11" fill="#42526e">9 utilities emiten 0 CSS</text>
+
+    <rect x="820" y="720" width="200" height="52" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="920" y="738" text-anchor="middle" font-weight="700" fill="#de350b" font-size="13">Sin Sentry / 103 consoles</text>
+    <text x="920" y="754" text-anchor="middle" font-size="11" fill="#42526e">crashes prod silenciosos</text>
+
+    <rect x="1040" y="720" width="140" height="52" rx="8" fill="#fff4e5" stroke="#ff8b00"/>
+    <text x="1110" y="738" text-anchor="middle" font-weight="700" font-size="13">Bundle 1.25 MB</text>
+    <text x="1110" y="754" text-anchor="middle" font-size="11" fill="#42526e">sin code-split</text>
+
+  </g>
+
+  <!-- edges -->
+  <g stroke-width="2" fill="none">
+    <path d="M 190 46 L 210 46" stroke="#006644" marker-end="url(#ar-ok)"/>
+    <path d="M 380 46 L 400 46" stroke="#006644" marker-end="url(#ar-ok)"/>
+    <path d="M 610 46 L 630 46" stroke="#de350b" stroke-dasharray="4 3" marker-end="url(#ar-br)"/>
+    <path d="M 840 46 L 860 46" stroke="#de350b" stroke-dasharray="4 3" marker-end="url(#ar-br)"/>
+    <path d="M 1030 46 L 1050 46" stroke="#6b778c" stroke-dasharray="4 3" marker-end="url(#ar-ms)"/>
+
+    <path d="M 945 72 L 945 160" stroke="#ff8b00" marker-end="url(#ar-pa)"/>
+    <path d="M 945 72 Q 945 120 105 140 L 105 160" stroke="#006644" marker-end="url(#ar-ok)"/>
+
+    <path d="M 190 186 L 210 186" stroke="#ff8b00" marker-end="url(#ar-pa)"/>
+    <path d="M 420 186 L 440 186" stroke="#ff8b00" marker-end="url(#ar-pa)"/>
+    <path d="M 610 186 L 630 186" stroke="#de350b" stroke-dasharray="4 3" marker-end="url(#ar-br)"/>
+    <path d="M 840 186 L 860 186" stroke="#de350b" stroke-dasharray="4 3" marker-end="url(#ar-br)"/>
+    <path d="M 1030 186 L 1050 186" stroke="#ff8b00" marker-end="url(#ar-pa)"/>
+
+    <path d="M 105 212 L 105 300" stroke="#006644" marker-end="url(#ar-ok)"/>
+    <path d="M 190 326 L 210 326" stroke="#de350b" stroke-dasharray="4 3" marker-end="url(#ar-br)"/>
+    <path d="M 380 326 L 400 326" stroke="#de350b" stroke-dasharray="4 3" marker-end="url(#ar-br)"/>
+    <path d="M 570 326 L 590 326" stroke="#de350b" stroke-dasharray="4 3" marker-end="url(#ar-br)"/>
+    <path d="M 760 326 L 780 326" stroke="#de350b" stroke-dasharray="4 3" marker-end="url(#ar-br)"/>
+    <path d="M 950 326 L 970 326" stroke="#6b778c" stroke-dasharray="4 3" marker-end="url(#ar-ms)"/>
+
+    <path d="M 105 352 L 105 440" stroke="#006644" marker-end="url(#ar-ok)"/>
+    <path d="M 190 466 L 210 466" stroke="#ff8b00" marker-end="url(#ar-pa)"/>
+    <path d="M 380 466 L 400 466" stroke="#ff8b00" marker-end="url(#ar-pa)"/>
+    <path d="M 570 466 L 590 466" stroke="#ff8b00" marker-end="url(#ar-pa)"/>
+    <path d="M 760 466 L 780 466" stroke="#ff8b00" marker-end="url(#ar-pa)"/>
+    <path d="M 950 466 L 970 466" stroke="#6b778c" stroke-dasharray="4 3" marker-end="url(#ar-ms)"/>
+
+    <path d="M 105 492 L 125 580" stroke="#de350b" stroke-dasharray="4 3" marker-end="url(#ar-br)"/>
+    <path d="M 230 606 L 250 606" stroke="#de350b" stroke-dasharray="4 3" marker-end="url(#ar-br)"/>
+    <path d="M 460 606 L 480 606" stroke="#de350b" stroke-dasharray="4 3" marker-end="url(#ar-br)"/>
+    <path d="M 690 606 L 710 606" stroke="#de350b" stroke-dasharray="4 3" marker-end="url(#ar-br)"/>
+    <path d="M 920 606 L 940 606" stroke="#de350b" stroke-dasharray="4 3" marker-end="url(#ar-br)"/>
+
+    <path d="M 125 632 L 150 720" stroke="#de350b" stroke-dasharray="4 3" marker-end="url(#ar-br)"/>
+    <path d="M 280 746 L 300 746" stroke="#de350b" stroke-dasharray="4 3" marker-end="url(#ar-br)"/>
+    <path d="M 520 746 L 540 746" stroke="#de350b" stroke-dasharray="4 3" marker-end="url(#ar-br)"/>
+    <path d="M 800 746 L 820 746" stroke="#de350b" stroke-dasharray="4 3" marker-end="url(#ar-br)"/>
+    <path d="M 1020 746 L 1040 746" stroke="#ff8b00" marker-end="url(#ar-pa)"/>
+  </g>
+</svg>
+<div class="legend">
+  <span class="lg-ok">funciona</span>
+  <span class="lg-partial">degrado / latente</span>
+  <span class="lg-broken">roto</span>
+  <span class="lg-missing">missing / inaccesible</span>
+</div>
+</div>
+</section>
+
+<section id="producto">
+<h2>3 · Funcionamiento del producto — 17 hallazgos nuevos</h2>
+
+<h3>3A · P0 ship-blockers (5)</h3>
+<table>
+  <thead><tr><th>#</th><th>Área</th><th>Hallazgo</th><th>Evidencia</th><th>Impacto</th></tr></thead>
+  <tbody>
+    <tr><td>P-1 <span class="sev p0">P0</span></td><td>Data</td><td><code>permit.type</code> 22 valores mixtos. Solo 5/22 matchean <code>permit_requirements.permit_type</code></td><td><code>DashboardView.tsx:81-99</code> joina por casing exacto</td><td>Dashboard miente. Multa subestimada 60%+</td></tr>
+    <tr><td>P-2 <span class="sev p0">P0</span></td><td>Data</td><td>4 permits <code>vigente</code> con <code>expiry_date IS NULL</code>; 24/46 permits activos sin fecha</td><td>SQL: <code>no_expiry=24, vigente_without_expiry=4</code></td><td>Cron nunca alerta; % compliance inflado</td></tr>
+    <tr><td>P-3 <span class="sev p0">P0</span></td><td>Event log</td><td>Trigger <code>permits_log_event</code> deployed post-seed. 2 eventos totales para 46 permits</td><td><code>SELECT COUNT(*) FROM permit_events</code></td><td>96% de permits sin historial. Trazabilidad que vende la app no existe</td></tr>
+    <tr><td>P-4 <span class="sev p0">P0</span></td><td>React Query</td><td>3/11 hooks TanStack. <code>AssigneePicker</code> invalida key <code>['permits']</code> que no existe en cache</td><td><code>AssigneePicker.tsx:61</code></td><td>Asignar responsable no refleja. Editar empresa no actualiza header. Datos congelados</td></tr>
+    <tr><td>P-5 <span class="sev p0">P0</span></td><td>Renovación</td><td><code>renewPermit()</code> 3 operaciones secuenciales sin transacción</td><td><code>permits.ts:132-206</code></td><td>Usuario ve "renovación exitosa"; permit nuevo sin doc si paso 3 falla. Inconsistencia permanente</td></tr>
+  </tbody>
+</table>
+
+<h3>3B · P1 hardening (5)</h3>
+<div class="cards">
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">Onboarding</span>
+    <h4>Hidden submit button anti-pattern</h4>
+    <p><code>IncrementalWizard.handleSubmitForm()</code> usa <code>document.querySelector('form')</code>. Botón del step <code>className="hidden"</code>. Cualquier otro form futuro intercepta "Siguiente". (<code>IncrementalWizard.tsx:144-149</code>)</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">Login</span>
+    <h4>"¿Olvidaste…?" + "Solicita acceso"</h4>
+    <p>Dos <code>&lt;a href="#"&gt;</code> sin handler. Distinto a <code>/reset-password</code>: aquí no apunta a ninguna ruta. (<code>LoginView.tsx:188-193,252-254</code>)</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">Location</span>
+    <h4>Dos tabs vacías permanentes</h4>
+    <p><code>LocationDocumentsTab</code> es EmptyState fijo. <code>LocationHistoryTab</code> recibe <code>events=[]</code> default. Promesa de "historial de sede" rota.</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">Permits</span>
+    <h4>Columna "Responsable" hardcoded '-'</h4>
+    <p>Dato existe en DB (AssigneePicker escribe <code>assigned_to_profile_id</code>) pero <code>PermitListView.tsx:44</code> pone <code>responsible: '-'</code>. Listado inútil.</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">Permits</span>
+    <h4>Icono "edit" decorativo</h4>
+    <p><code>PermitTable.tsx:83-85</code> navega <code>/permisos/:id?edit=true</code>. <code>PermitDetailView</code> nunca lee <code>useSearchParams</code>. Mismo destino que "ver".</p>
+  </div>
+</div>
+
+<h3>3C · P2 hygiene (7)</h3>
+<details open>
+<summary>Signed URL infinite spinner · Cron history · Tests · Lint-silence · SecurityTab lie · tsconfig false-security · orphaned API</summary>
+<ul>
+  <li><strong>Signed URLs:</strong> <code>getDocumentUrl</code> retorna <code>null</code> en error. <code>DocumentPanelWithDoc.tsx:507-514</code> renderiza "Cargando documento..." infinito. TTL=300s no manejado.</li>
+  <li><strong>Cron history:</strong> <code>send-expiry-alerts-daily</code> falló 5 días seguidos (04-10 may 2026) por <code>extensions.http_post does not exist</code> + JSON syntax. Sin backfill.</li>
+  <li><strong>Tests:</strong> 4 archivos <code>.test</code> totales. Ninguno cubre hooks de fetch, mutations, permits/dashboard. Sin red de seguridad.</li>
+  <li><strong>Lint-silence:</strong> 25+ archivos con <code>// casting due to stale generated types</code> + <code>eslint-disable @typescript-eslint/no-explicit-any</code>. 8 ocurrencias solo en <code>permits.ts</code>.</li>
+  <li><strong>SecurityTab miente:</strong> "Tu cuenta está protegida con autenticación de Google" aunque login acepta email+password. (<code>SecurityTab.tsx:14</code>)</li>
+  <li><strong>tsconfig false-security:</strong> <code>tsc --noEmit</code> exit=0 pero <code>as any</code> desactiva runtime-type-safety del API layer. "Tests pass" falso.</li>
+  <li><strong>renewPermit() orphaned:</strong> API 100 LOC sin un solo llamador. Código muerto crítico del flujo core.</li>
+</ul>
+</details>
+
+<h3>3D · Funciona bien</h3>
+<div class="cards">
+  <div class="card"><span class="sev good">OK</span> <span class="tag">Upload</span><h4>PermitUploadForm con rollback real</h4><p>Si DB insert falla tras upload, borra del Storage. Production-grade raro.</p></div>
+  <div class="card"><span class="sev good">OK</span> <span class="tag">Auth</span><h4>signInWithGoogle + PKCE sólido</h4><p>Post-<code>c493222</code>. <code>onAuthStateChange</code> limpia QueryClient al signout.</p></div>
+  <div class="card"><span class="sev good">OK</span> <span class="tag">Events</span><h4>permit_events triggers bien diseñados</h4><p>SECURITY DEFINER + REVOKE writes a anon/authenticated. Diseño correcto; ejecución incompleta (legacy sin backfill).</p></div>
+  <div class="card"><span class="sev good">OK</span> <span class="tag">Cache</span><h4>useCompany staleTime 10min</h4><p>Único fetch con budget de cache sensato. Patrón a replicar.</p></div>
+</div>
+
+<h3>3E · Root cause patterns</h3>
+<ol>
+  <li><strong>Half-migrated data layer</strong> — mitad useState+useEffect, mitad TanStack Query. Cache nunca coherente. Fix: migrar 8 hooks restantes + convención <code>queryKey</code>.</li>
+  <li><strong>Schema sin enum</strong> — <code>permits.type</code>/<code>status</code> sin CHECK. Legacy capitalized, seed nuevo slugs. Joins fallan. Fix: migración normalización + CHECK + FK.</li>
+  <li><strong>Stub-first feature design</strong> — 5 tabs son placeholders con diseño final nunca conectados a data layer. Distinto de botón sin onClick.</li>
+  <li><strong><code>as any</code> escape hatch</strong> — types Supabase sin regenerar post-v2. TS ya no protege schema drift.</li>
+  <li><strong>Hidden submit button</strong> — anti-pattern funciona hoy; bomba cuando otro form se monte.</li>
+</ol>
+</section>
+
+<section id="ux">
+<h2>4 · Experiencia de usuario — 20 hallazgos nuevos</h2>
+
+<h3>4A · Alta severidad (7)</h3>
+<table>
+  <thead><tr><th>#</th><th>Área</th><th>Hallazgo</th><th>Evidencia</th></tr></thead>
+  <tbody>
+    <tr><td>UX-A1</td><td>Voz / copy</td><td>Voseo (Arg/Uy) mezclado con tuteo castellano. "Subí el permiso", "Arrastrá", "Probá" vs "¿Cómo te llamas?"</td><td><code>PermitDetailView.tsx:467-470</code>, <code>LegalIndexView.tsx:213</code> vs <code>ProfileStep.tsx:27</code></td></tr>
+    <tr><td>UX-A2</td><td>Feedback</td><td>3 patrones coexisten: <code>react-hot-toast</code>, <code>&lt;Banner&gt;</code> inline, <code>window.confirm</code>/<code>alert</code></td><td><code>PermitDetailView.tsx:568</code>, <code>CreateLocationModal.tsx:142</code>, <code>DocumentList.tsx:46</code></td></tr>
+    <tr><td>UX-A3</td><td>Brand</td><td>Dashboard primera impresión = metáfora "clima" (<code>ComplianceWeatherCard</code> 642 LOC). Contradice "preciso, confiable, protector"</td><td><code>DashboardView.tsx:23-51</code></td></tr>
+    <tr><td>UX-A4</td><td>Tokens</td><td>ComplianceWeatherCard + ComplianceInvoiceCard bypass DS: <code>&lt;style&gt;</code> hex hardcoded</td><td><code>ComplianceInvoiceCard.tsx:92-222</code></td></tr>
+    <tr><td>UX-A5</td><td>Estados vacíos</td><td>3 tipos de EmptyState incoherentes entre módulos. <code>LocationDocumentsTab</code> es solo empty permanente</td><td><code>DocumentList.tsx:67-80</code>, <code>LegalIndexView.tsx:196-221</code></td></tr>
+    <tr><td>UX-A6</td><td>Onboarding</td><td>Sin skip, sin "guardar y salir", sin "podés volver luego". Recompensa = dashboard vacío</td><td><code>IncrementalWizard.tsx:20-259</code></td></tr>
+    <tr><td>UX-A7</td><td>Brand leak</td><td>"PermitOps" + "Compliance" (inglés) + logo "PM"</td><td><code>LoginView.tsx:79,143</code>, <code>IncrementalWizard.tsx:160</code></td></tr>
+  </tbody>
+</table>
+
+<h3>4B · Media severidad (8)</h3>
+<details>
+<summary>Info arquitectura · Copy tono · ProfileTab stub · Números i18n · Fechas mixtas · Iconos ambiguos · Tipografía · Marco Legal colores</summary>
+<ul>
+  <li><strong>UX-A8 Info arquitectura:</strong> "Mapa Interactivo" y "Sedes" casi lo mismo, dos entradas sidebar. (<code>AppLayout.tsx:26-35</code>)</li>
+  <li><strong>UX-A9 Copy tono:</strong> "Vas bien, Acme", "se te están acumulando los papeles", "Ponte las pilas". Funciona marketing, no dashboard para consultores legales.</li>
+  <li><strong>UX-A10 ProfileTab stub:</strong> <code>defaultValue</code> uncontrolled + botón "Guardar cambios" sin onClick + "Cambiar foto" sin onClick. Mockup visual.</li>
+  <li><strong>UX-A11 Números i18n:</strong> <code>toLocaleString('en-US').replace(/,/g, ' ')</code> → espacios como separador miles. EC usa <code>.</code>. (<code>ComplianceInvoiceCard.tsx:21-23</code>)</li>
+  <li><strong>UX-A12 Fechas:</strong> Dos formatos coexisten: <code>"d 'de' MMM, yyyy"</code> vs <code>toLocaleDateString('es-EC')</code>. Misma vista ambos.</li>
+  <li><strong>UX-A13 Iconos:</strong> <code>Building2</code> = logo + sede. <code>FileText</code> = permiso + documento. <code>MapPin</code> = sedes (menu) + geoloc.</li>
+  <li><strong>UX-A14 Tipografía tabla:</strong> Headers ~11px + celdas "por_vencer" rompen línea en tablet. Columna "Responsable" hardcoded '-'.</li>
+  <li><strong>UX-A15 Marco Legal:</strong> Matriz usa <code>bg-green-600</code>, <code>bg-blue-400</code>, <code>bg-amber-500</code> crudo. Códigos "R/O/T" sin leyenda visual.</li>
+</ul>
+</details>
+
+<h3>4C · Baja severidad (5)</h3>
+<details>
+<summary>Mobile · Jerarquía dashboard · Copy legal Quito-only · Dead-end UX · 6 ciudades hardcoded</summary>
+<ul>
+  <li><strong>UX-A16 Mobile:</strong> Sidebar oculto &lt;lg sin burger en login. Toggle dashboard usa <code>Menu</code> en mobile y <code>Building2</code> en desktop.</li>
+  <li><strong>UX-A17 Dashboard:</strong> "Permisos X de Y" subordinado a porcentaje 96px + nube animada. Rompe "Jerarquía funcional sobre decoración".</li>
+  <li><strong>UX-A18 Copy legal:</strong> "Referencia de normativa ecuatoriana" pero matriz habla solo de Quito.</li>
+  <li><strong>UX-A19 Dead-end:</strong> "Los exactos los ves en cada permiso" sin CTA.</li>
+  <li><strong>UX-A20 Ciudades:</strong> 6 hardcoded (Quito, Guayaquil, Cuenca, Ambato, Manta, Santo Domingo). Sin Loja, Machala, Riobamba, Esmeraldas. Sin "Otra". Bloqueo onboarding.</li>
+</ul>
+</details>
+
+<h3>4D · Patterns que funcionan</h3>
+<div class="cards">
+  <div class="card"><span class="sev good">OK</span><h4>EmptyState component</h4><p>API simple (icon/title/description/action), respeta tokens, 7 vistas.</p></div>
+  <div class="card"><span class="sev good">OK</span><h4>Breadcrumb PermitDetail / LocationDetail</h4><p>Trayectoria clara refuerza "Confianza visual".</p></div>
+  <div class="card"><span class="sev good">OK</span><h4>Stepper + ProgressStepper dual</h4><p>Progreso visible + paso completado chequeado.</p></div>
+  <div class="card"><span class="sev good">OK</span><h4>Skip-to-content link</h4><p>A11y raro en productos ecuatorianos. (<code>AppLayout.tsx:130-135</code>)</p></div>
+  <div class="card"><span class="sev good">OK</span><h4>Validación RUC live</h4><p>13 dígitos, only-number, Banner inline. Feedback inmediato.</p></div>
+  <div class="card"><span class="sev good">OK</span><h4>RenewPermitModal comparativa</h4><p>Fecha actual vs nueva lado-a-lado. UX clara de "cambio de estado".</p></div>
+</div>
+
+<h3>4E · Brand voice — Veredicto</h3>
+<div class="callout warn">
+  <strong>Inconsistente y sin guía.</strong> 4 registros conviven: corporativo serio ("Accede a tu panel de compliance"), voseo argentino ("Subí", "Arrastrá", "Probá"), tuteo neutro ("¿Cómo te llamas?"), coloquial alarmista ("Ponte las pilas", "te pueden clausurar"). Para PYMES y consultores ecuatorianos: voseo suena doblaje argentino; coloquial informal donde debería ser preciso. <strong>Recomendación:</strong> tuteo neutro EC, sin voseo, sin "ponte las pilas". Alertas: factual-directo — "Este permiso venció hace 12 días. Riesgo: clausura del local. Multa estimada: $200–$500."
+</div>
+</section>
+
+<section id="flujos">
+<h2>5 · Flujos de usuario</h2>
+
+<h3>5A · Mapa de flujos</h3>
+<table>
+  <thead><tr><th>#</th><th>Flujo</th><th>Estado</th><th>Fricciones</th><th>Mejora</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Landing → app activa</td><td><span class="status broken">broken</span></td><td>Trigger auto-profile inestable; forms <code>href="#"</code>; sin trial/billing; sin post-OAuth welcome</td><td>Solo Google OAuth + CTA "Prueba gratis" + página bienvenida</td></tr>
+    <tr><td>2</td><td>Onboarding power user (120 permits)</td><td><span class="status partial">partial</span></td><td>Sedes una por una; sin CSV; sin paste; sin duplicar. Permits auto-gen sin fechas/docs</td><td>"Pegar desde Excel" + "Duplicar última sede" + Bulk setup post-onboarding</td></tr>
+    <tr><td>3</td><td>Día 1 diario</td><td><span class="status partial">partial</span></td><td>Dashboard sin decir qué hacer hoy. Sin top-3 urgentes</td><td>"Buzón de hoy": top 5 acciones por urgencia con botón inline</td></tr>
+    <tr><td>4</td><td>Subir documento a permit</td><td><span class="status works">works</span></td><td>Pide solo <code>issue_date</code>. Archivo inmutable (hay que renovar para reemplazar)</td><td>Campo <code>permit_number</code> opcional + "Reemplazar documento" para correcciones OCR</td></tr>
+    <tr><td>5</td><td>Renovar permit</td><td><span class="status broken">broken</span></td><td><code>RenewPermitModal</code> sin trigger UI. <code>renewPermit()</code> orphaned. Modal actual solo update <code>expiry_date</code>, pierde trazabilidad</td><td>Botón "Renovar" en PermitDetailView → modal + <code>renewPermit</code> real con transacción. Email CTA deep-link a /permisos/:id</td></tr>
+    <tr><td>6</td><td>Compartir con tercero</td><td><span class="status partial">partial</span></td><td>Link sin expiración; sin revocar desde UI; label confuso; sin diferenciar auditor vs cliente</td><td><code>expires_at</code> default 30d + toggle "QR fachada permanente" + botón "Revocar" + 2 tabs modal</td></tr>
+    <tr><td>7</td><td>Invitar colaborador</td><td><span class="status missing">missing</span></td><td><code>profiles.company_id</code> 1:1. Bloqueante persona 1</td><td>Tabla <code>company_invitations</code> + UI Settings → Miembros + magic link</td></tr>
+    <tr><td>8</td><td>Marco Legal → "¿qué necesito?"</td><td><span class="status partial">partial</span></td><td>Read-only. Sin botón "Añadir a mis sedes". Gerente descubre y luego crea manual</td><td>CTA "Agregar a {sede}" con selector multi-sede + <code>addPermitToLocation()</code></td></tr>
+    <tr><td>9</td><td>Mapa Red multi-sede</td><td><span class="status partial">partial</span></td><td>Canvas decorativo sin acciones. Sin filtrar, sin clic-para-renovar</td><td>Hover=tooltip top 3 alertas; clic=<code>/sedes/:id</code>; filtro lateral por estado</td></tr>
+    <tr><td>10</td><td><code>/renovaciones</code></td><td><span class="status partial">partial</span></td><td>Redundante con <code>/permisos?status=por_vencer</code></td><td>Fusionar como tab dentro de <code>/permisos</code> (Lista/Calendario/Timeline)</td></tr>
+    <tr><td>11</td><td>Settings</td><td><span class="status partial">partial</span></td><td>Falta: Miembros, Billing, Datos. NotificationsTab cosmético vs NotificationPreferences funcional huérfano</td><td>Swap + agregar tabs "Miembros" y "Plan" + "Exportar mis datos" + "Eliminar cuenta"</td></tr>
+    <tr><td>12</td><td>Consultor multi-empresa</td><td><span class="status missing">missing</span></td><td><code>profiles.company_id</code> single FK. Bloquea persona 2</td><td><code>memberships(user_id, company_id, role)</code> m:n + selector empresa header</td></tr>
+    <tr><td>13</td><td>Eliminar / exportar</td><td><span class="status missing">missing</span></td><td>Solo <code>deleteDocument</code>. Sin delete entidades, sin export. Gap LOPDP EC</td><td>Soft-delete (<code>deleted_at</code>) con confirmación fuerte + <code>/export-my-data</code> ZIP</td></tr>
+  </tbody>
+</table>
+
+<h3>5B · Flujos missing críticos</h3>
+<div class="cards">
+  <div class="card"><span class="sev p0">bloquea persona 1</span><h4>Invitar miembros</h4><p>Sin esto gerente no puede delegar. <code>AssigneePicker</code> construido pero <code>profiles</code> filtra <code>company_id</code> único.</p></div>
+  <div class="card"><span class="sev p0">bloquea persona 2</span><h4>Multi-empresa</h4><p>Consultor tendría que crear 5 cuentas con 5 Gmails. Requiere schema change.</p></div>
+  <div class="card"><span class="sev p1">P1</span><h4>Import CSV / Excel</h4><p>15 sedes × 8 permits = 120 líneas manual. Se nota a los 3 min de demo.</p></div>
+  <div class="card"><span class="sev p1">P1</span><h4>Marco Legal → accionable</h4><p>Enciclopedia read-only pierde valor. Debería conectar con permit tracking.</p></div>
+  <div class="card"><span class="sev p1">P1</span><h4>Billing / Plan / Trial</h4><p>Sin página, sin componente. Prospecto pregunta "¿cuánto cuesta?" al minuto 2.</p></div>
+  <div class="card"><span class="sev p1">P1</span><h4>Reset password</h4><p>Links <code>href="#"</code>. Si Google OAuth falla (GWS restrictivo), usuario sin camino.</p></div>
+  <div class="card"><span class="sev p1">P1</span><h4>Eliminar entidades</h4><p>Sede creada por error queda zombie con sus 8 permits.</p></div>
+  <div class="card"><span class="sev p1">P1</span><h4>Deep link email alerta</h4><p>Va a <code>/dashboard</code> inexistente → <code>Navigate to="/"</code>. Sin aterrizaje a permit específico.</p></div>
+  <div class="card"><span class="sev p2">P2</span><h4>Bulk edit permits</h4><p>Sin forma de marcar "estos 10 son del mismo nº y fecha" (RUC multi-sede).</p></div>
+  <div class="card"><span class="sev p2">P2</span><h4>Actividad global</h4><p>Sin "ayer Juan subió bomberos". Por permit existe; global no.</p></div>
+</div>
+
+<h3>5C · Fricciones comunes (patterns cross-flow)</h3>
+<ul>
+  <li><strong>Modal sin confirmación consistente</strong> — 3 patrones distintos por vista</li>
+  <li><strong>Forms pre-llenan defaults agresivos</strong> — <code>business_type='restaurante'</code>, <code>city='Quito'</code>. 50% usuarios quedan mal clasificados sin leer</li>
+  <li><strong>CTAs sin handler</strong> — patrón repetido: "Nuevo Permiso", "Solicita acceso", "Cambiar foto", "Guardar cambios"</li>
+  <li><strong>Doble fuente de verdad</strong> — Notif tabs; Renovaciones vs /permisos</li>
+  <li><strong>Empty states sin educar</strong> — "No hay X" + botón. App de compliance debería dar contexto temporal ("Normalmente se renueva en enero")</li>
+  <li><strong>Sidebar plana 7 items</strong> — sobrecarga para persona 3 (dueño PYME)</li>
+  <li><strong>Sede / Local / Sucursal</strong> intercambiables</li>
+  <li><strong>Fechas sin contexto relativo</strong> — "Vence: 15/07/2026" en vez de "Vence en 42 días"</li>
+</ul>
+</section>
+
+<section id="comparativas">
+<h2>6 · Comparativas · Before/After de mejoras propuestas</h2>
+
+<h3>6A · Dashboard — "clima" vs "Buzón de hoy"</h3>
+<div class="comparison">
+  <div class="before">
+    <h4>Hoy (UX-A3, UX-A9)</h4>
+    <div class="mockup">
+┌─────────────────────────────────────┐
+│ <span class="muted">☁☁☁  ☁☁  ⚡</span>                         │
+│                                     │
+│      <span class="bad">85%</span>                           │
+│   <span class="muted">Permisos 17 de 20 · Locales 3</span>    │
+│                                     │
+│   <span class="bad">"Vas bien, Acme. Solo te falta</span>     │
+│   <span class="bad">ponerte al día en unos pocos"</span>      │
+└─────────────────────────────────────┘
+┌─────────────────────────────────────┐
+│ <span class="bad">Factura estimada anual</span>              │
+│ $ 1 234  <span class="muted">(formato no-EC)</span>          │
+└─────────────────────────────────────┘
+    </div>
+    <ul>
+      <li>Metáfora emocional, no "preciso"</li>
+      <li>% inflado por bug P-2 (4 vigente sin expiry)</li>
+      <li>Multa sub-estimada 60% por bug P-1</li>
+      <li>No dice qué hacer hoy</li>
+    </ul>
+  </div>
+  <div class="after">
+    <h4>Propuesta</h4>
+    <div class="mockup">
+┌─────────────────────────────────────┐
+│ <span class="good">Tu empresa cumple 17 de 20 permisos.</span>│
+│ <span class="good">Riesgo operativo: BAJO.</span>             │
+│                                     │
+│ <span class="good">HOY</span>                                 │
+│ ► Bomberos Quito · vence en 3 días  │
+│   <span class="good">[Subir nuevo certificado]</span>         │
+│                                     │
+│ ► ARCSA Guayaquil · vencido hace 2  │
+│   <span class="good">[Renovar]</span>                         │
+│                                     │
+│ <span class="muted">ESTA SEMANA (3 más) ▾</span>              │
+└─────────────────────────────────────┘
+    </div>
+    <ul>
+      <li>Tono asesor legal, no coach</li>
+      <li>Top acciones por urgencia, botón inline</li>
+      <li>Persona 3 (dueño PYME) entra 5 min → sabe qué hacer en 10s</li>
+    </ul>
+  </div>
+</div>
+
+<h3>6B · Renovar permit — roto vs unificado</h3>
+<div class="comparison">
+  <div class="before">
+    <h4>Hoy (UX-5, P-5, P-17)</h4>
+    <div class="mockup">
+Email alerta → <span class="bad">/dashboard (no existe)</span>
+            → Navigate to "/"
+
+En /permisos/:id:
+  <span class="bad">[No hay botón "Renovar"]</span>
+  RenewPermitModal montado sin trigger
+
+API renewPermit() <span class="bad">orphaned</span>
+  - crea nuevo permit
+  - marca anterior is_active=false
+  - upload doc
+  <span class="bad">sin transacción</span>
+    </div>
+  </div>
+  <div class="after">
+    <h4>Propuesta</h4>
+    <div class="mockup">
+Email alerta → <span class="good">/permisos/:id?action=renew</span>
+
+PermitDetailView abre RenewPermitModal:
+  ┌───────────────────────────────┐
+  │ Renovar Permiso               │
+  │                               │
+  │ Vigente: <span class="muted">15/07/2026</span>          │
+  │ Nueva fecha: [__/__/____]     │
+  │ Documento: [Drop file here]   │
+  │                               │
+  │ <span class="good">[Cancelar] [Renovar permiso]</span>  │
+  └───────────────────────────────┘
+
+renewPermit() con <span class="good">rpc("renew_permit")</span>
+  + upload + insert + update atómico
+    </div>
+  </div>
+</div>
+
+<h3>6C · Onboarding power user — manual vs import</h3>
+<div class="comparison">
+  <div class="before">
+    <h4>Hoy (flujo 2)</h4>
+    <div class="mockup">
+Paso 2/3 · Sedes:
+  <span class="bad">Agregar sede (una por una)</span>
+  [____] Nombre
+  [____] Dirección
+  [____] Ciudad (6 hardcoded)
+  [Agregar]
+
+  <span class="muted">Sede 1 de 15 ...</span>
+  <span class="muted">× 15 sedes</span>
+  <span class="muted">× 8 permits auto-gen</span>
+  <span class="muted">= 45 min setup</span>
+    </div>
+  </div>
+  <div class="after">
+    <h4>Propuesta</h4>
+    <div class="mockup">
+Paso 2/3 · Sedes:
+  <span class="good">► Pegar desde Excel</span>
+  ┌──────────────────────┐
+  │ Nombre | Dir | Ciudad│
+  │ Quito 1| Av..| Quito │
+  │ Quito 2| Av..| Quito │
+  │ ...                  │
+  └──────────────────────┘
+  <span class="good">► Duplicar última sede</span>
+  <span class="good">► Upload CSV con preview</span>
+
+  <span class="muted">= 3 min setup</span>
+    </div>
+  </div>
+</div>
+</section>
+
+<section id="top30">
+<h2>7 · Top-30 orden recomendado (mega-audit + audit nuevo)</h2>
+
+<h3>Ship-blockers (P0) · 1 semana</h3>
+<table>
+  <thead><tr><th>#</th><th>Fix</th><th>Origen</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Rotar JWT <code>service_role</code>; purgar git; pre-commit secret scan</td><td>mega SEC-1</td></tr>
+    <tr><td>2</td><td>Fix <code>handle_new_user</code> role literal</td><td>mega DB-1</td></tr>
+    <tr><td>3</td><td>Normalizar <code>permits.type</code> a slugs + CHECK + FK</td><td>mega DB-2 + nuevo P-1</td></tr>
+    <tr><td>4</td><td>Backfill <code>permit_events</code> para 46 permits legacy</td><td>nuevo P-3</td></tr>
+    <tr><td>5</td><td>Backfill alertas perdidas 2026-05-04 al 10 + dead-man switch</td><td>nuevo P-12</td></tr>
+    <tr><td>6</td><td>Redeploy <code>send-expiry-alerts</code> v9 con <code>.ec</code> + deep-link a permit</td><td>mega SEC-3 + nuevo</td></tr>
+    <tr><td>7</td><td>Wire "Nuevo Permiso" + crear ruta <code>/permisos/nuevo</code></td><td>mega UX-1</td></tr>
+    <tr><td>8</td><td>Wire trigger <code>RenewPermitModal</code> + conectar <code>renewPermit()</code> con transacción</td><td>mega UX-5 + nuevo P-5, P-17</td></tr>
+    <tr><td>9</td><td>Swap <code>NotificationsTab</code> → <code>NotificationPreferences</code></td><td>mega UX-2</td></tr>
+    <tr><td>10</td><td>Wire onClick ProfileTab/SecurityTab + controlled inputs</td><td>mega UX-3 + nuevo UX-A10</td></tr>
+    <tr><td>11</td><td>CompanyTab importar <code>BUSINESS_TYPES</code> canonical 12 giros</td><td>mega UX-4</td></tr>
+    <tr><td>12</td><td>Prefijo <code>--color-*</code> en <code>@theme</code> Tailwind 4</td><td>mega DS-1</td></tr>
+    <tr><td>13</td><td>Fix <code>permits.type</code> coherence → dashboard joins</td><td>nuevo P-1</td></tr>
+    <tr><td>14</td><td>Fix 4 permits <code>vigente</code> con expiry NULL</td><td>nuevo P-2</td></tr>
+    <tr><td>15</td><td>Reemplazar <code>leads</code> anon INSERT por edge fn + captcha</td><td>mega SEC-2</td></tr>
+  </tbody>
+</table>
+
+<h3>Hardening (P1) · 2-3 semanas</h3>
+<table>
+  <thead><tr><th>#</th><th>Fix</th><th>Origen</th></tr></thead>
+  <tbody>
+    <tr><td>16</td><td>Ruta <code>/reset-password</code> + wire CTAs de login</td><td>mega + nuevo P-7</td></tr>
+    <tr><td>17</td><td>Rename "PermitOps" → "EnRegla"; logo PM → ER; quitar "Compliance" inglés</td><td>mega UX-6 + nuevo UX-A7</td></tr>
+    <tr><td>18</td><td>Migrar 8 hooks hand-rolled a TanStack Query + convención <code>queryKey</code></td><td>mega + nuevo P-4</td></tr>
+    <tr><td>19</td><td>Regenerar <code>database.ts</code> + quitar 36 <code>as any</code> + CI pin</td><td>mega DB-4 + nuevo P-14, P-16</td></tr>
+    <tr><td>20</td><td>Columna "Responsable" real en <code>PermitTable</code></td><td>nuevo P-9</td></tr>
+    <tr><td>21</td><td>Borrar public-link RLS malformadas; rutear anon por <code>get_public_permits(token)</code> + REVOKE funcs anon</td><td>mega SEC-4</td></tr>
+    <tr><td>22</td><td>Uninstall 11 deps muertas (~47 MB, kills <code>dompurify</code> CVE)</td><td>mega</td></tr>
+    <tr><td>23</td><td>Wire Sentry + ErrorBoundary por ruta + <code>esbuild.drop: ["console"]</code></td><td>mega</td></tr>
+    <tr><td>24</td><td>Lazy-load <code>/p/:token</code> + code-split bundle 1.25 MB</td><td>mega</td></tr>
+    <tr><td>25</td><td>Style-guide copy (tuteo EC neutro sin voseo); rewrite dashboard copy</td><td>nuevo UX-A1, A9</td></tr>
+  </tbody>
+</table>
+
+<h3>Flujos nuevos (impacto negocio) · 4-6 semanas</h3>
+<table>
+  <thead><tr><th>#</th><th>Flujo</th><th>Impacto</th></tr></thead>
+  <tbody>
+    <tr><td>26</td><td>Multi-empresa <code>memberships</code> table + selector header</td><td>Desbloquea persona 2 (consultores)</td></tr>
+    <tr><td>27</td><td>Invitar miembros (<code>company_invitations</code> + magic link)</td><td>Desbloquea persona 1 (gerentes)</td></tr>
+    <tr><td>28</td><td>Dashboard "Buzón de hoy" operativo</td><td>Persona 3 entiende en 10s</td></tr>
+    <tr><td>29</td><td>"Agregar permit al catálogo" desde Marco Legal + <code>addPermitToLocation()</code></td><td>Marco Legal de wiki → feature de conversión</td></tr>
+    <tr><td>30</td><td>Import CSV/Excel + "Duplicar última sede"</td><td>Setup power-user 45 min → 3 min</td></tr>
+  </tbody>
+</table>
+</section>
+
+<section id="meta">
+<h2>8 · Meta-finding · Proceso</h2>
+<div class="callout warn">
+  <strong>El mega-audit del 2026-05-12 sigue abierto un año después.</strong>
+  <code>feat/dominio-v2</code> nació para atacar domain redesign post user-test, no ship-blockers del audit. 29 commits, ninguno cita ID del audit (SEC-1, DB-1, UX-*). Solo 1 fix coincidente (OAuth PKCE). Mega-audit quedó sin owner formal.
+  <br><br>
+  <strong>Recomendación:</strong> Ship-blockers P0 del mega-audit <em>antes</em> de merge a <code>main</code>. O abrir rama <code>fix/mega-audit-p0</code> paralela. Si no, la deuda se duplica con cada audit nuevo — como este de 2026-05-13.
+</div>
+</section>
+
+<section id="gaps">
+<h2>9 · Gaps · qué no se auditó</h2>
+<div class="cards">
+  <div class="card"><h4>Billing / payments</h4><p>Sin visibilidad. No hay página, componente, ni DB schema.</p></div>
+  <div class="card"><h4>Rate-limiting global</h4><p>Solo leads + public-token. Faltan Supabase PostgREST, auth, storage, edge fn.</p></div>
+  <div class="card"><h4>Backups / PITR</h4><p>Retención, restore drill, offsite — cero coverage.</p></div>
+  <div class="card"><h4>PII / LOPDP Ecuador</h4><p><code>notification_logs</code>, <code>permit_events</code>, 103 consoles. Sin auditoría.</p></div>
+  <div class="card"><h4>Admin / support tooling</h4><p>Impersonation, unlock signup, resolución RUC collision — nada.</p></div>
+  <div class="card"><h4>Multi-tenant boundary catálogos</h4><p><code>permit_issuers</code>, <code>permit_requirements</code>, <code>legal_references</code>, storage path-tenancy.</p></div>
+  <div class="card"><h4>Cron heartbeat</h4><p>Confirmado roto 5 días sin alerta. Sin dead-man switch.</p></div>
+  <div class="card"><h4>Email deliverability</h4><p>SPF/DKIM/DMARC, bounce, unsubscribe compliance.</p></div>
+  <div class="card"><h4>Lighthouse / SEO / a11y scores</h4><p>Sin mediciones. PermitTable a11y ya roto.</p></div>
+  <div class="card"><h4>Pentest público <code>/p/:token</code></h4><p>RLS mal armada + PostgREST directo. Merece pentest manual.</p></div>
+  <div class="card"><h4>Export CSV/Excel/PDF</h4><p>Oportunidad diferenciadora "auditoría-ready" + gap LOPDP.</p></div>
+  <div class="card"><h4>Landing / captura leads</h4><p>Si vive en otro repo, no auditado. En este repo: CRM components dead code.</p></div>
+</div>
+</section>
+
+<footer>
+  <p><strong>Método:</strong> 6 agentes en paralelo · ~8h CPU total · todos los findings respaldados por <code>path:line</code>, query SQL o output de tool. Verificación rolleada (sin cambios a DB/código).</p>
+  <p><strong>Verdad operativa:</strong> producción = <code>app.enregla.ec</code>. Branch <code>feat/dominio-v2</code> 29 commits ahead <code>main</code>, sin push ni PR. DB: 46 permits, 4 users admin, 2 permit_events, 22 valores distintos de <code>permits.type</code>.</p>
+  <p><strong>Deliverables:</strong> <a href="FINAL-REPORT.md">FINAL-REPORT.md</a> (canonical, para agentes) + <a href="FINAL-REPORT.html">FINAL-REPORT.html</a> (visual, para humanos) + raw reports en <a href="verification-mega-audit.md">verification</a> / <a href="findings-product.md">product</a> / <a href="findings-ux.md">ux</a> / <a href="findings-flows.md">flows</a>.</p>
+</footer>
+
+</div>
+
+<script>
+function showTab(evt, tabId) {
+  var panels = document.querySelectorAll('.tab-panel');
+  panels.forEach(p => p.classList.remove('active'));
+  var buttons = evt.currentTarget.parentElement.querySelectorAll('button');
+  buttons.forEach(b => b.classList.remove('active'));
+  evt.currentTarget.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+</script>
+</body>
+</html>

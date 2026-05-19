@@ -6,6 +6,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { uploadPermitDocument } from '@/lib/api/documents';
 import { calculateExpiryDate, formatPermitDuration } from '@/lib/permitRules';
+import { supabase } from '@/lib/supabase';
 import type { Permit } from '@/types/database';
 
 // File validation constants
@@ -85,12 +86,16 @@ export function PermitUploadForm({
     return calculateExpiryDate(permit.type, issueDate);
   }, [permit.type, issueDate]);
 
-  const previewUrl = useMemo(() => (file ? URL.createObjectURL(file) : null), [file]);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
+    if (!file) {
+      setPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
 
   const isImage = !!file && file.type.startsWith('image/');
   const isPdf = !!file && file.type === 'application/pdf';
@@ -182,7 +187,6 @@ export function PermitUploadForm({
       // Rollback: if file was uploaded but permit update failed, try to delete file
       if (uploadedFilePath) {
         try {
-          const { supabase } = await import('@/lib/supabase');
           // Delete file from storage
           await supabase.storage
             .from('permit-documents')

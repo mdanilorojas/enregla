@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>5 Loading skeletons — dashboard</title>
+<link rel="stylesheet" href="_ds.css" />
+<style>
+  .grid5 { display:grid; grid-template-columns: 1fr; gap: 32px; }
+  .frame { position:relative; padding: var(--ds-space-300); background: var(--ds-neutral-0); border:1px solid var(--ds-border); border-radius: var(--ds-radius-300); }
+  .frame-tag { position:absolute; top:-10px; left:16px; background: var(--ds-neutral-50); color: var(--ds-text-subtle); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; padding:2px 8px; font-weight:600; }
+  .header-bar { padding: 24px 32px; max-width:1240px; margin:0 auto; }
+  @keyframes pulse-fade { 0%, 100% { opacity:1; } 50% { opacity:0.5; } }
+  .pulse { animation: pulse-fade 1.6s ease-in-out infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spin { animation: spin 1s linear infinite; }
+</style>
+</head>
+<body>
+
+<div class="header-bar">
+  <h1 style="font-size: var(--ds-font-size-500); font-weight:700;">5 Loading skeletons · dashboard</h1>
+  <p class="muted" style="margin-top:4px;">Estados mientras se cargan permits + locations + company. DS real (--ds-* tokens, .shimmer).</p>
+</div>
+
+<div class="mock-page">
+  <div class="container grid5">
+
+    <!-- S1 · Shimmer simple -->
+    <div class="frame">
+      <span class="frame-tag">S1 · Shimmer clásico (matches D01)</span>
+      <!-- header skeleton -->
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: var(--ds-space-400);">
+        <div>
+          <div class="shimmer" style="width:280px; height:32px; margin-bottom:8px;"></div>
+          <div class="shimmer" style="width:380px; height:14px;"></div>
+        </div>
+        <div style="display:flex; gap: var(--ds-space-100);">
+          <div class="shimmer" style="width:120px; height:36px; border-radius: var(--ds-radius-200);"></div>
+          <div class="shimmer" style="width:120px; height:36px; border-radius: var(--ds-radius-200);"></div>
+        </div>
+      </div>
+      <!-- stats row -->
+      <div style="display:grid; grid-template-columns: 1fr 380px; gap: var(--ds-space-300); margin-bottom: var(--ds-space-400); align-items:start;">
+        <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap: var(--ds-space-200);">
+          <div class="card" style="padding: var(--ds-space-250);"><div class="shimmer" style="height:12px; width:60%; margin-bottom: var(--ds-space-200);"></div><div class="shimmer" style="height:36px; width:50%;"></div></div>
+          <div class="card" style="padding: var(--ds-space-250);"><div class="shimmer" style="height:12px; width:70%; margin-bottom: var(--ds-space-200);"></div><div class="shimmer" style="height:36px; width:40%;"></div></div>
+          <div class="card" style="padding: var(--ds-space-250);"><div class="shimmer" style="height:12px; width:55%; margin-bottom: var(--ds-space-200);"></div><div class="shimmer" style="height:36px; width:30%;"></div></div>
+          <div class="card" style="padding: var(--ds-space-250);"><div class="shimmer" style="height:12px; width:75%; margin-bottom: var(--ds-space-200);"></div><div class="shimmer" style="height:36px; width:35%;"></div></div>
+        </div>
+        <div class="card" style="padding: var(--ds-space-250); display:flex; flex-direction:column; gap: var(--ds-space-150);">
+          <div class="shimmer" style="height:18px; width:60%;"></div>
+          <div class="shimmer" style="height:14px; width:90%;"></div>
+          <div class="shimmer" style="height:14px; width:80%;"></div>
+          <div class="shimmer" style="height:14px; width:85%;"></div>
+          <div class="shimmer" style="height:40px; width:60%; margin-top: var(--ds-space-150);"></div>
+        </div>
+      </div>
+      <!-- sedes -->
+      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: var(--ds-space-200);">
+        <div class="card" style="padding: var(--ds-space-300);"><div class="shimmer" style="height:18px; width:50%; margin-bottom:8px;"></div><div class="shimmer" style="height:12px; width:75%; margin-bottom: var(--ds-space-200);"></div><div class="shimmer" style="height:6px; width:100%;"></div></div>
+        <div class="card" style="padding: var(--ds-space-300);"><div class="shimmer" style="height:18px; width:55%; margin-bottom:8px;"></div><div class="shimmer" style="height:12px; width:65%; margin-bottom: var(--ds-space-200);"></div><div class="shimmer" style="height:6px; width:100%;"></div></div>
+        <div class="card" style="padding: var(--ds-space-300);"><div class="shimmer" style="height:18px; width:45%; margin-bottom:8px;"></div><div class="shimmer" style="height:12px; width:70%; margin-bottom: var(--ds-space-200);"></div><div class="shimmer" style="height:6px; width:100%;"></div></div>
+      </div>
+    </div>
+
+    <!-- S2 · Pulse dots (más sutil) -->
+    <div class="frame">
+      <span class="frame-tag">S2 · Pulse dots (mínimo)</span>
+      <div class="pulse" style="display:flex; flex-direction:column; gap: var(--ds-space-300); padding: var(--ds-space-400) 0;">
+        <div style="display:flex; justify-content:space-between;">
+          <div>
+            <div style="background: var(--ds-neutral-100); height:32px; width:280px; border-radius:4px; margin-bottom:8px;"></div>
+            <div style="background: var(--ds-neutral-100); height:14px; width:380px; border-radius:4px;"></div>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(4, 1fr) 1.6fr; gap: var(--ds-space-200);">
+          <div style="background: var(--ds-neutral-100); height:90px; border-radius: var(--ds-radius-300);"></div>
+          <div style="background: var(--ds-neutral-100); height:90px; border-radius: var(--ds-radius-300);"></div>
+          <div style="background: var(--ds-neutral-100); height:90px; border-radius: var(--ds-radius-300);"></div>
+          <div style="background: var(--ds-neutral-100); height:90px; border-radius: var(--ds-radius-300);"></div>
+          <div style="background: var(--ds-neutral-100); height:300px; border-radius: var(--ds-radius-300);"></div>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: var(--ds-space-200);">
+          <div style="background: var(--ds-neutral-100); height:140px; border-radius: var(--ds-radius-300);"></div>
+          <div style="background: var(--ds-neutral-100); height:140px; border-radius: var(--ds-radius-300);"></div>
+          <div style="background: var(--ds-neutral-100); height:140px; border-radius: var(--ds-radius-300);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S3 · Spinner centered + status mensaje -->
+    <div class="frame" style="min-height: 400px;">
+      <span class="frame-tag">S3 · Spinner + mensaje</span>
+      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height: 360px; text-align:center;">
+        <div class="spin" style="width:48px; height:48px; border:3px solid var(--ds-neutral-100); border-top-color: var(--ds-blue-500); border-radius:50%;"></div>
+        <h3 style="font-size: var(--ds-font-size-200); font-weight:600; margin-top: var(--ds-space-250);">Cargando tu compliance</h3>
+        <p class="muted" style="margin-top:6px; font-size: var(--ds-font-size-100);">Sincronizando permisos con la base de datos…</p>
+        <div style="display:flex; flex-direction:column; gap:6px; margin-top: var(--ds-space-300); align-items:flex-start;">
+          <div style="display:flex; align-items:center; gap: var(--ds-space-100); font-size: var(--ds-font-size-075);"><span style="color: var(--ds-status-vigente-text);">✓</span><span class="muted">Sesión iniciada</span></div>
+          <div style="display:flex; align-items:center; gap: var(--ds-space-100); font-size: var(--ds-font-size-075);"><span style="color: var(--ds-status-vigente-text);">✓</span><span class="muted">Empresa cargada</span></div>
+          <div style="display:flex; align-items:center; gap: var(--ds-space-100); font-size: var(--ds-font-size-075);"><span class="spin" style="display:inline-block; width:10px; height:10px; border:2px solid var(--ds-neutral-200); border-top-color: var(--ds-blue-500); border-radius:50%;"></span><span class="muted">Cargando sedes y permisos…</span></div>
+          <div style="display:flex; align-items:center; gap: var(--ds-space-100); font-size: var(--ds-font-size-075);"><span style="color: var(--ds-text-subtlest);">○</span><span style="color: var(--ds-text-subtlest);">Calculando exposición a multas</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S4 · Progressive (esqueleto + barra arriba) -->
+    <div class="frame">
+      <span class="frame-tag">S4 · Progressive (top progress bar)</span>
+      <div style="position:absolute; top:0; left:0; right:0; height:3px; background: var(--ds-neutral-100); overflow:hidden;">
+        <div class="shimmer" style="height:100%; width:60%; background: linear-gradient(90deg, transparent, var(--ds-blue-500), transparent);"></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: var(--ds-space-400);">
+        <div>
+          <div style="font-size: var(--ds-font-size-500); font-weight:700; color: var(--ds-text);">Mariscos El Capitán</div>
+          <div class="shimmer" style="width:380px; height:14px; margin-top:8px;"></div>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 380px; gap: var(--ds-space-300); margin-bottom: var(--ds-space-400);">
+        <div style="display:grid; grid-template-columns: repeat(2,1fr); gap: var(--ds-space-200);">
+          <div class="card" style="padding: var(--ds-space-250);"><div style="font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color: var(--ds-text-subtle); font-weight:600;">Vigentes</div><div class="shimmer" style="height:30px; width:50%; margin-top:6px;"></div></div>
+          <div class="card" style="padding: var(--ds-space-250);"><div style="font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color: var(--ds-text-subtle); font-weight:600;">Por vencer</div><div class="shimmer" style="height:30px; width:30%; margin-top:6px;"></div></div>
+          <div class="card" style="padding: var(--ds-space-250);"><div style="font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color: var(--ds-text-subtle); font-weight:600;">Vencidos</div><div class="shimmer" style="height:30px; width:25%; margin-top:6px;"></div></div>
+          <div class="card" style="padding: var(--ds-space-250);"><div style="font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color: var(--ds-text-subtle); font-weight:600;">No registrados</div><div class="shimmer" style="height:30px; width:30%; margin-top:6px;"></div></div>
+        </div>
+        <div class="card" style="padding: var(--ds-space-250); border-top:3px solid var(--ds-status-vigente);">
+          <div style="font-size:15px; font-weight:600;">Lo que te falta pagar</div>
+          <div class="shimmer" style="height:14px; width:80%; margin-top: var(--ds-space-150);"></div>
+          <div class="shimmer" style="height:14px; width:65%; margin-top:8px;"></div>
+          <div class="shimmer" style="height:14px; width:75%; margin-top:8px;"></div>
+          <div class="shimmer" style="height:30px; width:50%; margin-top: var(--ds-space-200);"></div>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: var(--ds-space-200);">
+        <div class="card" style="padding: var(--ds-space-300);"><div style="font-weight:600; font-size: var(--ds-font-size-200);">Sede Centro</div><div class="shimmer" style="height:6px; width:100%; margin-top: var(--ds-space-200);"></div></div>
+        <div class="card" style="padding: var(--ds-space-300);"><div style="font-weight:600; font-size: var(--ds-font-size-200);">Sede Norte</div><div class="shimmer" style="height:6px; width:100%; margin-top: var(--ds-space-200);"></div></div>
+        <div class="card" style="padding: var(--ds-space-300);"><div style="font-weight:600; font-size: var(--ds-font-size-200);">Sede Sur</div><div class="shimmer" style="height:6px; width:100%; margin-top: var(--ds-space-200);"></div></div>
+      </div>
+    </div>
+
+    <!-- S5 · Ghost layout (forma final pero gris) -->
+    <div class="frame">
+      <span class="frame-tag">S5 · Ghost layout (silhouette)</span>
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: var(--ds-space-400); opacity:0.5;">
+        <div>
+          <div style="font-size: var(--ds-font-size-500); font-weight:700; color: var(--ds-neutral-200);">▮▮▮▮▮▮▮▮▮▮▮▮▮▮</div>
+          <div style="font-size: var(--ds-font-size-100); color: var(--ds-neutral-200); margin-top:4px;">▮▮ ▮▮ ▮▮ ▮▮▮▮▮▮ · ▮ ▮▮▮▮▮ · Riesgo ▮▮▮▮</div>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 380px; gap: var(--ds-space-300); margin-bottom: var(--ds-space-400);">
+        <div style="display:grid; grid-template-columns: repeat(2,1fr); gap: var(--ds-space-200);">
+          <div class="card pulse" style="padding: var(--ds-space-250); background: var(--ds-neutral-50);"><div style="font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color: var(--ds-text-subtle); font-weight:600;">Vigentes</div><div style="font-size: var(--ds-font-size-500); font-weight:700; color: var(--ds-neutral-300); margin-top:6px;">—</div></div>
+          <div class="card pulse" style="padding: var(--ds-space-250); background: var(--ds-neutral-50);"><div style="font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color: var(--ds-text-subtle); font-weight:600;">Por vencer</div><div style="font-size: var(--ds-font-size-500); font-weight:700; color: var(--ds-neutral-300); margin-top:6px;">—</div></div>
+          <div class="card pulse" style="padding: var(--ds-space-250); background: var(--ds-neutral-50);"><div style="font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color: var(--ds-text-subtle); font-weight:600;">Vencidos</div><div style="font-size: var(--ds-font-size-500); font-weight:700; color: var(--ds-neutral-300); margin-top:6px;">—</div></div>
+          <div class="card pulse" style="padding: var(--ds-space-250); background: var(--ds-neutral-50);"><div style="font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color: var(--ds-text-subtle); font-weight:600;">No registrados</div><div style="font-size: var(--ds-font-size-500); font-weight:700; color: var(--ds-neutral-300); margin-top:6px;">—</div></div>
+        </div>
+        <div class="card pulse" style="padding: var(--ds-space-250); background: var(--ds-neutral-50); border-top:3px solid var(--ds-neutral-200);">
+          <div style="font-size:15px; font-weight:600; color: var(--ds-text-subtle);">Lo que te falta pagar</div>
+          <div style="font-size: var(--ds-font-size-075); color: var(--ds-text-subtlest); font-style:italic; margin-top: var(--ds-space-150);">calculando…</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

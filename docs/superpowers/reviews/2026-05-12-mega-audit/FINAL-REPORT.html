@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>EnRegla — Mega-Audit 2026-05-12</title>
+<style>
+  :root {
+    --brand: #0f265c;
+    --brand-soft: #e3ecff;
+    --ink: #172b4d;
+    --ink-2: #42526e;
+    --ink-3: #6b778c;
+    --paper: #ffffff;
+    --paper-2: #f7f9fc;
+    --paper-3: #eef2f6;
+    --line: #dfe1e6;
+    --p0: #de350b;
+    --p0-soft: #ffebe6;
+    --p1: #ff8b00;
+    --p1-soft: #fff4e5;
+    --p2: #0052cc;
+    --p2-soft: #e9f2ff;
+    --p3: #6b778c;
+    --p3-soft: #f4f5f7;
+    --good: #006644;
+    --good-soft: #e3fcef;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper-2);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+    line-height: 1.5;
+  }
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 48px 32px 120px;
+  }
+  header {
+    background: linear-gradient(135deg, #0f265c 0%, #1d3b7a 100%);
+    color: #fff;
+    padding: 48px 32px 56px;
+    margin-bottom: 48px;
+  }
+  header .wrap { padding: 0; }
+  header h1 {
+    font-size: 38px;
+    margin: 0 0 8px;
+    letter-spacing: -0.5px;
+    font-weight: 800;
+  }
+  header .subtitle {
+    font-size: 16px;
+    opacity: 0.85;
+    margin: 0 0 24px;
+  }
+  header .meta {
+    display: flex;
+    gap: 28px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    opacity: 0.9;
+  }
+  header .meta strong { font-weight: 700; color: #fff; }
+  h2 {
+    font-size: 24px;
+    margin: 48px 0 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--line);
+    color: var(--brand);
+    font-weight: 800;
+  }
+  h3 {
+    font-size: 18px;
+    margin: 32px 0 12px;
+    color: var(--ink);
+    font-weight: 700;
+  }
+  h4 {
+    font-size: 14px;
+    margin: 20px 0 8px;
+    color: var(--ink-2);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  p, li { font-size: 15px; color: var(--ink); }
+  code {
+    font-family: "SF Mono", Monaco, Menlo, Consolas, monospace;
+    background: var(--paper-3);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+    color: #bf2600;
+  }
+  pre {
+    background: #0f265c;
+    color: #d0d8f0;
+    padding: 16px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 12.5px;
+  }
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin: 24px 0 40px;
+  }
+  .kpi {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 20px 20px 16px;
+  }
+  .kpi .num {
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1;
+    margin: 0 0 4px;
+  }
+  .kpi .label {
+    font-size: 13px;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+  }
+  .kpi.p0 .num { color: var(--p0); }
+  .kpi.p1 .num { color: var(--p1); }
+  .kpi.p2 .num { color: var(--p2); }
+  .kpi.p3 .num { color: var(--p3); }
+
+  .callout {
+    background: var(--p0-soft);
+    border-left: 4px solid var(--p0);
+    padding: 16px 20px;
+    border-radius: 0 6px 6px 0;
+    margin: 20px 0;
+  }
+  .callout.warn { background: var(--p1-soft); border-color: var(--p1); }
+  .callout.info { background: var(--p2-soft); border-color: var(--p2); }
+  .callout.good { background: var(--good-soft); border-color: var(--good); }
+  .callout strong { display: block; margin-bottom: 4px; color: inherit; }
+
+  .sev {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 3px;
+    vertical-align: middle;
+    letter-spacing: 0.04em;
+  }
+  .sev.p0 { background: var(--p0); color: #fff; }
+  .sev.p1 { background: var(--p1); color: #fff; }
+  .sev.p2 { background: var(--p2); color: #fff; }
+  .sev.p3 { background: var(--p3); color: #fff; }
+  .status {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 3px;
+    vertical-align: middle;
+  }
+  .status.confirmed { background: var(--good-soft); color: var(--good); }
+  .status.partial { background: var(--p1-soft); color: var(--p1); }
+  .status.refuted { background: var(--p3-soft); color: var(--p3); }
+  .status.unverified { background: var(--p2-soft); color: var(--p2); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 13.5px;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  th {
+    background: var(--paper-3);
+    font-weight: 700;
+    color: var(--ink-2);
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  tr:last-child td { border-bottom: none; }
+  td code { font-size: 12px; }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 18px;
+  }
+  .card h4 {
+    margin: 0 0 6px;
+    font-size: 14px;
+    color: var(--ink);
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .card p {
+    margin: 6px 0 0;
+    font-size: 13.5px;
+    color: var(--ink-2);
+  }
+  .card .tag {
+    display: inline-block;
+    font-size: 10.5px;
+    padding: 2px 6px;
+    background: var(--paper-3);
+    color: var(--ink-3);
+    border-radius: 3px;
+    margin-right: 4px;
+    font-weight: 600;
+  }
+
+  details {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px 18px;
+    margin: 12px 0;
+  }
+  details summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--brand);
+    outline: none;
+    font-size: 14.5px;
+  }
+  details[open] summary { margin-bottom: 12px; }
+
+  .flow {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 24px;
+    margin: 24px 0;
+    overflow-x: auto;
+  }
+  .flow svg { display: block; margin: 0 auto; max-width: 100%; }
+  .flow .legend {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--ink-3);
+    flex-wrap: wrap;
+  }
+  .flow .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .flow .legend span::before {
+    content: "";
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+  }
+  .flow .legend .lg-ok::before { background: var(--good); }
+  .flow .legend .lg-broken::before { background: var(--p0); }
+  .flow .legend .lg-partial::before { background: var(--p1); }
+  .flow .legend .lg-unreached::before { background: var(--ink-3); }
+
+  footer {
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+
+  @media (max-width: 720px) {
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>EnRegla — Mega-Audit</h1>
+    <p class="subtitle">Triple-pass deep audit · 99 deduped findings · live reproductions</p>
+    <div class="meta">
+      <span><strong>Fecha:</strong> 2026-05-12</span>
+      <span><strong>Branch:</strong> feat/dominio-v2</span>
+      <span><strong>Método:</strong> 8 agents (pass 1) + 5 verifs (pass 2) + 5 cross-cutting (pass 3)</span>
+      <span><strong>Principio:</strong> verify behavior, not shape</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<div class="kpis">
+  <div class="kpi p0"><div class="num">21</div><div class="label">P0 ship-blockers</div></div>
+  <div class="kpi p1"><div class="num">38</div><div class="label">P1 latent / hardening</div></div>
+  <div class="kpi p2"><div class="num">29</div><div class="label">P2 hygiene</div></div>
+  <div class="kpi p3"><div class="num">11</div><div class="label">P3 nits</div></div>
+</div>
+
+<div class="callout">
+  <strong>Top hallazgo — rotar YA</strong>
+  Un JWT <code>service_role</code> completo está committeado en el repo público de GitHub (<code>docs/superpowers/plans/2026-04-14-incremental-onboarding-implementation.md:1266</code>, commit <code>6bf483c</code>). Bypasea toda RLS. Rotar en Supabase + reescribir historia de git.
+</div>
+
+<div class="callout warn">
+  <strong>Segundo hallazgo — un signup no puede completar</strong>
+  Desde el 2026-05-10, el trigger <code>handle_new_user</code> intenta insertar <code>role='member'</code> pero el CHECK solo acepta <code>admin|operator|viewer</code>. El error lo traga un <code>EXCEPTION WHEN OTHERS</code>. Nadie nuevo puede onboardearse. Los 4 usuarios existentes son previos. Fix: una línea en migración.
+</div>
+
+<h2>1 · User-flow map — golden path vs. reality</h2>
+
+<p>Qué debería pasar, qué pasa hoy. Este diagrama es el mapa de cómo un usuario real aterriza, se onboardea y trabaja en EnRegla — y dónde rompe.</p>
+
+<div class="flow">
+<svg viewBox="0 0 1100 720" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="User flow diagram showing broken and working paths through EnRegla">
+  <defs>
+    <marker id="arrow-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#006644"/>
+    </marker>
+    <marker id="arrow-broken" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#de350b"/>
+    </marker>
+    <marker id="arrow-partial" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ff8b00"/>
+    </marker>
+    <marker id="arrow-unreached" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6b778c"/>
+    </marker>
+  </defs>
+
+  <!-- nodes -->
+  <g font-family="Inter,system-ui" font-size="13">
+    <!-- Entry -->
+    <rect x="20" y="20" width="160" height="56" rx="8" fill="#eef2f6" stroke="#dfe1e6"/>
+    <text x="100" y="45" text-anchor="middle" font-weight="700">Landing / /login</text>
+    <text x="100" y="62" text-anchor="middle" font-size="11" fill="#42526e">OAuth Google</text>
+
+    <!-- Auth callback -->
+    <rect x="220" y="20" width="180" height="56" rx="8" fill="#e3fcef" stroke="#006644"/>
+    <text x="310" y="45" text-anchor="middle" font-weight="700">/auth/callback</text>
+    <text x="310" y="62" text-anchor="middle" font-size="11" fill="#42526e">PKCE ok (c493222)</text>
+
+    <!-- handle_new_user -->
+    <rect x="440" y="20" width="220" height="56" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="550" y="41" text-anchor="middle" font-weight="700" fill="#de350b">handle_new_user()</text>
+    <text x="550" y="59" text-anchor="middle" font-size="11" fill="#42526e">role='member' rechazado</text>
+    <text x="550" y="72" text-anchor="middle" font-size="10.5" fill="#42526e">exception swallowed → sin profile</text>
+
+    <!-- Onboarding -->
+    <rect x="700" y="20" width="180" height="56" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="790" y="41" text-anchor="middle" font-weight="700" fill="#de350b">IncrementalWizard</text>
+    <text x="790" y="59" text-anchor="middle" font-size="11" fill="#42526e">UPDATE profile (no-op)</text>
+    <text x="790" y="72" text-anchor="middle" font-size="10.5" fill="#42526e">copy: "PermitOps"</text>
+
+    <!-- Dashboard -->
+    <rect x="920" y="20" width="160" height="56" rx="8" fill="#fff4e5" stroke="#ff8b00"/>
+    <text x="1000" y="41" text-anchor="middle" font-weight="700">Dashboard</text>
+    <text x="1000" y="58" text-anchor="middle" font-size="11" fill="#42526e">vacío / err state</text>
+    <text x="1000" y="71" text-anchor="middle" font-size="10.5" fill="#42526e">errors drop silenciosos</text>
+
+    <!-- Sedes -->
+    <rect x="20" y="180" width="160" height="56" rx="8" fill="#e3fcef" stroke="#006644"/>
+    <text x="100" y="205" text-anchor="middle" font-weight="700">/sedes</text>
+    <text x="100" y="222" text-anchor="middle" font-size="11" fill="#42526e">crea sede ok</text>
+
+    <!-- Auto-trigger -->
+    <rect x="220" y="180" width="220" height="56" rx="8" fill="#fff4e5" stroke="#ff8b00"/>
+    <text x="330" y="201" text-anchor="middle" font-weight="700" fill="#ff8b00">auto_create_location_permits</text>
+    <text x="330" y="220" text-anchor="middle" font-size="11" fill="#42526e">crea permits sin issuer_id</text>
+    <text x="330" y="232" text-anchor="middle" font-size="10.5" fill="#42526e">41/46 filas = NULL</text>
+
+    <!-- Permit detail -->
+    <rect x="480" y="180" width="180" height="56" rx="8" fill="#fff4e5" stroke="#ff8b00"/>
+    <text x="570" y="201" text-anchor="middle" font-weight="700">/permisos/:id</text>
+    <text x="570" y="220" text-anchor="middle" font-size="11" fill="#42526e">InfoCard: "no definido"</text>
+    <text x="570" y="232" text-anchor="middle" font-size="10.5" fill="#42526e">tabs, docs ok</text>
+
+    <!-- Nuevo Permiso button -->
+    <rect x="700" y="180" width="200" height="56" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="800" y="201" text-anchor="middle" font-weight="700" fill="#de350b">"Nuevo Permiso" btn</text>
+    <text x="800" y="220" text-anchor="middle" font-size="11" fill="#42526e">sin onClick / sin Link</text>
+    <text x="800" y="232" text-anchor="middle" font-size="10.5" fill="#42526e">2 copias muertas</text>
+
+    <!-- Settings -->
+    <rect x="20" y="290" width="160" height="56" rx="8" fill="#e3fcef" stroke="#006644"/>
+    <text x="100" y="315" text-anchor="middle" font-weight="700">/settings</text>
+    <text x="100" y="332" text-anchor="middle" font-size="11" fill="#42526e">tabs cargan ok</text>
+
+    <rect x="220" y="290" width="200" height="56" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="320" y="311" text-anchor="middle" font-weight="700" fill="#de350b">NotificationsTab</text>
+    <text x="320" y="330" text-anchor="middle" font-size="11" fill="#42526e">toggles no persisten</text>
+    <text x="320" y="342" text-anchor="middle" font-size="10.5" fill="#42526e">tab funcional orphaned</text>
+
+    <rect x="440" y="290" width="180" height="56" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="530" y="311" text-anchor="middle" font-weight="700" fill="#de350b">ProfileTab</text>
+    <text x="530" y="330" text-anchor="middle" font-size="11" fill="#42526e">"Guardar" sin onClick</text>
+    <text x="530" y="342" text-anchor="middle" font-size="10.5" fill="#42526e">inputs uncontrolled</text>
+
+    <rect x="640" y="290" width="180" height="56" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="730" y="311" text-anchor="middle" font-weight="700" fill="#de350b">SecurityTab</text>
+    <text x="730" y="330" text-anchor="middle" font-size="11" fill="#42526e">"Cerrar sesiones" vacío</text>
+
+    <rect x="840" y="290" width="200" height="56" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="940" y="311" text-anchor="middle" font-weight="700" fill="#de350b">CompanyTab</text>
+    <text x="940" y="330" text-anchor="middle" font-size="11" fill="#42526e">4 giros vs DB 12</text>
+    <text x="940" y="342" text-anchor="middle" font-size="10.5" fill="#42526e">save corrompe business_type</text>
+
+    <!-- Legal -->
+    <rect x="20" y="400" width="160" height="56" rx="8" fill="#e3fcef" stroke="#006644"/>
+    <text x="100" y="425" text-anchor="middle" font-weight="700">/marco-legal</text>
+    <text x="100" y="442" text-anchor="middle" font-size="11" fill="#42526e">index lee DB</text>
+
+    <rect x="220" y="400" width="220" height="56" rx="8" fill="#fff4e5" stroke="#ff8b00"/>
+    <text x="330" y="421" text-anchor="middle" font-weight="700" fill="#ff8b00">/marco-legal/:slug</text>
+    <text x="330" y="440" text-anchor="middle" font-size="11" fill="#42526e">detail lee TS static</text>
+    <text x="330" y="452" text-anchor="middle" font-size="10.5" fill="#42526e">latent 404 si DB-only</text>
+
+    <!-- Renovaciones -->
+    <rect x="480" y="400" width="180" height="56" rx="8" fill="#fff4e5" stroke="#ff8b00"/>
+    <text x="570" y="421" text-anchor="middle" font-weight="700">/renovaciones</text>
+    <text x="570" y="440" text-anchor="middle" font-size="11" fill="#42526e">grid muestra ok</text>
+    <text x="570" y="452" text-anchor="middle" font-size="10.5" fill="#42526e">modal renovar desde sede=dead</text>
+
+    <!-- Mapa red -->
+    <rect x="700" y="400" width="180" height="56" rx="8" fill="#e3fcef" stroke="#006644"/>
+    <text x="790" y="425" text-anchor="middle" font-weight="700">/mapa-red</text>
+    <text x="790" y="442" text-anchor="middle" font-size="11" fill="#42526e">xyflow render ok</text>
+
+    <!-- Internal CRM orphan -->
+    <rect x="920" y="400" width="160" height="56" rx="8" fill="#f4f5f7" stroke="#6b778c" stroke-dasharray="4 3"/>
+    <text x="1000" y="420" text-anchor="middle" font-weight="700" fill="#6b778c">LeadsTable</text>
+    <text x="1000" y="437" text-anchor="middle" font-size="11" fill="#6b778c">sin ruta</text>
+    <text x="1000" y="450" text-anchor="middle" font-size="10.5" fill="#6b778c">tabla llena, invisible</text>
+
+    <!-- Public -->
+    <rect x="20" y="510" width="180" height="56" rx="8" fill="#fff4e5" stroke="#ff8b00"/>
+    <text x="110" y="531" text-anchor="middle" font-weight="700">/p/:token (público)</text>
+    <text x="110" y="550" text-anchor="middle" font-size="11" fill="#42526e">demo ok, tenants reales rotos</text>
+    <text x="110" y="562" text-anchor="middle" font-size="10.5" fill="#42526e">1.25 MB bundle para anon</text>
+
+    <!-- Email -->
+    <rect x="240" y="510" width="240" height="56" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="360" y="531" text-anchor="middle" font-weight="700" fill="#de350b">send-expiry-alerts v8</text>
+    <text x="360" y="550" text-anchor="middle" font-size="11" fill="#42526e">CTA → app.enregla.se (muerto)</text>
+    <text x="360" y="562" text-anchor="middle" font-size="10.5" fill="#42526e">RESEND_FROM = resend.dev</text>
+
+    <!-- Leads anon spam -->
+    <rect x="520" y="510" width="240" height="56" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="640" y="531" text-anchor="middle" font-weight="700" fill="#de350b">landing → leads INSERT</text>
+    <text x="640" y="550" text-anchor="middle" font-size="11" fill="#42526e">WITH CHECK (true) · anon</text>
+    <text x="640" y="562" text-anchor="middle" font-size="10.5" fill="#42526e">sin captcha / sin rate-limit</text>
+
+    <!-- Design system -->
+    <rect x="800" y="510" width="270" height="56" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="935" y="531" text-anchor="middle" font-weight="700" fill="#de350b">@theme sin --color-* prefix</text>
+    <text x="935" y="550" text-anchor="middle" font-size="11" fill="#42526e">9 utilities emiten 0 CSS</text>
+    <text x="935" y="562" text-anchor="middle" font-size="10.5" fill="#42526e">calendar, dropdown, sheet... sin estilo</text>
+
+    <!-- Git / CI -->
+    <rect x="20" y="620" width="260" height="56" rx="8" fill="#ffebe6" stroke="#de350b"/>
+    <text x="150" y="641" text-anchor="middle" font-weight="700" fill="#de350b">git: service_role JWT commiteado</text>
+    <text x="150" y="660" text-anchor="middle" font-size="11" fill="#42526e">docs/…/2026-04-14-…:1266</text>
+    <text x="150" y="672" text-anchor="middle" font-size="10.5" fill="#42526e">rotar + filter-repo</text>
+
+    <rect x="310" y="620" width="250" height="56" rx="8" fill="#fff4e5" stroke="#ff8b00"/>
+    <text x="435" y="641" text-anchor="middle" font-weight="700">CI = lint+tsc+test+build</text>
+    <text x="435" y="660" text-anchor="middle" font-size="11" fill="#42526e">sin coverage / audit / budget</text>
+    <text x="435" y="672" text-anchor="middle" font-size="10.5" fill="#42526e">regressions verdes</text>
+
+    <rect x="590" y="620" width="230" height="56" rx="8" fill="#fff4e5" stroke="#ff8b00"/>
+    <text x="705" y="641" text-anchor="middle" font-weight="700">Bundle 1.25 MB único</text>
+    <text x="705" y="660" text-anchor="middle" font-size="11" fill="#42526e">shipped al route público</text>
+    <text x="705" y="672" text-anchor="middle" font-size="10.5" fill="#42526e">sin code-split</text>
+
+    <rect x="850" y="620" width="230" height="56" rx="8" fill="#fff4e5" stroke="#ff8b00"/>
+    <text x="965" y="641" text-anchor="middle" font-weight="700">Sin Sentry / telemetría</text>
+    <text x="965" y="660" text-anchor="middle" font-size="11" fill="#42526e">crashes prod = silencio</text>
+    <text x="965" y="672" text-anchor="middle" font-size="10.5" fill="#42526e">103 console.* en prod</text>
+  </g>
+
+  <!-- edges -->
+  <g stroke-width="2" fill="none">
+    <path d="M 180 48 L 220 48" stroke="#006644" marker-end="url(#arrow-ok)"/>
+    <path d="M 400 48 L 440 48" stroke="#006644" marker-end="url(#arrow-ok)"/>
+    <path d="M 660 48 L 700 48" stroke="#de350b" stroke-dasharray="4 3" marker-end="url(#arrow-broken)"/>
+    <path d="M 880 48 L 920 48" stroke="#ff8b00" marker-end="url(#arrow-partial)"/>
+
+    <path d="M 1000 76 Q 1000 120 100 140 L 100 180" stroke="#006644" marker-end="url(#arrow-ok)"/>
+
+    <path d="M 180 208 L 220 208" stroke="#ff8b00" marker-end="url(#arrow-partial)"/>
+    <path d="M 440 208 L 480 208" stroke="#ff8b00" marker-end="url(#arrow-partial)"/>
+    <path d="M 660 208 L 700 208" stroke="#de350b" stroke-dasharray="4 3" marker-end="url(#arrow-broken)"/>
+
+    <path d="M 100 236 L 100 290" stroke="#006644" marker-end="url(#arrow-ok)"/>
+    <path d="M 180 318 L 220 318" stroke="#006644" marker-end="url(#arrow-ok)"/>
+    <path d="M 420 318 L 440 318" stroke="#006644" marker-end="url(#arrow-ok)"/>
+    <path d="M 620 318 L 640 318" stroke="#006644" marker-end="url(#arrow-ok)"/>
+    <path d="M 820 318 L 840 318" stroke="#006644" marker-end="url(#arrow-ok)"/>
+
+    <path d="M 100 346 L 100 400" stroke="#006644" marker-end="url(#arrow-ok)"/>
+    <path d="M 180 428 L 220 428" stroke="#ff8b00" marker-end="url(#arrow-partial)"/>
+    <path d="M 440 428 L 480 428" stroke="#006644" marker-end="url(#arrow-ok)"/>
+    <path d="M 660 428 L 700 428" stroke="#006644" marker-end="url(#arrow-ok)"/>
+    <path d="M 880 428 L 920 428" stroke="#6b778c" stroke-dasharray="4 3" marker-end="url(#arrow-unreached)"/>
+
+    <path d="M 100 456 L 100 510" stroke="#006644" marker-end="url(#arrow-ok)"/>
+    <path d="M 200 538 L 240 538" stroke="#ff8b00" marker-end="url(#arrow-partial)"/>
+    <path d="M 480 538 L 520 538" stroke="#de350b" stroke-dasharray="4 3" marker-end="url(#arrow-broken)"/>
+    <path d="M 760 538 L 800 538" stroke="#de350b" stroke-dasharray="4 3" marker-end="url(#arrow-broken)"/>
+
+    <path d="M 100 566 L 100 620" stroke="#6b778c" marker-end="url(#arrow-unreached)"/>
+    <path d="M 280 648 L 310 648" stroke="#ff8b00" marker-end="url(#arrow-partial)"/>
+    <path d="M 560 648 L 590 648" stroke="#ff8b00" marker-end="url(#arrow-partial)"/>
+    <path d="M 820 648 L 850 648" stroke="#ff8b00" marker-end="url(#arrow-partial)"/>
+  </g>
+</svg>
+<div class="legend">
+  <span class="lg-ok">funciona</span>
+  <span class="lg-partial">degrado / latente</span>
+  <span class="lg-broken">roto</span>
+  <span class="lg-unreached">inaccesible / huérfano</span>
+</div>
+</div>
+
+<h2>2 · 10 cosas que importan</h2>
+
+<ol>
+  <li><strong>Nuevo signup = sin profile.</strong> <code>handle_new_user</code> escribe <code>'member'</code>; CHECK acepta <code>admin|operator|viewer</code>. Exception swallowed. Reproducido en vivo. Fix: 1 línea de migración.</li>
+  <li><strong>JWT <code>service_role</code> completo en git público.</strong> Commit <code>6bf483c</code>, archivo <code>docs/superpowers/plans/2026-04-14-incremental-onboarding-implementation.md:1266</code>. Rotar YA.</li>
+  <li><strong>Tokens Tailwind 4 sin <code>--color-*</code></strong>. <code>bg-primary</code>, <code>bg-background</code>, <code>bg-popover</code>, <code>bg-accent</code>, <code>bg-card</code>, <code>text-destructive</code>, <code>text-muted-foreground</code>, <code>border-input</code>, <code>ring-ring</code> emiten 0 CSS (grep en <code>dist/</code>). 41 usos en 13 archivos. Calendar, dropdown, sheet, sidebar, tooltip, checkbox, textarea, form, select sin estilo.</li>
+  <li><strong>"Nuevo Permiso" no existe como UX.</strong> Ambos botones en <code>PermitListView</code> y el de <code>LocationPermitsTab</code> sin onClick. No se puede crear permit por UI.</li>
+  <li><strong>Edge fn <code>send-expiry-alerts</code> v8 deployed con <code>.se</code>.</strong> Todo email de caducidad linkea a dominio muerto. Source ya corregido en <code>c493222</code>; falta redeploy.</li>
+  <li><strong>Settings tabs fake.</strong> NotificationsTab toggles no persisten. ProfileTab "Guardar" sin onClick. SecurityTab "Cerrar sesiones" sin onClick. CompanyTab 4 giros vs DB 12 → corrompe.</li>
+  <li><strong><code>leads</code> anon INSERT sin límite.</strong> <code>WITH CHECK (true)</code>. Sin captcha, sin rate-limit.</li>
+  <li><strong>Public-link RLS malformada.</strong> Filtro sin token-binding. No explotable hoy por layers extra. P1 latente — detona si alguien "arregla" la página pública añadiendo anon SELECT en <code>public_links</code>.</li>
+  <li><strong><code>permits.type</code> con 18 valores, 10 pares duplicados</strong>, sin CHECK. Joins a Marco Legal, rollups de cumplimiento y costos mal en ~29/51 filas.</li>
+  <li><strong>Bundle 1.25 MB en una sola pieza</strong> shipped a <code>/p/:token</code> público. xyflow, react-table, query, design-system, onboarding — todo lo baja el visitante anónimo.</li>
+</ol>
+
+<h2>3 · P0 · Ship-blockers (21)</h2>
+
+<h3>3A · Data integrity (DB)</h3>
+<table>
+  <thead><tr><th>#</th><th>Hallazgo</th><th>Status</th><th>Evidencia</th></tr></thead>
+  <tbody>
+    <tr><td>DB-1</td><td><code>handle_new_user</code> inserta <code>role='member'</code> rechazado por CHECK; exception swallowed; no profile.</td><td><span class="status confirmed">CONFIRMED</span></td><td><code>supabase/migrations/20260510000000_pre_production_audit_fixes.sql:337</code></td></tr>
+    <tr><td>DB-2</td><td><code>permits.type</code>: 18 valores, 10 pares duplicados, sin CHECK.</td><td><span class="status confirmed">CONFIRMED</span></td><td>DB distribution query</td></tr>
+    <tr><td>DB-3</td><td>Trigger <code>auto_create_location_permits</code> no popula <code>issuer_id</code> (41/46 filas NULL).</td><td><span class="status confirmed">CONFIRMED</span></td><td>trigger body + DB sample</td></tr>
+    <tr><td>DB-4</td><td><code>src/types/database.ts</code> stale vs v2 domain. <code>database.types.ts</code> es placeholder de 28 líneas. 38 <code>as any</code> en código.</td><td><span class="status confirmed">CONFIRMED</span></td><td>ambos type files</td></tr>
+  </tbody>
+</table>
+
+<h3>3B · Security</h3>
+<table>
+  <thead><tr><th>#</th><th>Hallazgo</th><th>Status</th><th>Evidencia</th></tr></thead>
+  <tbody>
+    <tr><td>SEC-1</td><td>JWT <code>service_role</code> en repo público. Decoded <code>{role:service_role, ref:zqaqhapxqwkvninnyqiu}</code>.</td><td><span class="status confirmed">CONFIRMED</span></td><td>commit <code>6bf483c</code> · <code>docs/superpowers/plans/2026-04-14-incremental-onboarding-implementation.md:1266</code></td></tr>
+    <tr><td>SEC-2</td><td><code>leads</code> INSERT policy <code>TO public WITH CHECK (true)</code>.</td><td><span class="status confirmed">CONFIRMED</span></td><td>live INSERT as anon rolled back</td></tr>
+    <tr><td>SEC-3</td><td>Edge fn v8 deployed con <code>app.enregla.se</code> (dominio muerto).</td><td><span class="status confirmed">CONFIRMED</span></td><td><code>mcp__supabase__get_edge_function</code></td></tr>
+    <tr><td>SEC-4</td><td>Public-link RLS sin token-binding. No explotable hoy (P1 latente).</td><td><span class="status partial">PARTIAL</span></td><td><code>pg_policies</code> + reproducción</td></tr>
+  </tbody>
+</table>
+
+<h3>3C · Core UX broken</h3>
+<table>
+  <thead><tr><th>#</th><th>Hallazgo</th><th>Status</th><th>Evidencia</th></tr></thead>
+  <tbody>
+    <tr><td>UX-1</td><td>"Nuevo Permiso" dead × 3 (header, empty-state, LocationPermitsTab).</td><td><span class="status confirmed">CONFIRMED</span></td><td><code>PermitListView.tsx:85-87,112-115</code>; <code>LocationPermitsTab.tsx:29-35</code></td></tr>
+    <tr><td>UX-2</td><td>NotificationsTab sin persistencia; NotificationPreferences huérfano.</td><td><span class="status confirmed">CONFIRMED</span></td><td><code>SettingsView.tsx:22</code></td></tr>
+    <tr><td>UX-3</td><td>ProfileTab/SecurityTab: botones sin onClick.</td><td><span class="status confirmed">CONFIRMED</span></td><td><code>ProfileTab.tsx:22,30</code>; <code>SecurityTab.tsx:23</code></td></tr>
+    <tr><td>UX-4</td><td>CompanyTab 4 giros vs DB 12 → downgrade silencioso.</td><td><span class="status confirmed">CONFIRMED</span></td><td><code>CompanyTab.tsx:11-16</code></td></tr>
+    <tr><td>UX-5</td><td>RenewPermitModal montado pero setter(true) nunca se llama.</td><td><span class="status confirmed">CONFIRMED</span></td><td><code>LocationDetailView.tsx:25-27,155-156</code></td></tr>
+    <tr><td>UX-6</td><td>Copy "PermitOps" en onboarding × 2.</td><td><span class="status confirmed">CONFIRMED</span></td><td><code>ProfileStep.tsx:24</code>; <code>IncrementalWizard.tsx:160</code></td></tr>
+    <tr><td>UX-7</td><td>CRM interno (LeadsTable, PartnerScorecard) sin ruta. Landing captura leads a caja negra.</td><td><span class="status confirmed">CONFIRMED</span></td><td><code>App.tsx:67-124</code></td></tr>
+  </tbody>
+</table>
+
+<h3>3D · Design system</h3>
+<table>
+  <thead><tr><th>#</th><th>Hallazgo</th><th>Status</th><th>Evidencia</th></tr></thead>
+  <tbody>
+    <tr><td>DS-1</td><td><code>@theme</code> sin <code>--color-*</code>. 9 utilities emiten 0 CSS.</td><td><span class="status confirmed">CONFIRMED</span></td><td><code>src/index.css:16-44</code>; grep en <code>dist/assets/index-*.css</code></td></tr>
+    <tr><td>DS-2</td><td><code>DesignSystemView</code> usa Tailwind stock (<code>#1e3a8a</code>) como "brand". Real brand es <code>#0f265c</code>. Ambos routes shipped.</td><td><span class="status confirmed">CONFIRMED</span></td><td><code>DesignSystemView.tsx:83,101-113</code></td></tr>
+  </tbody>
+</table>
+
+<h3>3E · Email pipeline</h3>
+<table>
+  <thead><tr><th>#</th><th>Hallazgo</th><th>Status</th><th>Evidencia</th></tr></thead>
+  <tbody>
+    <tr><td>EMAIL-1</td><td>Resend fallback <code>onboarding@resend.dev</code>; dominio <code>enregla.ec</code> no verificado. Expiry alerts llegan solo al owner. Al verificar dominio, el bug <code>.se</code> detona masivamente.</td><td><span class="status unverified">UNVERIFIED via MCP</span></td><td><code>email-service.ts:9</code></td></tr>
+  </tbody>
+</table>
+
+<h2>4 · P1 · Latente / hardening (38 · highlights)</h2>
+
+<div class="cards">
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">Auth</span>
+    <h4>useAuth 5s timeout mata sesión en red lenta</h4>
+    <p>Module-level globals (<code>authInitialized</code>, <code>initializationPromise</code>) + <code>setTimeout(…, 5000)</code> fuerzan <code>isAuthenticated=false</code>. Usuarios reales expulsados a <code>/login</code>.</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">Auth</span>
+    <h4>AuthCallback no maneja <code>?error=access_denied</code></h4>
+    <p>Usuario cancela consent Google → error genérico "No se pudo establecer la sesión".</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">Data</span>
+    <h4>Data layer esquizofrénica</h4>
+    <p>TanStack Query wired; solo 6/14 hooks la usan. <code>usePermits</code>, <code>useLocations</code>, <code>useDocuments</code>, <code>useLeads</code>, <code>usePartners</code>, etc. son <code>useState</code>+<code>useEffect</code>.</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">Perf</span>
+    <h4>Double-fetch de permits</h4>
+    <p><code>useLocations</code> llama <code>usePermits</code> internamente; 7 vistas llaman <code>usePermits</code> a nivel de página → 2× fetch Supabase por página.</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">Cache</span>
+    <h4>AssigneePicker invalida key <code>['permits']</code> que no existe</h4>
+    <p>Invalidación es no-op. Asignee queda stale hasta reload.</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">Security</span>
+    <h4>RUC-squatting posible</h4>
+    <p>Políticas <code>companies_insert</code> permiten cualquier authenticated crear company; sin unique on RUC.</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">Public</span>
+    <h4>Página pública <code>/p/:token</code> rota para tenants reales</h4>
+    <p>Usa PostgREST directo; RPC seguro <code>get_public_permits</code> existe pero huérfano. Solo demo funciona.</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">Perf</span>
+    <h4>Bundle 1.25 MB shipped a <code>/p/:token</code> público</h4>
+    <p>xyflow + react-table + query + design-system + onboarding. Sin code-split.</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">Deps</span>
+    <h4>11 deps muertas (~47 MB)</h4>
+    <p><code>recharts</code>, <code>jspdf</code>, <code>html2canvas</code>, <code>framer-motion</code>, <code>d3-force</code>, <code>sonner</code>, <code>@tanstack/react-virtual</code>, <code>react-hook-form</code>, <code>zod</code>, <code>@hookform/resolvers</code>, <code>react-query-devtools</code>.</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">Legal</span>
+    <h4>Legal index/detail split (latente)</h4>
+    <p>Index lee DB, detail lee TS static. Hoy 6/6 overlap. Detona cuando admin añade DB-only.</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">Types</span>
+    <h4><code>src/types/index.ts</code> con 3 enums stale</h4>
+    <p><code>IndustryType</code> (9 vs 12), <code>PermitType</code> (6 vs 8), <code>LocationStage</code> wrong values. Rename compila y rompe en runtime.</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">Auth</span>
+    <h4>No hay <code>/reset-password</code></h4>
+    <p><code>resetPasswordForEmail()</code> se llama pero landing del link no existe — cae en wildcard redirect.</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">CI</span>
+    <h4>CI = lint+tsc+test+build, nada más</h4>
+    <p>Sin coverage, sin <code>npm audit</code>, sin budget de bundle, sin dry-run de migraciones, sin E2E, sin typecheck de edge fn.</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">Types</span>
+    <h4>TypeScript no es strict</h4>
+    <p><code>strict</code>, <code>strictNullChecks</code>, <code>noImplicitAny</code> off en <code>config/tsconfig.app.json</code>.</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">A11y</span>
+    <h4>PermitTable sort headers = <code>&lt;th onClick&gt;</code> sin button role/keyboard</h4>
+    <p>No se puede ordenar con teclado. AppLayout backdrop idem. ShareLocationModal dialog sin focus trap, sin Esc.</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">A11y</span>
+    <h4>Contrast fails WCAG AA</h4>
+    <p><code>risk-medio</code> 2.3:1 (<code>#FF991F</code> on <code>#fff8e1</code>); <code>status-por-vencer</code> 4.1:1.</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">DS</span>
+    <h4>Tokens <code>--ds-orange-700/800/900</code> son rojos</h4>
+    <p>Rompe contrato de jerarquía de riesgo (crítico/alto/medio/bajo).</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">Obs</span>
+    <h4>Sin telemetría</h4>
+    <p>Sin Sentry (DSN en <code>.env.example</code>, nunca wired). ErrorBoundary solo loguea en DEV. 103 <code>console.*</code> en prod sin <code>drop_console</code>.</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">Obs</span>
+    <h4>Core views descartan <code>error</code> del hook</h4>
+    <p><code>DashboardView</code>, <code>PermitListView</code>, <code>PermitDetailView</code> solo destructuran <code>{data, loading}</code> → fallo render lista vacía.</p>
+  </div>
+  <div class="card">
+    <span class="sev p1">P1</span> <span class="tag">DS</span>
+    <h4>WeatherCard motion sin <code>prefers-reduced-motion</code></h4>
+    <p>737 LOC, 3 useEffect loops, 12+ <code>@keyframes infinite</code>, 30+ hex hardcoded.</p>
+  </div>
+</div>
+
+<p style="color:var(--ink-3); font-size:13px;">Tabla completa de P1 en <code>pass3-reconciliation.md</code> §1 (99 filas).</p>
+
+<h2>5 · Contradicciones reconciliadas</h2>
+
+<div class="callout info">
+  <strong>C-1 · Dominio <code>.ec</code> vs <code>.se</code></strong>
+  Pass-1 auth tenía la dirección INVERTIDA (venía de una línea stale en MEMORY). Pass-2 domain-verify confirmó: <strong>producción es <code>app.enregla.ec</code></strong> (commit <code>c493222</code>). El bug real es drift source-vs-deployed: edge fn v8 todavía tiene <code>.se</code>. Fix: redeploy. Meta: purgar <code>.se</code> de docs no históricos y añadir "canonical = <code>.ec</code>" en CLAUDE.md.
+</div>
+
+<div class="callout info">
+  <strong>C-2 · Public-link RLS</strong>
+  Pass-1 lo llamó "data-exfiltration en vivo". Pass-2 reprodujo y encontró que NO es explotable hoy por otras capas RLS. Forma de la política es mala; es una P0 latente, no una P0 activa. Downgrade.
+</div>
+
+<div class="callout info">
+  <strong>C-3 · <code>get_public_permits</code> RPC</strong>
+  REFUTADO por Pass-2: la RPC sí liga por token (<code>WHERE pl.token = link_token</code>). Está huérfana (el cliente usa PostgREST directo), pero es segura. Sólo queda <code>REVOKE</code> en <code>user_company_id()</code>.
+</div>
+
+<div class="callout info">
+  <strong>C-4 · Storage demo-mode</strong>
+  CLAUDE.md dice uploads demo sin auth. Pass-2 confirmó que la policy es <code>TO authenticated</code>. Drift spec↔realidad. Decidir una verdad.
+</div>
+
+<div class="callout info">
+  <strong>C-5 · LegalPermitDetailView breaking</strong>
+  Pass-1 dijo "LUAE/MSP 404". Pass-2 encontró que ni TS ni DB tienen LUAE/MSP — el 404 no ocurre hoy. El split arquitectónico es real y detonará cuando alguien añada permit-type solo a DB.
+</div>
+
+<div class="callout info">
+  <strong>C-6 · Meta — <code>handle_new_user</code> lo introdujo el mismo audit 2026-05-10</strong>
+  La migración "de hardening" <code>20260510000000_pre_production_audit_fixes.sql</code> metió el bug. El follow-up <code>2026-05-10-verification-process-gap.md</code> propuso 3 mitigaciones (DoD, stop-hook, template de audit) — ninguna shipeada. El problema es de proceso: sin enforcement, el próximo audit meterá la próxima regression.
+</div>
+
+<h2>6 · Gaps — lo que no audité</h2>
+
+<div class="cards">
+  <div class="card"><h4>Billing / payments</h4><p>Cero código inspeccionado. Si hay tier pago o trial, nada chequeado.</p></div>
+  <div class="card"><h4>Rate-limiting global</h4><p>Sólo leads + public-token. Falta Supabase PostgREST, auth endpoints, storage, edge fn.</p></div>
+  <div class="card"><h4>Backups / PITR / runbook</h4><p>Retención, restore drill, offsite — cero coverage.</p></div>
+  <div class="card"><h4>PII / log retention / Ecuador data-protection</h4><p><code>notification_logs</code>, <code>permit_events</code>, 103 consoles. Sin auditoría.</p></div>
+  <div class="card"><h4>Admin / support tooling</h4><p>Impersonation, unlock de signups rotos, resolución de RUC collision — nada.</p></div>
+  <div class="card"><h4>Multi-tenant boundary en catálogos compartidos</h4><p><code>permit_issuers</code>, <code>permit_requirements</code>, <code>legal_references</code>, storage path-tenancy.</p></div>
+  <div class="card"><h4>Supabase Auth URL config</h4><p>Dashboard-only, no queryable vía MCP. Site URL, Redirect URLs, MFA, templates — verificación manual pendiente.</p></div>
+  <div class="card"><h4>Cron heartbeat</h4><p><code>send-expiry-alerts</code> dispara por <code>pg_cron</code>. Sin dead-man's-switch.</p></div>
+  <div class="card"><h4>Email deliverability</h4><p>SPF/DKIM/DMARC, bounce handling, unsubscribe compliance.</p></div>
+  <div class="card"><h4>Browser compat / SW / SEO</h4><p>Ningún pass miró polyfills, offline, robots.txt, open-graph.</p></div>
+</div>
+
+<h2>7 · Top-20 orden recomendado</h2>
+
+<table>
+  <thead><tr><th>#</th><th>Fix</th><th>Complejidad</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td><strong>Rotar JWT <code>service_role</code>; purgar de git history; pre-commit secret scan</strong></td><td>2</td></tr>
+    <tr><td>2</td><td>Fix <code>handle_new_user</code> role literal (1 línea)</td><td>1</td></tr>
+    <tr><td>3</td><td>Prefijo <code>--color-*</code> en <code>@theme</code></td><td>2</td></tr>
+    <tr><td>4</td><td>Redeploy <code>send-expiry-alerts</code> + set secrets <code>ALLOWED_ORIGIN</code>/<code>APP_URL</code></td><td>1</td></tr>
+    <tr><td>5</td><td>SettingsView → <code>NotificationPreferences</code> (no <code>NotificationsTab</code>)</td><td>1</td></tr>
+    <tr><td>6</td><td><code>CompanyTab</code> importar canonical <code>BUSINESS_TYPES</code></td><td>1</td></tr>
+    <tr><td>7</td><td>Wire onClicks en <code>ProfileTab</code> / <code>SecurityTab</code></td><td>2</td></tr>
+    <tr><td>8</td><td>Rename "PermitOps" → "EnRegla" onboarding</td><td>1</td></tr>
+    <tr><td>9</td><td>Wire "Nuevo Permiso" + trigger de <code>RenewPermitModal</code></td><td>2</td></tr>
+    <tr><td>10</td><td>Backfill <code>permits.type</code> a slugs + CHECK</td><td>3</td></tr>
+    <tr><td>11</td><td>Fix <code>auto_create_location_permits</code> para popular <code>issuer_id</code></td><td>2</td></tr>
+    <tr><td>12</td><td>Reemplazar <code>leads</code> anon INSERT por edge fn con captcha</td><td>3</td></tr>
+    <tr><td>13</td><td>Verificar <code>enregla.ec</code> en Resend + <code>RESEND_FROM</code> + SPF/DKIM/DMARC</td><td>2</td></tr>
+    <tr><td>14</td><td>Borrar public-link RLS malformadas; rutear anon por <code>get_public_permits(token)</code></td><td>2</td></tr>
+    <tr><td>15</td><td>Regenerar <code>database.ts</code> + eliminar stub + pinear generador en CI</td><td>2</td></tr>
+    <tr><td>16</td><td>Añadir <code>/leads</code> + <code>/partners</code> (o remover formulario de landing)</td><td>3</td></tr>
+    <tr><td>17</td><td><code>REVOKE EXECUTE ON FUNCTION public.user_company_id() FROM anon</code></td><td>1</td></tr>
+    <tr><td>18</td><td>Uninstall 11 deps muertas (kills <code>dompurify</code> CVE chain)</td><td>1</td></tr>
+    <tr><td>19</td><td>Migrar 8 hooks hand-rolled a TanStack Query</td><td>4</td></tr>
+    <tr><td>20</td><td>Wire Sentry + ErrorBoundary por ruta + <code>esbuild.drop: ["console"]</code></td><td>3</td></tr>
+  </tbody>
+</table>
+
+<h2>8 · Quick wins (&lt;30 min c/u)</h2>
+<ul>
+  <li>Fix <code>handle_new_user</code> (1 línea).</li>
+  <li>Redeploy edge function.</li>
+  <li>Swap <code>NotificationsTab</code> → <code>NotificationPreferences</code>.</li>
+  <li><code>CompanyTab</code> <code>BUSINESS_TYPES</code> import.</li>
+  <li>Rename "PermitOps" → "EnRegla".</li>
+  <li>Añadir <code>noopener,noreferrer</code> en <code>window.open(url,'_blank')</code> en <code>DocumentList.tsx:35</code> y <code>PermitDetailView.tsx:557</code>.</li>
+  <li><code>REVOKE EXECUTE ON FUNCTION public.user_company_id() FROM anon</code>.</li>
+  <li>Borrar <code>@custom-variant dark (&:is(.dark *));</code> de <code>src/index.css:14</code>.</li>
+  <li>Enable leaked-password protection en Supabase Auth dashboard.</li>
+  <li>Borrar <code>.deprecated/design-tokens.css</code>, <code>src/data/mock/</code>, <code>src/data/classification-rules.ts</code>.</li>
+  <li>Fix <code>components.json</code> alias <code>ui-v2</code> → <code>ui</code>.</li>
+  <li>Uninstall 11 deps muertas (una línea <code>npm uninstall</code>).</li>
+</ul>
+
+<h2>9 · Meta-finding: process</h2>
+
+<div class="callout warn">
+  <strong>El audit 2026-05-10 metió la regression que encontró este audit.</strong>
+  La migración <code>20260510000000_pre_production_audit_fixes.sql</code> — presentada como "hardening pre-producción" — fue la que introdujo el bug de <code>handle_new_user</code>. El follow-up <code>2026-05-10-verification-process-gap.md</code>, abierto el mismo día, propuso tres mitigaciones (Definition-of-Done en CLAUDE.md, stop-hook, template de audit). Ninguna aterrizó. Sin un mecanismo de enforcement (por ejemplo, un SQL check en CI que haga <code>INSERT INTO auth.users … ; ASSERT new profile row</code>), el próximo audit aterrizará la próxima regression. Cerrar ese follow-up con un mecanismo real es el fix meta.
+</div>
+
+<h2>10 · Reports (raw)</h2>
+
+<details>
+<summary>Pass 1 · 8 domain audits</summary>
+<ul>
+  <li><a href="pass1-db.md">pass1-db.md</a> — schema, RLS, migraciones, advisors, types drift</li>
+  <li><a href="pass1-auth-security.md">pass1-auth-security.md</a> — OAuth, ProtectedRoute, secrets, CORS/CSP</li>
+  <li><a href="pass1-frontend-arch.md">pass1-frontend-arch.md</a> — data layer, state, hooks, dead code</li>
+  <li><a href="pass1-features.md">pass1-features.md</a> — coverage de cada feature vs spec v2</li>
+  <li><a href="pass1-design-system.md">pass1-design-system.md</a> — tokens, migración UI-v2, contrast</li>
+  <li><a href="pass1-build-tests.md">pass1-build-tests.md</a> — lint, tsc, tests, CI, bundle</li>
+  <li><a href="pass1-docs-drift.md">pass1-docs-drift.md</a> — README, CLAUDE.md, AGENTS.md, specs vs realidad</li>
+  <li><a href="pass1-deps-perf.md">pass1-deps-perf.md</a> — npm deps, bundle, runtime perf</li>
+</ul>
+</details>
+
+<details>
+<summary>Pass 2 · 5 P0 verifications (reproducciones en vivo)</summary>
+<ul>
+  <li><a href="pass2-db-verify.md">pass2-db-verify.md</a> — signup trigger, SECURITY DEFINER, type dup, storage</li>
+  <li><a href="pass2-public-link-rls.md">pass2-public-link-rls.md</a> — token-binding, leads spam (en vivo)</li>
+  <li><a href="pass2-ds-verify.md">pass2-ds-verify.md</a> — tokens sin prefix (con grep de <code>dist/</code>)</li>
+  <li><a href="pass2-dead-ui-verify.md">pass2-dead-ui-verify.md</a> — 10 dead-UI claims verificados</li>
+  <li><a href="pass2-domain-verify.md">pass2-domain-verify.md</a> — dirección <code>.ec</code> vs <code>.se</code> invertida</li>
+</ul>
+</details>
+
+<details>
+<summary>Pass 3 · 5 cross-cutting</summary>
+<ul>
+  <li><a href="pass3-a11y-i18n-copy.md">pass3-a11y-i18n-copy.md</a> — WCAG, reduced-motion, copy mixto, voseo/tuteo, locale</li>
+  <li><a href="pass3-errors-observability.md">pass3-errors-observability.md</a> — ErrorBoundary, Sentry, console leaks</li>
+  <li><a href="pass3-smoke.md">pass3-smoke.md</a> — dev/prod smoke (preview @ 4174, dev @ 5174)</li>
+  <li><a href="pass3-git-release.md">pass3-git-release.md</a> — JWT leak, tags, .env tracked</li>
+  <li><a href="pass3-reconciliation.md">pass3-reconciliation.md</a> — <strong>master table de 99 findings</strong></li>
+</ul>
+</details>
+
+<footer>
+  <p><strong>Método:</strong> Triple pass, 18 agentes totales, ~6h CPU. Todos los P0 DB/RLS/tokens/domain verificados por reproducción en vivo. Verificación rolleada (sin cambios reales a DB ni código).</p>
+  <p><strong>Verdad operativa:</strong> producción = <code>app.enregla.ec</code>. Branch de trabajo = <code>feat/dominio-v2</code> (29 commits ahead de main, sin push ni PR). 4 usuarios reales, todos admin, todos pre-2026-05-10.</p>
+</footer>
+
+</div>
+</body>
+</html>
