@@ -9,8 +9,9 @@ import { calculateExpiryDate, formatPermitDuration } from '@/lib/permitRules';
 import { supabase } from '@/lib/supabase';
 import type { Permit } from '@/types/database';
 
-// File validation constants
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+// File validation constants. Mantener 5MB consistente con PermitDetailView
+// y con el limite del bucket Supabase (permit-documents).
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const VALID_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
 const VALID_FILE_EXTENSIONS = ['pdf', 'jpg', 'jpeg', 'png'];
 
@@ -61,7 +62,7 @@ interface PermitUploadFormProps {
  * PermitUploadForm - Inline form for uploading permit documents
  *
  * Allows users to:
- * - Upload document file (PDF, JPG, PNG, max 10MB)
+ * - Upload document file (PDF, JPG, PNG, max 5MB)
  * - Select permit issue date
  * - See automatically calculated expiry date based on permit type
  * - Submit to update permit status to 'vigente'
@@ -105,9 +106,9 @@ export function PermitUploadForm({
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    // Validate file size (10MB max)
+    // Validate file size (5MB max)
     if (selectedFile.size > MAX_FILE_SIZE) {
-      setError('El archivo es demasiado grande (máximo 10MB)');
+      setError('El archivo es demasiado grande (máximo 5MB)');
       return;
     }
 
@@ -276,7 +277,7 @@ export function PermitUploadForm({
               />
             </label>
             <p className="text-xs text-gray-500 mt-2">
-              PDF, JPG o PNG (máximo 10MB)
+              PDF, JPG o PNG (máximo 5MB)
             </p>
           </div>
         )}

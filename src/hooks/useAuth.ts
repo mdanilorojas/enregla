@@ -72,8 +72,10 @@ export function useAuth() {
         const { data: { user: initialUser } } = await supabase.auth.getUser();
 
         if (initialUser) {
-          // Set inmediatamente sin profile, fetch en background
-          setAuth(initialUser, null);
+          // Fetch profile ANTES de setAuth para evitar redirect prematuro a
+          // /setup (ProtectedOnboardingRoute redirige si profile.company_id
+          // es null; si seteamos profile=null mientras carga, dispara redirect
+          // y el user llega al wizard pese a tener company asignada).
           const profileData = await fetchProfile(initialUser.id);
           setAuth(initialUser, profileData);
         } else {
@@ -107,7 +109,8 @@ export function useAuth() {
             const current = useAuthStore.getState().user;
             if (current?.id === session.user.id) return;
 
-            setAuth(session.user, null);
+            // Fetch profile antes de setAuth para evitar redirect prematuro
+            // (ver comentario arriba en initial getUser path)
             const profileData = await fetchProfile(session.user.id);
             setAuth(session.user, profileData);
           }
