@@ -4,11 +4,12 @@ import { supabase } from '@/lib/supabase';
 import { Loader2, Shield, XCircle } from '@/lib/lucide-icons';
 
 /**
- * AuthCallback minimal: solo espera el evento SIGNED_IN del cliente Supabase
- * (que dispara automaticamente el exchange PKCE via detectSessionInUrl=true)
- * y redirige a /auth-test. AuthTest se encarga de queries autenticados,
- * profile fetch, decisiones de routing al wizard/dashboard. Aislamos auth
- * de cualquier query a la DB para descartar deadlocks.
+ * AuthCallback: con detectSessionInUrl=true + supabase-js >= 2.105.2,
+ * el cliente hace el exchange PKCE automaticamente al detectar el ?code=
+ * en la URL. Solo escuchamos SIGNED_IN para navegar al destino apropiado.
+ *
+ * useAuth (que tambien escucha SIGNED_IN) hidrata el authStore en paralelo;
+ * AuthCallback solo decide WHERE navegar.
  */
 export function AuthCallback() {
   const navigate = useNavigate();
@@ -23,57 +24,86 @@ export function AuthCallback() {
     };
     log('mount; url=', window.location.href);
 
-    const handleSession = () => {
+    const navigateNext = async (userId: string) => {
       if (cancelled) return;
-      log('session detected; navigating to /auth-test');
-      navigate('/auth-test', { replace: true });
+      // Decidir destino segun company_id del profile.
+      // Si profile no existe o no tiene company_id, ir a /setup (wizard).
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('company_id')
+          .eq('id', userId)
+          .maybeSingle();
+        if (cancelled) return;
+        if (profile?.company_id) {
+          log('profile has company_id; navigating to /');
+          navigate('/', { replace: true });
+        } else {
+          log('profile sin company_id; navigating to /setup');
+          navigate('/setup', { replace: true, state: { fromOAuth: true } });
+        }
+      } catch (err) {
+        console.error('[AuthCallback] profile fetch error:', err);
+        // Fallback: ir a /setup; el wizard maneja el caso edge.
+        navigate('/setup', { replace: true, state: { fromOAuth: true } });
+      }
     };
 
-    // 1. Listener primero (puede haber un INITIAL_SESSION antes que cualquier check)
+    const handleAuthError = async (rawErr: unknown) => {
+      const rawMsg = rawErr instanceof Error ? rawErr.message : String(rawErr);
+      log('auth error', { msg: rawMsg });
+      const isPkceMissing =
+        rawMsg.includes('PKCE') ||
+        rawMsg.includes('code verifier') ||
+        rawMsg.includes('flow state');
+
+      if (isPkceMissing) {
+        try {
+          for (let i = localStorage.length - 1; i >= 0; i--) {
+            const key = localStorage.key(i);
+            if (!key) continue;
+            if (
+              key.startsWith('sb-') ||
+              key === 'enregla-auth-token' ||
+              key.includes('code-verifier')
+            ) {
+              localStorage.removeItem(key);
+            }
+          }
+        } catch {
+          /* noop */
+        }
+        if (!cancelled) navigate('/login', { replace: true });
+        return;
+      }
+      if (!cancelled) {
+        setError(rawMsg || 'Error al procesar la autenticación');
+      }
+    };
+
+    // Listener para SIGNED_IN/INITIAL_SESSION
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       log('event', { event, hasSession: !!session });
       if (cancelled) return;
       if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
-        handleSession();
+        void navigateNext(session.user.id);
       }
     });
 
-    // 2. Check si ya hay sesión (caso de refresh o exchange muy rápido)
+    // Check si ya hay sesion (caso de exchange muy rapido o reload)
     void (async () => {
       try {
-        const { data, error: sessionErr } = await supabase.auth.getSession();
-        log('getSession', { hasSession: !!data.session, err: sessionErr?.message });
-        if (cancelled) return;
-        if (data.session) handleSession();
-      } catch (err) {
-        log('getSession threw', { msg: (err as Error).message });
-        if (cancelled) return;
-        const msg = (err as Error).message ?? '';
-        if (
-          msg.includes('PKCE') ||
-          msg.includes('code verifier') ||
-          msg.includes('flow state')
-        ) {
-          // Storage corrupto: limpiar y volver a /login
-          try {
-            for (let i = localStorage.length - 1; i >= 0; i--) {
-              const key = localStorage.key(i);
-              if (!key) continue;
-              if (key.startsWith('sb-') || key === 'enregla-auth-token' || key.includes('code-verifier')) {
-                localStorage.removeItem(key);
-              }
-            }
-          } catch {
-            /* noop */
-          }
-          if (!cancelled) navigate('/login', { replace: true });
-          return;
+        const { data: { user } } = await supabase.auth.getUser();
+        log('getUser', { hasUser: !!user });
+        if (user && !cancelled) {
+          void navigateNext(user.id);
         }
-        if (!cancelled) setError(msg || 'Error al procesar la autenticación');
+      } catch (err) {
+        if (!cancelled) await handleAuthError(err);
       }
     })();
 
-    // 3. Watchdog: si no llega evento en 10s, asumir falla
+    // Watchdog 10s
     const watchdog = setTimeout(() => {
       if (cancelled) return;
       log('watchdog; no session after 10s');

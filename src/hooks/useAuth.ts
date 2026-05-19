@@ -59,59 +59,62 @@ export function useAuth() {
       return;
     }
 
-    // NORMAL MODE: confiar 100% en onAuthStateChange. Supabase emite
-    // automaticamente INITIAL_SESSION al montar el listener. Sin getSession()
-    // inicial que puede colgar el lock interno de gotrue.
-    if (authSubscription) return;
+    // NORMAL MODE
+    //
+    // Workaround para supabase-js issue #2344 (deadlock cuando
+    // onAuthStateChange registra durante init con sesion cerca de expirar):
+    // primero esperar a que getUser() resuelva (con lockAcquireTimeout=3000
+    // se recupera de orphaned locks via steal-retry), DESPUES registrar el
+    // listener. Sin esto, el listener se registra mientras initialize() aun
+    // sostiene el lock, y los eventos quedan en cola sin drenar.
+    void (async () => {
+      try {
+        const { data: { user: initialUser } } = await supabase.auth.getUser();
 
-    // Watchdog: si no llega INITIAL_SESSION en 5s, asumir no logueado
-    const initWatchdog = setTimeout(() => {
-      const state = useAuthStore.getState();
-      if (state.loading) {
-        console.warn('[useAuth] INITIAL_SESSION watchdog fired; clearing');
+        if (initialUser) {
+          // Set inmediatamente sin profile, fetch en background
+          setAuth(initialUser, null);
+          const profileData = await fetchProfile(initialUser.id);
+          setAuth(initialUser, profileData);
+        } else {
+          clear();
+        }
+      } catch (err) {
+        console.error('[useAuth] Initial getUser failed:', err);
         clear();
       }
-    }, 5000);
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        clearTimeout(initWatchdog);
-        // En /auth/callback, AuthCallback es la unica autoridad
-        const onAuthCallback = typeof window !== 'undefined' &&
-          window.location.pathname.startsWith('/auth/callback');
+      // Ahora registrar el listener. Cualquier cambio futuro (TOKEN_REFRESHED,
+      // SIGNED_OUT, SIGNED_IN desde otra ruta) se propaga.
+      if (authSubscription) return;
 
-        if (event === 'SIGNED_OUT') {
-          queryClient.cancelQueries();
-          queryClient.clear();
-          clear();
-          return;
-        }
-
-        if (event === 'TOKEN_REFRESHED' && session) {
-          // No re-fetch profile; conservar estado existente
-          return;
-        }
-
-        if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
-          if (onAuthCallback) {
-            // AuthCallback hidratará tras navigate fuera de /auth/callback
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (event === 'SIGNED_OUT') {
+            queryClient.cancelQueries();
+            queryClient.clear();
+            clear();
             return;
           }
-          // Set user inmediatamente (no esperar profile fetch)
-          setAuth(session.user, null);
-          // Fetch profile en background
-          const profileData = await fetchProfile(session.user.id);
-          setAuth(session.user, profileData);
-          return;
-        }
 
-        if (event === 'INITIAL_SESSION' && !session) {
-          clear();
-          return;
+          if (event === 'TOKEN_REFRESHED') {
+            // No re-fetch profile; conservar estado existente
+            return;
+          }
+
+          if (event === 'SIGNED_IN' && session) {
+            // Skip si ya tenemos el mismo user (initialUser via getUser arriba)
+            const current = useAuthStore.getState().user;
+            if (current?.id === session.user.id) return;
+
+            setAuth(session.user, null);
+            const profileData = await fetchProfile(session.user.id);
+            setAuth(session.user, profileData);
+          }
         }
-      }
-    );
-    authSubscription = subscription;
+      );
+      authSubscription = subscription;
+    })();
   }, [setAuth, clear]);
 
   const signOut = async () => {
