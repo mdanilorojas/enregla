@@ -26,6 +26,8 @@ import { DesignSystemView } from '@/features/design-system/DesignSystemView';
 import { DesignSystemShowcase } from '@/features/design-system/DesignSystemShowcase';
 import { SettingsView } from '@/features/settings/SettingsView';
 import { AppLoader } from '@/components/ui/app-loader';
+import { useCompany, getEffectiveStatus } from '@/hooks/useCompany';
+import { PaywallView } from '@/features/billing/PaywallView';
 
 function OnboardingRoute() {
   const { profile, loading } = useAuth();
@@ -50,6 +52,7 @@ function OnboardingRoute() {
 
 function ProtectedOnboardingRoute() {
   const { profile, loading } = useAuth();
+  const { data: company, isLoading: companyLoading } = useCompany(profile?.company_id);
   const isDemoMode = DEMO_MODE;
 
   if (loading) {
@@ -64,6 +67,17 @@ function ProtectedOnboardingRoute() {
   // If user doesn't have a company, redirect to onboarding
   if (!profile?.company_id) {
     return <Navigate to="/setup" replace />;
+  }
+
+  // Mientras carga company, mostrar loader (evita flash de bloqueo)
+  if (companyLoading || !company) {
+    return <AppLoader />;
+  }
+
+  // Bloqueo total cuando trial expirado o suspendido
+  const status = getEffectiveStatus(company);
+  if (status === 'expired' || status === 'suspended') {
+    return <Navigate to="/pago" replace />;
   }
 
   return <AppLayout />;
@@ -96,6 +110,7 @@ export default function App() {
         <Route path="/auth-test" element={<AuthTest />} />
         <Route path="/forgot-password" element={<ForgotPasswordView />} />
         <Route path="/reset-password" element={<ResetPasswordView />} />
+        <Route path="/pago" element={<PaywallView />} />
         <Route path="/aceptar-invitacion" element={<AcceptInvitationView />} />
         <Route
           path="/setup"
