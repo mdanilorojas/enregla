@@ -37,6 +37,10 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     storageKey: 'enregla-auth-token',
     lock: noopLock,
     flowType: 'pkce',
-    detectSessionInUrl: true,
+    // detectSessionInUrl=true causaba race con AuthCallback.exchangeCodeForSession:
+    // el cliente auto-consumía el code_verifier del storage, y cuando el handler
+    // manual llamaba exchangeCodeForSession el verifier ya no existía
+    // (AuthPKCECodeVerifierMissingError). AuthCallback hace el exchange manual.
+    detectSessionInUrl: false,
   },
 });
