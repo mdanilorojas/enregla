@@ -152,29 +152,25 @@ export async function saveCompany(
     throw new Error('RUC debe tener exactamente 13 dígitos numéricos');
   }
 
-  // 1. Create company
-  // NOTA: El trigger companies_auto_assign_to_profile asigna company_id
-  // al profile automaticamente. No hacer UPDATE manual.
-  const companyInsert: CompanyInsert = {
-    name: companyData.name,
-    ruc: companyData.ruc,
-    city: companyData.city,
-    business_type: companyData.business_type,
-    location_count: 0,
-  };
+  // Usar RPC SECURITY DEFINER para evitar problema de SELECT policy en RETURNING.
+  // INSERT directo + .select() falla con 42501 porque companies_select USING
+  // requiere que profile.company_id == NEW.id, pero el trigger AFTER INSERT
+  // actualiza el profile DESPUES de evaluar el RETURNING. RPC evita esto.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: companyId, error: rpcError } = await (supabase as any).rpc(
+    'create_company_for_user',
+    {
+      p_name: companyData.name,
+      p_ruc: companyData.ruc,
+      p_city: companyData.city,
+      p_business_type: companyData.business_type,
+    }
+  );
 
-  const { data: company, error: companyError } = await (supabase
-    // casting due to stale generated types — see audit follow-up
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .from('companies') as any)
-    .insert(companyInsert)
-    .select()
-    .single();
+  if (rpcError) throw rpcError;
+  if (!companyId) throw new Error('Failed to create company');
 
-  if (companyError) throw companyError;
-  if (!company) throw new Error('Failed to create company');
-
-  return company.id;
+  return companyId as string;
 }
 
 /**
