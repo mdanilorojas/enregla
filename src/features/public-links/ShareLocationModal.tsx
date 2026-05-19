@@ -171,13 +171,36 @@ export function ShareLocationModal({
                 Genera enlaces públicos y códigos QR para compartir el estado de tus sedes
               </p>
             </div>
-            <button
-              onClick={onClose}
-              aria-label="Cerrar"
-              className="text-[var(--ds-text-subtlest)] hover:text-[var(--ds-text-subtle)] transition-colors rounded-[var(--ds-radius-100)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ds-background-brand)] focus-visible:ring-offset-2"
-            >
-              <X className="h-6 w-6" aria-hidden="true" />
-            </button>
+            <div className="flex items-center gap-[var(--ds-space-200)]">
+              {link && (
+                <button
+                  type="button"
+                  onClick={handleToggleActive}
+                  disabled={loading}
+                  className={`inline-flex items-center gap-[var(--ds-space-100)] px-[var(--ds-space-200)] py-[var(--ds-space-100)] rounded-[var(--ds-radius-200)] text-[var(--ds-font-size-075)] font-semibold border transition-colors ${
+                    link.is_active
+                      ? 'bg-[var(--ds-status-vigente-bg)] text-[var(--ds-status-vigente-text)] border-[var(--ds-status-vigente-bg)] hover:opacity-80'
+                      : 'bg-[var(--ds-neutral-100)] text-[var(--ds-text-subtle)] border-[var(--ds-border)] hover:bg-[var(--ds-neutral-200)]'
+                  }`}
+                  aria-label={link.is_active ? 'Desactivar enlace' : 'Activar enlace'}
+                >
+                  <span
+                    className={`inline-block w-2 h-2 rounded-full ${
+                      link.is_active ? 'bg-[var(--ds-status-vigente-text)]' : 'bg-[var(--ds-text-subtlest)]'
+                    }`}
+                    aria-hidden="true"
+                  />
+                  {link.is_active ? 'Activo' : 'Inactivo'}
+                </button>
+              )}
+              <button
+                onClick={onClose}
+                aria-label="Cerrar"
+                className="text-[var(--ds-text-subtlest)] hover:text-[var(--ds-text-subtle)] transition-colors rounded-[var(--ds-radius-100)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ds-background-brand)] focus-visible:ring-offset-2"
+              >
+                <X className="h-6 w-6" aria-hidden="true" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -236,33 +259,12 @@ export function ShareLocationModal({
 
               {/* Public Link */}
               <div>
-                <div className="flex items-center justify-between mb-[var(--ds-space-100)]">
-                  <label
-                    htmlFor="share-location-url"
-                    className="block text-[var(--ds-font-size-100)] font-medium text-[var(--ds-text-subtle)]"
-                  >
-                    Enlace Público
-                  </label>
-                  <button
-                    type="button"
-                    onClick={handleToggleActive}
-                    disabled={loading}
-                    className={`inline-flex items-center gap-[var(--ds-space-100)] px-[var(--ds-space-150)] py-[var(--ds-space-050)] rounded-[var(--ds-radius-200)] text-[var(--ds-font-size-075)] font-semibold border transition-colors ${
-                      link.is_active
-                        ? 'bg-[var(--ds-status-vigente-bg)] text-[var(--ds-status-vigente-text)] border-[var(--ds-status-vigente-bg)] hover:opacity-80'
-                        : 'bg-[var(--ds-neutral-100)] text-[var(--ds-text-subtle)] border-[var(--ds-border)] hover:bg-[var(--ds-neutral-200)]'
-                    }`}
-                    aria-label={link.is_active ? 'Desactivar enlace' : 'Activar enlace'}
-                  >
-                    <span
-                      className={`inline-block w-2 h-2 rounded-full ${
-                        link.is_active ? 'bg-[var(--ds-status-vigente-text)]' : 'bg-[var(--ds-text-subtlest)]'
-                      }`}
-                      aria-hidden="true"
-                    />
-                    {link.is_active ? 'Activo · click para desactivar' : 'Inactivo · click para activar'}
-                  </button>
-                </div>
+                <label
+                  htmlFor="share-location-url"
+                  className="block text-[var(--ds-font-size-100)] font-medium text-[var(--ds-text-subtle)] mb-[var(--ds-space-100)]"
+                >
+                  Enlace Público
+                </label>
                 <div className="flex gap-[var(--ds-space-100)]">
                   <input
                     id="share-location-url"
