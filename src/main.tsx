@@ -1,4 +1,3 @@
-import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Toaster } from 'react-hot-toast';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -10,8 +9,11 @@ import './index.css';
 
 assertDemoModeNotInProduction();
 
+// StrictMode deshabilitado: causaba doble-mount que rompía supabase-js auth
+// con noopLock. Volvemos a Web Locks API default (sin override) ya que el
+// doble-mount era el único motivo del workaround.
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+  <>
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <App />
@@ -43,5 +45,5 @@ createRoot(document.getElementById('root')!).render(
         },
       }}
     />
-  </StrictMode>,
+  </>,
 );
