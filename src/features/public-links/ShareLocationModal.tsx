@@ -13,6 +13,7 @@ import {
 import { QRCodeSVG, QRCodeCanvas } from 'qrcode.react';
 import { Button } from '@/components/ui/button';
 import { Banner } from '@/components/ui/banner';
+import { Switch } from '@/components/ui/switch';
 import {
   getLocationPublicLink,
   createPublicLink,
@@ -105,14 +106,14 @@ export function ShareLocationModal({
     }
   };
 
-  const handleToggleActive = async () => {
+  const handleToggleActive = async (next?: boolean) => {
     if (!link) return;
-    const next = !link.is_active;
+    const target = typeof next === 'boolean' ? next : !link.is_active;
     setLoading(true);
     setError(null);
     try {
-      await setPublicLinkActive(link.id, next);
-      setLink({ ...link, is_active: next });
+      await setPublicLinkActive(link.id, target);
+      setLink({ ...link, is_active: target });
     } catch (err) {
       console.error('Error toggling link:', err);
       setError(err instanceof Error ? err.message : 'Error al actualizar el link');
@@ -171,27 +172,23 @@ export function ShareLocationModal({
                 Genera enlaces públicos y códigos QR para compartir el estado de tus sedes
               </p>
             </div>
-            <div className="flex items-center gap-[var(--ds-space-200)]">
+            <div className="flex items-center gap-[var(--ds-space-300)]">
               {link && (
-                <button
-                  type="button"
-                  onClick={handleToggleActive}
-                  disabled={loading}
-                  className={`inline-flex items-center gap-[var(--ds-space-100)] px-[var(--ds-space-200)] py-[var(--ds-space-100)] rounded-[var(--ds-radius-200)] text-[var(--ds-font-size-075)] font-semibold border transition-colors ${
-                    link.is_active
-                      ? 'bg-[var(--ds-status-vigente-bg)] text-[var(--ds-status-vigente-text)] border-[var(--ds-status-vigente-bg)] hover:opacity-80'
-                      : 'bg-[var(--ds-neutral-100)] text-[var(--ds-text-subtle)] border-[var(--ds-border)] hover:bg-[var(--ds-neutral-200)]'
-                  }`}
-                  aria-label={link.is_active ? 'Desactivar enlace' : 'Activar enlace'}
-                >
+                <div className="flex items-center gap-[var(--ds-space-150)]">
                   <span
-                    className={`inline-block w-2 h-2 rounded-full ${
-                      link.is_active ? 'bg-[var(--ds-status-vigente-text)]' : 'bg-[var(--ds-text-subtlest)]'
+                    className={`text-[var(--ds-font-size-075)] font-semibold ${
+                      link.is_active ? 'text-[var(--ds-status-vigente-text)]' : 'text-[var(--ds-text-subtle)]'
                     }`}
-                    aria-hidden="true"
+                  >
+                    {link.is_active ? 'Activo' : 'Inactivo'}
+                  </span>
+                  <Switch
+                    checked={!!link.is_active}
+                    onCheckedChange={handleToggleActive}
+                    disabled={loading}
+                    label={link.is_active ? 'Desactivar enlace' : 'Activar enlace'}
                   />
-                  {link.is_active ? 'Activo' : 'Inactivo'}
-                </button>
+                </div>
               )}
               <button
                 onClick={onClose}
