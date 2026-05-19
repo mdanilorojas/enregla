@@ -26,10 +26,21 @@ export function AuthCallback() {
     const proceedWithSession = async (userId: string) => {
       log('proceedWithSession start', { userId });
 
+      // Forzar refresh de la sesión para asegurar que el JWT tenga session_id
+      // válido server-side antes de cualquier query autenticado. Sin esto, el
+      // primer query a profiles a veces se queda colgado porque el server
+      // rechaza el JWT viejo (session_not_found 403) y el cliente no maneja.
+      try {
+        const { data: refreshed, error: refreshErr } = await supabase.auth.refreshSession();
+        log('refreshSession done', {
+          hasSession: !!refreshed?.session,
+          err: refreshErr?.message,
+        });
+      } catch (refreshErr) {
+        log('refreshSession threw', { msg: (refreshErr as Error).message });
+      }
+
       // Timeout defensivo: si el query nunca resuelve seguimos sin profile.
-      // useAuth.onAuthStateChange también dispara un fetch de profiles en paralelo;
-      // el cliente Supabase a veces se queda colgado en el segundo request con
-      // el mismo session. Mejor seguir y dejar que useAuth termine de hidratar.
       const profileFetch = supabase
         .from('profiles')
         .select('*')
