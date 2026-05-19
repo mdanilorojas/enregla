@@ -125,7 +125,11 @@ serve(async (req) => {
     const result: SendResult = { sent: 0, failed: 0, skipped, errors: [] };
 
     for (const emailResult of emailResults) {
-      const userAlerts = userAlertsList.find(ua => ua.user.user_id === emailResult.user_id)!;
+      const userAlerts = userAlertsList.find(ua => ua.user.user_id === emailResult.user_id);
+      if (!userAlerts) {
+        console.warn(`[send-expiry-alerts] no userAlerts entry for user_id ${emailResult.user_id} — skipping log`);
+        continue;
+      }
 
       if (emailResult.success) {
         result.sent++;

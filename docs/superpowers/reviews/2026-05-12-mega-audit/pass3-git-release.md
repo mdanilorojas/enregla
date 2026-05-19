@@ -26,7 +26,7 @@
 **Evidence** (verbatim from `docs/superpowers/plans/2026-04-14-incremental-onboarding-implementation.md:1266`):
 
 ```
-'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxYXFoYXB4cXdrdm5pbm55cWl1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjA5OTgxNSwiZXhwIjoyMDkxNjc1ODE1fQ.Ugp946oliHqOL81ML1QWrF9yaJUb2FQzew5E3KUlJ44'
+[REDACTED 2026-05-16 — service_role JWT removed from this file. Original three-segment JWT decoded as: iss=supabase, ref=zqaqhapxqwkvninnyqiu, role=service_role, exp=2091. See follow-up 2026-05-13-jwt-service-role-leak.md — key still needs rotation in Supabase dashboard]
 ```
 
 Decoded payload: `{"iss":"supabase","ref":"zqaqhapxqwkvninnyqiu","role":"service_role","iat":1776099815,"exp":2091675815}`.

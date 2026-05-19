@@ -1263,7 +1263,7 @@ node -e "
 import('$supabase/supabase-js').then(({ createClient }) => {
   const supabase = createClient(
     'https://zqaqhapxqwkvninnyqiu.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpxYXFoYXB4cXdrdm5pbm55cWl1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjA5OTgxNSwiZXhwIjoyMDkxNjc1ODE1fQ.Ugp946oliHqOL81ML1QWrF9yaJUb2FQzew5E3KUlJ44'
+    process.env.SUPABASE_SERVICE_ROLE_KEY  // REDACTED 2026-05-16: JWT removed; rotate key in Supabase dashboard. See docs/superpowers/follow-ups/2026-05-13-jwt-service-role-leak.md
   );
   
   (async () => {

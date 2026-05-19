@@ -27,6 +27,8 @@ export function exportPermitsCSV(permits: ExportablePermit[]): void {
   const a = document.createElement('a')
   a.href = url
   a.download = `permisos-${new Date().toISOString().slice(0, 10)}.csv`
+  document.body.appendChild(a)
   a.click()
-  URL.revokeObjectURL(url)
+  document.body.removeChild(a)
+  setTimeout(() => URL.revokeObjectURL(url), 0)
 }

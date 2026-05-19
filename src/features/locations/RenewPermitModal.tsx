@@ -75,7 +75,7 @@ export function RenewPermitModal({ permit, open, onClose, onConfirm, onRenewed }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={(o) => { if (!o) onClose() }}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Renovar Permiso</DialogTitle>

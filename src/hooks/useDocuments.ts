@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getPermitDocuments } from '@/lib/api/documents';
 import type { Document } from '@/types/database';
 
@@ -7,7 +7,7 @@ export function useDocuments(permitId: string | undefined) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchDocuments = async () => {
+  const fetchDocuments = useCallback(async () => {
     if (!permitId) {
       setDocuments([]);
       setLoading(false);
@@ -27,11 +27,11 @@ export function useDocuments(permitId: string | undefined) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [permitId]);
 
   useEffect(() => {
     fetchDocuments();
-  }, [permitId]);
+  }, [fetchDocuments]);
 
   return {
     documents,

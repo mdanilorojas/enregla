@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>5 Empty States — sin sedes</title>
+<link rel="stylesheet" href="_ds.css" />
+<style>
+  .grid5 { display:grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  @media (min-width: 1400px) { .grid5 { grid-template-columns: repeat(2, 1fr); } }
+  .frame { position:relative; background:var(--ds-neutral-0); border:1px solid var(--ds-border); border-radius: var(--ds-radius-300); padding: var(--ds-space-400); min-height:340px; display:flex; align-items:center; justify-content:center; }
+  .frame-tag { position:absolute; top:-10px; left:16px; background: var(--ds-neutral-50); color: var(--ds-text-subtle); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; padding:2px 8px; font-weight:600; }
+  .header-bar { padding: 24px 32px; max-width:1240px; margin:0 auto; }
+</style>
+</head>
+<body>
+<div class="header-bar">
+  <h1 style="font-size: var(--ds-font-size-500); font-weight:700;">5 Empty States · sin sedes</h1>
+  <p class="muted" style="margin-top:4px;">Variantes para primer login. Click "+ Crear primera sede" lleva a /sedes/nueva. DS real (--ds-* tokens, .card, .btn).</p>
+</div>
+
+<div class="mock-page">
+  <div class="container grid5">
+
+    <!-- E1 · Minimal centered -->
+    <div class="frame">
+      <span class="frame-tag">E1 · Minimal</span>
+      <div style="text-align:center; max-width:340px;">
+        <div style="width:64px; height:64px; background: var(--ds-blue-50); border-radius: var(--ds-radius-300); display:inline-flex; align-items:center; justify-content:center; margin-bottom: var(--ds-space-200);">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--ds-blue-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V7l9-4 9 4v14"/><path d="M9 21V11h6v10"/></svg>
+        </div>
+        <h2 style="font-size: var(--ds-font-size-300); font-weight:600;">Aún no tenés sedes</h2>
+        <p class="muted" style="font-size: var(--ds-font-size-100); margin-top:8px; line-height:1.5;">Una sede es cada local físico de tu negocio. Empezá creando la primera para ver tus permisos.</p>
+        <button class="btn btn-primary" style="margin-top: var(--ds-space-300);">+ Crear primera sede</button>
+      </div>
+    </div>
+
+    <!-- E2 · Onboarding stepper -->
+    <div class="frame">
+      <span class="frame-tag">E2 · Onboarding stepper</span>
+      <div style="max-width: 420px; width:100%;">
+        <h2 style="font-size: var(--ds-font-size-400); font-weight:700;">Comencemos a configurar EnRegla</h2>
+        <p class="muted" style="font-size: var(--ds-font-size-100); margin-top:6px;">3 pasos para tener todo bajo control.</p>
+        <div style="margin-top: var(--ds-space-300); display:flex; flex-direction:column; gap: var(--ds-space-100);">
+          <div style="display:flex; align-items:center; gap: var(--ds-space-150); padding: var(--ds-space-150); background: var(--ds-blue-50); border-radius: var(--ds-radius-200);">
+            <span style="width:24px; height:24px; background: var(--ds-blue-500); color:white; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;">1</span>
+            <div style="flex:1;">
+              <div style="font-size: var(--ds-font-size-100); font-weight:600;">Crear primera sede</div>
+              <div style="font-size: var(--ds-font-size-075); color: var(--ds-text-subtle);">Te toma 30 segundos.</div>
+            </div>
+            <button class="btn btn-primary" style="padding: 6px 12px; font-size: var(--ds-font-size-075);">Empezar</button>
+          </div>
+          <div style="display:flex; align-items:center; gap: var(--ds-space-150); padding: var(--ds-space-150); background: var(--ds-neutral-50); border-radius: var(--ds-radius-200); opacity:0.6;">
+            <span style="width:24px; height:24px; background: var(--ds-neutral-200); color: var(--ds-text-subtle); border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;">2</span>
+            <div style="flex:1;">
+              <div style="font-size: var(--ds-font-size-100); font-weight:600;">EnRegla genera permisos</div>
+              <div style="font-size: var(--ds-font-size-075); color: var(--ds-text-subtle);">Automático según tu giro.</div>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap: var(--ds-space-150); padding: var(--ds-space-150); background: var(--ds-neutral-50); border-radius: var(--ds-radius-200); opacity:0.6;">
+            <span style="width:24px; height:24px; background: var(--ds-neutral-200); color: var(--ds-text-subtle); border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;">3</span>
+            <div style="flex:1;">
+              <div style="font-size: var(--ds-font-size-100); font-weight:600;">Subir documentos</div>
+              <div style="font-size: var(--ds-font-size-075); color: var(--ds-text-subtle);">Un permiso a la vez o en bulk.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- E3 · Hero card brand -->
+    <div class="frame" style="background: linear-gradient(135deg, var(--ds-blue-500), var(--ds-blue-700)); border:0;">
+      <span class="frame-tag">E3 · Hero brand</span>
+      <div style="text-align:center; color:white; max-width:380px;">
+        <div style="font-size:11px; opacity:0.7; text-transform:uppercase; letter-spacing:0.18em; font-weight:700;">Bienvenido</div>
+        <h2 style="font-size:42px; font-weight:300; line-height:1.1; letter-spacing:-0.02em; margin-top:8px;">
+          Tu compliance,<br/>
+          <span style="font-weight:700; color: var(--ds-orange-400);">en orden.</span>
+        </h2>
+        <p style="opacity:0.85; margin-top: var(--ds-space-200); line-height:1.5;">Para empezar, registrá la primera sede de tu negocio. EnRegla calcula automáticamente qué permisos necesitás.</p>
+        <button class="btn btn-accent" style="margin-top: var(--ds-space-300); padding: 12px 24px;">+ Crear primera sede</button>
+      </div>
+    </div>
+
+    <!-- E4 · Bulk import option -->
+    <div class="frame">
+      <span class="frame-tag">E4 · Importar en bloque</span>
+      <div style="max-width:460px; width:100%;">
+        <h2 style="font-size: var(--ds-font-size-300); font-weight:700;">¿Manejás varias sedes?</h2>
+        <p class="muted" style="margin-top:6px;">Tenés dos formas de empezar.</p>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: var(--ds-space-150); margin-top: var(--ds-space-250);">
+          <button class="card" style="padding: var(--ds-space-200); text-align:left; border:1px solid var(--ds-blue-200); cursor:pointer; background: var(--ds-blue-50);">
+            <div style="font-size:24px;">+</div>
+            <div style="font-size: var(--ds-font-size-100); font-weight:700; color: var(--ds-blue-600); margin-top:6px;">Crear una sede</div>
+            <div style="font-size: var(--ds-font-size-075); color: var(--ds-text-subtle); margin-top:4px;">Si tenés 1 o 2 locales.</div>
+          </button>
+          <button class="card" style="padding: var(--ds-space-200); text-align:left; cursor:pointer;">
+            <div style="font-size:24px;">⊞</div>
+            <div style="font-size: var(--ds-font-size-100); font-weight:700; margin-top:6px;">Importar desde Excel</div>
+            <div style="font-size: var(--ds-font-size-075); color: var(--ds-text-subtle); margin-top:4px;">Si tenés 5+ sedes. Pegá la lista.</div>
+          </button>
+        </div>
+        <div style="display:flex; align-items:center; gap: var(--ds-space-100); margin-top: var(--ds-space-200); font-size: var(--ds-font-size-075); color: var(--ds-text-subtle);">
+          <span>💡</span>
+          <span>Si dudás, empezá con una. Podés agregar más después.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- E5 · Illustrative with map -->
+    <div class="frame">
+      <span class="frame-tag">E5 · Ilustrado con sedes</span>
+      <div style="text-align:center; max-width:380px;">
+        <svg viewBox="0 0 200 120" style="width:200px; height:120px;">
+          <!-- ground -->
+          <line x1="10" y1="100" x2="190" y2="100" stroke="var(--ds-border)" stroke-width="1" stroke-dasharray="3 3"/>
+          <!-- buildings -->
+          <rect x="30" y="60" width="32" height="40" fill="var(--ds-neutral-100)" stroke="var(--ds-neutral-300)" stroke-width="1.5" rx="2"/>
+          <rect x="36" y="68" width="6" height="8" fill="var(--ds-neutral-200)"/>
+          <rect x="50" y="68" width="6" height="8" fill="var(--ds-neutral-200)"/>
+          <rect x="36" y="82" width="6" height="8" fill="var(--ds-neutral-200)"/>
+          <rect x="50" y="82" width="6" height="8" fill="var(--ds-neutral-200)"/>
+          <rect x="80" y="50" width="40" height="50" fill="var(--ds-blue-50)" stroke="var(--ds-blue-500)" stroke-width="2" rx="2"/>
+          <text x="100" y="80" text-anchor="middle" font-size="20" fill="var(--ds-blue-500)" font-weight="700">+</text>
+          <rect x="138" y="65" width="32" height="35" fill="var(--ds-neutral-100)" stroke="var(--ds-neutral-300)" stroke-width="1.5" rx="2"/>
+          <rect x="144" y="73" width="6" height="8" fill="var(--ds-neutral-200)"/>
+          <rect x="158" y="73" width="6" height="8" fill="var(--ds-neutral-200)"/>
+          <!-- arrow -->
+          <path d="M 100 28 L 100 44 M 95 38 L 100 44 L 105 38" stroke="var(--ds-orange-500)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="100" y="22" text-anchor="middle" font-size="11" fill="var(--ds-orange-700)" font-weight="700">tu primera sede</text>
+        </svg>
+        <h2 style="font-size: var(--ds-font-size-300); font-weight:600; margin-top: var(--ds-space-200);">Empezá por una sede</h2>
+        <p class="muted" style="margin-top:6px;">Después podés agregar más. Cada sede tiene sus permisos independientes y su propio nivel de riesgo.</p>
+        <div style="display:flex; gap: var(--ds-space-100); justify-content:center; margin-top: var(--ds-space-300);">
+          <button class="btn btn-primary">+ Crear sede</button>
+          <button class="btn btn-secondary">Ver tutorial</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

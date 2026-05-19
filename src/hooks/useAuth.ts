@@ -86,7 +86,12 @@ export function useAuth() {
           const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
           if (sessionError) {
-            console.error('[useAuth] getSession failed:', sessionError);
+            const msg = sessionError.message?.toLowerCase() ?? '';
+            if (msg.includes('refresh token') || msg.includes('refresh_token')) {
+              await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+            } else {
+              console.error('[useAuth] getSession failed:', sessionError);
+            }
             clear();
             return;
           }

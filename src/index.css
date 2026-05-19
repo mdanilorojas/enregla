@@ -8,6 +8,14 @@
 
 @import "tailwindcss";
 
+/* Restringe el escaneo de Tailwind v4 a fuentes reales del frontend.
+   Sin esto, auto-source detection toma docs/*.md y genera utilities
+   con tokens placeholder (`text-[var(--ds-status-*-text)]`) que el
+   minifier de CSS reporta como malformados. */
+@source not "../docs/**";
+@source "../index.html";
+@source "../src/**/*.{ts,tsx,js,jsx,html}";
+
 /*---break---
  */
 
@@ -206,15 +214,6 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .animate-fadeIn {
     animation: fadeIn 100ms ease-out forwards;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
   }
 }
 
