@@ -70,18 +70,22 @@ export async function getLocationPublicLink(locationId: string): Promise<PublicL
 }
 
 export async function deactivatePublicLink(linkId: string): Promise<void> {
+  await setPublicLinkActive(linkId, false);
+}
+
+export async function setPublicLinkActive(linkId: string, isActive: boolean): Promise<void> {
   const { error } = await (supabase
     // casting due to stale generated types — see audit follow-up
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .from('public_links') as any)
     .update({
-      is_active: false,
+      is_active: isActive,
       updated_at: new Date().toISOString(),
     })
     .eq('id', linkId);
 
   if (error) {
-    throw new Error(`Error al desactivar el link: ${error.message}`);
+    throw new Error(`Error al actualizar el link: ${error.message}`);
   }
 }
 
