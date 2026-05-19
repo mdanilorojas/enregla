@@ -5,110 +5,126 @@ import { useAuthStore } from '@/store/authStore';
 import type { Database } from '@/types/database';
 import { Loader2, Shield, XCircle } from '@/lib/lucide-icons';
 
-/**
- * Página de callback para OAuth (Google)
- * Maneja la redirección después de la autenticación con proveedores externos
- */
+type ProfileRow = Database['public']['Tables']['profiles']['Row'];
+
 export function AuthCallback() {
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let redirectTimer: ReturnType<typeof setTimeout> | null = null;
+    let cancelled = false;
+    let watchdog: ReturnType<typeof setTimeout> | null = null;
+    let errorRedirectTimer: ReturnType<typeof setTimeout> | null = null;
 
-    const handleCallback = async () => {
-      try {
-        // PKCE: intercambiar el `code` de la URL por una sesión. El cliente usa
-        // flowType: 'pkce' (ver src/lib/supabase.ts), así que la sesión NO se
-        // establece automáticamente — hay que llamar exchangeCodeForSession.
-        // Fallback: si no hay code en la URL (ej. retorno de reset password con
-        // hash fragment), usar getSession que sí lee el hash.
-        const url = new URL(window.location.href);
-        const hasCode = url.searchParams.has('code');
+    const proceedWithSession = async (userId: string) => {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle<ProfileRow>();
 
-        let session;
-        if (hasCode) {
-          const { data, error: exchangeError } =
-            await supabase.auth.exchangeCodeForSession(window.location.href);
-          if (exchangeError) throw exchangeError;
-          session = data.session;
-        } else {
-          const { data, error: sessionError } = await supabase.auth.getSession();
-          if (sessionError) throw sessionError;
-          session = data.session;
-        }
+      if (cancelled) return;
 
-        if (!session) {
-          throw new Error('No se pudo establecer la sesión');
-        }
+      if (profileError && profileError.code !== 'PGRST116') {
+        console.error('[AuthCallback] Profile fetch error:', profileError);
+      }
 
-        const user = session.user;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (cancelled || !user) return;
 
-        // Verificar si el usuario ya tiene un perfil
-        const { data: existingProfile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .maybeSingle();
+      setAuth(user, profile ?? null);
 
-        if (profileError && profileError.code !== 'PGRST116') {
-          throw profileError;
-        }
-
-        if (existingProfile) {
-          // Usuario existente, actualizar el store y redirigir
-          setAuth(user, existingProfile as Database['public']['Tables']['profiles']['Row']);
-          navigate('/', { replace: true });
-        } else {
-          // Nuevo usuario de Google - necesita completar onboarding
-          setAuth(user, null);
-          navigate('/setup', { replace: true, state: { fromOAuth: true } });
-        }
-      } catch (err) {
-        console.error('[AuthCallback] Error:', err);
-
-        const rawMsg = err instanceof Error ? err.message : String(err);
-        const isPkceMissing =
-          rawMsg.includes('PKCE') ||
-          rawMsg.includes('code verifier') ||
-          (err as { name?: string })?.name === 'AuthPKCECodeVerifierMissingError';
-
-        if (isPkceMissing) {
-          // El code_verifier vive en localStorage bajo la storageKey configurada.
-          // Si Supabase no lo encuentra, el flow está corrupto: limpiamos todo
-          // rastro de auth para forzar un OAuth fresco sin pantalla de error.
-          try {
-            await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
-            for (let i = localStorage.length - 1; i >= 0; i--) {
-              const key = localStorage.key(i);
-              if (!key) continue;
-              if (key.startsWith('sb-') || key === 'enregla-auth-token' || key.includes('code-verifier')) {
-                localStorage.removeItem(key);
-              }
-            }
-          } catch (cleanupErr) {
-            console.error('[AuthCallback] Cleanup failed:', cleanupErr);
-          }
-          navigate('/login', { replace: true, state: { reason: 'pkce-reset' } });
-          return;
-        }
-
-        setError(rawMsg || 'Error al procesar la autenticación');
-
-        // Redirigir al login después de 3 segundos
-        redirectTimer = setTimeout(() => {
-          navigate('/login', { replace: true });
-        }, 3000);
+      if (profile?.company_id) {
+        navigate('/', { replace: true });
+      } else {
+        navigate('/setup', { replace: true, state: { fromOAuth: true } });
       }
     };
 
-    handleCallback();
+    const handleAuthError = async (rawErr: unknown, source: string) => {
+      console.error(`[AuthCallback] Error from ${source}:`, rawErr);
+
+      const rawMsg = rawErr instanceof Error ? rawErr.message : String(rawErr);
+      const isPkceMissing =
+        rawMsg.includes('PKCE') ||
+        rawMsg.includes('code verifier') ||
+        rawMsg.includes('flow state') ||
+        (rawErr as { name?: string })?.name === 'AuthPKCECodeVerifierMissingError';
+
+      if (isPkceMissing) {
+        try {
+          await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+          for (let i = localStorage.length - 1; i >= 0; i--) {
+            const key = localStorage.key(i);
+            if (!key) continue;
+            if (key.startsWith('sb-') || key === 'enregla-auth-token' || key.includes('code-verifier')) {
+              localStorage.removeItem(key);
+            }
+          }
+        } catch (cleanupErr) {
+          console.error('[AuthCallback] Cleanup failed:', cleanupErr);
+        }
+        if (!cancelled) navigate('/login', { replace: true, state: { reason: 'pkce-reset' } });
+        return;
+      }
+
+      if (cancelled) return;
+      setError(rawMsg || 'Error al procesar la autenticación');
+      errorRedirectTimer = setTimeout(() => {
+        navigate('/login', { replace: true });
+      }, 3000);
+    };
+
+    const checkExistingSession = async () => {
+      try {
+        const { data, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
+        if (data.session) {
+          await proceedWithSession(data.session.user.id);
+          return true;
+        }
+      } catch (err) {
+        await handleAuthError(err, 'getSession');
+        return true;
+      }
+      return false;
+    };
+
+    const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (cancelled) return;
+      if (event === 'SIGNED_IN' && session) {
+        if (watchdog) {
+          clearTimeout(watchdog);
+          watchdog = null;
+        }
+        await proceedWithSession(session.user.id);
+      }
+    });
+
+    void (async () => {
+      const handled = await checkExistingSession();
+      if (handled || cancelled) return;
+      watchdog = setTimeout(async () => {
+        if (cancelled) return;
+        const { data } = await supabase.auth.getSession();
+        if (cancelled) return;
+        if (data.session) {
+          await proceedWithSession(data.session.user.id);
+        } else {
+          await handleAuthError(
+            new Error('No se pudo establecer la sesión (timeout). Intenta nuevamente.'),
+            'watchdog'
+          );
+        }
+      }, 8000);
+    })();
 
     return () => {
-      if (redirectTimer) {
-        clearTimeout(redirectTimer);
-      }
+      cancelled = true;
+      listener.subscription.unsubscribe();
+      if (watchdog) clearTimeout(watchdog);
+      if (errorRedirectTimer) clearTimeout(errorRedirectTimer);
     };
   }, [navigate, setAuth]);
 
