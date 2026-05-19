@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { DEMO_MODE } from '@/lib/demo';
 import { LoginView } from '@/features/auth/LoginView';
 import { AuthCallback } from '@/features/auth/AuthCallback';
+import { AuthTest } from '@/features/auth/AuthTest';
 import { ForgotPasswordView } from '@/features/auth/ForgotPasswordView';
 import { ResetPasswordView } from '@/features/auth/ResetPasswordView';
 import { AcceptInvitationView } from '@/features/auth/AcceptInvitationView';
@@ -92,6 +93,7 @@ export default function App() {
           }
         />
         <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/auth-test" element={<AuthTest />} />
         <Route path="/forgot-password" element={<ForgotPasswordView />} />
         <Route path="/reset-password" element={<ResetPasswordView />} />
         <Route path="/aceptar-invitacion" element={<AcceptInvitationView />} />

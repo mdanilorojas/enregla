@@ -86,13 +86,11 @@ export function AuthCallback() {
       }
 
       setAuth(fallbackUser, profile ?? null);
-      log('setAuth done; redirecting', { destination: profile?.company_id ? '/' : '/setup' });
 
-      if (profile?.company_id) {
-        navigate('/', { replace: true });
-      } else {
-        navigate('/setup', { replace: true, state: { fromOAuth: true } });
-      }
+      // DEBUG: durante diagnostico siempre vamos a /auth-test antes del wizard.
+      // Ahi el user puede ver el estado completo y decidir.
+      log('setAuth done; redirecting to /auth-test');
+      navigate('/auth-test', { replace: true });
     };
 
     const handleAuthError = async (rawErr: unknown, source: string) => {
