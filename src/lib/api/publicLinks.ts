@@ -89,9 +89,10 @@ export async function deactivatePublicLink(linkId: string): Promise<void> {
  * Generate the full public URL for a token
  */
 export function getPublicUrl(token: string): string {
-  const baseUrl = import.meta.env.PROD
-    ? 'https://enregla.ec'
-    : window.location.origin;
+  // En prod la app vive en app.enregla.ec (no www.enregla.ec, ese es el
+  // landing). Usar window.location.origin asegura que el link apunta al
+  // mismo dominio en el que está la app sin importar entorno.
+  const baseUrl = window.location.origin;
   return `${baseUrl}/p/${token}`;
 }
 
