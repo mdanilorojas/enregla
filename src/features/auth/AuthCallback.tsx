@@ -67,7 +67,34 @@ export function AuthCallback() {
         }
       } catch (err) {
         console.error('[AuthCallback] Error:', err);
-        setError(err instanceof Error ? err.message : 'Error al procesar la autenticación');
+
+        const rawMsg = err instanceof Error ? err.message : String(err);
+        const isPkceMissing =
+          rawMsg.includes('PKCE') ||
+          rawMsg.includes('code verifier') ||
+          (err as { name?: string })?.name === 'AuthPKCECodeVerifierMissingError';
+
+        if (isPkceMissing) {
+          // El code_verifier vive en localStorage bajo la storageKey configurada.
+          // Si Supabase no lo encuentra, el flow está corrupto: limpiamos todo
+          // rastro de auth para forzar un OAuth fresco sin pantalla de error.
+          try {
+            await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+            for (let i = localStorage.length - 1; i >= 0; i--) {
+              const key = localStorage.key(i);
+              if (!key) continue;
+              if (key.startsWith('sb-') || key === 'enregla-auth-token' || key.includes('code-verifier')) {
+                localStorage.removeItem(key);
+              }
+            }
+          } catch (cleanupErr) {
+            console.error('[AuthCallback] Cleanup failed:', cleanupErr);
+          }
+          navigate('/login', { replace: true, state: { reason: 'pkce-reset' } });
+          return;
+        }
+
+        setError(rawMsg || 'Error al procesar la autenticación');
 
         // Redirigir al login después de 3 segundos
         redirectTimer = setTimeout(() => {
