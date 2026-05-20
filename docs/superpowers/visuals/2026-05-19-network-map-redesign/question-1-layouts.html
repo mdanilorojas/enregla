@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Network Map — Layout Candidates</title>
+<style>
+  :root {
+    --ds-orange-500: #ff7043;
+    --ds-green-500: #36B37E;
+    --ds-red-500: #DE350B;
+    --ds-neutral-0: #fff;
+    --ds-neutral-50: #F7F8F9;
+    --ds-neutral-100: #F1F2F4;
+    --ds-neutral-200: #DCDFE4;
+    --ds-neutral-300: #B3B9C4;
+    --ds-neutral-700: #44546F;
+    --ds-neutral-900: #172B4D;
+    --ds-text: var(--ds-neutral-900);
+    --ds-text-subtle: var(--ds-neutral-700);
+    --ds-text-subtlest: var(--ds-neutral-300);
+    --ds-border: var(--ds-neutral-200);
+    --ds-radius-100: 3px;
+    --ds-radius-200: 6px;
+    --ds-shadow-raised: 0 1px 1px rgba(9,30,66,.25), 0 0 1px rgba(9,30,66,.31);
+    --ds-shadow-overlay: 0 8px 12px rgba(9,30,66,.15), 0 0 1px rgba(9,30,66,.31);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    background: var(--ds-neutral-50); color: var(--ds-text); padding: 32px;
+  }
+  h1 { margin: 0 0 4px; font-size: 22px; }
+  .lede { color: var(--ds-text-subtle); margin: 0 0 24px; font-size: 14px; }
+  .scale-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+  .scale-tabs button {
+    padding: 8px 16px; border: 1px solid var(--ds-border); background: white;
+    border-radius: var(--ds-radius-200); cursor: pointer; font-weight: 500; font-size: 13px;
+  }
+  .scale-tabs button.active { background: var(--ds-neutral-900); color: white; border-color: var(--ds-neutral-900); }
+  .grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+  }
+  .card {
+    background: white; border: 1px solid var(--ds-border); border-radius: var(--ds-radius-200);
+    overflow: hidden; box-shadow: var(--ds-shadow-raised);
+  }
+  .card-head {
+    padding: 14px 16px; border-bottom: 1px solid var(--ds-border);
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  }
+  .card-head h3 { margin: 0; font-size: 14px; font-weight: 600; }
+  .card-head .tag {
+    font-size: 11px; color: var(--ds-text-subtle); text-transform: uppercase;
+    letter-spacing: .04em; font-weight: 600;
+  }
+  .canvas {
+    position: relative; height: 460px; background:
+      radial-gradient(circle, var(--ds-neutral-200) 1px, transparent 1px) 0 0/24px 24px;
+    background-color: white;
+    overflow: hidden;
+  }
+  .canvas svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .node {
+    position: absolute; transform: translate(-50%, -50%);
+    background: white; border: 2px solid; border-radius: var(--ds-radius-100);
+    padding: 10px 12px; width: 180px; box-shadow: var(--ds-shadow-raised); font-size: 12px;
+  }
+  .node.empresa {
+    border-color: var(--ds-neutral-900); background: var(--ds-neutral-900); color: white;
+    width: 200px; padding: 12px 14px;
+  }
+  .node.empresa .title { font-weight: 700; font-size: 13px; }
+  .node.empresa .sub { color: var(--ds-neutral-300); font-size: 11px; margin-top: 2px; }
+  .node.success { border-color: var(--ds-green-500); }
+  .node.warning { border-color: var(--ds-orange-500); }
+  .node.danger  { border-color: var(--ds-red-500); }
+  .node .row1 { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .node .icon {
+    width: 22px; height: 22px; background: var(--ds-neutral-100);
+    border-radius: var(--ds-radius-100); display: grid; place-items: center; font-size: 12px;
+    flex-shrink: 0;
+  }
+  .node .lbl { font-weight: 600; font-size: 12px; line-height: 1.2; }
+  .node .code { font-family: monospace; font-size: 10px; color: var(--ds-text-subtlest); }
+  .node .row2 { display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--ds-text-subtle); }
+  .node .badge {
+    padding: 2px 6px; border-radius: 10px; font-size: 9px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .03em;
+  }
+  .badge.bajo    { background: #E3FCEF; color: #006644; }
+  .badge.medio   { background: #FFFAE6; color: #974F0C; }
+  .badge.alto    { background: #FFEBE6; color: #BF2600; }
+  .badge.critico { background: var(--ds-red-500); color: white; }
+  .node .bar { height: 5px; background: var(--ds-neutral-100); border-radius: 3px; margin-top: 6px; overflow: hidden; }
+  .node .fill { height: 100%; }
+  .fill.success { background: var(--ds-green-500); }
+  .fill.warning { background: var(--ds-orange-500); }
+  .fill.danger  { background: var(--ds-red-500); }
+
+  edge { display: none; }
+  .pros-cons {
+    padding: 14px 16px; background: var(--ds-neutral-50);
+    border-top: 1px solid var(--ds-border);
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 12px;
+  }
+  .pros-cons h4 { margin: 0 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+  .pros h4 { color: #006644; }
+  .cons h4 { color: #BF2600; }
+  .pros-cons ul { margin: 0; padding-left: 16px; color: var(--ds-text-subtle); line-height: 1.5; }
+
+  .scale { display: none; }
+  .scale.active { display: grid; }
+  .legend {
+    display: flex; gap: 16px; margin-top: 24px; padding: 12px 16px;
+    background: white; border: 1px solid var(--ds-border); border-radius: var(--ds-radius-200);
+    font-size: 12px; align-items: center;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+</style>
+</head>
+<body>
+  <h1>Network Map — 4 Layouts × 3 escalas</h1>
+  <p class="lede">EnRegla Corp + N sedes. Cambia escala (2 / 5 / 10) para ver cómo escala cada layout. Cards 200×~95px.</p>
+
+  <div class="scale-tabs">
+    <button data-scale="2" class="active">2 sedes</button>
+    <button data-scale="5">5 sedes</button>
+    <button data-scale="10">10 sedes</button>
+  </div>
+
+  <!-- ============ ESCALA 2 ============ -->
+  <div class="scale active" data-scale="2">
+    <div class="grid">
+
+      <!-- A: Radial actual -->
+      <div class="card">
+        <div class="card-head"><h3>A — Radial circular (actual)</h3><span class="tag">2 sedes</span></div>
+        <div class="canvas">
+          <svg viewBox="0 0 600 460" preserveAspectRatio="none">
+            <path d="M300,230 C300,160 300,140 300,90"   stroke="#36B37E" stroke-width="2.5" fill="none"/>
+            <path d="M300,230 C300,300 300,320 300,370"  stroke="#ff7043" stroke-width="2.5" fill="none"/>
+          </svg>
+          <div class="node empresa" style="left:50%;top:50%"><div class="title">EnRegla Corp</div><div class="sub">Empresa principal</div></div>
+          <div class="node success" style="left:50%;top:90px">
+            <div class="row1"><div class="icon">🏢</div><div><div class="lbl">Sede Norte</div><div class="code">SN-001</div></div></div>
+            <div class="row2"><span>9/10 permisos</span><span class="badge bajo">Bajo</span></div>
+            <div class="bar"><div class="fill success" style="width:90%"></div></div>
+          </div>
+          <div class="node warning" style="left:50%;top:370px">
+            <div class="row1"><div class="icon">🏢</div><div><div class="lbl">Sede Sur</div><div class="code">SS-002</div></div></div>
+            <div class="row2"><span>6/10 permisos</span><span class="badge medio">Medio</span></div>
+            <div class="bar"><div class="fill warning" style="width:60%"></div></div>
+          </div>
+        </div>
+        <div class="pros-cons">
+          <div class="pros"><h4>Pros</h4><ul><li>Simple, conocido</li><li>OK para 1 sede</li></ul></div>
+          <div class="cons"><h4>Contras</h4><ul><li>Con 2: enorme espacio horizontal vacío (lo que reportaste)</li><li>No usa ancho viewport</li></ul></div>
+        </div>
+      </div>
+
+      <!-- B: Hub & spoke horizontal -->
+      <div class="card">
+        <div class="card-head"><h3>B — Hub central + sedes a izquierda/derecha</h3><span class="tag">2 sedes</span></div>
+        <div class="canvas">
+          <svg viewBox="0 0 600 460" preserveAspectRatio="none">
+            <path d="M250,230 C195,230 165,230 110,230" stroke="#36B37E" stroke-width="2.5" fill="none"/>
+            <path d="M350,230 C405,230 435,230 490,230" stroke="#ff7043" stroke-width="2.5" fill="none"/>
+          </svg>
+          <div class="node empresa" style="left:50%;top:50%"><div class="title">EnRegla Corp</div><div class="sub">Empresa principal</div></div>
+          <div class="node success" style="left:110px;top:50%">
+            <div class="row1"><div class="icon">🏢</div><div><div class="lbl">Sede Norte</div><div class="code">SN-001</div></div></div>
+            <div class="row2"><span>9/10</span><span class="badge bajo">Bajo</span></div>
+            <div class="bar"><div class="fill success" style="width:90%"></div></div>
+          </div>
+          <div class="node warning" style="left:490px;top:50%">
+            <div class="row1"><div class="icon">🏢</div><div><div class="lbl">Sede Sur</div><div class="code">SS-002</div></div></div>
+            <div class="row2"><span>6/10</span><span class="badge medio">Medio</span></div>
+            <div class="bar"><div class="fill warning" style="width:60%"></div></div>
+          </div>
+        </div>
+        <div class="pros-cons">
+          <div class="pros"><h4>Pros</h4><ul><li>Usa ancho horizontal</li><li>Lectura natural izq→der</li><li>Empresa siempre central</li></ul></div>
+          <div class="cons"><h4>Contras</h4><ul><li>Con 10 sedes apiladas en columnas se ve denso</li></ul></div>
+        </div>
+      </div>
+
+      <!-- C: Grid orbital ortogonal -->
+      <div class="card">
+        <div class="card-head"><h3>C — Grid orbital + edges ortogonales</h3><span class="tag">2 sedes</span></div>
+        <div class="canvas">
+          <svg viewBox="0 0 600 460" preserveAspectRatio="none">
+            <path d="M250,230 H180 V120 H110" stroke="#36B37E" stroke-width="2.5" fill="none"/>
+            <path d="M350,230 H420 V340 H490" stroke="#ff7043" stroke-width="2.5" fill="none"/>
+          </svg>
+          <div class="node empresa" style="left:50%;top:50%"><div class="title">EnRegla Corp</div><div class="sub">Empresa principal</div></div>
+          <div class="node success" style="left:110px;top:120px">
+            <div class="row1"><div class="icon">🏢</div><div><div class="lbl">Sede Norte</div><div class="code">SN-001</div></div></div>
+            <div class="row2"><span>9/10</span><span class="badge bajo">Bajo</span></div>
+            <div class="bar"><div class="fill success" style="width:90%"></div></div>
+          </div>
+          <div class="node warning" style="left:490px;top:340px">
+            <div class="row1"><div class="icon">🏢</div><div><div class="lbl">Sede Sur</div><div class="code">SS-002</div></div></div>
+            <div class="row2"><span>6/10</span><span class="badge medio">Medio</span></div>
+            <div class="bar"><div class="fill warning" style="width:60%"></div></div>
+          </div>
+        </div>
+        <div class="pros-cons">
+          <div class="pros"><h4>Pros</h4><ul><li>Aspecto técnico/diagrama infra</li><li>Aprovecha 4 cuadrantes</li><li>Alineación visual fuerte</li></ul></div>
+          <div class="cons"><h4>Contras</h4><ul><li>Edges ortogonales pueden cruzar con &gt;6</li><li>Menos orgánico</li></ul></div>
+        </div>
+      </div>
+
+      <!-- D: Adaptive packed -->
+      <div class="card">
+        <div class="card-head"><h3>D — Layout adaptativo (rectas, sin curva)</h3><span class="tag">2 sedes</span></div>
+        <div class="canvas">
+          <svg viewBox="0 0 600 460" preserveAspectRatio="none">
+            <line x1="250" y1="230" x2="170" y2="170" stroke="#36B37E" stroke-width="2.5"/>
+            <line x1="350" y1="230" x2="430" y2="290" stroke="#ff7043" stroke-width="2.5"/>
+          </svg>
+          <div class="node empresa" style="left:50%;top:50%"><div class="title">EnRegla Corp</div><div class="sub">Empresa principal</div></div>
+          <div class="node success" style="left:170px;top:170px">
+            <div class="row1"><div class="icon">🏢</div><div><div class="lbl">Sede Norte</div><div class="code">SN-001</div></div></div>
+            <div class="row2"><span>9/10</span><span class="badge bajo">Bajo</span></div>
+            <div class="bar"><div class="fill success" style="width:90%"></div></div>
+          </div>
+          <div class="node warning" style="left:430px;top:290px">
+            <div class="row1"><div class="icon">🏢</div><div><div class="lbl">Sede Sur</div><div class="code">SS-002</div></div></div>
+            <div class="row2"><span>6/10</span><span class="badge medio">Medio</span></div>
+            <div class="bar"><div class="fill warning" style="width:60%"></div></div>
+          </div>
+        </div>
+        <div class="pros-cons">
+          <div class="pros"><h4>Pros</h4><ul><li>Responsive: N=2 diagonal, N=5 pentágono, N=10 anillo</li><li>Sin desperdicio horizontal</li><li>Edges rectos = más limpio</li></ul></div>
+          <div class="cons"><h4>Contras</h4><ul><li>Más lógica para calcular posiciones según N</li></ul></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ ESCALA 5 ============ -->
+  <div class="scale" data-scale="5">
+    <div class="grid">
+
+      <div class="card">
+        <div class="card-head"><h3>A — Radial circular (actual)</h3><span class="tag">5 sedes</span></div>
+        <div class="canvas">
+          <svg viewBox="0 0 600 460"><g stroke-width="2.5" fill="none">
+            <path d="M300,230 C300,180 300,150 300,90" stroke="#36B37E"/>
+            <path d="M300,230 C380,210 420,200 480,160" stroke="#36B37E"/>
+            <path d="M300,230 C390,260 425,290 470,340" stroke="#ff7043"/>
+            <path d="M300,230 C220,260 180,290 130,340" stroke="#DE350B"/>
+            <path d="M300,230 C220,210 180,200 120,160" stroke="#ff7043"/>
+          </g></svg>
+          <div class="node empresa" style="left:50%;top:50%"><div class="title">EnRegla Corp</div><div class="sub">5 sedes</div></div>
+          <div class="node success" style="left:50%;top:90px"><div class="row1"><div class="icon">🏢</div><div><div class="lbl">Quito Centro</div><div class="code">QC-01</div></div></div><div class="row2"><span>10/10</span><span class="badge bajo">Bajo</span></div><div class="bar"><div class="fill success" style="width:100%"></div></div></div>
+          <div class="node success" style="left:480px;top:160px"><div class="row1"><div class="icon">🏢</div><div><div class="lbl">Cumbayá</div><div class="code">CU-02</div></div></div><div class="row2"><span>9/10</span><span class="badge bajo">Bajo</span></div><div class="bar"><div class="fill success" style="width:90%"></div></div></div>
+          <div class="node warning" style="left:470px;top:340px"><div class="row1"><div class="icon">🏢</div><div><div class="lbl">Valle Chillos</div><div class="code">VC-03</div></div></div><div class="row2"><span>7/10</span><span class="badge medio">Medio</span></div><div class="bar"><div class="fill warning" style="width:70%"></div></div></div>
+          <div class="node danger" style="left:130px;top:340px"><div class="row1"><div class="icon">🏢</div><div><div class="lbl">Calderón</div><div class="code">CA-04</div></div></div><div class="row2"><span>3/10</span><span class="badge critico">Crítico</span></div><div class="bar"><div class="fill danger" style="width:30%"></div></div></div>
+          <div class="node warning" style="left:120px;top:160px"><div class="row1"><div class="icon">🏢</div><div><div class="lbl">Tumbaco</div><div class="code">TU-05</div></div></div><div class="row2"><span>6/10</span><span class="badge medio">Medio</span></div><div class="bar"><div class="fill warning" style="width:60%"></div></div></div>
+        </div>
+        <div class="pros-cons"><div class="pros"><h4>Pros</h4><ul><li>Funciona razonable</li></ul></div><div class="cons"><h4>Contras</h4><ul><li>Edges curvos cruzan empresa visualmente</li></ul></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>B — Hub horizontal (3 izq + 2 der)</h3><span class="tag">5 sedes</span></div>
+        <div class="canvas">
+          <svg viewBox="0 0 600 460"><g stroke-width="2.5" fill="none">
+            <path d="M250,230 C195,100 165,100 110,100" stroke="#36B37E"/>
+            <path d="M250,230 C195,230 165,230 110,230" stroke="#ff7043"/>
+            <path d="M250,230 C195,360 165,360 110,360" stroke="#DE350B"/>
+            <path d="M350,230 C405,160 435,160 490,160" stroke="#36B37E"/>
+            <path d="M350,230 C405,300 435,300 490,300" stroke="#ff7043"/>
+          </g></svg>
+          <div class="node empresa" style="left:50%;top:50%"><div class="title">EnRegla Corp</div><div class="sub">5 sedes</div></div>
+          <div class="node success" style="left:110px;top:100px"><div class="row1"><div class="icon">🏢</div><div><div class="lbl">Quito Centro</div><div class="code">QC-01</div></div></div><div class="row2"><span>10/10</span><span class="badge bajo">Bajo</span></div><div class="bar"><div class="fill success" style="width:100%"></div></div></div>
+          <div class="node warning" style="left:110px;top:230px"><div class="row1"><div class="icon">🏢</div><div><div class="lbl">Tumbaco</div><div class="code">TU-05</div></div></div><div class="row2"><span>6/10</span><span class="badge medio">Medio</span></div><div class="bar"><div class="fill warning" style="width:60%"></div></div></div>
+          <div class="node danger" style="left:110px;top:360px"><div class="row1"><div class="icon">🏢</div><div><div class="lbl">Calderón</div><div class="code">CA-04</div></div></div><div class="row2"><span>3/10</span><span class="badge critico">Crítico</span></div><div class="bar"><div class="fill danger" style="width:30%"></div></div></div>
+          <div class="node success" style="left:490px;top:160px"><div class="row1"><div class="icon">🏢</div><div><div class="lbl">Cumbayá</div><div class="code">CU-02</div></div></div><div class="row2"><span>9/10</span><span class="badge bajo">Bajo</span></div><div class="bar"><div class="fill success" style="width:90%"></div></div></div>
+          <div class="node warning" style="left:490px;top:300px"><div class="row1"><div class="icon">🏢</div><div><div class="lbl">Valle Chillos</div><div class="code">VC-03</div></div></div><div class="row2"><span>7/10</span><span class="badge medio">Medio</span></div><div class="bar"><div class="fill warning" style="width:70%"></div></div></div>
+        </div>
+        <div class="pros-cons"><div class="pros"><h4>Pros</h4><ul><li>Distribución pareja</li><li>Lectura columna</li></ul></div><div class="cons"><h4>Contras</h4><ul><li>Edges convergen al hub: chocan en handle</li></ul></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>C — Grid orbital ortogonal</h3><span class="tag">5 sedes</span></div>
+        <div class="canvas">
+          <svg viewBox="0 0 600 460"><g stroke-width="2.5" fill="none">
+            <path d="M300,200 V120 H120" stroke="#36B37E"/>
+            <path d="M300,200 V120 H480" stroke="#36B37E"/>
+            <path d="M300,260 V340 H120" stroke="#DE350B"/>
+            <path d="M300,260 V340 H480" stroke="#ff7043"/>
+            <path d="M250,230 H120" stroke="#ff7043"/>
+          </g></svg>
+          <div class="node empresa" style="left:50%;top:50%"><div class="title">EnRegla Corp</div><div class="sub">5 sedes</div></div>
+          <div class="node success" style="left:120px;top:120px"><div class="row1"><div class="icon">🏢</div><div><div class="lbl">Quito Centro</div><div class="code">QC-01</div></div></div><div class="row2"><span>10/10</span><span class="badge bajo">Bajo</span></div><div class="bar"><div class="fill success" style="width:100%"></div></div></div>
+          <div class="node success" style="left:480px;top:120px"><div class="row1"><div class="icon">🏢</div><div><div class="lbl">Cumbayá</div><div class="code">CU-02</div></div></div><div class="row2"><span>9/10</span><span class="badge bajo">Bajo</span></div><div class="bar"><div class="fill success" style="width:90%"></div></div></div>
+          <div class="node warning" style="left:120px;top:230px"><div class="row1"><div class="icon">🏢</div><div><div class="lbl">Tumbaco</div><div class="code">TU-05</div></div></div><div class="row2"><span>6/10</span><span class="badge medio">Medio</span></div><div class="bar"><div class="fill warning" style="width:60%"></div></div></div>
+          <div class="node danger" style="left:120px;top:340px"><div class="row1"><div class="icon">🏢</div><div><div class="lbl">Calderón</div><div class="code">CA-04</div></div></div><div class="row2"><span>3/10</span><span class="badge critico">Crítico</span></div><div class="bar"><div class="fill danger" style="width:30%"></div></div></div>
+          <div class="node warning" style="left:480px;top:340px"><div class="row1"><div class="icon">🏢</div><div><div class="lbl">Valle Chillos</div><div class="code">VC-03</div></div></div><div class="row2"><span>7/10</span><span class="badge medio">Medio</span></div><div class="bar"><div class="fill warning" style="width:70%"></div></div></div>
+        </div>
+        <div class="pros-cons"><div class="pros"><h4>Pros</h4><ul><li>Diagrama infra serio</li><li>Sin solapamiento</li></ul></div><div class="cons"><h4>Contras</h4><ul><li>Edges ortogonales solapan en tronco central</li></ul></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>D — Adaptativo (pentágono, edges rectos)</h3><span class="tag">5 sedes</span></div>
+        <div class="canvas">
+          <svg viewBox="0 0 600 460"><g stroke-width="2.5" fill="none">
+            <line x1="300" y1="230" x2="300" y2="100" stroke="#36B37E"/>
+            <line x1="300" y1="230" x2="500" y2="180" stroke="#36B37E"/>
+            <line x1="300" y1="230" x2="430" y2="370" stroke="#ff7043"/>
+            <line x1="300" y1="230" x2="170" y2="370" stroke="#DE350B"/>
+            <line x1="300" y1="230" x2="100" y2="180" stroke="#ff7043"/>
+          </g></svg>
+          <div class="node empresa" style="left:50%;top:50%"><div class="title">EnRegla Corp</div><div class="sub">5 sedes</div></div>
+          <div class="node success" style="left:300px;top:100px"><div class="row1"><div class="icon">🏢</div><div><div class="lbl">Quito Centro</div><div class="code">QC-01</div></div></div><div class="row2"><span>10/10</span><span class="badge bajo">Bajo</span></div><div class="bar"><div class="fill success" style="width:100%"></div></div></div>
+          <div class="node success" style="left:500px;top:180px"><div class="row1"><div class="icon">🏢</div><div><div class="lbl">Cumbayá</div><div class="code">CU-02</div></div></div><div class="row2"><span>9/10</span><span class="badge bajo">Bajo</span></div><div class="bar"><div class="fill success" style="width:90%"></div></div></div>
+          <div class="node warning" style="left:430px;top:370px"><div class="row1"><div class="icon">🏢</div><div><div class="lbl">Valle Chillos</div><div class="code">VC-03</div></div></div><div class="row2"><span>7/10</span><span class="badge medio">Medio</span></div><div class="bar"><div class="fill warning" style="width:70%"></div></div></div>
+          <div class="node danger" style="left:170px;top:370px"><div class="row1"><div class="icon">🏢</div><div><div class="lbl">Calderón</div><div class="code">CA-04</div></div></div><div class="row2"><span>3/10</span><span class="badge critico">Crítico</span></div><div class="bar"><div class="fill danger" style="width:30%"></div></div></div>
+          <div class="node warning" style="left:100px;top:180px"><div class="row1"><div class="icon">🏢</div><div><div class="lbl">Tumbaco</div><div class="code">TU-05</div></div></div><div class="row2"><span>6/10</span><span class="badge medio">Medio</span></div><div class="bar"><div class="fill warning" style="width:60%"></div></div></div>
+        </div>
+        <div class="pros-cons"><div class="pros"><h4>Pros</h4><ul><li>Distribución radial uniforme</li><li>Edges rectos no se cruzan</li><li>Aprovecha viewport</li></ul></div><div class="cons"><h4>Contras</h4><ul><li>Si N grande, etiquetas pueden solapar</li></ul></div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ ESCALA 10 ============ -->
+  <div class="scale" data-scale="10">
+    <div class="grid">
+
+      <!-- A radial 10 -->
+      <div class="card">
+        <div class="card-head"><h3>A — Radial circular</h3><span class="tag">10 sedes</span></div>
+        <div class="canvas" id="ca-10">
+          <svg viewBox="0 0 600 460" id="svg-a-10"></svg>
+          <div class="node empresa" style="left:50%;top:50%"><div class="title">EnRegla Corp</div><div class="sub">10 sedes</div></div>
+          <div id="ring-a"></div>
+        </div>
+        <div class="pros-cons"><div class="pros"><h4>Pros</h4><ul><li>10 cabe en círculo</li></ul></div><div class="cons"><h4>Contras</h4><ul><li>Cards solapan en N=10 con radio fijo</li></ul></div></div>
+      </div>
+
+      <!-- B hub horiz 10 -->
+      <div class="card">
+        <div class="card-head"><h3>B — Hub horizontal (5 izq + 5 der)</h3><span class="tag">10 sedes</span></div>
+        <div class="canvas" id="cb-10">
+          <svg viewBox="0 0 600 460" id="svg-b-10"></svg>
+          <div class="node empresa" style="left:50%;top:50%"><div class="title">EnRegla Corp</div><div class="sub">10 sedes</div></div>
+          <div id="ring-b"></div>
+        </div>
+        <div class="pros-cons"><div class="pros"><h4>Pros</h4><ul><li>Columnas escalan vertical</li></ul></div><div class="cons"><h4>Contras</h4><ul><li>10 = 5 por columna apretado, cards 80px alto cada uno</li></ul></div></div>
+      </div>
+
+      <!-- C grid 10 -->
+      <div class="card">
+        <div class="card-head"><h3>C — Grid orbital ortogonal</h3><span class="tag">10 sedes</span></div>
+        <div class="canvas" id="cc-10">
+          <svg viewBox="0 0 600 460" id="svg-c-10"></svg>
+          <div class="node empresa" style="left:50%;top:50%"><div class="title">EnRegla Corp</div><div class="sub">10 sedes</div></div>
+          <div id="ring-c"></div>
+        </div>
+        <div class="pros-cons"><div class="pros"><h4>Pros</h4><ul><li>Cuadrícula clara</li></ul></div><div class="cons"><h4>Contras</h4><ul><li>10 con ortogonales = espagueti de líneas</li></ul></div></div>
+      </div>
+
+      <!-- D adaptive 10 -->
+      <div class="card">
+        <div class="card-head"><h3>D — Adaptativo (decágono o 2 anillos)</h3><span class="tag">10 sedes</span></div>
+        <div class="canvas" id="cd-10">
+          <svg viewBox="0 0 600 460" id="svg-d-10"></svg>
+          <div class="node empresa" style="left:50%;top:50%"><div class="title">EnRegla Corp</div><div class="sub">10 sedes</div></div>
+          <div id="ring-d"></div>
+        </div>
+        <div class="pros-cons"><div class="pros"><h4>Pros</h4><ul><li>Auto-ajusta radio según N</li><li>Edges rectos limpios</li></ul></div><div class="cons"><h4>Contras</h4><ul><li>Cards 200px se solapan en círculo único de viewport 600×460</li><li>Solución: zoom-out por defecto + scroll/pan</li></ul></div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="legend">
+    <strong>Estado sede:</strong>
+    <span class="legend-item"><span class="legend-dot" style="background:#36B37E"></span>Vigente (≥90%)</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#ff7043"></span>Por vencer (50–89%)</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#DE350B"></span>Crítico (&lt;50%)</span>
+    <span class="legend-item" style="margin-left:auto;color:var(--ds-text-subtle)">Card 200×~95 · canvas 600×460</span>
+  </div>
+
+<script>
+  // tabs
+  document.querySelectorAll('.scale-tabs button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.scale-tabs button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      const s = b.dataset.scale;
+      document.querySelectorAll('.scale').forEach(x => x.classList.toggle('active', x.dataset.scale === s));
+    });
+  });
+
+  // generate 10-sede demos programmatically
+  const sedes10 = [
+    {n:'Quito Centro',     c:'QC-01', s:'success', p:'10/10', r:'Bajo',    cls:'bajo',    pct:100},
+    {n:'Cumbayá',          c:'CU-02', s:'success', p:'9/10',  r:'Bajo',    cls:'bajo',    pct:90},
+    {n:'Valle Chillos',    c:'VC-03', s:'warning', p:'7/10',  r:'Medio',   cls:'medio',   pct:70},
+    {n:'Tumbaco',          c:'TU-04', s:'warning', p:'6/10',  r:'Medio',   cls:'medio',   pct:60},
+    {n:'Calderón',         c:'CA-05', s:'danger',  p:'3/10',  r:'Crítico', cls:'critico', pct:30},
+    {n:'Pomasqui',         c:'PO-06', s:'success', p:'9/10',  r:'Bajo',    cls:'bajo',    pct:90},
+    {n:'San Antonio',      c:'SA-07', s:'warning', p:'5/10',  r:'Alto',    cls:'alto',    pct:50},
+    {n:'Conocoto',         c:'CO-08', s:'warning', p:'7/10',  r:'Medio',   cls:'medio',   pct:70},
+    {n:'Carapungo',        c:'CR-09', s:'danger',  p:'4/10',  r:'Crítico', cls:'critico', pct:40},
+    {n:'Sangolquí',        c:'SG-10', s:'success', p:'10/10', r:'Bajo',    cls:'bajo',    pct:100},
+  ];
+  function nodeHTML(s, x, y) {
+    return `<div class="node ${s.s}" style="left:${x}px;top:${y}px">
+      <div class="row1"><div class="icon">🏢</div><div><div class="lbl">${s.n}</div><div class="code">${s.c}</div></div></div>
+      <div class="row2"><span>${s.p}</span><span class="badge ${s.cls}">${s.r}</span></div>
+      <div class="bar"><div class="fill ${s.s}" style="width:${s.pct}%"></div></div>
+    </div>`;
+  }
+  function svgPath(svgId, paths) {
+    const svg = document.getElementById(svgId);
+    svg.innerHTML = paths.map(p => `<path d="${p.d}" stroke="${p.color}" stroke-width="2" fill="none" opacity=".7"/>`).join('');
+  }
+  const colorOf = s => s === 'success' ? '#36B37E' : s === 'warning' ? '#ff7043' : '#DE350B';
+
+  // A — circle
+  const ringA = document.getElementById('ring-a');
+  const pathsA = [];
+  ringA.innerHTML = sedes10.map((s,i) => {
+    const a = (i/10)*2*Math.PI - Math.PI/2;
+    const r = 195;
+    const x = 300 + Math.cos(a)*r;
+    const y = 230 + Math.sin(a)*r;
+    pathsA.push({ d: `M300,230 C300,${230+(y-230)*.4} ${x},${230+(y-230)*.6} ${x},${y}`, color: colorOf(s.s) });
+    return nodeHTML(s, x, y);
+  }).join('');
+  svgPath('svg-a-10', pathsA);
+
+  // B — 5 left + 5 right
+  const ringB = document.getElementById('ring-b');
+  const pathsB = [];
+  ringB.innerHTML = sedes10.map((s,i) => {
+    const left = i < 5;
+    const idx = i % 5;
+    const x = left ? 100 : 500;
+    const y = 80 + idx * 75;
+    const hubX = left ? 250 : 350;
+    pathsB.push({ d: `M${hubX},230 C${(hubX+x)/2},230 ${(hubX+x)/2},${y} ${x},${y}`, color: colorOf(s.s) });
+    return nodeHTML(s, x, y);
+  }).join('');
+  svgPath('svg-b-10', pathsB);
+
+  // C — orbital orthogonal (3 cols × ~3 rows)
+  const ringC = document.getElementById('ring-c');
+  const posC = [
+    [100,80],[300,80],[500,80],
+    [100,200],[500,200],
+    [100,360],[300,400],[500,360],
+    [200,440],[400,440]
+  ];
+  const pathsC = [];
+  ringC.innerHTML = sedes10.map((s,i) => {
+    const [x,y] = posC[i];
+    pathsC.push({ d: `M300,230 H${x>300?x-100:x+100} V${y}`, color: colorOf(s.s) });
+    return nodeHTML(s, x, y);
+  }).join('');
+  svgPath('svg-c-10', pathsC);
+
+  // D — adaptive: 2 anillos cuando N>7
+  const ringD = document.getElementById('ring-d');
+  const pathsD = [];
+  ringD.innerHTML = sedes10.map((s,i) => {
+    const inner = i < 4;
+    const cnt = inner ? 4 : 6;
+    const idx = inner ? i : i - 4;
+    const a = (idx/cnt)*2*Math.PI - Math.PI/2;
+    const r = inner ? 130 : 200;
+    const x = 300 + Math.cos(a)*r;
+    const y = 230 + Math.sin(a)*r;
+    pathsD.push({ d: `M300,230 L${x},${y}`, color: colorOf(s.s) });
+    return nodeHTML(s, x, y);
+  }).join('');
+  svgPath('svg-d-10', pathsD);
+</script>
+</body>
+</html>

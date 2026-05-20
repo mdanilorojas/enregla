@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Network Map — Force-Directed simulación viva</title>
+<style>
+  :root {
+    --ds-orange-500: #ff7043;
+    --ds-green-500: #36B37E;
+    --ds-red-500: #DE350B;
+    --ds-neutral-50: #F7F8F9;
+    --ds-neutral-100: #F1F2F4;
+    --ds-neutral-200: #DCDFE4;
+    --ds-neutral-300: #B3B9C4;
+    --ds-neutral-700: #44546F;
+    --ds-neutral-900: #172B4D;
+    --ds-text: var(--ds-neutral-900);
+    --ds-text-subtle: var(--ds-neutral-700);
+    --ds-text-subtlest: var(--ds-neutral-300);
+    --ds-border: var(--ds-neutral-200);
+    --ds-radius-100: 3px;
+    --ds-radius-200: 6px;
+    --ds-shadow-raised: 0 1px 1px rgba(9,30,66,.25), 0 0 1px rgba(9,30,66,.31);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    background: var(--ds-neutral-50); color: var(--ds-text); padding: 32px;
+  }
+  h1 { margin: 0 0 4px; font-size: 22px; }
+  .lede { color: var(--ds-text-subtle); margin: 0 0 20px; font-size: 14px; max-width: 920px; }
+  .controls {
+    display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap;
+    background: white; padding: 14px 16px; border: 1px solid var(--ds-border);
+    border-radius: var(--ds-radius-200);
+  }
+  .controls label { font-size: 12px; color: var(--ds-text-subtle); display: flex; align-items: center; gap: 8px; }
+  .controls input[type=range] { width: 140px; }
+  .controls .group { display: flex; gap: 8px; align-items: center; padding: 0 14px; border-left: 1px solid var(--ds-border); }
+  .controls .group:first-child { border-left: 0; padding-left: 0; }
+  .controls button { padding: 6px 12px; border: 1px solid var(--ds-border); background: white; border-radius: var(--ds-radius-200); cursor: pointer; font-size: 12px; font-weight: 500; }
+  .controls button.active { background: var(--ds-neutral-900); color: white; border-color: var(--ds-neutral-900); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .card { background: white; border: 1px solid var(--ds-border); border-radius: var(--ds-radius-200); overflow: hidden; box-shadow: var(--ds-shadow-raised); }
+  .card-head { padding: 14px 16px; border-bottom: 1px solid var(--ds-border); display: flex; align-items: baseline; justify-content: space-between; }
+  .card-head h3 { margin: 0; font-size: 14px; font-weight: 600; }
+  .card-head .tag { font-size: 11px; color: var(--ds-text-subtle); text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }
+  .canvas {
+    position: relative; height: 520px;
+    background: radial-gradient(circle, var(--ds-neutral-200) 1px, transparent 1px) 0 0/24px 24px;
+    background-color: white; overflow: hidden;
+  }
+  .canvas svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .node {
+    position: absolute; transform: translate(-50%, -50%);
+    background: white; border: 2px solid; border-radius: var(--ds-radius-100);
+    padding: 10px 12px; width: 180px; box-shadow: var(--ds-shadow-raised); font-size: 12px;
+    transition: none;
+  }
+  .node.empresa { border-color: var(--ds-neutral-900); background: var(--ds-neutral-900); color: white; width: 200px; padding: 12px 14px; }
+  .node.empresa .title { font-weight: 700; font-size: 13px; }
+  .node.empresa .sub { color: var(--ds-neutral-300); font-size: 11px; margin-top: 2px; }
+  .node.success { border-color: var(--ds-green-500); }
+  .node.warning { border-color: var(--ds-orange-500); }
+  .node.danger  { border-color: var(--ds-red-500); }
+  .node .row1 { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .node .icon { width: 22px; height: 22px; background: var(--ds-neutral-100); border-radius: var(--ds-radius-100); display: grid; place-items: center; flex-shrink: 0; font-size: 12px; }
+  .node .lbl { font-weight: 600; font-size: 12px; line-height: 1.2; }
+  .node .code { font-family: monospace; font-size: 10px; color: var(--ds-text-subtlest); }
+  .node .row2 { display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--ds-text-subtle); }
+  .node .badge { padding: 2px 6px; border-radius: 10px; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+  .badge.bajo { background: #E3FCEF; color: #006644; }
+  .badge.medio { background: #FFFAE6; color: #974F0C; }
+  .badge.alto { background: #FFEBE6; color: #BF2600; }
+  .badge.critico { background: var(--ds-red-500); color: white; }
+  .node .bar { height: 5px; background: var(--ds-neutral-100); border-radius: 3px; margin-top: 6px; overflow: hidden; }
+  .node .fill { height: 100%; }
+  .fill.success { background: var(--ds-green-500); }
+  .fill.warning { background: var(--ds-orange-500); }
+  .fill.danger { background: var(--ds-red-500); }
+  .pros-cons { padding: 14px 16px; background: var(--ds-neutral-50); border-top: 1px solid var(--ds-border); display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 12px; }
+  .pros-cons h4 { margin: 0 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+  .pros h4 { color: #006644; } .cons h4 { color: #BF2600; }
+  .pros-cons ul { margin: 0; padding-left: 16px; color: var(--ds-text-subtle); line-height: 1.5; }
+  .keyfix {
+    background: #FFFAE6; border: 1px solid #FFC400; border-radius: var(--ds-radius-200);
+    padding: 12px 16px; margin-bottom: 16px; font-size: 13px;
+  }
+  .keyfix b { color: #974F0C; }
+</style>
+</head>
+<body>
+  <h1>Network Map — Edges anclados al border + simulación física</h1>
+  <p class="lede">Fix #1: edges terminan en el rectángulo del card (clip a borde, no SVG random). Fix #2: posiciones calculadas con simulación de fuerzas (repulsión entre nodes + atracción al hub + colisión = anti-solape). Compara: estática (settles y para) vs viva (siempre flotando lento).</p>
+
+  <div class="keyfix">
+    <b>Lo que estaba mal en el mockup anterior:</b> los SVG paths apuntaban a coordenadas arbitrarias del card center (x,y) sin recortarse al border. Con cards de 200×95px, el path entraba dentro del card o quedaba flotando. Aquí los edges se calculan en cada frame: <code>line-rect intersection</code> entre centro empresa y borde de cada sede card.
+  </div>
+
+  <div class="controls">
+    <div class="group">
+      <label>Sedes <span id="lblN">5</span></label>
+      <input type="range" id="N" min="1" max="12" value="5" />
+    </div>
+    <div class="group">
+      <label>Repulsión <input type="range" id="rep" min="500" max="6000" value="2500" /></label>
+      <label>Atracción <input type="range" id="att" min="0" max="0.05" step="0.001" value="0.012" /></label>
+      <label>Colisión <input type="range" id="col" min="0" max="40" value="20" /></label>
+    </div>
+    <div class="group">
+      <button data-mode="settle" class="active">Settle (para al estabilizar)</button>
+      <button data-mode="live">Vivo (flota siempre)</button>
+      <button data-mode="static">Estático determinista</button>
+    </div>
+    <div class="group">
+      <button id="restart">↻ Reiniciar</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-head"><h3>E — Force-directed con edges anclados al border</h3><span class="tag" id="modeTag">SETTLE</span></div>
+      <div class="canvas" id="canvas">
+        <svg id="svg"></svg>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul>
+          <li>Edges siempre conectados al borde real del card</li>
+          <li>Anti-colisión automática (no se solapan)</li>
+          <li>Aprovecha todo el viewport sin código layout-específico</li>
+          <li>Escala bien de 1 a 20+ sedes sin retunear</li>
+        </ul></div>
+        <div class="cons"><h4>Contras</h4><ul>
+          <li>Posiciones no deterministas (cada load se ve distinto)</li>
+          <li>Modo "vivo" puede distraer del trabajo</li>
+          <li>Más cómputo (~60fps mientras corre)</li>
+        </ul></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Notas técnicas</h3><span class="tag">Implementación</span></div>
+      <div style="padding:16px;font-size:13px;line-height:1.6;color:var(--ds-text-subtle)">
+        <p style="margin:0 0 10px"><b>React Flow</b>: usa <code>onInit</code> + <code>setNodes</code> con simulación d3-force corriendo fuera del flujo de React, actualizando <code>positionAbsolute</code>. Edges custom con <code>EdgeProps.sourceX/Y</code> y <code>targetX/Y</code> ya respetan handles.</p>
+        <p style="margin:0 0 10px"><b>Fix edges al border</b>: en lugar de path al center, calcular intersección línea-rect del bounding box del node. React Flow lo hace nativo si usas handles posicionados en cada lado (top/bottom/left/right) y eliges el más cercano dinámicamente — exactamente lo que ya hay en SedeNode.tsx pero solo top/bottom.</p>
+        <p style="margin:0"><b>Modos</b>:<br>
+          • <b>Settle</b>: corre simulación al montar, alpha decay, para a los ~2s. Recomendado.<br>
+          • <b>Vivo</b>: alpha low constante, drift sutil. Demo wow pero distrae.<br>
+          • <b>Estático</b>: fórmula trigonométrica con anillo simple, no anti-colisión, igual que actual.
+        </p>
+      </div>
+    </div>
+  </div>
+
+<script>
+const NAMES = [
+  ['Quito Centro','QC-01','success',100,'Bajo','bajo'],
+  ['Cumbayá','CU-02','success',90,'Bajo','bajo'],
+  ['Valle Chillos','VC-03','warning',70,'Medio','medio'],
+  ['Tumbaco','TU-04','warning',60,'Medio','medio'],
+  ['Calderón','CA-05','danger',30,'Crítico','critico'],
+  ['Pomasqui','PO-06','success',90,'Bajo','bajo'],
+  ['San Antonio','SA-07','warning',50,'Alto','alto'],
+  ['Conocoto','CO-08','warning',70,'Medio','medio'],
+  ['Carapungo','CR-09','danger',40,'Crítico','critico'],
+  ['Sangolquí','SG-10','success',100,'Bajo','bajo'],
+  ['Mitad Mundo','MM-11','warning',65,'Medio','medio'],
+  ['Cotocollao','CT-12','success',95,'Bajo','bajo'],
+];
+
+const canvas = document.getElementById('canvas');
+const svg = document.getElementById('svg');
+const W = 600, H = 520;
+const HUB = { w: 200, h: 70 };
+const SEDE = { w: 180, h: 90 };
+
+let mode = 'settle';
+let N = 5;
+let nodes = [];
+let raf = null;
+
+function buildNodes(n) {
+  const arr = [{ id: 'hub', x: W/2, y: H/2, vx: 0, vy: 0, w: HUB.w, h: HUB.h, kind: 'hub' }];
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2;
+    arr.push({
+      id: 'n'+i, kind: 'sede', data: NAMES[i % NAMES.length],
+      x: W/2 + Math.cos(a) * 200 + (Math.random()-0.5)*30,
+      y: H/2 + Math.sin(a) * 180 + (Math.random()-0.5)*30,
+      vx: 0, vy: 0, w: SEDE.w, h: SEDE.h,
+    });
+  }
+  return arr;
+}
+
+function step(alpha, params) {
+  const { rep, att, col } = params;
+  const hub = nodes[0];
+  hub.vx = 0; hub.vy = 0; hub.x = W/2; hub.y = H/2;
+
+  for (let i = 1; i < nodes.length; i++) {
+    const a = nodes[i];
+    let fx = 0, fy = 0;
+
+    // Attract to hub
+    fx += (hub.x - a.x) * att;
+    fy += (hub.y - a.y) * att;
+
+    // Repel from each other node
+    for (let j = 0; j < nodes.length; j++) {
+      if (i === j) continue;
+      const b = nodes[j];
+      const dx = a.x - b.x, dy = a.y - b.y;
+      const d2 = dx*dx + dy*dy + 0.01;
+      const f = rep / d2;
+      fx += dx * f / Math.sqrt(d2);
+      fy += dy * f / Math.sqrt(d2);
+    }
+
+    // Collision: rect-rect overlap correction
+    for (let j = 1; j < nodes.length; j++) {
+      if (i === j) continue;
+      const b = nodes[j];
+      const dx = a.x - b.x, dy = a.y - b.y;
+      const minX = (a.w + b.w) / 2 + col;
+      const minY = (a.h + b.h) / 2 + col;
+      if (Math.abs(dx) < minX && Math.abs(dy) < minY) {
+        const overlapX = minX - Math.abs(dx);
+        const overlapY = minY - Math.abs(dy);
+        if (overlapX < overlapY) fx += Math.sign(dx) * overlapX * 0.5;
+        else fy += Math.sign(dy) * overlapY * 0.5;
+      }
+    }
+
+    a.vx = (a.vx + fx * alpha) * 0.7;
+    a.vy = (a.vy + fy * alpha) * 0.7;
+    a.x += a.vx;
+    a.y += a.vy;
+
+    // Bounds
+    a.x = Math.max(a.w/2 + 10, Math.min(W - a.w/2 - 10, a.x));
+    a.y = Math.max(a.h/2 + 10, Math.min(H - a.h/2 - 10, a.y));
+  }
+}
+
+// line-rect intersection: returns point where line from rect.center to (px,py) exits the rect
+function clipToRect(rect, px, py) {
+  const cx = rect.x, cy = rect.y;
+  const dx = px - cx, dy = py - cy;
+  if (dx === 0 && dy === 0) return { x: cx, y: cy };
+  const w = rect.w / 2, h = rect.h / 2;
+  const tx = dx === 0 ? Infinity : Math.abs(w / dx);
+  const ty = dy === 0 ? Infinity : Math.abs(h / dy);
+  const t = Math.min(tx, ty);
+  return { x: cx + dx * t, y: cy + dy * t };
+}
+
+function colorOf(s) { return s === 'success' ? '#36B37E' : s === 'warning' ? '#ff7043' : '#DE350B'; }
+
+function render() {
+  // Render nodes
+  const nodeHTML = nodes.map(n => {
+    if (n.kind === 'hub') {
+      return `<div class="node empresa" style="left:${n.x}px;top:${n.y}px"><div class="title">EnRegla Corp</div><div class="sub">${nodes.length-1} sedes</div></div>`;
+    }
+    const [name,code,s,pct,risk,rcls] = n.data;
+    return `<div class="node ${s}" style="left:${n.x}px;top:${n.y}px">
+      <div class="row1"><div class="icon">🏢</div><div><div class="lbl">${name}</div><div class="code">${code}</div></div></div>
+      <div class="row2"><span>${Math.round(pct/10)}/10</span><span class="badge ${rcls}">${risk}</span></div>
+      <div class="bar"><div class="fill ${s}" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+  // remove old nodes, keep svg
+  Array.from(canvas.querySelectorAll('.node')).forEach(e => e.remove());
+  canvas.insertAdjacentHTML('beforeend', nodeHTML);
+
+  // Render edges clipped to rect borders
+  const hub = nodes[0];
+  const paths = nodes.slice(1).map(n => {
+    const start = clipToRect(hub, n.x, n.y);
+    const end = clipToRect(n, hub.x, hub.y);
+    const c1x = (start.x + end.x) / 2;
+    const color = colorOf(n.data[2]);
+    return `<path d="M${start.x},${start.y} C${c1x},${start.y} ${c1x},${end.y} ${end.x},${end.y}" stroke="${color}" stroke-width="2" fill="none" opacity=".75"/>`;
+  }).join('');
+  svg.innerHTML = paths;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+}
+
+let alpha = 1;
+function tick() {
+  const params = {
+    rep: +document.getElementById('rep').value,
+    att: +document.getElementById('att').value,
+    col: +document.getElementById('col').value,
+  };
+  if (mode === 'settle') {
+    step(alpha, params);
+    alpha *= 0.98;
+    render();
+    if (alpha > 0.01) raf = requestAnimationFrame(tick);
+  } else if (mode === 'live') {
+    step(0.15, params);
+    render();
+    raf = requestAnimationFrame(tick);
+  } else {
+    // static — single deterministic placement
+    nodes.forEach((n,i) => {
+      if (n.kind === 'hub') return;
+      const a = ((i-1) / (nodes.length-1)) * Math.PI * 2 - Math.PI/2;
+      n.x = W/2 + Math.cos(a) * 200;
+      n.y = H/2 + Math.sin(a) * 180;
+    });
+    render();
+  }
+}
+
+function restart() {
+  if (raf) cancelAnimationFrame(raf);
+  nodes = buildNodes(N);
+  alpha = 1;
+  tick();
+}
+
+document.getElementById('N').addEventListener('input', e => {
+  N = +e.target.value;
+  document.getElementById('lblN').textContent = N;
+  restart();
+});
+['rep','att','col'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => { if (mode==='settle') { alpha = 1; if(!raf) tick(); raf = requestAnimationFrame(tick); } });
+});
+document.querySelectorAll('button[data-mode]').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('button[data-mode]').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    mode = b.dataset.mode;
+    document.getElementById('modeTag').textContent = mode.toUpperCase();
+    restart();
+  });
+});
+document.getElementById('restart').addEventListener('click', restart);
+
+restart();
+</script>
+</body>
+</html>

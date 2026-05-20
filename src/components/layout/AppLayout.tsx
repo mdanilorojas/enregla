@@ -10,12 +10,12 @@ import {
   Network,
   CalendarClock,
   Scale,
-  Bell,
   Menu,
   X,
   Settings
 } from '@/lib/lucide-icons';
 import { useAuth } from '@/hooks/useAuth';
+import { NotificationBell } from '@/components/NotificationBell';
 
 const menuItems = [
   {
@@ -248,14 +248,7 @@ export function AppLayout() {
           </div>
 
           <div className="flex items-center gap-[var(--ds-space-150)]">
-            {/* Notification */}
-            <button
-              className={`relative p-[var(--ds-space-100)] rounded-[var(--ds-radius-200)] text-[var(--ds-text-subtle)] hover:text-[var(--ds-text)] hover:bg-[var(--ds-neutral-50)] transition-all ${focusRing}`}
-              aria-label="Notificaciones"
-            >
-              <Bell size={20} strokeWidth={2} aria-hidden="true" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-[var(--ds-neutral-0)]" aria-hidden="true" />
-            </button>
+            <NotificationBell />
           </div>
         </header>
 

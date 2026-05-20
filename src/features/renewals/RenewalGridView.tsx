@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { usePermits } from '@/hooks/usePermits'
 import { useLocations } from '@/hooks/useLocations'
@@ -27,6 +27,20 @@ export function RenewalGridView() {
   }, [permits])
 
   const [year, setYear] = useState(new Date().getFullYear())
+  const [yearAutoSet, setYearAutoSet] = useState(false)
+
+  useEffect(() => {
+    if (yearAutoSet) return
+    const current = new Date().getFullYear()
+    const futureYears = availableYears.filter(y => y >= current)
+    const yearsWithPermits = futureYears.filter(y =>
+      permits.some(p => p.is_active && p.expiry_date && new Date(p.expiry_date).getFullYear() === y),
+    )
+    if (yearsWithPermits.length > 0 && yearsWithPermits[0] !== current) {
+      setYear(yearsWithPermits[0])
+    }
+    if (permits.length > 0) setYearAutoSet(true)
+  }, [permits, availableYears, yearAutoSet])
 
   const monthsData = useMemo(() => {
     const byMonth: Record<number, MonthRenewal[]> = {}

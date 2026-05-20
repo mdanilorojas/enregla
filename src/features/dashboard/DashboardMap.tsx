@@ -24,18 +24,31 @@ export interface DashboardMapProps {
   fillParent?: boolean
 }
 
+const HUB_W = 200
+const HUB_H = 100
+const SEDE_W = 220
+const SEDE_H = 110
+
+function radiusFor(n: number) {
+  if (n <= 1) return 260
+  if (n <= 4) return 320
+  if (n <= 8) return 380
+  return 380 + (n - 8) * 28
+}
+
 export function DashboardMap({ empresaName, sedes, fillParent = false }: DashboardMapProps) {
   const { nodes, edges } = useMemo(() => {
-    const centerX = 400
-    const centerY = 250
-    const radius = 300
+    const centerX = 0
+    const centerY = 0
+    const radius = radiusFor(sedes.length)
 
     const nodes: Node[] = [
       {
         id: 'empresa',
         type: 'empresa',
-        position: { x: centerX, y: centerY },
+        position: { x: centerX - HUB_W / 2, y: centerY - HUB_H / 2 },
         data: { label: empresaName },
+        draggable: true,
       },
     ]
     const edges: Edge[] = []
@@ -45,25 +58,20 @@ export function DashboardMap({ empresaName, sedes, fillParent = false }: Dashboa
       const x = centerX + Math.cos(angle) * radius
       const y = centerY + Math.sin(angle) * radius
 
-      const isAbove = y < centerY
-      const sourceHandle = isAbove ? 'top' : 'bottom'
-      const targetHandle = isAbove ? 'bottom' : 'top'
-
       const percentage = sede.total > 0 ? (sede.permits / sede.total) * 100 : 0
 
       nodes.push({
         id: sede.id,
         type: 'sede',
-        position: { x: x - 100, y: y - 50 },
+        position: { x: x - SEDE_W / 2, y: y - SEDE_H / 2 },
         data: { ...sede, percentage } satisfies SedeNodeData,
+        draggable: true,
       })
 
       edges.push({
         id: `e-${sede.id}`,
         source: 'empresa',
-        sourceHandle,
         target: sede.id,
-        targetHandle,
         type: 'custom',
         data: { status: sede.status } satisfies CustomEdgeData,
       })
@@ -74,7 +82,7 @@ export function DashboardMap({ empresaName, sedes, fillParent = false }: Dashboa
 
   const containerStyle = fillParent
     ? { width: '100%', height: '100%' }
-    : { width: '100%', height: 500 }
+    : { width: '100%', height: 600 }
 
   return (
     <div style={containerStyle}>
@@ -84,9 +92,12 @@ export function DashboardMap({ empresaName, sedes, fillParent = false }: Dashboa
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView
-        fitViewOptions={{ padding: 0.2 }}
-        minZoom={0.4}
+        fitViewOptions={{ padding: 0.15, minZoom: 0.4, maxZoom: 1 }}
+        minZoom={0.3}
         maxZoom={1.5}
+        nodesDraggable
+        nodesConnectable={false}
+        elementsSelectable
         proOptions={{ hideAttribution: true }}
       >
         <Background
