@@ -6,6 +6,7 @@ import { Bell, BellOff, Check, Mail, AlertCircle, CheckCircle2 } from '@/lib/luc
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useAuth } from '@/hooks/useAuth'
 import { useNotifications, type NotificationItem } from '@/hooks/useNotifications'
+import { permitTypeLabel } from '@/lib/domain/permit-types'
 import { cn } from '@/lib/utils'
 
 const focusRing =
@@ -34,7 +35,7 @@ function expiryLeadDays(type: string): number | null {
 
 function notifLabel(item: NotificationItem) {
   const locName = item.permit?.location?.name ?? 'Sede'
-  const permitType = item.permit?.type ?? 'Permiso'
+  const permitType = permitTypeLabel(item.permit?.type)
   const expiry = item.permit?.expiry_date
   const expiryStr = expiry ? new Date(expiry).toLocaleDateString('es-EC', { day: '2-digit', month: 'short', year: 'numeric' }) : null
 
