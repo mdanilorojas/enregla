@@ -97,8 +97,10 @@ export { Calendar } from './calendar';
 
 export { Popover, PopoverTrigger, PopoverContent } from './popover';
 
+export { Sheet } from './sheet';
+export type { SheetProps } from './sheet';
 export {
-  Sheet,
+  SheetRadix,
   SheetPortal,
   SheetOverlay,
   SheetTrigger,
@@ -108,4 +110,4 @@ export {
   SheetFooter,
   SheetTitle,
   SheetDescription,
-} from './sheet';
+} from './sheet-radix';

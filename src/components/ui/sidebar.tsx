@@ -9,12 +9,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import {
-  Sheet,
+  SheetRadix as Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from "@/components/ui/sheet"
+} from "@/components/ui/sheet-radix"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,

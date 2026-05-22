@@ -239,3 +239,8 @@ body {
 @keyframes dashRed {
   to { stroke-dashoffset: -10; }
 }
+
+@keyframes sheetSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes sheetSlideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+@keyframes sheetSlideLeft { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes sheetSlideRight { from { transform: translateX(-100%); } to { transform: translateX(0); } }
