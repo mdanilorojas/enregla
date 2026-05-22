@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mobile Redesign — Plan</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --card: #ffffff;
+    --ink: #0f172a;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --brand: #1e3a8a;
+    --brand-soft: #dbeafe;
+    --good: #16a34a;
+    --warn: #d97706;
+    --bad: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.55; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 32px 24px 96px; }
+  h1 { font-size: clamp(28px, 4vw, 40px); margin: 0 0 8px; letter-spacing: -0.02em; }
+  h2 { font-size: 22px; margin: 40px 0 12px; letter-spacing: -0.01em; border-bottom: 2px solid var(--line); padding-bottom: 6px; }
+  h3 { font-size: 17px; margin: 20px 0 8px; }
+  p { margin: 0 0 12px; color: var(--muted); }
+  .meta { display: flex; flex-wrap: wrap; gap: 16px; color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+  .meta strong { color: var(--ink); }
+  .grid { display: grid; gap: 20px; }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 720px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--brand-soft); color: var(--brand); border: 1px solid #93c5fd; }
+  .pill.warn { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
+  .pill.bad { background: #fee2e2; color: var(--bad); border-color: #fca5a5; }
+  .pill.good { background: #dcfce7; color: var(--good); border-color: #86efac; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+  code { background: #f1f5f9; padding: 2px 6px; border-radius: 6px; font-size: 13px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+  .mockups { display: grid; gap: 24px; grid-template-columns: 1fr 1fr; align-items: start; }
+  @media (max-width: 720px) { .mockups { grid-template-columns: 1fr; } }
+  .device { background: #1e293b; padding: 14px; border-radius: 28px; margin: 0 auto; }
+  .device .screen { background: white; border-radius: 16px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.04); }
+  .device.mobile { width: 360px; }
+  .device.mobile .screen { width: 100%; height: 720px; display: flex; flex-direction: column; }
+  .device.desktop { width: 100%; max-width: 720px; }
+  .device.desktop .screen { width: 100%; height: 480px; display: flex; }
+  .ui-header { background: white; border-bottom: 1px solid var(--line); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .ui-title { font-weight: 700; font-size: 16px; }
+  .ui-bell { width: 24px; height: 24px; color: var(--muted); }
+  .ui-content { flex: 1; padding: 16px; background: #fafaf9; overflow: auto; font-size: 13px; }
+  .ui-card { background: white; border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
+  .ui-h1 { font-weight: 700; font-size: 22px; margin-bottom: 4px; }
+  .ui-cta-stack { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .ui-cta { padding: 10px 12px; border-radius: 10px; text-align: center; font-weight: 600; font-size: 14px; min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .ui-cta.primary { background: var(--brand); color: white; }
+  .ui-cta.secondary { background: white; color: var(--ink); border: 1px solid var(--line); }
+  .ui-bottomnav { display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid var(--line); background: white; padding: 6px 0 12px; flex-shrink: 0; }
+  .ui-tab { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; color: var(--muted); padding: 6px 0; }
+  .ui-tab.active { color: var(--brand); font-weight: 600; }
+  .ui-tab .icon { width: 22px; height: 22px; display: inline-block; background: currentColor; mask-size: contain; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0; }
+  .legend-item { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .flow { background: white; border: 1px solid var(--line); border-radius: 14px; padding: 16px; overflow: auto; }
+  details { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin-bottom: 8px; }
+  details summary { cursor: pointer; font-weight: 600; }
+  ul { padding-left: 20px; }
+  ul li { margin: 4px 0; color: var(--muted); }
+  .small { font-size: 12px; color: var(--muted); }
+  .mock-row { display: flex; gap: 6px; align-items: center; }
+  .mock-pill { display: inline-flex; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 600; }
+  .mock-pill.medium { background: #fef3c7; color: #92400e; }
+  .mock-pill.high { background: #fee2e2; color: #991b1b; }
+  .gauge { width: 160px; height: 160px; margin: 12px auto; position: relative; display: flex; align-items: center; justify-content: center; }
+  .gauge svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+  .gauge .num { position: absolute; font-size: 38px; font-weight: 300; }
+  .row-old { background: #fee2e2; }
+  .row-new { background: #dcfce7; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Mobile Redesign — EnRegla</h1>
+  <p>Plan de redesign mobile-first para toda la app autenticada. Objetivo: 0 scroll horizontal en 360px, navegación bottom-tab moderna, CTAs full-width donde corresponda.</p>
+
+  <div class="meta">
+    <span><strong>Fecha:</strong> 2026-05-22</span>
+    <span><strong>Branch:</strong> <code>fix/network-map-handles</code> → nueva <code>feat/mobile-redesign</code></span>
+    <span><strong>Target:</strong> 360px+ Android / iOS Safari 15+</span>
+    <span><strong>Tasks:</strong> 26 (TDD bite-size)</span>
+  </div>
+
+  <h2>1 · Decisiones de diseño</h2>
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>Navegación</h3>
+      <p>Bottom-tab fija (5 items) en <code>&lt;lg</code>. Sidebar desktop intacto en <code>≥1024px</code>.</p>
+      <ul>
+        <li>Tabs: Dashboard · Sedes · Permisos · Renovaciones · Más</li>
+        <li>"Más" abre bottom sheet con: Mapa, Marco Legal, Settings, Logout</li>
+        <li>Hamburger eliminado en mobile (lo reemplaza el bottom nav)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Patrones</h3>
+      <ul>
+        <li>Touch target mínimo <strong>44×44px</strong></li>
+        <li>CTAs en mobile: <code>flex-col sm:flex-row + w-full</code></li>
+        <li>Tablas anchas → <strong>card list</strong> (Permits) o <strong>accordion</strong> (Legal Matrix)</li>
+        <li>Modales/popovers fluidos: <code>w-[calc(100vw-16px)] sm:w-auto</code></li>
+        <li>Padding outer responsive: <code>p-4 sm:p-6 lg:p-8</code></li>
+        <li>Tipografía hero fluida con <code>clamp()</code></li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>2 · Antes / Después — Dashboard mobile</h2>
+
+  <div class="legend">
+    <span class="legend-item"><span class="legend-dot" style="background:var(--bad)"></span>Roto: scroll horizontal, botones cortados</span>
+    <span class="legend-item"><span class="legend-dot" style="background:var(--good)"></span>Fix: stack vertical full-width</span>
+  </div>
+
+  <div class="mockups">
+    <div>
+      <h3 style="text-align:center">Antes</h3>
+      <div class="device mobile">
+        <div class="screen">
+          <div class="ui-header">
+            <span style="font-size:18px">☰</span>
+            <span class="ui-title">Dashboard</span>
+            <span class="ui-bell">🔔</span>
+          </div>
+          <div class="ui-content" style="overflow-x:auto">
+            <div style="white-space:nowrap; min-width:560px; font-size:11px; color:var(--bad)">
+              <div style="font-weight:700; font-size:18px; color:var(--ink)">sdfg</div>
+              <div style="margin:6px 0; color:var(--muted)">1 de 14 permisos vigentes · 2 sedes · Riesgo <span class="mock-pill medium">Medio</span></div>
+              <div style="display:flex; gap:8px; margin-top:8px">
+                <button style="padding:8px 12px; border:1px solid var(--line); border-radius:8px; background:white">⬇ Exportar reporte</button>
+                <button style="padding:8px 12px; background:var(--brand); color:white; border:none; border-radius:8px">+ Nuevo permiso</button>
+              </div>
+              <div style="margin-top:12px; color:var(--bad); font-weight:600">← scroll horizontal forzado →</div>
+            </div>
+            <div class="ui-card" style="margin-top:12px">
+              <div class="gauge">
+                <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#e2e8f0" stroke-width="6"/><circle cx="50" cy="50" r="42" fill="none" stroke="#16a34a" stroke-width="6" stroke-dasharray="263.9" stroke-dashoffset="245" stroke-linecap="round"/></svg>
+                <div class="num">7%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h3 style="text-align:center">Después</h3>
+      <div class="device mobile">
+        <div class="screen">
+          <div class="ui-header">
+            <span class="ui-title">Dashboard</span>
+            <span class="ui-bell">🔔</span>
+          </div>
+          <div class="ui-content">
+            <div class="ui-h1">sdfg</div>
+            <div class="small" style="margin-bottom:12px">1 de 14 permisos vigentes · 2 sedes · Riesgo <span class="mock-pill medium">Medio</span></div>
+            <div class="ui-cta-stack">
+              <div class="ui-cta primary">+ Nuevo permiso</div>
+              <div class="ui-cta secondary">⬇ Exportar reporte</div>
+            </div>
+            <div class="ui-card" style="margin-top:14px">
+              <div class="gauge">
+                <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#e2e8f0" stroke-width="6"/><circle cx="50" cy="50" r="42" fill="none" stroke="#16a34a" stroke-width="6" stroke-dasharray="263.9" stroke-dashoffset="245" stroke-linecap="round"/></svg>
+                <div class="num">7%</div>
+              </div>
+              <div style="text-align:center; font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em">Cumplimiento</div>
+              <div style="text-align:center; font-size:13px; color:var(--muted); margin-top:4px">1 / 14 vigentes</div>
+            </div>
+          </div>
+          <div class="ui-bottomnav">
+            <div class="ui-tab active"><span style="font-size:18px">⌂</span><span>Dashboard</span></div>
+            <div class="ui-tab"><span style="font-size:18px">📍</span><span>Sedes</span></div>
+            <div class="ui-tab"><span style="font-size:18px">📄</span><span>Permisos</span></div>
+            <div class="ui-tab"><span style="font-size:18px">📅</span><span>Renovaciones</span></div>
+            <div class="ui-tab"><span style="font-size:18px">⋯</span><span>Más</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>3 · Patrones por vista</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Vista</th>
+        <th>Problema actual</th>
+        <th>Patrón aplicado</th>
+        <th>Task</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>AppLayout</td><td>Sidebar drawer + hamburger</td><td>Bottom-tab nav + MoreSheet, sidebar solo desktop</td><td>2, 3, 4, 21</td></tr>
+      <tr><td>Dashboard</td><td>CTAs cortados, hero <code>1fr_380px</code> rígido, gauge 240px</td><td>Stack vertical CTAs full-width, <code>minmax(0,380px)</code>, gauge clamp()</td><td>5</td></tr>
+      <tr><td>Permits list</td><td>Tabla 7 cols overflow</td><td>Card list <code>&lt;md</code>, tabla <code>≥md</code></td><td>6, 7</td></tr>
+      <tr><td>Permit detail/create</td><td>Botones header juntos, form 2-col</td><td>Stack vertical, form 1-col mobile</td><td>8, 9</td></tr>
+      <tr><td>Renewals</td><td>Grid 1/2/3 mal escalado</td><td><code>grid-cols-1 sm:grid-cols-2 lg:grid-cols-3</code></td><td>10</td></tr>
+      <tr><td>Marco Legal matrix</td><td>Tabla 8+ cols overflow</td><td>Accordion mobile + scroll-x desktop</td><td>11</td></tr>
+      <tr><td>Legal index</td><td>Grid <code>md:grid-cols-2</code></td><td><code>sm:grid-cols-2</code></td><td>12</td></tr>
+      <tr><td>Location detail</td><td>KPI grid 3-up rígido</td><td><code>sm:grid-cols-3</code> + stack header</td><td>13</td></tr>
+      <tr><td>Network map</td><td>Legend 220px overflow, height vh</td><td>Legend bottom sheet, <code>100dvh</code></td><td>14</td></tr>
+      <tr><td>NotificationBell</td><td>Popover <code>w-[380px]</code></td><td><code>w-[calc(100vw-16px)] sm:w-[380px]</code></td><td>15</td></tr>
+      <tr><td>TrialBanner</td><td><code>whitespace-nowrap</code> overflow</td><td>Wrap + stack mobile</td><td>16</td></tr>
+      <tr><td>Settings tabs</td><td>Tabs row overflow</td><td>Scroll horizontal con touch</td><td>17</td></tr>
+      <tr><td>Settings dialogs</td><td>Width fija</td><td><code>w-[calc(100vw-16px)] sm:max-w-md</code></td><td>18</td></tr>
+      <tr><td>LocationsGrid + Sedes</td><td>Grid sin <code>grid-cols-1</code></td><td>Mobile-first grid</td><td>19</td></tr>
+      <tr><td>EmptyState/ErrorState</td><td>Padding <code>p-12</code></td><td>Responsive padding</td><td>20</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4 · User flow — navegación móvil</h2>
+  <p>Todos los puntos de entrada y caminos del usuario en mobile. Bottom nav siempre visible (excepto modales/sheets fullscreen).</p>
+
+  <div class="flow">
+    <svg viewBox="0 0 1100 720" width="100%" xmlns="http://www.w3.org/2000/svg" style="font-family:inherit; font-size:13px">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10 Z" fill="#475569"/>
+        </marker>
+        <style>
+          .node { fill: white; stroke: #cbd5e1; stroke-width: 1.5; }
+          .node-primary { fill: #dbeafe; stroke: #1e3a8a; }
+          .node-action { fill: #fef9c3; stroke: #ca8a04; }
+          .node-end { fill: #dcfce7; stroke: #16a34a; }
+          .label { fill: #0f172a; font-size: 12px; font-weight: 600; }
+          .sublabel { fill: #64748b; font-size: 11px; }
+          .edge { fill: none; stroke: #475569; stroke-width: 1.4; }
+          .edge-label { fill: #64748b; font-size: 11px; }
+        </style>
+      </defs>
+
+      <text x="20" y="24" font-weight="700" fill="#0f172a">Flujo de navegación móvil (autenticado)</text>
+
+      <rect x="20" y="50" width="160" height="60" rx="10" class="node node-primary"/>
+      <text x="100" y="78" text-anchor="middle" class="label">Login</text>
+      <text x="100" y="96" text-anchor="middle" class="sublabel">/login</text>
+
+      <rect x="240" y="50" width="180" height="60" rx="10" class="node node-primary"/>
+      <text x="330" y="78" text-anchor="middle" class="label">Dashboard</text>
+      <text x="330" y="96" text-anchor="middle" class="sublabel">/ — entrada principal</text>
+
+      <path class="edge" d="M 180 80 L 240 80" marker-end="url(#arrow)"/>
+
+      <rect x="480" y="20" width="140" height="50" rx="10" class="node"/>
+      <text x="550" y="50" text-anchor="middle" class="label">Sedes</text>
+
+      <rect x="480" y="80" width="140" height="50" rx="10" class="node"/>
+      <text x="550" y="110" text-anchor="middle" class="label">Permisos</text>
+
+      <rect x="480" y="140" width="140" height="50" rx="10" class="node"/>
+      <text x="550" y="170" text-anchor="middle" class="label">Renovaciones</text>
+
+      <rect x="480" y="200" width="140" height="50" rx="10" class="node node-action"/>
+      <text x="550" y="230" text-anchor="middle" class="label">Más (sheet)</text>
+
+      <path class="edge" d="M 420 80 C 450 80 450 45 480 45" marker-end="url(#arrow)"/>
+      <path class="edge" d="M 420 80 L 480 105" marker-end="url(#arrow)"/>
+      <path class="edge" d="M 420 80 C 450 80 450 165 480 165" marker-end="url(#arrow)"/>
+      <path class="edge" d="M 420 80 C 450 80 450 225 480 225" marker-end="url(#arrow)"/>
+      <text x="440" y="35" class="edge-label">tabs</text>
+
+      <rect x="680" y="170" width="180" height="40" rx="8" class="node"/>
+      <text x="770" y="195" text-anchor="middle" class="label">Mapa Interactivo</text>
+      <rect x="680" y="220" width="180" height="40" rx="8" class="node"/>
+      <text x="770" y="245" text-anchor="middle" class="label">Marco Legal</text>
+      <rect x="680" y="270" width="180" height="40" rx="8" class="node"/>
+      <text x="770" y="295" text-anchor="middle" class="label">Configuración</text>
+      <rect x="680" y="320" width="180" height="40" rx="8" class="node node-action"/>
+      <text x="770" y="345" text-anchor="middle" class="label">Cerrar sesión</text>
+
+      <path class="edge" d="M 620 225 L 680 190" marker-end="url(#arrow)"/>
+      <path class="edge" d="M 620 225 L 680 240" marker-end="url(#arrow)"/>
+      <path class="edge" d="M 620 225 L 680 290" marker-end="url(#arrow)"/>
+      <path class="edge" d="M 620 225 L 680 340" marker-end="url(#arrow)"/>
+
+      <rect x="240" y="180" width="180" height="50" rx="10" class="node node-action"/>
+      <text x="330" y="210" text-anchor="middle" class="label">Notificaciones (sheet)</text>
+
+      <path class="edge" d="M 330 110 L 330 180" marker-end="url(#arrow)"/>
+      <text x="345" y="148" class="edge-label">tap 🔔</text>
+
+      <rect x="240" y="280" width="180" height="50" rx="10" class="node"/>
+      <text x="330" y="310" text-anchor="middle" class="label">+ Nuevo permiso</text>
+
+      <path class="edge" d="M 330 110 C 330 200 330 220 330 280" marker-end="url(#arrow)"/>
+      <text x="345" y="248" class="edge-label">CTA primary</text>
+
+      <rect x="240" y="380" width="180" height="50" rx="10" class="node node-end"/>
+      <text x="330" y="410" text-anchor="middle" class="label">Permiso creado</text>
+
+      <path class="edge" d="M 330 330 L 330 380" marker-end="url(#arrow)"/>
+
+      <rect x="20" y="480" width="180" height="50" rx="10" class="node"/>
+      <text x="110" y="510" text-anchor="middle" class="label">Permit list</text>
+
+      <rect x="240" y="480" width="180" height="50" rx="10" class="node"/>
+      <text x="330" y="510" text-anchor="middle" class="label">Card mobile</text>
+      <text x="330" y="528" text-anchor="middle" class="sublabel">tabla en ≥md</text>
+
+      <rect x="460" y="480" width="180" height="50" rx="10" class="node"/>
+      <text x="550" y="510" text-anchor="middle" class="label">Permit detail</text>
+
+      <rect x="680" y="450" width="180" height="40" rx="8" class="node node-action"/>
+      <text x="770" y="475" text-anchor="middle" class="label">Renovar</text>
+      <rect x="680" y="500" width="180" height="40" rx="8" class="node node-action"/>
+      <text x="770" y="525" text-anchor="middle" class="label">Subir documento</text>
+
+      <path class="edge" d="M 200 505 L 240 505" marker-end="url(#arrow)"/>
+      <path class="edge" d="M 420 505 L 460 505" marker-end="url(#arrow)"/>
+      <path class="edge" d="M 640 505 L 680 470" marker-end="url(#arrow)"/>
+      <path class="edge" d="M 640 505 L 680 520" marker-end="url(#arrow)"/>
+
+      <rect x="20" y="600" width="180" height="50" rx="10" class="node"/>
+      <text x="110" y="625" text-anchor="middle" class="label">Marco Legal</text>
+      <text x="110" y="643" text-anchor="middle" class="sublabel">accordion mobile</text>
+
+      <rect x="240" y="600" width="180" height="50" rx="10" class="node"/>
+      <text x="330" y="625" text-anchor="middle" class="label">Permiso detalle</text>
+
+      <path class="edge" d="M 200 625 L 240 625" marker-end="url(#arrow)"/>
+
+      <rect x="460" y="600" width="180" height="50" rx="10" class="node"/>
+      <text x="550" y="625" text-anchor="middle" class="label">Mapa Interactivo</text>
+      <text x="550" y="643" text-anchor="middle" class="sublabel">leyenda en sheet</text>
+
+      <rect x="680" y="600" width="180" height="50" rx="10" class="node"/>
+      <text x="770" y="625" text-anchor="middle" class="label">Configuración</text>
+      <text x="770" y="643" text-anchor="middle" class="sublabel">tabs scroll-x</text>
+
+      <text x="20" y="700" class="edge-label">Leyenda: <tspan fill="#1e3a8a">azul</tspan> = pantalla principal · <tspan fill="#ca8a04">amarillo</tspan> = sheet/modal · <tspan fill="#16a34a">verde</tspan> = estado final · gris = nav secundaria</text>
+    </svg>
+  </div>
+
+  <h2>5 · Tasks</h2>
+  <details><summary>Task 1 · Sheet primitive</summary><p>Crear <code>src/components/ui/sheet.tsx</code> con tests TDD: render, escape close, overlay close.</p></details>
+  <details><summary>Task 2 · MobileBottomNav</summary><p>5 tabs (Dashboard/Sedes/Permisos/Renovaciones/Más). <code>aria-current="page"</code> en activa. <code>safe-area-inset-bottom</code>.</p></details>
+  <details><summary>Task 3 · MoreSheet</summary><p>Bottom sheet con Mapa, Marco Legal, Settings, Logout. Cierre al click en link.</p></details>
+  <details><summary>Task 4 · Wire en AppLayout</summary><p>Hide hamburger en mobile, agregar bottom nav + sheet, padding-bottom main.</p></details>
+  <details><summary>Task 5 · Dashboard responsive</summary><p>Stack CTAs, hero <code>minmax(0,380px)</code>, gauge clamp, padding fluido.</p></details>
+  <details><summary>Task 6 · PermitCardList + PermitListView</summary><p>Card list <code>&lt;md</code> + stack header CTAs.</p></details>
+  <details><summary>Task 7 · PermitTableFilters collapsible</summary><p>Search siempre visible, selects en toggle "Filtros" mobile.</p></details>
+  <details><summary>Task 8 · PermitDetailView</summary><p>Stack botones acción, padding fluido.</p></details>
+  <details><summary>Task 9 · PermitCreateView</summary><p>Form 1-col mobile, CTAs stack reverse.</p></details>
+  <details><summary>Task 10 · RenewalGridView</summary><p>Grid <code>1/2/3</code> con breakpoint <code>sm</code>.</p></details>
+  <details><summary>Task 11 · LegalMatrixAccordion</summary><p>Accordion mobile (chips de business types) + scroll-x desktop.</p></details>
+  <details><summary>Task 12 · LegalIndexView</summary><p>Grid <code>sm:grid-cols-2</code>.</p></details>
+  <details><summary>Task 13 · LocationDetailView</summary><p>KPI grid <code>sm:grid-cols-3</code>, stack header.</p></details>
+  <details><summary>Task 14 · NetworkMapPage</summary><p><code>100dvh</code> height, leyenda como bottom sheet con FAB.</p></details>
+  <details><summary>Task 15 · NotificationBell fluid</summary><p>Width <code>calc(100vw-16px) sm:380px</code>.</p></details>
+  <details><summary>Task 16 · TrialBanner</summary><p>Eliminar <code>whitespace-nowrap</code>, stack mobile.</p></details>
+  <details><summary>Task 17 · SettingsView tabs</summary><p>Tabs scroll horizontal, forms 1-col mobile.</p></details>
+  <details><summary>Task 18 · Settings dialogs</summary><p>Width fluida + stack botones.</p></details>
+  <details><summary>Task 19 · LocationsGrid</summary><p>Mobile-first grid <code>1/2/3</code>.</p></details>
+  <details><summary>Task 20 · EmptyState / ErrorState</summary><p>Padding responsive <code>p-6 sm:p-12</code>.</p></details>
+  <details><summary>Task 21 · AppLayout limpieza</summary><p>Quitar drawer/overlay mobile, eliminar import <code>Menu</code> si unused.</p></details>
+  <details><summary>Task 22 · Smoke test multi-viewport</summary><p>360/375/414/768/1024/1280/1440. Walk all routes.</p></details>
+  <details><summary>Task 23 · Unit + tsc + lint</summary><p>Ejecutar full suite.</p></details>
+  <details><summary>Task 24 · Lighthouse mobile a11y</summary><p>Score ≥90 en /, /permisos, /marco-legal.</p></details>
+  <details><summary>Task 25 · Code review medium</summary><p>Skill <code>code-review</code> default effort.</p></details>
+  <details><summary>Task 26 · Ultra review high</summary><p>Skill <code>code-review</code> effort=high + smoke regression.</p></details>
+
+  <h2>6 · Riesgos & rollback</h2>
+  <ul>
+    <li><strong>No backend changes</strong> — solo CSS/layout, riesgo bajo.</li>
+    <li><strong>Frequent commits</strong> — 1 por task, rollback trivial via <code>git revert</code>.</li>
+    <li><strong>Sin breaking</strong> — desktop UX intacta. Solo se restringe el sidebar a <code>≥lg</code>.</li>
+    <li><strong>Smoke + Lighthouse + 2 reviews</strong> antes de merge.</li>
+  </ul>
+
+  <p class="small" style="margin-top:32px">Plan canónico (markdown): <code>docs/superpowers/plans/2026-05-22-mobile-redesign.md</code></p>
+</div>
+</body>
+</html>
