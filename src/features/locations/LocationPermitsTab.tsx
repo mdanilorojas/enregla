@@ -3,6 +3,15 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { FileText, Plus, ArrowRight, RefreshCw } from '@/lib/lucide-icons'
+import { permitTypeLabel } from '@/lib/domain/permit-types'
+
+const STATUS_LABELS: Record<string, string> = {
+  vigente: 'Vigente',
+  por_vencer: 'Por vencer',
+  vencido: 'Vencido',
+  en_tramite: 'En trámite',
+  no_registrado: 'No registrado',
+}
 
 export interface LocationPermitSummary {
   id: string
@@ -69,7 +78,7 @@ export function LocationPermitsTab({ locationId, permits, onRenew }: LocationPer
               className="flex items-center justify-between gap-[var(--ds-space-150)] p-[var(--ds-space-200)] bg-white rounded-[var(--ds-radius-200)] border border-[var(--ds-border)] hover:border-[var(--ds-border-bold)] transition-colors"
             >
               <Link to={`/permisos/${permit.id}`} className="flex-1 min-w-0">
-                <div className="font-medium text-[var(--ds-font-size-100)]">{permit.type}</div>
+                <div className="font-medium text-[var(--ds-font-size-100)]">{permitTypeLabel(permit.type)}</div>
                 {permit.expires_at && (
                   <div className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)]">
                     Vence: {new Date(permit.expires_at).toLocaleDateString('es-EC')}
@@ -77,13 +86,13 @@ export function LocationPermitsTab({ locationId, permits, onRenew }: LocationPer
                 )}
               </Link>
               <div className="flex items-center gap-[var(--ds-space-100)]">
-                <Badge variant={statusVariant}>{permit.status.replace('_', ' ')}</Badge>
+                <Badge variant={statusVariant}>{STATUS_LABELS[permit.status] ?? permit.status}</Badge>
                 {canRenew && (
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => onRenew(permit.id)}
-                    aria-label={`Renovar ${permit.type}`}
+                    aria-label={`Renovar ${permitTypeLabel(permit.type)}`}
                   >
                     <RefreshCw className="w-4 h-4" />Renovar
                   </Button>

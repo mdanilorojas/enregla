@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Eye, Edit, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from '@/lib/lucide-icons'
+import { permitTypeLabel } from '@/lib/domain/permit-types'
 
 export interface PermitRow {
   id: string
@@ -24,6 +25,14 @@ export interface PermitRow {
   expires_at: string | null
   authority: string
   responsible: string
+}
+
+const STATUS_LABELS: Record<PermitRow['status'], string> = {
+  vigente: 'Vigente',
+  por_vencer: 'Por vencer',
+  vencido: 'Vencido',
+  en_tramite: 'En trámite',
+  no_registrado: 'No registrado',
 }
 
 const columnHelper = createColumnHelper<PermitRow>()
@@ -40,7 +49,10 @@ export function PermitTable({ data }: PermitTableProps) {
       header: 'Sede',
       cell: info => <span className="font-medium">{info.getValue()}</span>,
     }),
-    columnHelper.accessor('type', { header: 'Tipo' }),
+    columnHelper.accessor('type', {
+      header: 'Tipo',
+      cell: info => permitTypeLabel(info.getValue()),
+    }),
     columnHelper.accessor('status', {
       header: 'Estado',
       cell: info => {
@@ -52,7 +64,7 @@ export function PermitTable({ data }: PermitTableProps) {
           en_tramite: 'status-en-tramite' as const,
           no_registrado: 'status-no-registrado' as const,
         }[status]
-        return <Badge variant={variant}>{status.replace('_', ' ')}</Badge>
+        return <Badge variant={variant}>{STATUS_LABELS[status]}</Badge>
       },
     }),
     columnHelper.accessor('expires_at', {

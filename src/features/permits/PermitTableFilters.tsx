@@ -1,5 +1,14 @@
 import { useState } from 'react'
 import { Search, SlidersHorizontal, X } from '@/lib/lucide-icons'
+import { permitTypeLabel } from '@/lib/domain/permit-types'
+
+const STATUS_LABELS: Record<string, string> = {
+  vigente: 'Vigente',
+  por_vencer: 'Por vencer',
+  vencido: 'Vencido',
+  en_tramite: 'En trámite',
+  no_registrado: 'No registrado',
+}
 
 export interface FilterState {
   search: string
@@ -67,13 +76,13 @@ export function PermitTableFilters({
           <FilterSelect
             value={filters.status}
             onChange={v => update({ status: v })}
-            options={availableStatuses.map(s => ({ value: s, label: s }))}
+            options={availableStatuses.map(s => ({ value: s, label: STATUS_LABELS[s] ?? s }))}
             placeholder="Todos los estados"
           />
           <FilterSelect
             value={filters.type}
             onChange={v => update({ type: v })}
-            options={availableTypes.map(t => ({ value: t, label: t }))}
+            options={availableTypes.map(t => ({ value: t, label: permitTypeLabel(t) }))}
             placeholder="Todos los tipos"
           />
           <FilterSelect
@@ -90,14 +99,14 @@ export function PermitTableFilters({
           <FilterSelect
             value={filters.status}
             onChange={v => update({ status: v })}
-            options={availableStatuses.map(s => ({ value: s, label: s }))}
+            options={availableStatuses.map(s => ({ value: s, label: STATUS_LABELS[s] ?? s }))}
             placeholder="Todos los estados"
             fullWidth
           />
           <FilterSelect
             value={filters.type}
             onChange={v => update({ type: v })}
-            options={availableTypes.map(t => ({ value: t, label: t }))}
+            options={availableTypes.map(t => ({ value: t, label: permitTypeLabel(t) }))}
             placeholder="Todos los tipos"
             fullWidth
           />

@@ -2,7 +2,16 @@ import { Link } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Eye, Edit } from '@/lib/lucide-icons'
+import { permitTypeLabel } from '@/lib/domain/permit-types'
 import type { PermitRow } from './PermitTable'
+
+const STATUS_LABELS: Record<PermitRow['status'], string> = {
+  vigente: 'Vigente',
+  por_vencer: 'Por vencer',
+  vencido: 'Vencido',
+  en_tramite: 'En trámite',
+  no_registrado: 'No registrado',
+}
 
 const STATUS_VARIANT: Record<
   PermitRow['status'],
@@ -38,14 +47,14 @@ export function PermitCardList({ data }: PermitCardListProps) {
           <div className="flex items-start justify-between gap-[var(--ds-space-150)] mb-[var(--ds-space-100)]">
             <div className="min-w-0">
               <p className="text-[var(--ds-font-size-100)] font-semibold text-[var(--ds-text)] break-words">
-                {row.type}
+                {permitTypeLabel(row.type)}
               </p>
               <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] truncate">
                 {row.location}
               </p>
             </div>
             <Badge variant={STATUS_VARIANT[row.status]}>
-              {row.status.replace('_', ' ')}
+              {STATUS_LABELS[row.status]}
             </Badge>
           </div>
 

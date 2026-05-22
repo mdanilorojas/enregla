@@ -14,6 +14,9 @@ import { PermitTable, type PermitRow } from './PermitTable';
 import { PermitCardList } from './PermitCardList';
 import { PermitTableFilters, type FilterState } from './PermitTableFilters';
 import { exportPermitsCSV } from './exportPermitsCSV';
+import { useIssuers } from '@/lib/domain/issuers';
+import { usePermitRequirements } from '@/lib/domain/permit-requirements';
+import { useCompany } from '@/hooks/useCompany';
 
 export function PermitListView() {
   const { profile } = useAuth();
@@ -22,6 +25,21 @@ export function PermitListView() {
   const { locations, loading: loadingLocations, error: locationsError } = useLocations(companyId);
   const { permits, loading: loadingPermits, error: permitsError, refetch: refetchPermits } =
     usePermits({ companyId });
+  const { data: company } = useCompany(companyId);
+  const { data: issuers } = useIssuers();
+  const { data: requirements } = usePermitRequirements(company?.business_type ?? undefined);
+
+  const issuerByPermitType = useMemo(() => {
+    const issuerById = new Map((issuers ?? []).map(i => [i.id, i]));
+    const map = new Map<string, string>();
+    for (const r of requirements ?? []) {
+      if (r.issuer_id && !map.has(r.permit_type)) {
+        const iss = issuerById.get(r.issuer_id);
+        if (iss) map.set(r.permit_type, iss.short_name);
+      }
+    }
+    return map;
+  }, [issuers, requirements]);
 
   const [filters, setFilters] = useState<FilterState>({
     search: '',
@@ -37,6 +55,7 @@ export function PermitListView() {
       .filter(p => p.is_active)
       .map(p => {
         const loc = locations.find(l => l.id === p.location_id);
+        const fallbackIssuer = p.type ? issuerByPermitType.get(p.type) : undefined;
         return {
           id: p.id,
           location: loc?.name ?? 'Sin sede',
@@ -44,11 +63,11 @@ export function PermitListView() {
           type: p.type ?? 'Sin tipo',
           status: (p.status as PermitRow['status']) ?? 'no_registrado',
           expires_at: p.expiry_date,
-          authority: p.issuer ?? 'Sin autoridad',
+          authority: p.issuer ?? fallbackIssuer ?? 'Sin autoridad',
           responsible: '-',
         };
       });
-  }, [permits, locations]);
+  }, [permits, locations, issuerByPermitType]);
 
   const filtered = useMemo(() => {
     return rows.filter(r => {

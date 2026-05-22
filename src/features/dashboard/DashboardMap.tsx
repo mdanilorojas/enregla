@@ -22,6 +22,7 @@ export interface DashboardMapProps {
   empresaName: string
   sedes: SedeMapData[]
   fillParent?: boolean
+  onSedeClick?: (sedeId: string) => void
 }
 
 const HUB_W = 200
@@ -36,7 +37,7 @@ function radiusFor(n: number) {
   return 380 + (n - 8) * 28
 }
 
-export function DashboardMap({ empresaName, sedes, fillParent = false }: DashboardMapProps) {
+export function DashboardMap({ empresaName, sedes, fillParent = false, onSedeClick }: DashboardMapProps) {
   const { nodes, edges } = useMemo(() => {
     const centerX = 0
     const centerY = 0
@@ -98,6 +99,9 @@ export function DashboardMap({ empresaName, sedes, fillParent = false }: Dashboa
         nodesDraggable
         nodesConnectable={false}
         elementsSelectable
+        onNodeClick={(_, node) => {
+          if (node.type === 'sede') onSedeClick?.(node.id)
+        }}
         proOptions={{ hideAttribution: true }}
       >
         <Background

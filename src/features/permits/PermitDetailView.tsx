@@ -25,6 +25,10 @@ import {
   RefreshCw,
 } from '@/lib/lucide-icons';
 import { RenewPermitModal } from '@/features/locations/RenewPermitModal';
+import { permitTypeLabel } from '@/lib/domain/permit-types';
+import { useIssuers } from '@/lib/domain/issuers';
+import { useCompany } from '@/hooks/useCompany';
+import { useRequirementFor } from '@/lib/domain/permit-requirements';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { deleteDocument } from '@/lib/api/documents';
@@ -51,6 +55,8 @@ export function PermitDetailView() {
 
   const { permits, loading: loadingPermits, updatePermit } = usePermits({ companyId });
   const { locations, loading: loadingLocations } = useLocations(companyId);
+  const { data: company } = useCompany(companyId);
+  const { data: issuers } = useIssuers();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loadingDocs, setLoadingDocs] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -77,6 +83,7 @@ export function PermitDetailView() {
     () => (permit ? locations.find((l) => l.id === permit.location_id) : null),
     [permit, locations]
   );
+  const requirement = useRequirementFor(permit?.type ?? '', company?.business_type);
 
   const fetchDocuments = useCallback(() => {
     if (id) {
@@ -237,9 +244,13 @@ export function PermitDetailView() {
   const isExpired = permit.status === 'vencido';
   const isExpiring = permit.status === 'por_vencer';
 
-  const permitType = permit.type ?? 'Permiso';
+  const permitType = permitTypeLabel(permit.type);
   const permitNumber = permit.permit_number ?? '-';
-  const authority = permit.issuer ?? '-';
+  const fallbackIssuer = (() => {
+    if (!requirement?.issuer_id || !issuers) return null;
+    return issuers.find((i) => i.id === requirement.issuer_id)?.short_name ?? null;
+  })();
+  const authority = permit.issuer ?? fallbackIssuer ?? '-';
   const statusLabel = PERMIT_STATUS_LABELS[permit.status] ?? (permit.status as string).replace('_', ' ');
 
   return (

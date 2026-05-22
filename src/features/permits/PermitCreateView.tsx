@@ -10,6 +10,7 @@ import { useLocations } from '@/hooks/useLocations'
 import { useCompany } from '@/hooks/useCompany'
 import { resolveCompanyId } from '@/lib/demo'
 import { usePermitRequirements } from '@/lib/domain/permit-requirements'
+import { permitTypeLabel } from '@/lib/domain/permit-types'
 import { supabase } from '@/lib/supabase'
 import { ArrowLeft } from '@/lib/lucide-icons'
 
@@ -40,7 +41,7 @@ export function PermitCreateView() {
     if (!requirements) return []
     return requirements.map((r) => ({
       value: r.permit_type,
-      label: r.permit_type,
+      label: permitTypeLabel(r.permit_type),
     }))
   }, [requirements])
 

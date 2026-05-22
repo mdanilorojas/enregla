@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useLocations } from '@/hooks/useLocations'
 import { usePermits } from '@/hooks/usePermits'
+import { useCompany } from '@/hooks/useCompany'
 import { resolveCompanyId } from '@/lib/demo'
 import { NetworkMapCanvas } from './NetworkMapCanvas'
 import { MapLegend } from './MapLegend'
@@ -12,9 +14,11 @@ import type { SedeMapData } from '@/features/dashboard/DashboardMap'
 export function NetworkMapPage() {
   const { profile } = useAuth()
   const companyId = resolveCompanyId(profile?.company_id) ?? undefined
+  const navigate = useNavigate()
 
   const { locations } = useLocations(companyId)
   const { permits } = usePermits({ companyId })
+  const { data: company } = useCompany(companyId)
   const [legendOpen, setLegendOpen] = useState(false)
 
   const sedes = useMemo<SedeMapData[]>(() => {
@@ -49,8 +53,9 @@ export function NetworkMapPage() {
         style={{ height: 'calc(100dvh - 200px)', minHeight: 480 }}
       >
         <NetworkMapCanvas
-          empresaName={(profile as { company_name?: string } | null)?.company_name || 'EnRegla Corp'}
+          empresaName={company?.name ?? 'Mi empresa'}
           sedes={sedes}
+          onSedeClick={(id) => navigate(`/sedes/${id}`)}
         />
         <div className="hidden lg:block absolute top-[var(--ds-space-300)] right-[var(--ds-space-300)] w-[220px] z-10">
           <MapLegend />

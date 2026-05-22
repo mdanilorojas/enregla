@@ -10,6 +10,7 @@ import { LocationsGrid } from '@/features/locations/LocationsGrid'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Button } from '@/components/ui/button'
 import { Building2, Plus, Download, AlertTriangle } from '@/lib/lucide-icons'
+import { permitTypeLabel } from '@/lib/domain/permit-types'
 import { SkeletonList } from '@/components/ui/skeleton'
 import { ErrorState } from '@/components/ui/error-state'
 import { OnboardingChecklist } from './OnboardingChecklist'
@@ -219,16 +220,17 @@ export function DashboardView() {
     const locName = permit.location_id
       ? locationsById.get(permit.location_id)?.name ?? 'Sin sede'
       : 'Sin sede'
+    const typeLabel = permitTypeLabel(permit.type)
     if (days < 0) {
       const abs = Math.abs(days)
       return {
-        title: `${permit.type} · ${locName}`,
+        title: `${typeLabel} · ${locName}`,
         tail: `venció hace ${abs} día${abs === 1 ? '' : 's'}`,
         isOverdue: true,
       }
     }
     return {
-      title: `${permit.type} · ${locName}`,
+      title: `${typeLabel} · ${locName}`,
       tail: `vence en ${days} día${days === 1 ? '' : 's'}`,
       isOverdue: false,
     }
@@ -503,7 +505,7 @@ function InvoiceCard({
           {topPending.map((line) => (
             <ReceiptLine
               key={line.permitId}
-              title={line.type}
+              title={permitTypeLabel(line.type)}
               subtitle={line.locationName}
               priceLabel={
                 line.hasCost

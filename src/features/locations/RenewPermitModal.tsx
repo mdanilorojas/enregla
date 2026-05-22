@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { renewPermit } from '@/lib/api/permits';
+import { permitTypeLabel } from '@/lib/domain/permit-types';
 import type { Permit } from '@/types/database';
 
 interface RenewPermitModalProps {
@@ -80,7 +81,7 @@ export function RenewPermitModal({ permit, open, onClose, onConfirm, onRenewed }
         <DialogHeader>
           <DialogTitle>Renovar Permiso</DialogTitle>
           <DialogDescription>
-            Actualiza la fecha de vencimiento del permiso: {permit?.type}
+            Actualiza la fecha de vencimiento del permiso: {permitTypeLabel(permit?.type)}
           </DialogDescription>
         </DialogHeader>
 
