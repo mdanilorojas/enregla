@@ -26,4 +26,40 @@ describe('Sheet', () => {
     fireEvent.keyDown(window, { key: 'Escape' })
     expect(onChange).toHaveBeenCalledWith(false)
   })
+
+  it('does not call onOpenChange on Escape when closed', () => {
+    const onChange = vi.fn()
+    render(<Sheet open={false} onOpenChange={onChange} side="bottom"><p>x</p></Sheet>)
+    fireEvent.keyDown(window, { key: 'Escape' })
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
+  it('moves focus to first focusable on open', () => {
+    render(
+      <Sheet open={true} onOpenChange={() => {}} side="bottom">
+        <button>first</button>
+        <button>second</button>
+      </Sheet>
+    )
+    expect(document.activeElement).toBe(screen.getByText('first'))
+  })
+
+  it('restores focus on close (unmount)', () => {
+    const trigger = document.createElement('button')
+    trigger.textContent = 'trigger'
+    document.body.appendChild(trigger)
+    trigger.focus()
+
+    const { rerender } = render(
+      <Sheet open={true} onOpenChange={() => {}} side="bottom">
+        <button>inside</button>
+      </Sheet>
+    )
+    expect(document.activeElement).toBe(screen.getByText('inside'))
+
+    rerender(<Sheet open={false} onOpenChange={() => {}} side="bottom"><button>inside</button></Sheet>)
+    expect(document.activeElement).toBe(trigger)
+
+    document.body.removeChild(trigger)
+  })
 })
