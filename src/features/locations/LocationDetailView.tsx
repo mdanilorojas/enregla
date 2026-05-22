@@ -13,14 +13,15 @@ import { LocationPermitsTab, type LocationPermitSummary } from './LocationPermit
 import { LocationDocumentsTab } from './LocationDocumentsTab';
 import { LocationHistoryTab } from './LocationHistoryTab';
 import { CheckCircle2, AlertTriangle, XCircle, Share2 } from '@/lib/lucide-icons';
+import { ErrorState } from '@/components/ui/error-state';
 import type { Permit } from '@/types/database';
 
 export function LocationDetailView() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { companyId } = useAuth();
-  const { locations, loading: loadingLocations } = useLocations(companyId);
-  const { permits, loading: loadingPermits, updatePermit } = usePermits({ companyId, locationId: id });
+  const { locations, loading: loadingLocations, error: locationsError, refetch: refetchLocations } = useLocations(companyId);
+  const { permits, loading: loadingPermits, error: permitsError, refetch: refetchPermits, updatePermit } = usePermits({ companyId, locationId: id });
 
   const [selectedPermit, setSelectedPermit] = useState<Permit | null>(null);
   const [renewModalOpen, setRenewModalOpen] = useState(false);
@@ -57,6 +58,23 @@ export function LocationDetailView() {
     );
   }
 
+  if (permitsError || locationsError) {
+    return (
+      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
+        <div className="max-w-7xl mx-auto">
+          <ErrorState
+            title="No pudimos cargar la sede"
+            error={permitsError ?? locationsError}
+            onRetry={() => {
+              void refetchPermits();
+              refetchLocations();
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
   if (!location) {
     return (
       <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
@@ -79,7 +97,7 @@ export function LocationDetailView() {
   void updatePermit;
 
   return (
-    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
+    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-200)] sm:p-[var(--ds-space-300)] lg:p-[var(--ds-space-400)]">
       <div className="max-w-7xl mx-auto space-y-[var(--ds-space-300)]">
         <Breadcrumb items={[
           { label: 'Inicio', href: '/' },
@@ -87,8 +105,8 @@ export function LocationDetailView() {
           { label: location.name },
         ]} />
 
-        <div className="flex items-start justify-between gap-[var(--ds-space-300)]">
-          <div>
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-[var(--ds-space-200)]">
+          <div className="min-w-0">
             <h1 className="text-[var(--ds-font-size-500)] font-bold text-[var(--ds-text)]">{location.name}</h1>
             {location.address && (
               <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)] mt-[var(--ds-space-075)]">
@@ -96,13 +114,15 @@ export function LocationDetailView() {
               </p>
             )}
           </div>
-          <Button variant="outline" onClick={() => setShareModalOpen(true)}>
-            <Share2 className="w-4 h-4" />
-            Generar QR
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-[var(--ds-space-100)] w-full lg:w-auto">
+            <Button variant="outline" onClick={() => setShareModalOpen(true)} className="w-full sm:w-auto">
+              <Share2 className="w-4 h-4" />
+              Generar QR
+            </Button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-[var(--ds-space-300)]">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-[var(--ds-space-300)]">
           <Card className="p-[var(--ds-space-300)]">
             <div className="flex items-center gap-[var(--ds-space-100)] text-[var(--ds-green-600)]">
               <CheckCircle2 className="w-5 h-5" />
