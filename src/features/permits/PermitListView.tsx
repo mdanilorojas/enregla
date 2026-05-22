@@ -9,7 +9,9 @@ import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { FileText, Plus, Download } from '@/lib/lucide-icons';
 import { SkeletonList } from '@/components/ui/skeleton';
+import { ErrorState } from '@/components/ui/error-state';
 import { PermitTable, type PermitRow } from './PermitTable';
+import { PermitCardList } from './PermitCardList';
 import { PermitTableFilters, type FilterState } from './PermitTableFilters';
 import { exportPermitsCSV } from './exportPermitsCSV';
 
@@ -17,8 +19,9 @@ export function PermitListView() {
   const { profile } = useAuth();
   const companyId = resolveCompanyId(profile?.company_id) ?? undefined;
 
-  const { locations, loading: loadingLocations } = useLocations(companyId);
-  const { permits, loading: loadingPermits } = usePermits({ companyId });
+  const { locations, loading: loadingLocations, error: locationsError } = useLocations(companyId);
+  const { permits, loading: loadingPermits, error: permitsError, refetch: refetchPermits } =
+    usePermits({ companyId });
 
   const [filters, setFilters] = useState<FilterState>({
     search: '',
@@ -68,26 +71,30 @@ export function PermitListView() {
   const types = useMemo(() => Array.from(new Set(rows.map(r => r.type))), [rows]);
 
   return (
-    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
+    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-200)] sm:p-[var(--ds-space-300)] lg:p-[var(--ds-space-400)]">
       <div className="max-w-7xl mx-auto space-y-[var(--ds-space-300)]">
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-[var(--ds-font-size-500)] font-bold text-[var(--ds-text)]">
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-[var(--ds-space-200)]">
+          <div className="min-w-0">
+            <h1 className="text-[var(--ds-font-size-400)] sm:text-[var(--ds-font-size-500)] font-bold text-[var(--ds-text)]">
               Permisos
             </h1>
             <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)] mt-[var(--ds-space-050)]">
               {rows.length} permisos registrados
             </p>
           </div>
-          <div className="flex gap-[var(--ds-space-100)]">
-            <Button variant="outline" onClick={() => exportPermitsCSV(filtered)}>
-              <Download className="w-4 h-4" />Exportar CSV
-            </Button>
-            <Link to="/permisos/nuevo">
-              <Button variant="default">
+          <div className="flex flex-col sm:flex-row gap-[var(--ds-space-100)] w-full lg:w-auto">
+            <Link to="/permisos/nuevo" className="w-full sm:w-auto order-1 sm:order-2">
+              <Button variant="default" className="w-full">
                 <Plus className="w-4 h-4" />Nuevo Permiso
               </Button>
             </Link>
+            <Button
+              variant="outline"
+              onClick={() => exportPermitsCSV(filtered)}
+              className="w-full sm:w-auto order-2 sm:order-1"
+            >
+              <Download className="w-4 h-4" />Exportar CSV
+            </Button>
           </div>
         </div>
 
@@ -105,6 +112,14 @@ export function PermitListView() {
           <Card className="p-[var(--ds-space-300)]" aria-busy="true" aria-label="Cargando permisos">
             <SkeletonList count={5} />
           </Card>
+        ) : permitsError || locationsError ? (
+          <ErrorState
+            title="No pudimos cargar los permisos"
+            error={permitsError ?? locationsError}
+            onRetry={() => {
+              void refetchPermits();
+            }}
+          />
         ) : rows.length === 0 ? (
           <Card className="p-0">
             <EmptyState
@@ -121,7 +136,14 @@ export function PermitListView() {
             />
           </Card>
         ) : (
-          <PermitTable data={filtered} />
+          <>
+            <div className="hidden md:block">
+              <PermitTable data={filtered} />
+            </div>
+            <div className="md:hidden">
+              <PermitCardList data={filtered} />
+            </div>
+          </>
         )}
       </div>
     </div>
