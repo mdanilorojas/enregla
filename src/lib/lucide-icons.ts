@@ -48,6 +48,7 @@ export {
   // Data
   Search,
   Filter,
+  SlidersHorizontal,
   Calendar,
   CalendarClock,
   Clock,
@@ -74,6 +75,7 @@ export {
   BellOff,
   Shield,
   Lock,
+  KeyRound,
   QrCode,
 
   // Misc

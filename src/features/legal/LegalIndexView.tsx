@@ -101,7 +101,7 @@ export function LegalIndexView() {
   const hasBusinessType = !!company?.business_type;
 
   return (
-    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
+    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-200)] sm:p-[var(--ds-space-300)] lg:p-[var(--ds-space-400)]">
       <div className="max-w-6xl mx-auto space-y-[var(--ds-space-300)]">
         <header>
           <div className="flex items-center gap-[var(--ds-space-200)]">
@@ -181,7 +181,7 @@ export function LegalIndexView() {
                 ? `Mostrando todos los permisos (${results.length})`
                 : `${results.length} permiso${results.length === 1 ? '' : 's'} en esta categoría`}
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-[var(--ds-space-200)]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-[var(--ds-space-200)]">
               {results.map((ref) => (
                 <PermitCard key={ref.permitType} reference={ref} />
               ))}

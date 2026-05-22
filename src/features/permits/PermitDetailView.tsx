@@ -188,7 +188,7 @@ export function PermitDetailView() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
+      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-200)] sm:p-[var(--ds-space-300)] lg:p-[var(--ds-space-400)]">
         <div className="max-w-7xl mx-auto space-y-[var(--ds-space-300)]">
           <div className="h-10 bg-[var(--ds-neutral-100)] rounded animate-pulse w-40" />
           <div className="h-16 bg-[var(--ds-neutral-100)] rounded animate-pulse" />
@@ -203,7 +203,7 @@ export function PermitDetailView() {
 
   if (!permit) {
     return (
-      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
+      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-200)] sm:p-[var(--ds-space-300)] lg:p-[var(--ds-space-400)]">
         <div className="max-w-7xl mx-auto space-y-[var(--ds-space-300)]">
           <Breadcrumb
             items={[
@@ -243,7 +243,7 @@ export function PermitDetailView() {
   const statusLabel = PERMIT_STATUS_LABELS[permit.status] ?? (permit.status as string).replace('_', ' ');
 
   return (
-    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
+    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-200)] sm:p-[var(--ds-space-300)] lg:p-[var(--ds-space-400)]">
       <div className="max-w-7xl mx-auto space-y-[var(--ds-space-300)]">
         <Breadcrumb
           items={[
@@ -253,16 +253,16 @@ export function PermitDetailView() {
           ]}
         />
 
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-[var(--ds-font-size-500)] font-bold text-[var(--ds-text)]">
+        <div className="flex flex-col gap-[var(--ds-space-150)] lg:flex-row lg:justify-between lg:items-start">
+          <div className="min-w-0">
+            <h1 className="text-[var(--ds-font-size-400)] sm:text-[var(--ds-font-size-500)] font-bold text-[var(--ds-text)] break-words">
               {permitType}
             </h1>
-            <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)] font-mono mt-[var(--ds-space-050)]">
+            <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)] font-mono mt-[var(--ds-space-050)] break-all">
               {permitNumber}
             </p>
           </div>
-          <div className="flex gap-[var(--ds-space-100)]">
+          <div className="flex flex-col sm:flex-row-reverse gap-[var(--ds-space-100)] w-full lg:w-auto">
             <input
               ref={headerFileInputRef}
               type="file"
@@ -271,18 +271,20 @@ export function PermitDetailView() {
               onChange={handleFileInput}
             />
             <Button
-              variant="outline"
-              onClick={() => setRenewOpen(true)}
-            >
-              <RefreshCw className="w-4 h-4" />
-              Renovar
-            </Button>
-            <Button
               variant="default"
               onClick={() => headerFileInputRef.current?.click()}
+              className="w-full sm:w-auto"
             >
               <Upload className="w-4 h-4" />
               Subir documento
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setRenewOpen(true)}
+              className="w-full sm:w-auto"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Renovar
             </Button>
           </div>
         </div>

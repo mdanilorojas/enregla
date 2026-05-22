@@ -88,8 +88,8 @@ export function PermitCreateView() {
 
   if (!companyId) {
     return (
-      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
-        <Card className="p-[var(--ds-space-400)] max-w-2xl mx-auto">
+      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-200)] sm:p-[var(--ds-space-300)] lg:p-[var(--ds-space-400)]">
+        <Card className="p-[var(--ds-space-300)] sm:p-[var(--ds-space-400)] max-w-2xl mx-auto">
           <Banner variant="warning">No tienes una empresa configurada.</Banner>
         </Card>
       </div>
@@ -97,7 +97,7 @@ export function PermitCreateView() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
+    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-200)] sm:p-[var(--ds-space-300)] lg:p-[var(--ds-space-400)]">
       <div className="max-w-2xl mx-auto space-y-[var(--ds-space-300)]">
         <Link to="/permisos" className="inline-flex items-center gap-[var(--ds-space-100)] text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)] hover:text-[var(--ds-text)]">
           <ArrowLeft className="w-4 h-4" />Volver a permisos
@@ -110,7 +110,7 @@ export function PermitCreateView() {
           </p>
         </div>
 
-        <Card className="p-[var(--ds-space-400)]">
+        <Card className="p-[var(--ds-space-300)] sm:p-[var(--ds-space-400)]">
           {error && (
             <div className="mb-[var(--ds-space-300)]">
               <Banner variant="error">{error}</Banner>
@@ -158,7 +158,7 @@ export function PermitCreateView() {
               <Input value={permitNumber} onChange={(e) => setPermitNumber(e.target.value)} disabled={saving} placeholder="Opcional" />
             </div>
 
-            <div className="grid grid-cols-2 gap-[var(--ds-space-200)]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-[var(--ds-space-200)]">
               <div>
                 <label className="block text-[var(--ds-font-size-075)] font-semibold mb-[var(--ds-space-050)]">Fecha de emisión</label>
                 <Input type="date" value={issueDate} onChange={(e) => setIssueDate(e.target.value)} disabled={saving} />
@@ -179,12 +179,12 @@ export function PermitCreateView() {
               <Input value={notes} onChange={(e) => setNotes(e.target.value)} disabled={saving} placeholder="Opcional" />
             </div>
 
-            <div className="flex gap-[var(--ds-space-100)]">
-              <Button type="submit" variant="default" disabled={!canSubmit}>
-                {saving ? 'Creando...' : 'Crear permiso'}
-              </Button>
-              <Button type="button" variant="outline" onClick={() => navigate(-1)} disabled={saving}>
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-[var(--ds-space-100)]">
+              <Button type="button" variant="outline" onClick={() => navigate(-1)} disabled={saving} className="w-full sm:w-auto">
                 Cancelar
+              </Button>
+              <Button type="submit" variant="default" disabled={!canSubmit} className="w-full sm:w-auto">
+                {saving ? 'Creando...' : 'Crear permiso'}
               </Button>
             </div>
           </form>

@@ -34,7 +34,7 @@ export function SedeNode({ data }: NodeProps<SedeNodeType>) {
 
   return (
     <div
-      className="bg-white rounded-[var(--ds-radius-100)] p-[var(--ds-space-150)] shadow-[var(--ds-shadow-raised)] w-[200px]"
+      className="bg-white rounded-[var(--ds-radius-100)] p-[var(--ds-space-150)] shadow-[var(--ds-shadow-raised)] w-[220px]"
       style={{ border: `2px solid ${borderColor}` }}
     >
       <Handle type="target" position={Position.Top} id="top" className="!bg-transparent !border-0" />

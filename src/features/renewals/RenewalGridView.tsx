@@ -6,33 +6,52 @@ import { resolveCompanyId } from '@/lib/demo'
 import { YearSelector } from './YearSelector'
 import { MonthCard, type MonthRenewal } from './MonthCard'
 import { EmptyState } from '@/components/ui/empty-state'
+import { ErrorState } from '@/components/ui/error-state'
 import { Calendar } from '@/lib/lucide-icons'
+import { currentYearEcuador, yearInEcuador } from '@/lib/dates'
 
 export function RenewalGridView() {
   const { profile } = useAuth()
   const companyId = resolveCompanyId(profile?.company_id) ?? undefined
 
-  const { permits } = usePermits({ companyId })
-  const { locations } = useLocations(companyId)
+  const { permits, error: permitsError, refetch: refetchPermits } = usePermits({ companyId })
+  const { locations, error: locationsError } = useLocations(companyId)
 
   const availableYears = useMemo(() => {
     const years = new Set<number>()
     permits.forEach(p => {
-      if (p.expiry_date) years.add(new Date(p.expiry_date).getFullYear())
+      if (p.expiry_date) years.add(yearInEcuador(p.expiry_date))
     })
-    const current = new Date().getFullYear()
+    const current = currentYearEcuador()
     years.add(current)
     years.add(current + 1)
     return Array.from(years).sort()
   }, [permits])
 
-  const [year, setYear] = useState(new Date().getFullYear())
+  // Año derivado: si hay permits con vencimiento en el año actual, usa ese;
+  // si no, salta al primer año futuro que tenga permits. Sin efecto.
+  const autoYear = useMemo(() => {
+    const current = currentYearEcuador()
+    if (permits.length === 0) return current
+    const futureYears = availableYears.filter(y => y >= current)
+    const yearsWithPermits = futureYears.filter(y =>
+      permits.some(p => p.is_active && p.expiry_date && yearInEcuador(p.expiry_date) === y),
+    )
+    if (yearsWithPermits.length > 0 && yearsWithPermits[0] !== current) {
+      return yearsWithPermits[0]
+    }
+    return current
+  }, [permits, availableYears])
+
+  const [userYear, setUserYear] = useState<number | null>(null)
+  const year = userYear ?? autoYear
+  const setYear = setUserYear
 
   const monthsData = useMemo(() => {
     const byMonth: Record<number, MonthRenewal[]> = {}
     permits.filter(p => p.is_active && p.expiry_date).forEach(p => {
       const date = new Date(p.expiry_date!)
-      if (date.getFullYear() !== year) return
+      if (yearInEcuador(p.expiry_date!) !== year) return
 
       const month = date.getMonth()
       if (!byMonth[month]) byMonth[month] = []
@@ -52,7 +71,7 @@ export function RenewalGridView() {
   const monthsWithData = Object.keys(monthsData).map(Number).sort((a, b) => a - b)
 
   return (
-    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
+    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-200)] sm:p-[var(--ds-space-300)] lg:p-[var(--ds-space-400)]">
       <div className="max-w-7xl mx-auto space-y-[var(--ds-space-300)]">
         <div className="flex justify-between items-center">
           <div>
@@ -64,14 +83,22 @@ export function RenewalGridView() {
           <YearSelector year={year} onYearChange={setYear} availableYears={availableYears} />
         </div>
 
-        {monthsWithData.length === 0 ? (
+        {permitsError || locationsError ? (
+          <ErrorState
+            title="No pudimos cargar las renovaciones"
+            error={permitsError ?? locationsError}
+            onRetry={() => {
+              void refetchPermits()
+            }}
+          />
+        ) : monthsWithData.length === 0 ? (
           <EmptyState
             icon={Calendar}
             title={`Sin renovaciones en ${year}`}
             description="No hay permisos que venzan este año"
           />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[var(--ds-space-300)]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[var(--ds-space-300)]">
             {monthsWithData.map(month => (
               <MonthCard key={month} month={month} year={year} renewals={monthsData[month]} />
             ))}

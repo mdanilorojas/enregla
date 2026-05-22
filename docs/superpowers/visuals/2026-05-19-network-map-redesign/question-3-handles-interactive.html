@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Network Map — Handles interactivos</title>
+<style>
+  :root {
+    --ds-orange-500: #ff7043;
+    --ds-green-500: #36B37E;
+    --ds-red-500: #DE350B;
+    --ds-neutral-50: #F7F8F9;
+    --ds-neutral-100: #F1F2F4;
+    --ds-neutral-200: #DCDFE4;
+    --ds-neutral-300: #B3B9C4;
+    --ds-neutral-700: #44546F;
+    --ds-neutral-900: #172B4D;
+    --ds-text: var(--ds-neutral-900);
+    --ds-text-subtle: var(--ds-neutral-700);
+    --ds-text-subtlest: var(--ds-neutral-300);
+    --ds-border: var(--ds-neutral-200);
+    --ds-radius-100: 3px;
+    --ds-radius-200: 6px;
+    --ds-shadow-raised: 0 1px 1px rgba(9,30,66,.25), 0 0 1px rgba(9,30,66,.31);
+    --ds-blue-500: #0052CC;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    background: var(--ds-neutral-50); color: var(--ds-text); padding: 32px;
+  }
+  h1 { margin: 0 0 4px; font-size: 22px; }
+  .lede { color: var(--ds-text-subtle); margin: 0 0 20px; font-size: 14px; max-width: 1000px; }
+  .legend-info {
+    background: #DEEBFF; border: 1px solid #4C9AFF; border-radius: var(--ds-radius-200);
+    padding: 14px 18px; margin-bottom: 18px; font-size: 13px; line-height: 1.6;
+  }
+  .legend-info b { color: #0747A6; }
+  .legend-info kbd {
+    background: white; border: 1px solid var(--ds-border); border-bottom-width: 2px;
+    border-radius: 3px; padding: 1px 6px; font-family: monospace; font-size: 11px;
+  }
+  .toolbar {
+    display: flex; gap: 12px; padding: 10px 14px; background: white;
+    border: 1px solid var(--ds-border); border-radius: var(--ds-radius-200);
+    margin-bottom: 12px; align-items: center; font-size: 13px;
+  }
+  .toolbar button {
+    padding: 6px 12px; border: 1px solid var(--ds-border); background: white;
+    border-radius: var(--ds-radius-200); cursor: pointer; font-size: 12px; font-weight: 500;
+  }
+  .toolbar button:hover { background: var(--ds-neutral-100); }
+  .toolbar button.danger { color: var(--ds-red-500); border-color: var(--ds-red-500); }
+  .toolbar .sep { width: 1px; height: 22px; background: var(--ds-border); }
+  .toolbar .status {
+    margin-left: auto; padding: 4px 10px; background: var(--ds-neutral-100);
+    border-radius: 999px; font-size: 11px; color: var(--ds-text-subtle); font-weight: 600;
+  }
+  .toolbar .status.armed { background: #FFF7D6; color: #974F0C; }
+
+  .canvas-wrap {
+    position: relative; height: 720px;
+    background: radial-gradient(circle, var(--ds-neutral-200) 1.2px, transparent 1.2px) 0 0/24px 24px;
+    background-color: white;
+    border: 1px solid var(--ds-border); border-radius: var(--ds-radius-200);
+    overflow: hidden;
+    box-shadow: var(--ds-shadow-raised);
+  }
+  #svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  #svg .edge-hit { pointer-events: stroke; stroke: transparent; stroke-width: 14; cursor: pointer; }
+  #svg .edge-hit:hover + path { stroke-width: 4; }
+
+  .node {
+    position: absolute; transform: translate(-50%, -50%);
+    background: white; border: 2px solid; border-radius: var(--ds-radius-100);
+    padding: 10px 12px; width: 180px; box-shadow: var(--ds-shadow-raised); font-size: 12px;
+    cursor: grab; user-select: none;
+  }
+  .node:active { cursor: grabbing; }
+  .node.empresa { border-color: var(--ds-neutral-900); background: var(--ds-neutral-900); color: white; width: 200px; padding: 12px 14px; }
+  .node.empresa .title { font-weight: 700; font-size: 13px; }
+  .node.empresa .sub { color: var(--ds-neutral-300); font-size: 11px; margin-top: 2px; }
+  .node.success { border-color: var(--ds-green-500); }
+  .node.warning { border-color: var(--ds-orange-500); }
+  .node.danger  { border-color: var(--ds-red-500); }
+  .node .row1 { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .node .icon { width: 22px; height: 22px; background: var(--ds-neutral-100); border-radius: var(--ds-radius-100); display: grid; place-items: center; flex-shrink: 0; font-size: 12px; }
+  .node .lbl { font-weight: 600; font-size: 12px; line-height: 1.2; }
+  .node .code { font-family: monospace; font-size: 10px; color: var(--ds-text-subtlest); }
+  .node .row2 { display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--ds-text-subtle); }
+  .node .badge { padding: 2px 6px; border-radius: 10px; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+  .badge.bajo { background: #E3FCEF; color: #006644; }
+  .badge.medio { background: #FFFAE6; color: #974F0C; }
+  .badge.alto { background: #FFEBE6; color: #BF2600; }
+  .badge.critico { background: var(--ds-red-500); color: white; }
+  .node .bar { height: 5px; background: var(--ds-neutral-100); border-radius: 3px; margin-top: 6px; overflow: hidden; }
+  .node .fill { height: 100%; }
+  .fill.success { background: var(--ds-green-500); }
+  .fill.warning { background: var(--ds-orange-500); }
+  .fill.danger { background: var(--ds-red-500); }
+
+  .handle {
+    position: absolute; width: 12px; height: 12px; border-radius: 50%;
+    background: white; border: 2px solid var(--ds-blue-500);
+    cursor: crosshair; z-index: 10;
+    opacity: 0; transition: opacity .12s, transform .12s;
+  }
+  .node:hover .handle, .handle.armed { opacity: 1; }
+  .handle:hover { transform: scale(1.4); background: var(--ds-blue-500); }
+  .handle.armed { background: var(--ds-blue-500); transform: scale(1.4); opacity: 1; box-shadow: 0 0 0 4px rgba(0,82,204,.2); }
+  .handle.top    { top: -6px;     left: 50%; transform: translateX(-50%); }
+  .handle.bottom { bottom: -6px;  left: 50%; transform: translateX(-50%); }
+  .handle.left   { left: -6px;    top: 50%;  transform: translateY(-50%); }
+  .handle.right  { right: -6px;   top: 50%;  transform: translateY(-50%); }
+  .handle.top.armed    { transform: translateX(-50%) scale(1.4); }
+  .handle.bottom.armed { transform: translateX(-50%) scale(1.4); }
+  .handle.left.armed   { transform: translateY(-50%) scale(1.4); }
+  .handle.right.armed  { transform: translateY(-50%) scale(1.4); }
+
+  .ghost-edge { stroke: var(--ds-blue-500); stroke-width: 2; stroke-dasharray: 4 3; fill: none; opacity: .6; pointer-events: none; }
+</style>
+</head>
+<body>
+  <h1>Network Map — Handles interactivos por lado</h1>
+  <p class="lede">Cada card tiene 4 handles (puntitos azules en cada borde). Drag de un handle al otro = conexión exacta entre esos puntos. Drag del card = mover. Auto-rerouting: si moviste un card, el edge se mantiene en el handle elegido. <b>Solución directa al problema</b>: ningún edge "termina en el aire" porque siempre nace y muere en un handle real.</p>
+
+  <div class="legend-info">
+    <b>Cómo usar:</b><br>
+    • <b>Hover</b> sobre un card → aparecen los 4 handles azules.<br>
+    • <b>Click + drag</b> de un handle a otro card → crea conexión por esos lados específicos.<br>
+    • <b>Drag del card</b> (no del handle) → mover. Edges siguen pegados a los handles correctos.<br>
+    • <b>Click sobre edge</b> → eliminar conexión.<br>
+    • <kbd>R</kbd> → reset auto-layout.
+  </div>
+
+  <div class="toolbar">
+    <button id="addSede">+ Agregar sede</button>
+    <button id="autoLayout">⟳ Auto-layout radial</button>
+    <button id="autoConnect">↔ Auto-conectar (lado más cercano)</button>
+    <div class="sep"></div>
+    <button id="clearEdges" class="danger">Borrar edges</button>
+    <button id="reset" class="danger">Reset</button>
+    <span class="status" id="status">Listo · arrastra handle a handle para conectar</span>
+  </div>
+
+  <div class="canvas-wrap" id="canvas">
+    <svg id="svg"></svg>
+  </div>
+
+<script>
+const NAMES = [
+  ['Quito Centro','QC-01','success',100,'Bajo','bajo'],
+  ['Cumbayá','CU-02','success',90,'Bajo','bajo'],
+  ['Valle Chillos','VC-03','warning',70,'Medio','medio'],
+  ['Tumbaco','TU-04','warning',60,'Medio','medio'],
+  ['Calderón','CA-05','danger',30,'Crítico','critico'],
+  ['Pomasqui','PO-06','success',90,'Bajo','bajo'],
+  ['San Antonio','SA-07','warning',50,'Alto','alto'],
+  ['Conocoto','CO-08','warning',70,'Medio','medio'],
+];
+
+const canvas = document.getElementById('canvas');
+const svg = document.getElementById('svg');
+const status = document.getElementById('status');
+
+let W = 0, H = 0;
+let nodes = []; // { id, kind, x, y, data?, w, h }
+let edges = []; // { id, source, sourceSide, target, targetSide, color }
+let counter = 0;
+
+let draggingNode = null;
+let dragOffset = null;
+let armedHandle = null; // { nodeId, side }
+let mousePos = null;
+
+function resize() {
+  const rect = canvas.getBoundingClientRect();
+  W = rect.width; H = rect.height;
+}
+
+function autoLayout() {
+  const sedes = nodes.filter(n => n.kind === 'sede');
+  const hub = nodes.find(n => n.kind === 'hub');
+  hub.x = W/2; hub.y = H/2;
+  sedes.forEach((n, i) => {
+    const a = (i / sedes.length) * Math.PI * 2 - Math.PI/2;
+    const r = sedes.length <= 4 ? 220 : sedes.length <= 8 ? 270 : 310;
+    n.x = W/2 + Math.cos(a) * r;
+    n.y = H/2 + Math.sin(a) * r;
+  });
+}
+
+function nearestSide(from, to) {
+  // Returns side of `from` rect closest to `to`
+  const dx = to.x - from.x, dy = to.y - from.y;
+  if (Math.abs(dx) > Math.abs(dy)) return dx > 0 ? 'right' : 'left';
+  return dy > 0 ? 'bottom' : 'top';
+}
+
+function autoConnect() {
+  const hub = nodes.find(n => n.kind === 'hub');
+  edges = [];
+  nodes.filter(n => n.kind === 'sede').forEach(n => {
+    edges.push({
+      id: 'e-'+n.id,
+      source: hub.id, sourceSide: nearestSide(hub, n),
+      target: n.id, targetSide: nearestSide(n, hub),
+      color: colorOf(n.data[2]),
+    });
+  });
+}
+
+function colorOf(s) { return s === 'success' ? '#36B37E' : s === 'warning' ? '#ff7043' : '#DE350B'; }
+
+function handlePoint(node, side) {
+  switch (side) {
+    case 'top':    return { x: node.x,           y: node.y - node.h/2 };
+    case 'bottom': return { x: node.x,           y: node.y + node.h/2 };
+    case 'left':   return { x: node.x - node.w/2,y: node.y           };
+    case 'right':  return { x: node.x + node.w/2,y: node.y           };
+  }
+}
+
+function bezierPath(s, sSide, t, tSide) {
+  // Outward control offset per side
+  const off = (side, p, k = 60) => {
+    switch (side) {
+      case 'top':    return { x: p.x, y: p.y - k };
+      case 'bottom': return { x: p.x, y: p.y + k };
+      case 'left':   return { x: p.x - k, y: p.y };
+      case 'right':  return { x: p.x + k, y: p.y };
+    }
+  };
+  const dist = Math.hypot(t.x - s.x, t.y - s.y);
+  const k = Math.max(40, Math.min(120, dist * 0.4));
+  const c1 = off(sSide, s, k);
+  const c2 = off(tSide, t, k);
+  return `M${s.x},${s.y} C${c1.x},${c1.y} ${c2.x},${c2.y} ${t.x},${t.y}`;
+}
+
+function getNode(id) { return nodes.find(n => n.id === id); }
+
+function render() {
+  // Render nodes
+  Array.from(canvas.querySelectorAll('.node')).forEach(e => e.remove());
+  nodes.forEach(n => {
+    const el = document.createElement('div');
+    if (n.kind === 'hub') {
+      el.className = 'node empresa';
+      el.innerHTML = `<div class="title">EnRegla Corp</div><div class="sub">${nodes.length-1} sedes</div>`;
+    } else {
+      const [name,code,s,pct,risk,rcls] = n.data;
+      el.className = 'node ' + s;
+      el.innerHTML = `<div class="row1"><div class="icon">🏢</div><div><div class="lbl">${name}</div><div class="code">${code}</div></div></div>
+        <div class="row2"><span>${Math.round(pct/10)}/10</span><span class="badge ${rcls}">${risk}</span></div>
+        <div class="bar"><div class="fill ${s}" style="width:${pct}%"></div></div>`;
+    }
+    el.style.left = n.x + 'px';
+    el.style.top = n.y + 'px';
+    el.dataset.nodeId = n.id;
+
+    ['top','bottom','left','right'].forEach(side => {
+      const h = document.createElement('div');
+      h.className = 'handle ' + side;
+      h.dataset.nodeId = n.id;
+      h.dataset.side = side;
+      if (armedHandle && armedHandle.nodeId === n.id && armedHandle.side === side) h.classList.add('armed');
+      el.appendChild(h);
+    });
+
+    canvas.appendChild(el);
+  });
+
+  // Render edges + ghost
+  let svgInner = '';
+  edges.forEach(e => {
+    const s = getNode(e.source);
+    const t = getNode(e.target);
+    if (!s || !t) return;
+    const sp = handlePoint(s, e.sourceSide);
+    const tp = handlePoint(t, e.targetSide);
+    const d = bezierPath(sp, e.sourceSide, tp, e.targetSide);
+    svgInner += `<path class="edge-hit" data-edge="${e.id}" d="${d}"/>`;
+    svgInner += `<path d="${d}" stroke="${e.color}" stroke-width="2.5" fill="none" data-edge="${e.id}" pointer-events="none"/>`;
+    // dot at endpoints to make connection visually obvious
+    svgInner += `<circle cx="${sp.x}" cy="${sp.y}" r="3" fill="${e.color}" pointer-events="none"/>`;
+    svgInner += `<circle cx="${tp.x}" cy="${tp.y}" r="3" fill="${e.color}" pointer-events="none"/>`;
+  });
+  if (armedHandle && mousePos) {
+    const n = getNode(armedHandle.nodeId);
+    const sp = handlePoint(n, armedHandle.side);
+    svgInner += `<path class="ghost-edge" d="M${sp.x},${sp.y} L${mousePos.x},${mousePos.y}"/>`;
+  }
+  svg.innerHTML = svgInner;
+}
+
+// ===== Init =====
+function init() {
+  resize();
+  nodes = [{ id: 'hub', kind: 'hub', x: W/2, y: H/2, w: 200, h: 70 }];
+  for (let i = 0; i < 5; i++) {
+    nodes.push({ id: 'n'+(counter++), kind: 'sede', x: 0, y: 0, w: 180, h: 90, data: NAMES[i] });
+  }
+  autoLayout();
+  autoConnect();
+  render();
+}
+
+// ===== Interaction =====
+canvas.addEventListener('mousedown', e => {
+  const handle = e.target.closest('.handle');
+  if (handle) {
+    armedHandle = { nodeId: handle.dataset.nodeId, side: handle.dataset.side };
+    mousePos = { x: e.offsetX, y: e.offsetY };
+    status.textContent = `Conectando desde ${armedHandle.nodeId}/${armedHandle.side} · suelta sobre otro handle`;
+    status.classList.add('armed');
+    render();
+    e.preventDefault();
+    return;
+  }
+  const node = e.target.closest('.node');
+  if (node) {
+    const id = node.dataset.nodeId;
+    const n = getNode(id);
+    draggingNode = n;
+    dragOffset = { x: e.offsetX - n.x, y: e.offsetY - n.y };
+    e.preventDefault();
+  }
+});
+
+canvas.addEventListener('mousemove', e => {
+  if (draggingNode) {
+    draggingNode.x = e.offsetX - dragOffset.x;
+    draggingNode.y = e.offsetY - dragOffset.y;
+    render();
+  } else if (armedHandle) {
+    mousePos = { x: e.offsetX, y: e.offsetY };
+    render();
+  }
+});
+
+canvas.addEventListener('mouseup', e => {
+  if (armedHandle) {
+    const targetHandle = e.target.closest('.handle');
+    if (targetHandle && targetHandle.dataset.nodeId !== armedHandle.nodeId) {
+      const t = getNode(targetHandle.dataset.nodeId);
+      const color = t.kind === 'sede' ? colorOf(t.data[2]) : '#0052CC';
+      // remove existing edge between same pair
+      edges = edges.filter(ed => !(
+        (ed.source === armedHandle.nodeId && ed.target === targetHandle.dataset.nodeId) ||
+        (ed.target === armedHandle.nodeId && ed.source === targetHandle.dataset.nodeId)
+      ));
+      edges.push({
+        id: 'e' + Math.random().toString(36).slice(2,7),
+        source: armedHandle.nodeId, sourceSide: armedHandle.side,
+        target: targetHandle.dataset.nodeId, targetSide: targetHandle.dataset.side,
+        color,
+      });
+      status.textContent = `Conectado ${armedHandle.side} → ${targetHandle.dataset.side}`;
+    } else {
+      status.textContent = `Listo · arrastra handle a handle para conectar`;
+    }
+    armedHandle = null;
+    mousePos = null;
+    status.classList.remove('armed');
+    render();
+  }
+  draggingNode = null;
+});
+
+svg.addEventListener('click', e => {
+  const id = e.target.dataset && e.target.dataset.edge;
+  if (id) {
+    edges = edges.filter(ed => ed.id !== id);
+    status.textContent = 'Edge eliminado';
+    render();
+  }
+});
+
+document.getElementById('addSede').addEventListener('click', () => {
+  const data = NAMES[counter % NAMES.length];
+  const id = 'n'+(counter++);
+  const n = { id, kind: 'sede', x: W/2 + 250, y: H/2 + 200, w: 180, h: 90, data };
+  nodes.push(n);
+  const hub = nodes[0];
+  edges.push({ id: 'e-'+id, source: hub.id, sourceSide: nearestSide(hub, n), target: id, targetSide: nearestSide(n, hub), color: colorOf(data[2]) });
+  render();
+});
+document.getElementById('autoLayout').addEventListener('click', () => { autoLayout(); render(); });
+document.getElementById('autoConnect').addEventListener('click', () => { autoConnect(); render(); });
+document.getElementById('clearEdges').addEventListener('click', () => { edges = []; render(); });
+document.getElementById('reset').addEventListener('click', () => { counter = 0; init(); });
+document.addEventListener('keydown', e => { if (e.key === 'r' || e.key === 'R') { autoLayout(); render(); } });
+
+window.addEventListener('resize', () => { resize(); render(); });
+init();
+</script>
+</body>
+</html>

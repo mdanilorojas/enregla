@@ -38,7 +38,7 @@ export function LocationsGrid({ standalone = true }: LocationsGridProps) {
   };
 
   const wrapperClass = standalone
-    ? 'min-h-screen bg-[var(--ds-neutral-50)] p-6 md:p-8'
+    ? 'min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-200)] sm:p-[var(--ds-space-300)] lg:p-[var(--ds-space-400)]'
     : '';
   const innerClass = standalone
     ? 'max-w-7xl mx-auto animate-fade-in'
@@ -115,14 +115,14 @@ export function LocationsGrid({ standalone = true }: LocationsGridProps) {
     <div className={wrapperClass}>
       <div className={innerClass}>
         {standalone && (
-          <div className="flex items-start justify-between mb-8">
-            <div className="space-y-1">
-              <h1 id="sedes-heading" className="text-[var(--ds-font-size-600)] font-bold text-[var(--ds-text)] leading-tight">Sedes</h1>
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-[var(--ds-space-200)] mb-8">
+            <div className="space-y-1 min-w-0">
+              <h1 id="sedes-heading" className="text-[var(--ds-font-size-500)] sm:text-[var(--ds-font-size-600)] font-bold text-[var(--ds-text)] leading-tight">Sedes</h1>
               <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)]">
                 {locations.length} {locations.length === 1 ? 'sede registrada' : 'sedes registradas'}
               </p>
             </div>
-            <Button onClick={() => setCreateModalOpen(true)} size="lg">
+            <Button onClick={() => setCreateModalOpen(true)} size="lg" className="w-full sm:w-auto">
               <PlusIcon className="w-4 h-4" />
               Crear Sede
             </Button>
@@ -132,7 +132,7 @@ export function LocationsGrid({ standalone = true }: LocationsGridProps) {
         <div
           role="region"
           aria-labelledby={standalone ? 'sedes-heading' : undefined}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-[var(--ds-space-300)]"
         >
           {locations.map(location => (
             <LocationCardV2

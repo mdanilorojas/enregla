@@ -3,6 +3,9 @@ import { useIssuers } from '@/lib/domain/issuers';
 import { BUSINESS_TYPES, businessTypeLabel } from '@/lib/domain/business-types';
 import { RoleBadge } from '@/components/ui/RoleBadge';
 import { CostRangeLabel } from '@/components/ui/CostRangeLabel';
+import { ErrorState } from '@/components/ui/error-state';
+import { SkeletonList } from '@/components/ui/skeleton';
+import { LegalMatrixAccordion, type LegalMatrixAccordionRow } from './LegalMatrixAccordion';
 
 const PERMIT_ORDER = ['ruc', 'patente_municipal', 'uso_suelo', 'luae', 'bomberos', 'arcsa', 'rotulacion', 'msp'];
 const PERMIT_LABELS: Record<string, string> = {
@@ -17,8 +20,15 @@ const PERMIT_LABELS: Record<string, string> = {
 };
 
 export function LegalMatrixView() {
-  const { data: requirements } = usePermitRequirements();
-  const { data: issuers } = useIssuers();
+  const {
+    data: requirements,
+    isLoading: loadingReqs,
+    error: reqsError,
+    refetch: refetchReqs,
+  } = usePermitRequirements();
+  const { data: issuers, isLoading: loadingIssuers, error: issuersError } = useIssuers();
+  const loading = loadingReqs || loadingIssuers;
+  const error = reqsError ?? issuersError;
 
   const byKey = new Map<string, PermitRequirement>();
   (requirements ?? []).forEach((r) => byKey.set(`${r.business_type}|${r.permit_type}`, r));
@@ -48,8 +58,31 @@ export function LegalMatrixView() {
     );
   }
 
+  const accordionRows: LegalMatrixAccordionRow[] = PERMIT_ORDER.map((pt) => {
+    const sample = (requirements ?? []).find((r) => r.permit_type === pt);
+    const issuer = sample?.issuer_id ? issuerById.get(sample.issuer_id) : null;
+    type ApplicableEntry = { type: string; label: string; status: 'R' | 'O' | 'T' };
+    const applicable = visibleGiros
+      .map((bt): ApplicableEntry | null => {
+        const r = byKey.get(`${bt}|${pt}`);
+        if (!r) return null;
+        const status: 'R' | 'O' | 'T' = r.is_mandatory ? 'R' : r.applies_when ? 'T' : 'O';
+        return { type: bt, label: businessTypeLabel(bt), status };
+      })
+      .filter((x): x is ApplicableEntry => x !== null);
+    return {
+      permitType: pt,
+      permitLabel: PERMIT_LABELS[pt] ?? pt,
+      issuer: issuer?.short_name ?? null,
+      role: sample?.required_role ?? null,
+      costMin: sample?.cost_min ?? null,
+      costMax: sample?.cost_max ?? null,
+      applicableBusinessTypes: applicable,
+    };
+  });
+
   return (
-    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
+    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-200)] sm:p-[var(--ds-space-300)] lg:p-[var(--ds-space-400)]">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-[var(--ds-font-size-500)] font-bold mb-2">Matriz de permisos por giro</h1>
         <p className="text-[var(--ds-text-subtle)] mb-6 max-w-3xl">
@@ -58,7 +91,24 @@ export function LegalMatrixView() {
           <strong>O</strong> = opcional · <strong>T</strong> = condicional.
         </p>
 
-        <div className="overflow-x-auto border rounded-lg bg-white">
+        {error ? (
+          <ErrorState
+            title="No pudimos cargar la matriz legal"
+            error={error}
+            onRetry={() => {
+              void refetchReqs();
+            }}
+          />
+        ) : loading ? (
+          <div className="bg-white border rounded-lg p-[var(--ds-space-300)]" aria-busy="true">
+            <SkeletonList count={6} />
+          </div>
+        ) : (
+        <>
+        <div className="md:hidden">
+          <LegalMatrixAccordion rows={accordionRows} />
+        </div>
+        <div className="hidden md:block overflow-x-auto border rounded-lg bg-white">
           <table className="w-full text-sm">
             <thead className="bg-[var(--ds-neutral-100)]">
               <tr>
@@ -92,6 +142,8 @@ export function LegalMatrixView() {
             </tbody>
           </table>
         </div>
+        </>
+        )}
       </div>
     </div>
   );

@@ -11,6 +11,8 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { Button } from '@/components/ui/button'
 import { Building2, Plus, Download, AlertTriangle } from '@/lib/lucide-icons'
 import { SkeletonList } from '@/components/ui/skeleton'
+import { ErrorState } from '@/components/ui/error-state'
+import { OnboardingChecklist } from './OnboardingChecklist'
 import { daysUntil } from '@/lib/dates'
 import type { Permit } from '@/types/database'
 
@@ -35,8 +37,8 @@ export function DashboardView() {
   const { companyId: authCompanyId } = useAuth()
   const companyId = resolveCompanyId(authCompanyId) ?? undefined
 
-  const { locations, loading: loadingLocs } = useLocations(companyId)
-  const { permits, loading: loadingPermits } = usePermits({ companyId })
+  const { locations, loading: loadingLocs, error: locationsError, refetch: refetchLocations } = useLocations(companyId)
+  const { permits, loading: loadingPermits, error: permitsError, refetch: refetchPermits } = usePermits({ companyId })
   const { data: company } = useCompany(companyId)
   const { data: requirements } = usePermitRequirements(company?.business_type ?? null)
 
@@ -146,7 +148,7 @@ export function DashboardView() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
+      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-200)] sm:p-[var(--ds-space-300)] lg:p-[var(--ds-space-400)]">
         <div className="max-w-7xl mx-auto">
           <SkeletonList count={1} />
         </div>
@@ -154,9 +156,26 @@ export function DashboardView() {
     )
   }
 
+  if (permitsError || locationsError) {
+    return (
+      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-200)] sm:p-[var(--ds-space-300)] lg:p-[var(--ds-space-400)]">
+        <div className="max-w-7xl mx-auto">
+          <ErrorState
+            title="No pudimos cargar el dashboard"
+            error={permitsError ?? locationsError}
+            onRetry={() => {
+              void refetchPermits()
+              refetchLocations()
+            }}
+          />
+        </div>
+      </div>
+    )
+  }
+
   if (locations.length === 0) {
     return (
-      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
+      <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-200)] sm:p-[var(--ds-space-300)] lg:p-[var(--ds-space-400)]">
         <div className="max-w-7xl mx-auto">
           <EmptyState
             icon={Building2}
@@ -216,12 +235,18 @@ export function DashboardView() {
   })()
 
   return (
-    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-400)]">
+    <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-200)] sm:p-[var(--ds-space-300)] lg:p-[var(--ds-space-400)]">
       <div className="max-w-7xl mx-auto space-y-[var(--ds-space-400)]">
+        <OnboardingChecklist
+          companyId={companyId}
+          locationsCount={locations.length}
+          permitsCount={permits.filter((p) => p.is_active).length}
+        />
+
         {/* Header */}
-        <div className="flex items-end justify-between gap-[var(--ds-space-300)]">
-          <div>
-            <h1 className="text-[var(--ds-font-size-500)] font-bold text-[var(--ds-text)]">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-[var(--ds-space-200)] lg:gap-[var(--ds-space-300)]">
+          <div className="min-w-0">
+            <h1 className="text-[var(--ds-font-size-400)] sm:text-[var(--ds-font-size-500)] font-bold text-[var(--ds-text)] break-words">
               {brandName}
             </h1>
             <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)] mt-1">
@@ -234,26 +259,26 @@ export function DashboardView() {
               </span>
             </p>
           </div>
-          <div className="flex gap-[var(--ds-space-100)]">
-            <Button variant="secondary">
-              <Download className="w-4 h-4" />
-              Exportar reporte
-            </Button>
-            <Link to="/permisos">
-              <Button>
+          <div className="flex flex-col sm:flex-row-reverse gap-[var(--ds-space-100)] w-full lg:w-auto">
+            <Link to="/permisos" className="w-full sm:w-auto">
+              <Button className="w-full">
                 <Plus className="w-4 h-4" />
                 Nuevo permiso
               </Button>
             </Link>
+            <Button variant="secondary" className="w-full sm:w-auto">
+              <Download className="w-4 h-4" />
+              Exportar reporte
+            </Button>
           </div>
         </div>
 
         {/* Hero grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-[var(--ds-space-300)] items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_minmax(0,380px)] gap-[var(--ds-space-200)] lg:gap-[var(--ds-space-300)] items-stretch">
           {/* Gauge + KPIs card */}
           <div className="bg-white border border-[var(--ds-border)] rounded-[var(--ds-radius-300)] flex flex-col overflow-hidden">
-            <div className="p-[var(--ds-space-300)] grid grid-cols-1 md:grid-cols-[260px_1fr] gap-[var(--ds-space-300)] items-center flex-1">
-              <div className="relative w-[240px] h-[240px] mx-auto">
+            <div className="p-[var(--ds-space-200)] sm:p-[var(--ds-space-300)] grid grid-cols-1 md:grid-cols-[240px_1fr] gap-[var(--ds-space-300)] items-center flex-1">
+              <div className="relative w-[200px] h-[200px] sm:w-[240px] sm:h-[240px] mx-auto">
                 <svg
                   viewBox="0 0 100 100"
                   className="w-full h-full"
@@ -294,13 +319,13 @@ export function DashboardView() {
                   <div
                     className="font-light text-[var(--ds-text)] leading-none mt-1"
                     style={{
-                      fontSize: '64px',
+                      fontSize: 'clamp(48px, 12vw, 64px)',
                       letterSpacing: '-0.04em',
                       fontVariantNumeric: 'tabular-nums',
                     }}
                   >
                     {metrics.percentage}
-                    <span style={{ fontSize: '24px', opacity: 0.6 }}>%</span>
+                    <span style={{ fontSize: 'clamp(20px, 4.5vw, 24px)', opacity: 0.6 }}>%</span>
                   </div>
                   <div className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mt-[6px]">
                     {metrics.vigentes} / {metrics.total} vigentes
@@ -341,7 +366,7 @@ export function DashboardView() {
             </div>
 
             {/* Bottom strip */}
-            <div className="bg-[var(--ds-neutral-50)] border-t border-[var(--ds-border)] px-[var(--ds-space-300)] py-[var(--ds-space-200)] grid grid-cols-1 md:grid-cols-[1fr_auto] gap-[var(--ds-space-250)] items-center">
+            <div className="bg-[var(--ds-neutral-50)] border-t border-[var(--ds-border)] px-[var(--ds-space-200)] sm:px-[var(--ds-space-300)] py-[var(--ds-space-200)] grid grid-cols-1 md:grid-cols-[1fr_auto] gap-[var(--ds-space-200)] items-center">
               <div className="flex items-center gap-[var(--ds-space-150)]">
                 <div className="w-9 h-9 rounded-[var(--ds-radius-200)] bg-[var(--ds-risk-critico-bg)] text-[var(--ds-risk-critico-text)] inline-flex items-center justify-center flex-shrink-0">
                   <AlertTriangle className="w-[18px] h-[18px]" />
@@ -371,8 +396,8 @@ export function DashboardView() {
                 </div>
               </div>
               {metrics.pending > 0 && (
-                <Link to="/permisos">
-                  <Button>
+                <Link to="/permisos" className="w-full md:w-auto">
+                  <Button className="w-full md:w-auto">
                     Ver {metrics.pending} acciones pendientes →
                   </Button>
                 </Link>
@@ -452,7 +477,7 @@ function InvoiceCard({
   const hasFines = totalFineMin > 0 || totalFineMax > 0
 
   return (
-    <div className="bg-white border border-[var(--ds-border)] rounded-[var(--ds-radius-300)] p-[var(--ds-space-300)] flex flex-col gap-[var(--ds-space-200)]">
+    <div className="bg-white border border-[var(--ds-border)] rounded-[var(--ds-radius-300)] p-[var(--ds-space-200)] sm:p-[var(--ds-space-300)] flex flex-col gap-[var(--ds-space-200)]">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-[var(--ds-space-100)]">
           <div className="w-7 h-7 rounded-[var(--ds-radius-100)] bg-[var(--ds-neutral-100)] text-[var(--ds-text)] inline-flex items-center justify-center font-bold">
