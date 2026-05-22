@@ -86,7 +86,6 @@ const focusRing =
 export function AppLayout() {
   const { profile, signOut } = useAuth();
   const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(false); // Cerrado por defecto en móvil
   const [scrolled, setScrolled] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
 
@@ -100,11 +99,6 @@ export function AppLayout() {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Sidebar siempre abierto en desktop (≥lg). En móvil se reemplaza por bottom-nav.
-  useEffect(() => {
-    setSidebarOpen(true);
   }, []);
 
   return (
@@ -193,17 +187,9 @@ export function AppLayout() {
             ? 'bg-[var(--ds-neutral-0)]/95 backdrop-blur-lg border-[var(--ds-border)] shadow-[var(--ds-shadow-raised)]'
             : 'bg-[var(--ds-neutral-0)] border-[var(--ds-border)]'
         }`}>
-          <div className="flex items-center gap-[var(--ds-space-150)] lg:gap-[var(--ds-space-200)]">
-            {/* Toggle sidebar (solo desktop). Móvil usa MobileBottomNav. */}
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className={`hidden lg:flex p-[var(--ds-space-100)] rounded-[var(--ds-radius-200)] text-[var(--ds-text-subtle)] hover:text-[var(--ds-text)] hover:bg-[var(--ds-neutral-50)] transition-all ${focusRing}`}
-              aria-label="Alternar menú lateral"
-            >
-              <Building2 size={20} aria-hidden="true" />
-            </button>
-            <div>
-              <h1 className="text-base lg:text-[var(--ds-font-size-300)] font-semibold text-[var(--ds-text)]">{title}</h1>
+          <div className="flex items-center gap-[var(--ds-space-150)] lg:gap-[var(--ds-space-200)] min-w-0">
+            <div className="min-w-0">
+              <h1 className="text-base lg:text-[var(--ds-font-size-300)] font-semibold text-[var(--ds-text)] truncate">{title}</h1>
               {description && (
                 <p className="hidden lg:block text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mt-0.5">{description}</p>
               )}
