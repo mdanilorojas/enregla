@@ -10,12 +10,14 @@ import {
   Network,
   CalendarClock,
   Scale,
-  Menu,
-  X,
   Settings
 } from '@/lib/lucide-icons';
 import { useAuth } from '@/hooks/useAuth';
 import { NotificationBell } from '@/components/NotificationBell';
+import { TrialBanner } from './TrialBanner';
+import { AppFooter } from './AppFooter';
+import { MobileBottomNav } from './MobileBottomNav';
+import { MoreSheet } from './MoreSheet';
 
 const menuItems = [
   {
@@ -86,6 +88,7 @@ export function AppLayout() {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false); // Cerrado por defecto en móvil
   const [scrolled, setScrolled] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
 
   const basePath = '/' + location.pathname.split('/').filter(Boolean).slice(0, 1).join('/');
   const title = pageNames[basePath] || pageNames[location.pathname] || 'EnRegla';
@@ -99,30 +102,10 @@ export function AppLayout() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Cerrar sidebar en móvil al cambiar de ruta
+  // Sidebar siempre abierto en desktop (≥lg). En móvil se reemplaza por bottom-nav.
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        setSidebarOpen(true); // Abierto en desktop
-      } else {
-        setSidebarOpen(false); // Cerrado en móvil
-      }
-    };
-
-    handleResize(); // Check inicial
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    setSidebarOpen(true);
   }, []);
-
-  useEffect(() => {
-    // Cerrar sidebar al navegar en móvil
-    const handlePathChange = () => {
-      if (window.innerWidth < 1024) {
-        setSidebarOpen(false);
-      }
-    };
-    handlePathChange();
-  }, [location.pathname]);
 
   return (
     <div className="flex min-h-screen w-full bg-[var(--ds-neutral-50)]">
@@ -134,21 +117,10 @@ export function AppLayout() {
         Saltar al contenido
       </a>
 
-      {/* Overlay móvil con blur */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 lg:hidden transition-all duration-300"
-          onClick={() => setSidebarOpen(false)}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* Sidebar */}
+      {/* Sidebar (solo desktop ≥lg). En móvil usuarios usan MobileBottomNav. */}
       <aside
         aria-label="Navegación principal"
-        className={`fixed left-0 top-0 h-screen bg-[var(--ds-neutral-0)] border-r border-[var(--ds-border)] flex flex-col z-40 transition-all duration-300 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        } w-64 lg:w-64`}
+        className="fixed left-0 top-0 h-screen bg-[var(--ds-neutral-0)] border-r border-[var(--ds-border)] flex flex-col z-40 transition-all duration-300 -translate-x-full lg:translate-x-0 w-64 lg:w-64"
       >
         {/* Header */}
         <div className="flex items-center justify-between gap-[var(--ds-space-150)] px-[var(--ds-space-200)] h-16 border-b border-[var(--ds-border)]">
@@ -162,14 +134,6 @@ export function AppLayout() {
             </div>
           </div>
 
-          {/* Botón cerrar en móvil */}
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className={`lg:hidden p-[var(--ds-space-100)] hover:bg-[var(--ds-neutral-100)] rounded-[var(--ds-radius-200)] transition-colors ${focusRing}`}
-            aria-label="Cerrar menú"
-          >
-            <X size={20} className="text-[var(--ds-text-subtle)]" aria-hidden="true" />
-          </button>
         </div>
 
         {/* Menu */}
@@ -230,14 +194,13 @@ export function AppLayout() {
             : 'bg-[var(--ds-neutral-0)] border-[var(--ds-border)]'
         }`}>
           <div className="flex items-center gap-[var(--ds-space-150)] lg:gap-[var(--ds-space-200)]">
-            {/* Hamburger en móvil, toggle en desktop */}
+            {/* Toggle sidebar (solo desktop). Móvil usa MobileBottomNav. */}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className={`p-[var(--ds-space-100)] rounded-[var(--ds-radius-200)] text-[var(--ds-text-subtle)] hover:text-[var(--ds-text)] hover:bg-[var(--ds-neutral-50)] transition-all ${focusRing}`}
+              className={`hidden lg:flex p-[var(--ds-space-100)] rounded-[var(--ds-radius-200)] text-[var(--ds-text-subtle)] hover:text-[var(--ds-text)] hover:bg-[var(--ds-neutral-50)] transition-all ${focusRing}`}
               aria-label="Alternar menú lateral"
             >
-              <Menu size={20} className="lg:hidden" aria-hidden="true" />
-              <Building2 size={20} className="hidden lg:block" aria-hidden="true" />
+              <Building2 size={20} aria-hidden="true" />
             </button>
             <div>
               <h1 className="text-base lg:text-[var(--ds-font-size-300)] font-semibold text-[var(--ds-text)]">{title}</h1>
@@ -252,15 +215,22 @@ export function AppLayout() {
           </div>
         </header>
 
+        <TrialBanner />
+
         <main
           id="main-content"
           tabIndex={-1}
-          className="p-[var(--ds-space-200)] lg:p-[var(--ds-space-300)] xl:p-[var(--ds-space-400)] focus:outline-none"
+          className="p-[var(--ds-space-200)] lg:p-[var(--ds-space-300)] xl:p-[var(--ds-space-400)] pb-24 lg:pb-[var(--ds-space-300)] focus:outline-none"
         >
           <div className="max-w-[1400px] mx-auto">
             <Outlet />
           </div>
         </main>
+
+        <AppFooter />
+
+        <MobileBottomNav onMoreClick={() => setMoreOpen(true)} />
+        <MoreSheet open={moreOpen} onOpenChange={setMoreOpen} />
       </div>
     </div>
   );
