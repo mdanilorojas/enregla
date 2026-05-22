@@ -61,14 +61,15 @@ export function LegalMatrixView() {
   const accordionRows: LegalMatrixAccordionRow[] = PERMIT_ORDER.map((pt) => {
     const sample = (requirements ?? []).find((r) => r.permit_type === pt);
     const issuer = sample?.issuer_id ? issuerById.get(sample.issuer_id) : null;
+    type ApplicableEntry = { type: string; label: string; status: 'R' | 'O' | 'T' };
     const applicable = visibleGiros
-      .map((bt) => {
+      .map((bt): ApplicableEntry | null => {
         const r = byKey.get(`${bt}|${pt}`);
         if (!r) return null;
         const status: 'R' | 'O' | 'T' = r.is_mandatory ? 'R' : r.applies_when ? 'T' : 'O';
         return { type: bt, label: businessTypeLabel(bt), status };
       })
-      .filter((x): x is { type: string; label: string; status: 'R' | 'O' | 'T' } => x !== null);
+      .filter((x): x is ApplicableEntry => x !== null);
     return {
       permitType: pt,
       permitLabel: PERMIT_LABELS[pt] ?? pt,
