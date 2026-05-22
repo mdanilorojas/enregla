@@ -145,20 +145,25 @@ export async function getPublicLinkData(token: string): Promise<PublicLinkData |
     return null;
   }
 
-  if (link.expires_at && new Date(link.expires_at) < new Date()) {
+  if (link.expires_at && Date.parse(link.expires_at) < Date.now()) {
     return null;
   }
 
-  // Fire-and-forget analytics — do not block render on the counter update
-  // casting due to stale generated types — see audit follow-up
+  // Fire-and-forget analytics — do not block render on the counter update.
+  // Catch silently so a network error in the analytics call cannot crash the
+  // page render via an unhandled promise rejection.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (supabase.rpc as any)('increment_public_link_view', { link_token: token }).then(
-    ({ error }: { error: { message: string } | null }) => {
+  void (supabase.rpc as any)('increment_public_link_view', { link_token: token })
+    .then(({ error }: { error: { message: string } | null }) => {
       if (error && import.meta.env.DEV) {
         console.error('increment_public_link_view failed:', error.message);
       }
-    }
-  );
+    })
+    .catch((err: unknown) => {
+      if (import.meta.env.DEV) {
+        console.error('increment_public_link_view threw:', err);
+      }
+    });
 
   const { data: permits, error: permitsError } = await (supabase
     // casting due to stale generated types — see audit follow-up

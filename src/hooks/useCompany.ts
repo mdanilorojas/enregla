@@ -35,7 +35,9 @@ export function useCompany(companyId: string | null | undefined) {
 }
 
 /**
- * Estado efectivo: trial -> expired si paso trial_ends_at
+ * Estado efectivo: trial -> expired si paso trial_ends_at.
+ * trial_ends_at se compara contra el instante actual (UTC). La división
+ * trial/expired no depende de la zona horaria del navegador.
  */
 export function getEffectiveStatus(company: Company | null | undefined): SubscriptionStatus | null {
   if (!company) return null;
@@ -44,14 +46,18 @@ export function getEffectiveStatus(company: Company | null | undefined): Subscri
   if (company.subscription_status === 'expired') return 'expired';
   if (company.subscription_status === 'trial') {
     if (!company.trial_ends_at) return 'trial';
-    return new Date(company.trial_ends_at) > new Date() ? 'trial' : 'expired';
+    return Date.parse(company.trial_ends_at) > Date.now() ? 'trial' : 'expired';
   }
   return 'expired';
 }
 
+/**
+ * Días restantes del trial relativos a la fecha calendario en Ecuador (UTC-5).
+ * Esto es la misma respuesta independiente de dónde se conecte el usuario.
+ */
 export function getDaysLeftInTrial(company: Company | null | undefined): number | null {
   if (!company || company.subscription_status !== 'trial' || !company.trial_ends_at) return null;
-  const ms = new Date(company.trial_ends_at).getTime() - Date.now();
+  const ms = Date.parse(company.trial_ends_at) - Date.now();
   if (ms <= 0) return 0;
   return Math.ceil(ms / (1000 * 60 * 60 * 24));
 }

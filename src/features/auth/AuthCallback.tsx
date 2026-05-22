@@ -19,7 +19,9 @@ export function AuthCallback() {
     let cancelled = false;
     const t0 = performance.now();
     const log = (msg: string, extra?: unknown) => {
+      if (!import.meta.env.DEV) return;
       const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
+      // eslint-disable-next-line no-console
       console.log(`[AuthCallback +${elapsed}s] ${msg}`, extra ?? '');
     };
     log('mount; url=', window.location.href);

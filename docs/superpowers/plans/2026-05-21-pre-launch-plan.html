@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EnRegla · Plan Pre-Lanzamiento</title>
+<style>
+  :root {
+    --bg: #0f1419;
+    --panel: #161b22;
+    --panel-2: #1c2330;
+    --border: #2a3340;
+    --text: #e8eef5;
+    --muted: #8b96a8;
+    --accent: #4f9eff;
+    --p0: #ef4444;
+    --p1: #f59e0b;
+    --p2: #3b82f6;
+    --p3: #6b7280;
+    --ok: #10b981;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    padding: 32px 16px;
+  }
+  .container { max-width: 980px; margin: 0 auto; }
+  header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+    margin-bottom: 28px;
+  }
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  h1 {
+    margin: 0 0 6px 0;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  .meta { color: var(--muted); font-size: 13px; }
+  h2 {
+    font-size: 18px;
+    margin: 28px 0 12px 0;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+  }
+  .scope-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 16px 0 24px 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .scope-item .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .scope-item .value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .stat {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: left;
+  }
+  .stat .num {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .stat .lbl {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .num.p0 { color: var(--p0); }
+  .num.p1 { color: var(--p1); }
+  .num.p2 { color: var(--p2); }
+  .num.p3 { color: var(--p3); }
+  .phase {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 18px;
+    overflow: hidden;
+  }
+  .phase-header {
+    padding: 14px 18px;
+    background: var(--panel-2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .phase-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1px;
+  }
+  .phase-title {
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .phase-meta {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  ul.tasks {
+    margin: 0;
+    padding: 6px 0;
+    list-style: none;
+  }
+  ul.tasks li {
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    gap: 12px;
+    align-items: start;
+  }
+  ul.tasks li:last-child { border-bottom: none; }
+  .pri {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-align: center;
+    align-self: start;
+    margin-top: 2px;
+  }
+  .pri.p0 { background: rgba(239, 68, 68, 0.15); color: var(--p0); }
+  .pri.p1 { background: rgba(245, 158, 11, 0.15); color: var(--p1); }
+  .pri.p2 { background: rgba(59, 130, 246, 0.15); color: var(--p2); }
+  .task-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .task-detail {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .effort {
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+    align-self: start;
+    margin-top: 3px;
+  }
+  .legend {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .legend span::before {
+    content: "■";
+    margin-right: 4px;
+  }
+  .legend .l-p0::before { color: var(--p0); }
+  .legend .l-p1::before { color: var(--p1); }
+  .legend .l-p2::before { color: var(--p2); }
+  footer {
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 12px;
+  }
+  @media (max-width: 720px) {
+    .scope-card, .stats { grid-template-columns: repeat(2, 1fr); }
+    ul.tasks li { grid-template-columns: 32px 1fr; }
+    .effort { grid-column: 2; margin-top: 4px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="eyebrow">EnRegla · Pre-Lanzamiento</div>
+  <h1>Plan para sacar a la venta</h1>
+  <div class="meta">2026-05-21 · 20 tareas · ~1 mes · 79 hallazgos auditados</div>
+</header>
+
+<div class="scope-card">
+  <div class="scope-item"><div class="label">Alcance</div><div class="value">Lanzamiento público formal</div></div>
+  <div class="scope-item"><div class="label">Pago</div><div class="value">Stripe + WhatsApp</div></div>
+  <div class="scope-item"><div class="label">Legal</div><div class="value">En paralelo</div></div>
+  <div class="scope-item"><div class="label">Plazo</div><div class="value">~4 semanas</div></div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="num p0">5</div><div class="lbl">P0 bloqueadores</div></div>
+  <div class="stat"><div class="num p1">9</div><div class="lbl">P1 críticos</div></div>
+  <div class="stat"><div class="num p2">6</div><div class="lbl">P2 polish</div></div>
+  <div class="stat"><div class="num">~140h</div><div class="lbl">Esfuerzo total</div></div>
+</div>
+
+<h2>Fase 1 · Bloqueadores técnicos (Semana 1)</h2>
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-num">SPRINT 1</span>
+    <span class="phase-title">Cierre de huecos críticos antes de cobrar</span>
+    <span class="phase-meta">~25h · 5 tareas</span>
+  </div>
+  <ul class="tasks">
+    <li>
+      <span class="pri p0">P0</span>
+      <div>
+        <div class="task-title">Fix bugs de zona horaria (Ecuador UTC-5)</div>
+        <div class="task-detail"><code>new Date()</code> naïf en <code>dates.ts</code>, <code>RenewalGridView</code>, <code>useCompany</code>, <code>publicLinks</code> → trial countdown y expiry mal calculados fuera de EC.</div>
+      </div>
+      <span class="effort">~3h</span>
+    </li>
+    <li>
+      <span class="pri p0">P0</span>
+      <div>
+        <div class="task-title">Quitar UUID demo hardcodeado de RLS + storage</div>
+        <div class="task-detail">Hoy cualquier user autenticado puede escribir/borrar en compañía demo. Mover a JWT custom claim. Cubrir DELETE policies.</div>
+      </div>
+      <span class="effort">~4h</span>
+    </li>
+    <li>
+      <span class="pri p0">P0</span>
+      <div>
+        <div class="task-title">Habilitar email verification</div>
+        <div class="task-detail"><code>config.toml</code> tiene <code>enable_confirmations=false</code>. Sin esto: emails fake, sin proof of consent (LOPDP).</div>
+      </div>
+      <span class="effort">~2h</span>
+    </li>
+    <li>
+      <span class="pri p0">P0</span>
+      <div>
+        <div class="task-title">Reemplazar WhatsApp placeholder</div>
+        <div class="task-detail">PaywallView tiene <code>593987654321</code> ficticio. Parametrizar via env, mensaje pre-poblado con plan + email.</div>
+      </div>
+      <span class="effort">~1h</span>
+    </li>
+    <li>
+      <span class="pri p1">P1</span>
+      <div>
+        <div class="task-title">Arreglar 4 errores ESLint + setState en effects</div>
+        <div class="task-detail"><code>RenewalGridView:40</code> y <code>AuthTest:201</code> setState en cuerpo de effect → cascading renders. <code>AuthCallback:23</code> console.log en prod.</div>
+      </div>
+      <span class="effort">~2h</span>
+    </li>
+  </ul>
+</div>
+
+<h2>Fase 2 · Billing real + LOPDP (Semana 2)</h2>
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-num">SPRINT 2</span>
+    <span class="phase-title">Cobrar y cumplir derechos del usuario</span>
+    <span class="phase-meta">~50h · 6 tareas</span>
+  </div>
+  <ul class="tasks">
+    <li>
+      <span class="pri p0">P0</span>
+      <div>
+        <div class="task-title">Stripe Billing + WhatsApp como fallback</div>
+        <div class="task-detail">Checkout Stripe primario, WhatsApp como alternativa visible. Webhook actualiza <code>subscription_status</code>. Customer portal para cambio de plan.</div>
+      </div>
+      <span class="effort">~20h</span>
+    </li>
+    <li>
+      <span class="pri p1">P1</span>
+      <div>
+        <div class="task-title">audit_logs table + triggers</div>
+        <div class="task-detail">Trail completo de quién cambió qué (permits/locations/documents/companies). Crítico para SaaS de compliance.</div>
+      </div>
+      <span class="effort">~10h</span>
+    </li>
+    <li>
+      <span class="pri p1">P1</span>
+      <div>
+        <div class="task-title">Data export (LOPDP Art. 9)</div>
+        <div class="task-detail">Botón "Exportar mis datos" → ZIP con JSON+CSV → email Resend. Tabla <code>export_requests</code> con TTL 7 días.</div>
+      </div>
+      <span class="effort">~6h</span>
+    </li>
+    <li>
+      <span class="pri p1">P1</span>
+      <div>
+        <div class="task-title">Account deletion (Right to Erasure)</div>
+        <div class="task-detail">Soft delete 30d → hard delete vía cron. Confirmación email obligatoria. CASCADE completo + storage cleanup.</div>
+      </div>
+      <span class="effort">~6h</span>
+    </li>
+    <li>
+      <span class="pri p1">P1</span>
+      <div>
+        <div class="task-title">Welcome email + invite emails</div>
+        <div class="task-detail">Edge functions Resend: bienvenida tras email-verify, invitaciones reales para team members.</div>
+      </div>
+      <span class="effort">~4h</span>
+    </li>
+    <li>
+      <span class="pri p1">P1</span>
+      <div>
+        <div class="task-title">Error states + .catch en fetches</div>
+        <div class="task-detail">Dashboard, Permits, Renewals, Legal, Locations: render <code>&lt;ErrorBanner&gt;</code> en isError. Fix fire-and-forget en publicLinks.</div>
+      </div>
+      <span class="effort">~4h</span>
+    </li>
+  </ul>
+</div>
+
+<h2>Fase 3 · UX, calidad, ops (Semanas 3–4)</h2>
+<div class="phase">
+  <div class="phase-header">
+    <span class="phase-num">SPRINT 3</span>
+    <span class="phase-title">Pulido + tests + producción seria</span>
+    <span class="phase-meta">~65h · 9 tareas</span>
+  </div>
+  <ul class="tasks">
+    <li>
+      <span class="pri p1">P1</span>
+      <div>
+        <div class="task-title">Tests E2E con Playwright</div>
+        <div class="task-detail">4 flows: signup→verify→onboarding, crear permit→subir doc, trial→paywall→Stripe, public link share. Run en CI.</div>
+      </div>
+      <span class="effort">~16h</span>
+    </li>
+    <li>
+      <span class="pri p1">P1</span>
+      <div>
+        <div class="task-title">Code-splitting (bundle 1.3MB → &lt;500KB inicial)</div>
+        <div class="task-detail"><code>React.lazy</code> + <code>Suspense</code> por ruta. Mejor TTI mobile.</div>
+      </div>
+      <span class="effort">~6h</span>
+    </li>
+    <li>
+      <span class="pri p1">P1</span>
+      <div>
+        <div class="task-title">Banner trial countdown global</div>
+        <div class="task-detail">AppLayout: si <code>daysLeft &lt;= 7</code>, banner amarillo persistente con CTA. <code>daysLeft=0</code> → rojo.</div>
+      </div>
+      <span class="effort">~3h</span>
+    </li>
+    <li>
+      <span class="pri p1">P1</span>
+      <div>
+        <div class="task-title">Tab Billing en /settings + comparison table</div>
+        <div class="task-detail">Plan actual, próxima factura, historial, link a Stripe Customer Portal. Tabla comparativa de features en PaywallView.</div>
+      </div>
+      <span class="effort">~6h</span>
+    </li>
+    <li>
+      <span class="pri p1">P1</span>
+      <div>
+        <div class="task-title">Onboarding checklist + empty states</div>
+        <div class="task-detail">5 pasos visibles: empresa ✅, sede, permiso, equipo, notificaciones. Persistir en <code>profiles.onboarding_completed_steps</code>.</div>
+      </div>
+      <span class="effort">~5h</span>
+    </li>
+    <li>
+      <span class="pri p2">P2</span>
+      <div>
+        <div class="task-title">Cambio password en SecurityTab</div>
+        <div class="task-detail">Form: actual + nueva + confirmar. <code>auth.updateUser</code>. Logout opcional otras sesiones.</div>
+      </div>
+      <span class="effort">~2h</span>
+    </li>
+    <li>
+      <span class="pri p2">P2</span>
+      <div>
+        <div class="task-title">Rate limit + Turnstile en formularios públicos</div>
+        <div class="task-detail">Cloudflare Turnstile en landing leads. Rate limit RLS de 5/h → 2/h. Edge function intermedia para public link downloads.</div>
+      </div>
+      <span class="effort">~4h</span>
+    </li>
+    <li>
+      <span class="pri p2">P2</span>
+      <div>
+        <div class="task-title">Status page + footer con soporte</div>
+        <div class="task-detail">BetterStack/StatusPage. Footer AppLayout: Help, Términos, Privacidad, WhatsApp, email.</div>
+      </div>
+      <span class="effort">~3h</span>
+    </li>
+    <li>
+      <span class="pri p2">P2</span>
+      <div>
+        <div class="task-title">Backup runbook + PITR Supabase</div>
+        <div class="task-detail">Habilitar PITR (Pro plan). Documentar restore steps, RTO/RPO. Test restore mensual.</div>
+      </div>
+      <span class="effort">~2h</span>
+    </li>
+  </ul>
+</div>
+
+<div class="legend">
+  <span class="l-p0">P0 = bloqueador venta</span>
+  <span class="l-p1">P1 = crítico semana 1–2 post-lanzamiento</span>
+  <span class="l-p2">P2 = polish</span>
+</div>
+
+<footer>
+  Plan generado tras auditoría completa (3 agentes en paralelo): seguridad/RLS, estabilidad/correctness, business/legal.
+  Legal (T&C, Privacy, SRI) corre en paralelo, fuera de este plan técnico.
+  Total: 20 tareas en TaskList. Empezar por <strong>Fase 1</strong>.
+</footer>
+
+</div>
+</body>
+</html>

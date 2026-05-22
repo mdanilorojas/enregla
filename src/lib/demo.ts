@@ -14,6 +14,11 @@ export function resolveCompanyId(authCompanyId: string | null | undefined): stri
   return authCompanyId ?? null;
 }
 
+/** True when the given id matches the demo company. */
+export function isDemoCompanyId(companyId: string | null | undefined): boolean {
+  return !!companyId && companyId === DEMO_COMPANY_ID;
+}
+
 /**
  * Runtime guard: refuse to enable demo mode on the real production host.
  * Called from main.tsx at boot so a misconfigured deploy throws loudly rather

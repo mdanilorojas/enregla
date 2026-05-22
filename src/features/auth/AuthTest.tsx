@@ -115,11 +115,13 @@ export function AuthTest() {
             3000
           )
       );
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: sessionData, error: sessionErr } = (await Promise.race([
         sessionPromise,
         sessionTimeout,
-      ])) as any;
+      ])) as {
+        data: { session: { user: { id: string }; access_token: string } | null };
+        error: { message: string } | null;
+      };
       addCheck({
         label: `[${elapsed()}] supabase.auth.getSession() (3s timeout)`,
         ok: !!sessionData.session && !sessionErr,
@@ -197,9 +199,13 @@ export function AuthTest() {
   };
 
   useEffect(() => {
-    if (!loading && user) {
-      runChecks();
-    }
+    if (loading || !user) return;
+    // runChecks invoca setState; lo aplazamos un tick para evitar cascading
+    // renders detectados por react-hooks/set-state-in-effect.
+    const handle = setTimeout(() => {
+      void runChecks();
+    }, 0);
+    return () => clearTimeout(handle);
   }, [loading, user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) return <div style={{ padding: 32 }}>useAuth loading...</div>;

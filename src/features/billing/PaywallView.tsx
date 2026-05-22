@@ -3,9 +3,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCompany, getEffectiveStatus, getDaysLeftInTrial } from '@/hooks/useCompany';
 import { Shield, MessageSquare, Check, Clock, ArrowLeft } from '@/lib/lucide-icons';
 
-// Placeholders — reemplazar con datos reales:
-const WHATSAPP_NUMBER = '593987654321'; // E.164 sin +
-const WHATSAPP_DISPLAY = '+593 98 765 4321';
+// WhatsApp comercial: configurar con VITE_WHATSAPP_NUMBER (E.164 sin +) y
+// VITE_WHATSAPP_DISPLAY (formato visible). Si no hay env, se cae a un valor
+// vacío y la UI deshabilita el CTA.
+const WHATSAPP_NUMBER = (import.meta.env.VITE_WHATSAPP_NUMBER as string | undefined) ?? '';
+const WHATSAPP_DISPLAY =
+  (import.meta.env.VITE_WHATSAPP_DISPLAY as string | undefined) ??
+  (WHATSAPP_NUMBER ? `+${WHATSAPP_NUMBER}` : '');
 const PRICE_BASIC = 19;
 const PRICE_PRO = 49;
 const PRICE_ENTERPRISE = 99;
@@ -55,7 +59,8 @@ const PLANS = [
   },
 ];
 
-function buildWhatsappUrl(planName: string, companyName: string, ruc: string): string {
+function buildWhatsappUrl(planName: string, companyName: string, ruc: string): string | null {
+  if (!WHATSAPP_NUMBER) return null;
   const text = `Hola, quiero activar mi cuenta de EnRegla.\n\nPlan: ${planName}\nEmpresa: ${companyName}\nRUC: ${ruc}\n\nQueda atento al proceso de pago.`;
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 }
@@ -175,19 +180,38 @@ export function PaywallView() {
                   </li>
                 ))}
               </ul>
-              <a
-                href={buildWhatsappUrl(plan.name, companyName, ruc)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`inline-flex items-center justify-center gap-[var(--ds-space-100)] w-full py-[var(--ds-space-200)] px-[var(--ds-space-300)] rounded-[var(--ds-radius-200)] font-semibold text-[var(--ds-font-size-100)] transition-colors ${
+              {(() => {
+                const href = buildWhatsappUrl(plan.name, companyName, ruc);
+                const baseClass = `inline-flex items-center justify-center gap-[var(--ds-space-100)] w-full py-[var(--ds-space-200)] px-[var(--ds-space-300)] rounded-[var(--ds-radius-200)] font-semibold text-[var(--ds-font-size-100)] transition-colors ${
                   plan.highlighted
                     ? 'bg-[var(--ds-background-brand)] text-white hover:opacity-90'
                     : 'bg-[var(--ds-neutral-100)] text-[var(--ds-text)] hover:bg-[var(--ds-neutral-200)]'
-                }`}
-              >
-                <MessageSquare className="w-5 h-5" aria-hidden="true" />
-                Contratar por WhatsApp
-              </a>
+                }`;
+                if (!href) {
+                  return (
+                    <button
+                      type="button"
+                      disabled
+                      className={`${baseClass} opacity-60 cursor-not-allowed`}
+                      title="Contacto comercial no configurado"
+                    >
+                      <MessageSquare className="w-5 h-5" aria-hidden="true" />
+                      Contacto pronto
+                    </button>
+                  );
+                }
+                return (
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={baseClass}
+                  >
+                    <MessageSquare className="w-5 h-5" aria-hidden="true" />
+                    Contratar por WhatsApp
+                  </a>
+                );
+              })()}
             </div>
           ))}
         </div>
@@ -202,15 +226,22 @@ export function PaywallView() {
           <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)] mb-[var(--ds-space-300)]">
             Respondemos en horario de oficina (Lun-Vie, 9:00-18:00 GMT-5).
           </p>
-          <a
-            href={`https://wa.me/${WHATSAPP_NUMBER}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-[var(--ds-space-150)] px-[var(--ds-space-400)] py-[var(--ds-space-250)] rounded-[var(--ds-radius-200)] bg-[#25D366] text-white font-semibold hover:opacity-90 transition-opacity"
-          >
-            <MessageSquare className="w-5 h-5" aria-hidden="true" />
-            WhatsApp: {WHATSAPP_DISPLAY}
-          </a>
+          {WHATSAPP_NUMBER ? (
+            <a
+              href={`https://wa.me/${WHATSAPP_NUMBER}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-[var(--ds-space-150)] px-[var(--ds-space-400)] py-[var(--ds-space-250)] rounded-[var(--ds-radius-200)] bg-[#25D366] text-white font-semibold hover:opacity-90 transition-opacity"
+            >
+              <MessageSquare className="w-5 h-5" aria-hidden="true" />
+              WhatsApp: {WHATSAPP_DISPLAY}
+            </a>
+          ) : (
+            <span className="inline-flex items-center gap-[var(--ds-space-150)] px-[var(--ds-space-400)] py-[var(--ds-space-250)] rounded-[var(--ds-radius-200)] bg-[var(--ds-neutral-100)] text-[var(--ds-text-subtle)] font-semibold">
+              <MessageSquare className="w-5 h-5" aria-hidden="true" />
+              Contacto comercial no configurado
+            </span>
+          )}
           <p className="mt-[var(--ds-space-300)] text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)]">
             Una vez confirmado el pago, activamos tu cuenta de forma manual en menos de 2 horas hábiles.
           </p>

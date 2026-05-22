@@ -7,17 +7,12 @@ import { Banner } from '@/components/ui/banner'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 import type { Company } from '@/types/database'
-import { BUSINESS_TYPES, businessTypeLabel } from '@/lib/domain/business-types'
-
-const BUSINESS_TYPE_OPTIONS = BUSINESS_TYPES.map((value) => ({
-  value,
-  label: businessTypeLabel(value),
-}))
+import { businessTypeLabel } from '@/lib/domain/business-types'
+import { ChangeBusinessTypeDialog } from './ChangeBusinessTypeDialog'
 
 type Draft = {
   name: string
   ruc: string
-  business_type: string
   city: string
 }
 
@@ -29,12 +24,12 @@ export function CompanyTab() {
   const [draft, setDraft] = useState<Draft>({
     name: '',
     ruc: '',
-    business_type: 'retail',
     city: '',
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [changeTypeOpen, setChangeTypeOpen] = useState(false)
 
   useEffect(() => {
     if (!companyId) {
@@ -62,7 +57,6 @@ export function CompanyTab() {
           setDraft({
             name: data.name ?? '',
             ruc: data.ruc ?? '',
-            business_type: data.business_type ?? 'retail',
             city: data.city ?? '',
           })
         }
@@ -101,7 +95,6 @@ export function CompanyTab() {
       .update({
         name: draft.name.trim(),
         ruc: draft.ruc.trim(),
-        business_type: draft.business_type,
         city: draft.city.trim(),
       })
       .eq('id', companyId)
@@ -119,7 +112,6 @@ export function CompanyTab() {
           ...prev,
           name: draft.name.trim(),
           ruc: draft.ruc.trim(),
-          business_type: draft.business_type,
           city: draft.city.trim(),
         }
     )
@@ -150,7 +142,6 @@ export function CompanyTab() {
     company != null &&
     (draft.name.trim() !== (company.name ?? '') ||
       draft.ruc.trim() !== (company.ruc ?? '') ||
-      draft.business_type !== (company.business_type ?? '') ||
       draft.city.trim() !== (company.city ?? ''))
 
   return (
@@ -196,20 +187,25 @@ export function CompanyTab() {
           <label className="block text-[var(--ds-font-size-075)] font-semibold mb-[var(--ds-space-050)]">
             Tipo de negocio
           </label>
-          <select
-            value={draft.business_type}
-            onChange={(e) => setDraft((d) => ({ ...d, business_type: e.target.value }))}
-            disabled={saving}
-            className="w-full bg-white border border-[var(--ds-border)] rounded-[var(--ds-radius-200)] px-[var(--ds-space-150)] py-[var(--ds-space-100)] text-[var(--ds-font-size-100)] text-[var(--ds-text)] focus:outline-none focus:ring-2 focus:ring-[var(--ds-background-brand)]/20 focus:border-[var(--ds-border-bold)] transition-all disabled:opacity-50"
-          >
-            {BUSINESS_TYPE_OPTIONS.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
-              </option>
-            ))}
-          </select>
-          <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mt-[var(--ds-space-050)]">
-            Define qué permisos se crean automáticamente para nuevas sedes
+          <div className="flex items-center gap-[var(--ds-space-200)] p-[var(--ds-space-200)] border border-[var(--ds-border)] rounded-[var(--ds-radius-200)] bg-[var(--ds-background-subtle,#f8fafc)]">
+            <div className="flex-1">
+              <div className="text-[var(--ds-font-size-100)] font-semibold text-[var(--ds-text)]">
+                {businessTypeLabel(company?.business_type ?? '')}
+              </div>
+              <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mt-[var(--ds-space-025)]">
+                Define qué permisos se generan al crear una sede.
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => setChangeTypeOpen(true)}
+              disabled={saving || !company}
+            >
+              Cambiar tipo
+            </Button>
+          </div>
+          <p className="text-[var(--ds-font-size-075)] text-[var(--ds-color-danger-text,#b91c1c)] mt-[var(--ds-space-100)]">
+            Cambiar el tipo eliminará todos los permisos actuales. Acción destructiva.
           </p>
         </div>
 
@@ -229,6 +225,19 @@ export function CompanyTab() {
           {saving ? 'Guardando...' : 'Guardar cambios'}
         </Button>
       </div>
+
+      {company && (
+        <ChangeBusinessTypeDialog
+          open={changeTypeOpen}
+          onOpenChange={setChangeTypeOpen}
+          companyId={company.id}
+          companyName={company.name}
+          currentBusinessType={company.business_type ?? ''}
+          onChanged={(newType) =>
+            setCompany((prev) => (prev ? { ...prev, business_type: newType } : prev))
+          }
+        />
+      )}
     </Card>
   )
 }
