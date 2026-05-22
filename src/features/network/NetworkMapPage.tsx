@@ -1,10 +1,12 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useLocations } from '@/hooks/useLocations'
 import { usePermits } from '@/hooks/usePermits'
 import { resolveCompanyId } from '@/lib/demo'
 import { NetworkMapCanvas } from './NetworkMapCanvas'
 import { MapLegend } from './MapLegend'
+import { Sheet } from '@/components/ui/sheet'
+import { Info, X } from '@/lib/lucide-icons'
 import type { SedeMapData } from '@/features/dashboard/DashboardMap'
 
 export function NetworkMapPage() {
@@ -13,6 +15,7 @@ export function NetworkMapPage() {
 
   const { locations } = useLocations(companyId)
   const { permits } = usePermits({ companyId })
+  const [legendOpen, setLegendOpen] = useState(false)
 
   const sedes = useMemo<SedeMapData[]>(() => {
     return locations.map(loc => {
@@ -40,17 +43,49 @@ export function NetworkMapPage() {
   }, [locations, permits])
 
   return (
-    <div
-      className="relative w-full rounded-[var(--ds-radius-200)] overflow-hidden bg-[var(--ds-neutral-0)] shadow-[var(--ds-shadow-raised)] border border-[var(--ds-border)]"
-      style={{ height: 'calc(100vh - 140px)', minHeight: 600 }}
-    >
-      <NetworkMapCanvas
-        empresaName={(profile as { company_name?: string } | null)?.company_name || 'EnRegla Corp'}
-        sedes={sedes}
-      />
-      <div className="absolute top-[var(--ds-space-300)] right-[var(--ds-space-300)] w-[220px] z-10">
-        <MapLegend />
+    <>
+      <div
+        className="relative w-full rounded-[var(--ds-radius-200)] overflow-hidden bg-[var(--ds-neutral-0)] shadow-[var(--ds-shadow-raised)] border border-[var(--ds-border)] lg:min-h-[600px]"
+        style={{ height: 'calc(100dvh - 200px)', minHeight: 480 }}
+      >
+        <NetworkMapCanvas
+          empresaName={(profile as { company_name?: string } | null)?.company_name || 'EnRegla Corp'}
+          sedes={sedes}
+        />
+        <div className="hidden lg:block absolute top-[var(--ds-space-300)] right-[var(--ds-space-300)] w-[220px] z-10">
+          <MapLegend />
+        </div>
+        <button
+          type="button"
+          onClick={() => setLegendOpen(true)}
+          aria-label="Mostrar leyenda"
+          className="lg:hidden fixed bottom-24 right-4 z-20 inline-flex items-center gap-2 px-3 min-h-[44px] rounded-full bg-[var(--ds-neutral-0)] border border-[var(--ds-border)] shadow-[var(--ds-shadow-overlay)] text-[var(--ds-text)]"
+        >
+          <Info className="w-4 h-4" />
+          Leyenda
+        </button>
       </div>
-    </div>
+
+      <Sheet
+        open={legendOpen}
+        onOpenChange={setLegendOpen}
+        side="bottom"
+        ariaLabel="Leyenda del mapa"
+      >
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--ds-border)]">
+          <h3 className="font-semibold text-[var(--ds-text)]">Leyenda</h3>
+          <button
+            onClick={() => setLegendOpen(false)}
+            aria-label="Cerrar"
+            className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
+          >
+            <X className="w-5 h-5 text-[var(--ds-text-subtle)]" />
+          </button>
+        </div>
+        <div className="p-4 overflow-y-auto">
+          <MapLegend />
+        </div>
+      </Sheet>
+    </>
   )
 }

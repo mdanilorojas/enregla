@@ -31,15 +31,17 @@ export function Tabs({ defaultValue, value, onValueChange, className, children, 
 
 export function TabsList({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div
-      role="tablist"
-      className={cn(
-        "flex gap-[var(--ds-space-050)] border-b-2 border-[var(--ds-border)]",
-        className
-      )}
-      {...props}
-    >
-      {children}
+    <div className="-mx-[var(--ds-space-200)] px-[var(--ds-space-200)] sm:mx-0 sm:px-0 overflow-x-auto">
+      <div
+        role="tablist"
+        className={cn(
+          "flex gap-[var(--ds-space-050)] border-b-2 border-[var(--ds-border)] whitespace-nowrap",
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </div>
     </div>
   )
 }
@@ -58,7 +60,7 @@ export function TabsTrigger({ value, className, children, ...props }: TabsTrigge
       role="tab"
       aria-selected={isActive}
       className={cn(
-        "px-[var(--ds-space-150)] py-[var(--ds-space-100)] text-[var(--ds-font-size-100)] font-medium",
+        "flex-shrink-0 min-h-[44px] px-[var(--ds-space-150)] py-[var(--ds-space-100)] text-[var(--ds-font-size-100)] font-medium",
         "border-b-2 -mb-0.5 transition-colors duration-200",
         isActive
           ? "text-[var(--ds-text-brand)] border-[var(--ds-background-brand)]"

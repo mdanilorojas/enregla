@@ -118,7 +118,11 @@ export function NotificationBell() {
           )}
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" sideOffset={8} className="w-[380px] p-0 max-h-[520px] overflow-hidden flex flex-col">
+      <PopoverContent
+        align="end"
+        sideOffset={8}
+        className="w-[calc(100vw-16px)] sm:w-[380px] max-w-[380px] p-0 max-h-[80dvh] sm:max-h-[520px] overflow-hidden flex flex-col"
+      >
         <div className="flex items-center justify-between px-[var(--ds-space-200)] py-[var(--ds-space-150)] border-b border-[var(--ds-border)]">
           <div>
             <h3 className="text-[var(--ds-font-size-200)] font-semibold text-[var(--ds-text)]">Notificaciones</h3>
