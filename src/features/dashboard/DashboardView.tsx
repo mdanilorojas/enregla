@@ -259,14 +259,14 @@ export function DashboardView() {
               </span>
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-[var(--ds-space-100)] w-full lg:w-auto">
-            <Link to="/permisos" className="w-full sm:w-auto order-1 sm:order-2">
+          <div className="flex flex-col sm:flex-row-reverse gap-[var(--ds-space-100)] w-full lg:w-auto">
+            <Link to="/permisos" className="w-full sm:w-auto">
               <Button className="w-full">
                 <Plus className="w-4 h-4" />
                 Nuevo permiso
               </Button>
             </Link>
-            <Button variant="secondary" className="w-full sm:w-auto order-2 sm:order-1">
+            <Button variant="secondary" className="w-full sm:w-auto">
               <Download className="w-4 h-4" />
               Exportar reporte
             </Button>

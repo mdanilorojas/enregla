@@ -59,7 +59,8 @@ export function NetworkMapPage() {
           type="button"
           onClick={() => setLegendOpen(true)}
           aria-label="Mostrar leyenda"
-          className="lg:hidden fixed bottom-24 right-4 z-20 inline-flex items-center gap-2 px-3 min-h-[44px] rounded-full bg-[var(--ds-neutral-0)] border border-[var(--ds-border)] shadow-[var(--ds-shadow-overlay)] text-[var(--ds-text)]"
+          style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)' }}
+          className="lg:hidden fixed right-4 z-20 inline-flex items-center gap-2 px-3 min-h-[44px] rounded-full bg-[var(--ds-neutral-0)] border border-[var(--ds-border)] shadow-[var(--ds-shadow-overlay)] text-[var(--ds-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ds-background-brand)] focus-visible:ring-offset-2"
         >
           <Info className="w-4 h-4" />
           Leyenda

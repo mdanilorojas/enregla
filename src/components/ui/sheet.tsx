@@ -28,19 +28,23 @@ export function Sheet({ open, onOpenChange, side = 'bottom', children, className
     }
 
     const handleKeydown = (e: KeyboardEvent) => {
+      const root = contentRef.current
+      if (!root) return
       if (e.key === 'Escape') {
+        e.stopPropagation()
         onOpenChange(false)
         return
       }
-      if (e.key !== 'Tab' || !contentRef.current) return
-      const focusables = contentRef.current.querySelectorAll<HTMLElement>(FOCUSABLE)
+      if (e.key !== 'Tab') return
+      const active = document.activeElement
+      if (!(active instanceof Node) || !root.contains(active)) return
+      const focusables = root.querySelectorAll<HTMLElement>(FOCUSABLE)
       if (focusables.length === 0) {
         e.preventDefault()
         return
       }
       const first = focusables[0]
       const last = focusables[focusables.length - 1]
-      const active = document.activeElement
       if (e.shiftKey && active === first) {
         e.preventDefault()
         last.focus()
@@ -52,7 +56,10 @@ export function Sheet({ open, onOpenChange, side = 'bottom', children, className
     window.addEventListener('keydown', handleKeydown)
     return () => {
       window.removeEventListener('keydown', handleKeydown)
-      previouslyFocused.current?.focus?.()
+      const prev = previouslyFocused.current
+      if (prev && prev.isConnected) {
+        prev.focus?.()
+      }
     }
   }, [open, onOpenChange])
 
@@ -73,7 +80,7 @@ export function Sheet({ open, onOpenChange, side = 'bottom', children, className
   }
 
   return (
-    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label={ariaLabel}>
+    <div className="fixed inset-0 z-50">
       <div
         data-testid="sheet-overlay"
         className="absolute inset-0 bg-black/40 backdrop-blur-sm motion-reduce:transition-none"
@@ -82,6 +89,9 @@ export function Sheet({ open, onOpenChange, side = 'bottom', children, className
       />
       <div
         ref={contentRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={ariaLabel}
         tabIndex={-1}
         className={cn(
           'absolute bg-[var(--ds-neutral-0)] shadow-[var(--ds-shadow-overlay)] flex flex-col overflow-hidden motion-reduce:animate-none',

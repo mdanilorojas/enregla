@@ -55,19 +55,42 @@ export function TabsTrigger({ value, className, children, ...props }: TabsTrigge
   if (!ctx) throw new Error('TabsTrigger must be used inside Tabs')
   const isActive = ctx.active === value
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Home' && e.key !== 'End') {
+      props.onKeyDown?.(e)
+      return
+    }
+    const tablist = e.currentTarget.closest('[role="tablist"]')
+    if (!tablist) return
+    const tabs = Array.from(tablist.querySelectorAll<HTMLButtonElement>('[role="tab"]'))
+    const idx = tabs.indexOf(e.currentTarget)
+    if (idx === -1) return
+    e.preventDefault()
+    let next = idx
+    if (e.key === 'ArrowLeft') next = (idx - 1 + tabs.length) % tabs.length
+    else if (e.key === 'ArrowRight') next = (idx + 1) % tabs.length
+    else if (e.key === 'Home') next = 0
+    else if (e.key === 'End') next = tabs.length - 1
+    tabs[next]?.focus()
+    tabs[next]?.click()
+  }
+
   return (
     <button
       role="tab"
       aria-selected={isActive}
+      tabIndex={isActive ? 0 : -1}
       className={cn(
         "flex-shrink-0 min-h-[44px] px-[var(--ds-space-150)] py-[var(--ds-space-100)] text-[var(--ds-font-size-100)] font-medium",
         "border-b-2 -mb-0.5 transition-colors duration-200",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ds-background-brand)] focus-visible:ring-offset-2",
         isActive
           ? "text-[var(--ds-text-brand)] border-[var(--ds-background-brand)]"
           : "text-[var(--ds-text-subtle)] border-transparent hover:text-[var(--ds-text)]",
         className
       )}
       onClick={() => ctx.setActive(value)}
+      onKeyDown={handleKeyDown}
       {...props}
     >
       {children}

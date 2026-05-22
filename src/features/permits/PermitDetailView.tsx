@@ -262,7 +262,7 @@ export function PermitDetailView() {
               {permitNumber}
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-[var(--ds-space-100)] w-full lg:w-auto">
+          <div className="flex flex-col sm:flex-row-reverse gap-[var(--ds-space-100)] w-full lg:w-auto">
             <input
               ref={headerFileInputRef}
               type="file"
@@ -273,7 +273,7 @@ export function PermitDetailView() {
             <Button
               variant="default"
               onClick={() => headerFileInputRef.current?.click()}
-              className="w-full sm:w-auto order-1 sm:order-2"
+              className="w-full sm:w-auto"
             >
               <Upload className="w-4 h-4" />
               Subir documento
@@ -281,7 +281,7 @@ export function PermitDetailView() {
             <Button
               variant="outline"
               onClick={() => setRenewOpen(true)}
-              className="w-full sm:w-auto order-2 sm:order-1"
+              className="w-full sm:w-auto"
             >
               <RefreshCw className="w-4 h-4" />
               Renovar

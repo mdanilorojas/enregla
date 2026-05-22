@@ -38,6 +38,8 @@ export function LegalMatrixAccordion({ rows }: LegalMatrixAccordionProps) {
     <ul className="list-none m-0 p-0 space-y-[var(--ds-space-100)]">
       {rows.map((row) => {
         const isOpen = openId === row.permitType
+        const panelId = `legal-matrix-panel-${row.permitType}`
+        const buttonId = `legal-matrix-button-${row.permitType}`
         return (
           <li
             key={row.permitType}
@@ -45,9 +47,11 @@ export function LegalMatrixAccordion({ rows }: LegalMatrixAccordionProps) {
           >
             <button
               type="button"
+              id={buttonId}
               onClick={() => setOpenId(isOpen ? null : row.permitType)}
               aria-expanded={isOpen}
-              className="w-full flex items-center justify-between gap-[var(--ds-space-150)] px-[var(--ds-space-200)] py-[var(--ds-space-150)] min-h-[44px] text-left"
+              aria-controls={panelId}
+              className="w-full flex items-center justify-between gap-[var(--ds-space-150)] px-[var(--ds-space-200)] py-[var(--ds-space-150)] min-h-[44px] text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ds-background-brand)] focus-visible:ring-offset-2"
             >
               <div className="min-w-0 flex-1">
                 <p className="font-semibold text-[var(--ds-text)] break-words">
@@ -66,7 +70,12 @@ export function LegalMatrixAccordion({ rows }: LegalMatrixAccordionProps) {
               />
             </button>
             {isOpen && (
-              <div className="border-t border-[var(--ds-border)] px-[var(--ds-space-200)] py-[var(--ds-space-150)] space-y-[var(--ds-space-150)]">
+              <div
+                id={panelId}
+                role="region"
+                aria-labelledby={buttonId}
+                className="border-t border-[var(--ds-border)] px-[var(--ds-space-200)] py-[var(--ds-space-150)] space-y-[var(--ds-space-150)]"
+              >
                 <div className="grid grid-cols-2 gap-[var(--ds-space-150)] text-[var(--ds-font-size-075)]">
                   <div>
                     <dt className="text-[var(--ds-text-subtle)]">Rol</dt>
