@@ -182,13 +182,11 @@ export function DashboardTestView() {
   const brandName = company?.name ?? 'tu negocio'
   const riskBadgeVariant =
     metrics.riskLevel === 'critical' ? 'risk-critico'
-    : metrics.riskLevel === 'high' ? 'risk-alto'
     : metrics.riskLevel === 'medium' ? 'risk-medio'
     : 'risk-bajo'
 
   const riskLabel =
     metrics.riskLevel === 'critical' ? 'Crítico'
-    : metrics.riskLevel === 'high' ? 'Alto'
     : metrics.riskLevel === 'medium' ? 'Medio'
     : 'Bajo'
 
