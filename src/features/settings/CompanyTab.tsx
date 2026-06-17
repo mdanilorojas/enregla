@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Banner } from '@/components/ui/banner'
+import { useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 import type { Company } from '@/types/database'
@@ -19,6 +20,7 @@ type Draft = {
 export function CompanyTab() {
   const { profile } = useAuth()
   const companyId = profile?.company_id
+  const queryClient = useQueryClient()
 
   const [company, setCompany] = useState<Company | null>(null)
   const [draft, setDraft] = useState<Draft>({
@@ -116,6 +118,9 @@ export function CompanyTab() {
     }
 
     setCompany(updated[0] as Company)
+    // Refrescar la cache de useCompany para que dashboard/otras vistas muestren
+    // el nombre/tipo actualizado sin recargar.
+    void queryClient.invalidateQueries({ queryKey: ['company', companyId] })
     setSaving(false)
     toast.success('Empresa actualizada')
   }

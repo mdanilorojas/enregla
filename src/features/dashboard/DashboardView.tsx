@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Building2, Plus, ChevronRight, ArrowRight, Check } from '@/lib/lucide-icons'
 import { permitTypeLabel } from '@/lib/domain/permit-types'
+import { businessTypeLabel } from '@/lib/domain/business-types'
 import { SkeletonList } from '@/components/ui/skeleton'
 import { ErrorState } from '@/components/ui/error-state'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -203,9 +204,16 @@ export function DashboardView() {
         {/* Header Section */}
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-[var(--ds-space-200)] lg:gap-[var(--ds-space-300)] pb-[var(--ds-space-200)] border-b border-[var(--ds-border)]">
           <div className="min-w-0">
-            <h1 className="text-[var(--ds-font-size-500)] sm:text-[var(--ds-font-size-600)] font-extrabold text-[var(--ds-text)] break-words tracking-tight">
-              {brandName}
-            </h1>
+            <div className="flex flex-wrap items-center gap-[var(--ds-space-150)]">
+              <h1 className="text-[var(--ds-font-size-500)] sm:text-[var(--ds-font-size-600)] font-extrabold text-[var(--ds-text)] break-words tracking-tight">
+                {brandName}
+              </h1>
+              {company?.business_type && (
+                <Badge variant="info" size="sm" className="shrink-0">
+                  {businessTypeLabel(company.business_type)}
+                </Badge>
+              )}
+            </div>
             <div className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)] mt-1 font-medium flex flex-wrap items-center gap-2">
               <span>{metrics.vigentes} de {metrics.total} permisos vigentes</span>
               <span>·</span>
