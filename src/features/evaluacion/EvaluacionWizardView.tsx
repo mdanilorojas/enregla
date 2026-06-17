@@ -1,14 +1,15 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, ArrowRight, Check } from '@/lib/lucide-icons';
-import { listBusinessTypes, getBusinessType } from './catalog';
-import { saveEvaluation } from './storage';
+import { useBusinessTypes, useBusinessType, useSaveEvaluation } from './useEvaluacion';
 import type { BusinessTypeDef, InputFieldDef, InputValues, ProspectMeta } from './types';
 
 type Step = 'tipo' | 'datos';
@@ -26,20 +27,27 @@ function defaultValues(bt: BusinessTypeDef): InputValues {
 
 export function EvaluacionWizardView() {
   const navigate = useNavigate();
-  const types = listBusinessTypes();
+  const { data: types, isLoading: loadingTypes } = useBusinessTypes();
 
   const [step, setStep] = useState<Step>('tipo');
   const [slug, setSlug] = useState<string>('');
   const [prospect, setProspect] = useState<ProspectMeta>({ name: '' });
   const [values, setValues] = useState<InputValues>({});
 
-  const bt = useMemo(() => getBusinessType(slug), [slug]);
+  const { data: bt } = useBusinessType(step === 'datos' ? slug : undefined);
+  const save = useSaveEvaluation();
+
+  // Inicializa los valores por defecto cuando carga el tipo elegido.
+  useEffect(() => {
+    if (bt && Object.keys(values).length === 0) {
+      setValues(defaultValues(bt));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bt]);
 
   const selectType = (s: string) => {
-    const next = getBusinessType(s);
-    if (!next) return;
     setSlug(s);
-    setValues(defaultValues(next));
+    setValues({});
     setStep('datos');
   };
 
@@ -55,16 +63,20 @@ export function EvaluacionWizardView() {
       };
     });
 
-  const canSubmit = bt != null && prospect.name.trim().length > 0;
+  const canSubmit = bt != null && prospect.name.trim().length > 0 && !save.isPending;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!bt || !canSubmit) return;
-    const ev = saveEvaluation({
-      businessTypeSlug: bt.slug,
-      prospect: { ...prospect, name: prospect.name.trim() },
-      inputs: values,
-    });
-    navigate(`/evaluacion/${ev.id}`);
+    try {
+      const ev = await save.mutateAsync({
+        businessTypeSlug: bt.slug,
+        prospect: { ...prospect, name: prospect.name.trim() },
+        inputs: values,
+      });
+      navigate(`/evaluacion/${ev.id}`);
+    } catch {
+      toast.error('No se pudo guardar el estudio.');
+    }
   };
 
   // ---- Paso 1: tipo de negocio ----
@@ -80,21 +92,23 @@ export function EvaluacionWizardView() {
           </p>
         </div>
         <div className="grid gap-[var(--ds-space-150)] sm:grid-cols-2">
-          {types.map((t) => (
-            <Card
-              key={t.slug}
-              interactive
-              onClick={() => selectType(t.slug)}
-              className="p-[var(--ds-space-250)]"
-            >
-              <p className="text-[var(--ds-font-size-200)] font-semibold text-[var(--ds-text)]">
-                {t.name}
-              </p>
-              <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mt-1">
-                {t.description}
-              </p>
-            </Card>
-          ))}
+          {loadingTypes
+            ? [0, 1].map((i) => <Skeleton key={i} className="h-[96px] rounded-[var(--ds-radius-200)]" />)
+            : types?.map((t) => (
+                <Card
+                  key={t.slug}
+                  interactive
+                  onClick={() => selectType(t.slug)}
+                  className="p-[var(--ds-space-250)]"
+                >
+                  <p className="text-[var(--ds-font-size-200)] font-semibold text-[var(--ds-text)]">
+                    {t.name}
+                  </p>
+                  <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mt-1">
+                    {t.description}
+                  </p>
+                </Card>
+              ))}
           <Card className="p-[var(--ds-space-250)] opacity-60">
             <div className="flex items-center gap-[var(--ds-space-100)]">
               <p className="text-[var(--ds-font-size-200)] font-semibold text-[var(--ds-text)]">
@@ -112,7 +126,14 @@ export function EvaluacionWizardView() {
   }
 
   // ---- Paso 2: datos ----
-  if (!bt) return null;
+  if (!bt) {
+    return (
+      <div className="space-y-[var(--ds-space-200)]">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-[200px] rounded-[var(--ds-radius-200)]" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-[var(--ds-space-300)]">
@@ -132,7 +153,6 @@ export function EvaluacionWizardView() {
         </p>
       </div>
 
-      {/* Identidad del prospecto */}
       <Card>
         <CardHeader>
           <CardTitle as="h2">Datos del prospecto</CardTitle>
@@ -170,7 +190,6 @@ export function EvaluacionWizardView() {
         </CardContent>
       </Card>
 
-      {/* Drivers del negocio */}
       <Card>
         <CardHeader>
           <CardTitle as="h2">Características del negocio</CardTitle>
@@ -193,7 +212,7 @@ export function EvaluacionWizardView() {
         <Button variant="outline" onClick={() => navigate('/evaluacion')}>
           Cancelar
         </Button>
-        <Button onClick={handleSubmit} disabled={!canSubmit}>
+        <Button onClick={handleSubmit} disabled={!canSubmit} loading={save.isPending}>
           Generar estudio
           <ArrowRight aria-hidden="true" />
         </Button>

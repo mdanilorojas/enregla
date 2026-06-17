@@ -89,13 +89,13 @@ alter table public.evaluation_input_fields enable row level security;
 alter table public.requirement_catalog enable row level security;
 alter table public.evaluations enable row level security;
 
--- Catálogo: lectura para staff.
-create policy "staff read business_types" on public.business_types
-  for select using (public.is_staff_user());
-create policy "staff read input_fields" on public.evaluation_input_fields
-  for select using (public.is_staff_user());
-create policy "staff read requirements" on public.requirement_catalog
-  for select using (public.is_staff_user());
+-- Catálogo: lectura pública (data de referencia, no sensible, como permit_requirements).
+create policy "public read business_types" on public.business_types
+  for select using (true);
+create policy "public read input_fields" on public.evaluation_input_fields
+  for select using (true);
+create policy "public read requirements" on public.requirement_catalog
+  for select using (true);
 
 -- Evaluaciones: staff CRUD completo.
 create policy "staff read evaluations" on public.evaluations

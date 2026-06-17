@@ -3,26 +3,31 @@ import { Link, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Download, ArrowLeft, FileX, ShieldCheck } from '@/lib/lucide-icons';
-import { getEvaluation } from './storage';
-import { getBusinessType } from './catalog';
+import { useEvaluation, useBusinessType } from './useEvaluacion';
 import { evaluateRequirements, countRequirements } from './engine';
 import { RENEWAL_LABELS, type InputFieldDef, type InputValues } from './types';
 import './estudio-print.css';
 
 export function EstudioView() {
   const { id } = useParams<{ id: string }>();
-  const evaluation = useMemo(() => (id ? getEvaluation(id) ?? null : null), [id]);
-
-  const bt = useMemo(
-    () => (evaluation ? getBusinessType(evaluation.businessTypeSlug) : undefined),
-    [evaluation]
-  );
+  const { data: evaluation, isLoading: loadingEval } = useEvaluation(id);
+  const { data: bt, isLoading: loadingBt } = useBusinessType(evaluation?.businessTypeSlug);
 
   const results = useMemo(
     () => (bt && evaluation ? evaluateRequirements(bt, evaluation.inputs) : []),
     [bt, evaluation]
   );
+
+  if (loadingEval || (evaluation && loadingBt)) {
+    return (
+      <div className="space-y-[var(--ds-space-200)]">
+        <Skeleton className="h-9 w-full max-w-md" />
+        <Skeleton className="h-[400px] rounded-[var(--ds-radius-200)]" />
+      </div>
+    );
+  }
 
   if (!evaluation || !bt) {
     return (
