@@ -56,7 +56,7 @@ body {
   color: var(--color-legal-ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  letter-spacing: -0.015em;
+  letter-spacing: normal;
   font-feature-settings: 'kern' 1;
 }
 

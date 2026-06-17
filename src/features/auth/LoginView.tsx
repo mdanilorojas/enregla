@@ -11,9 +11,9 @@ import { Input } from '@/components/ui/input';
 
 const FEATURES = [
   'Control centralizado de permisos',
-  'Alertas de vencimiento inteligentes',
-  'Gestión multi-sede en tiempo real',
-  'Marco legal siempre actualizado',
+  'Alertas de vencimiento automáticas',
+  'Gestión multi-sede',
+  'Marco legal de referencia',
 ];
 
 export function LoginView() {
