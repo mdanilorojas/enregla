@@ -4,11 +4,16 @@ import { useCompany, getDaysLeftInTrial, getEffectiveStatus } from '@/hooks/useC
 import { AlertTriangle } from '@/lib/lucide-icons'
 import { isDemoCompanyId } from '@/lib/demo'
 
+// Feature desactivada temporalmente: banner de fin de prueba gratis.
+// Para reactivar, eliminar este return temprano.
+const TRIAL_BANNER_ENABLED = false
+
 export function TrialBanner() {
   const { profile } = useAuth()
   const companyId = profile?.company_id ?? null
   const { data: company } = useCompany(companyId ?? undefined)
 
+  if (!TRIAL_BANNER_ENABLED) return null
   if (!company) return null
   if (isDemoCompanyId(company.id)) return null
 

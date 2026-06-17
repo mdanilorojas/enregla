@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { resolveCompanyId } from '@/lib/demo'
@@ -40,6 +40,15 @@ interface CriticalAction {
 export function DashboardView() {
   const { companyId: authCompanyId } = useAuth()
   const companyId = resolveCompanyId(authCompanyId) ?? undefined
+
+  const [isEntranceAnimating, setIsEntranceAnimating] = useState(true)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsEntranceAnimating(false)
+    }, 1500)
+    return () => clearTimeout(timer)
+  }, [])
 
   const { locations, loading: loadingLocs, error: locationsError, refetch: refetchLocations } = useLocations(companyId)
   const { permits, loading: loadingPermits, error: permitsError, refetch: refetchPermits } = usePermits({ companyId })
@@ -209,9 +218,42 @@ export function DashboardView() {
                 {brandName}
               </h1>
               {company?.business_type && (
-                <Badge variant="info" size="sm" className="shrink-0">
-                  {businessTypeLabel(company.business_type)}
-                </Badge>
+                company.business_type === 'restaurante' ? (
+                  <div 
+                    title="Giro Comercial: Restaurante · Control de ARCSA y Bomberos Activo"
+                    className="group shrink-0 inline-flex items-center gap-2 bg-[var(--ds-blue-50)] hover:bg-[#e1e7f5] hover:border-[var(--ds-blue-500)] text-[var(--ds-blue-600)] px-3 py-1.5 rounded-full text-xs font-bold border border-transparent transition-all duration-200 cursor-pointer shadow-sm select-none animate-fade-in"
+                  >
+                    <div className="relative w-[18px] h-[18px]">
+                      <svg viewBox="0 0 24 24" className="w-full h-full fill-none stroke-current stroke-[2.2]">
+                        {/* Steam Trails */}
+                        <path 
+                          className={isEntranceAnimating ? "animate-steam-rise" : "hidden group-hover:block animate-steam-rise"} 
+                          d="M10 5 C10 3, 11 2, 10.5 1" 
+                        />
+                        <path 
+                          className={isEntranceAnimating ? "animate-steam-rise [animation-delay:0.2s]" : "hidden group-hover:block animate-steam-rise [animation-delay:0.2s]"} 
+                          d="M12 5 C12 3, 13 2, 12.5 1" 
+                        />
+                        <path 
+                          className={isEntranceAnimating ? "animate-steam-rise [animation-delay:0.4s]" : "hidden group-hover:block animate-steam-rise [animation-delay:0.4s]"} 
+                          d="M14 5 C14 3, 15 2, 14.5 1" 
+                        />
+                        {/* Cloche dome */}
+                        <path 
+                          className={isEntranceAnimating ? "animate-cloche-entrance" : "transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:-rotate-3 origin-bottom"} 
+                          d="M4 16 A8 8 0 0 1 20 16 Z M12 8 a 1 1 0 1 1 0-2" 
+                        />
+                        {/* Tray Base */}
+                        <path d="M2 17h20v2H2z" />
+                      </svg>
+                    </div>
+                    <span>Restaurante</span>
+                  </div>
+                ) : (
+                  <Badge variant="info" size="sm" className="shrink-0">
+                    {businessTypeLabel(company.business_type)}
+                  </Badge>
+                )
               )}
             </div>
             <div className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)] mt-1 font-medium flex flex-wrap items-center gap-2">

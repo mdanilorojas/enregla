@@ -61,7 +61,7 @@ export function LocationPermitsTab({ locationId, permits, onRenew }: LocationPer
       </div>
 
       <div className="space-y-[var(--ds-space-100)]">
-        {active.slice(0, 5).map(permit => {
+        {active.map(permit => {
           const statusMap: Record<string, 'status-vigente' | 'status-por-vencer' | 'status-vencido' | 'status-en-tramite' | 'status-no-registrado'> = {
             vigente: 'status-vigente',
             por_vencer: 'status-por-vencer',

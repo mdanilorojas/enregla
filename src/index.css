@@ -244,3 +244,68 @@ body {
 @keyframes sheetSlideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
 @keyframes sheetSlideLeft { from { transform: translateX(100%); } to { transform: translateX(0); } }
 @keyframes sheetSlideRight { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+
+/* Badge UX Animations */
+@keyframes steamRise {
+  0% { opacity: 0; transform: translateY(2px); }
+  50% { opacity: 0.8; }
+  100% { opacity: 0; transform: translateY(-6px); }
+}
+
+@keyframes pulseOut {
+  0% { transform: scale(0.6); opacity: 0.8; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+@keyframes radarSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes auraShift {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.08) rotate(2deg); }
+}
+
+@keyframes orbitSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes gearSpinSlow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-steam-rise {
+  animation: steamRise 1s ease-out infinite;
+}
+.animate-pulse-out {
+  animation: pulseOut 2s cubic-bezier(0.25, 0, 0, 1) infinite;
+}
+.animate-radar-spin {
+  animation: radarSpin 3s linear infinite;
+}
+.animate-aura-shift {
+  animation: auraShift 4s ease infinite alternate;
+}
+.animate-orbit-spin {
+  animation: orbitSpin 4s linear infinite;
+}
+.animate-gear-spin-slow {
+  animation: gearSpinSlow 20s linear infinite;
+}
+
+@keyframes clocheEntrance {
+  0% { transform: translateY(0) rotate(0); }
+  25% { transform: translateY(-4px) rotate(-5deg); }
+  50% { transform: translateY(-4px) rotate(3deg); }
+  75% { transform: translateY(-1px) rotate(-1deg); }
+  100% { transform: translateY(0) rotate(0); }
+}
+
+.animate-cloche-entrance {
+  animation: clocheEntrance 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+

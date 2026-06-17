@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EnRegla - Propuestas de UX para Badge de Sector (Dashboard)</title>
+  <style>
+    /* Design System Tokens */
+    :root {
+      --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --ds-blue-50: #e8ebf3;
+      --ds-blue-100: #d1d7e7;
+      --ds-blue-500: #0f265c;
+      --ds-blue-600: #0d2153;
+      --ds-blue-700: #0b1c4a;
+      
+      --ds-orange-50: #fff4f0;
+      --ds-orange-100: #ffe8e0;
+      --ds-orange-500: #ff7043;
+      --ds-orange-600: #ff5722;
+      
+      --ds-green-50: #ecf6ee;
+      --ds-green-500: #36B37E;
+      --ds-green-600: #2A9D66;
+      
+      --ds-red-50: #fbe6e6;
+      --ds-red-500: #DE350B;
+      --ds-red-600: #BF2600;
+      
+      --ds-yellow-50: #fff8e1;
+      --ds-yellow-100: #fff3cd;
+      --ds-yellow-500: #FFAB00;
+
+      --ds-neutral-0: #FFFFFF;
+      --ds-neutral-50: #F7F8F9;
+      --ds-neutral-100: #F1F2F4;
+      --ds-neutral-200: #DCDFE4;
+      --ds-neutral-500: #626F86;
+      --ds-neutral-600: #44546F;
+      --ds-neutral-800: #172B4D;
+      --ds-neutral-900: #091E42;
+      
+      --ds-radius-100: 3px;
+      --ds-radius-200: 6px;
+      --ds-radius-300: 8px;
+      --ds-radius-400: 12px;
+      
+      --ds-shadow-raised: 0px 1px 1px rgba(9, 30, 66, 0.25), 0px 0px 1px rgba(9, 30, 66, 0.31);
+      --ds-shadow-overflow: 0px 4px 8px rgba(9, 30, 66, 0.08), 0px 0px 1px rgba(9, 30, 66, 0.31);
+      --ds-shadow-overlay: 0px 8px 16px rgba(9, 30, 66, 0.15), 0px 0px 1px rgba(9, 30, 66, 0.31);
+      
+      --ds-ease-out: cubic-bezier(0, 0, 0.2, 1);
+    }
+
+    /* Base resets */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--ds-neutral-50);
+      color: var(--ds-neutral-900);
+      line-height: 1.5;
+      padding: 40px 20px;
+    }
+
+    /* Grid & Layout */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 40px;
+      border-bottom: 1px solid var(--ds-neutral-200);
+      padding-bottom: 24px;
+    }
+
+    header h1 {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--ds-blue-500);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header p {
+      font-size: 16px;
+      color: var(--ds-neutral-600);
+    }
+
+    /* Showcase Layout */
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    /* Card Wrapper */
+    .option-card {
+      background: var(--ds-neutral-0);
+      border: 1px solid var(--ds-neutral-200);
+      border-radius: var(--ds-radius-300);
+      box-shadow: var(--ds-shadow-raised);
+      padding: 24px;
+      position: relative;
+      overflow: visible;
+      transition: all 0.3s var(--ds-ease-out);
+    }
+
+    .option-card:hover {
+      box-shadow: var(--ds-shadow-overflow);
+      border-color: var(--ds-neutral-500);
+    }
+
+    .option-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ds-orange-500);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .option-title .badge-num {
+      background: var(--ds-blue-50);
+      color: var(--ds-blue-500);
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 800;
+    }
+
+    /* Dashboard Header Mockup structure */
+    .dashboard-header-mock {
+      background: #ffffff;
+      border: 1px dashed var(--ds-neutral-200);
+      border-radius: var(--ds-radius-200);
+      padding: 20px;
+      margin-top: 12px;
+    }
+
+    .header-layout {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--ds-neutral-100);
+    }
+
+    .company-title-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .company-name {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--ds-neutral-900);
+      letter-spacing: -0.02em;
+    }
+
+    .sub-info-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--ds-neutral-600);
+      margin-top: 6px;
+    }
+
+    .sub-info-dot {
+      width: 4px;
+      height: 4px;
+      background: var(--ds-neutral-200);
+      border-radius: 50%;
+    }
+
+    /* ==========================================================================
+       10 OPTIONS STYLING & ANIMATIONS
+       ========================================================================== */
+
+    /* Generic SVG defaults */
+    .badge-icon {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* --------------------------------------------------------------------------
+       OPTION 1: The Steaming Cloche (Micro-animated hover)
+       -------------------------------------------------------------------------- */
+    .chip-option-1 {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--ds-blue-50);
+      color: var(--ds-blue-500);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .chip-option-1:hover {
+      background: #e1e7f5;
+      border-color: var(--ds-blue-500);
+    }
+
+    .cloche-svg {
+      width: 18px;
+      height: 18px;
+      position: relative;
+    }
+
+    /* Animated Steam */
+    .steam-path {
+      opacity: 0;
+      transform: translateY(2px);
+      transition: all 0.3s ease;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .chip-option-1:hover .steam-path {
+      animation: steam-rise 1s ease-out infinite;
+    }
+
+    .cloche-dome {
+      transform-origin: bottom center;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .chip-option-1:hover .cloche-dome {
+      transform: translateY(-2px) rotate(-3deg);
+    }
+
+    @keyframes steam-rise {
+      0% {
+        opacity: 0;
+        transform: translateY(2px);
+      }
+      50% {
+        opacity: 0.8;
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       OPTION 2: Pulse Halo (Active Scan)
+       -------------------------------------------------------------------------- */
+    .chip-option-2 {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #ffffff;
+      border: 1.5px solid var(--ds-blue-100);
+      color: var(--ds-blue-500);
+      padding: 5px 12px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 2px 4px rgba(9, 30, 66, 0.04);
+      position: relative;
+    }
+
+    .pulse-halo-container {
+      position: relative;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--ds-blue-500);
+      border-radius: 50%;
+      z-index: 2;
+    }
+
+    .pulse-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 2px solid var(--ds-blue-500);
+      border-radius: 50%;
+      animation: pulse-out 2s cubic-bezier(0.25, 0, 0, 1) infinite;
+      z-index: 1;
+      opacity: 0;
+    }
+
+    .pulse-ring:nth-child(2) {
+      animation-delay: 0.6s;
+    }
+
+    @keyframes pulse-out {
+      0% {
+        transform: scale(0.6);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(1.8);
+        opacity: 0;
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       OPTION 3: Golden Shield of Trust
+       -------------------------------------------------------------------------- */
+    .chip-option-3 {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #091e42, #1d2b4a);
+      color: #ffd700;
+      padding: 6px 14px;
+      border-radius: var(--ds-radius-200);
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid #ffd700;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .chip-option-3::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 20%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.15);
+      transform: rotate(30deg);
+      transition: all 0.5s ease;
+    }
+
+    .chip-option-3:hover::after {
+      left: 140%;
+      transition: all 0.5s ease;
+    }
+
+    .shield-svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: #ffd700;
+      stroke-width: 2;
+      transition: transform 0.4s ease;
+    }
+
+    .chip-option-3:hover .shield-svg {
+      transform: scale(1.15) rotate(5deg);
+    }
+
+    /* --------------------------------------------------------------------------
+       OPTION 4: Sector-Status Slider (Interactive Expand)
+       -------------------------------------------------------------------------- */
+    .chip-option-4 {
+      display: inline-flex;
+      align-items: center;
+      background: var(--ds-neutral-100);
+      color: var(--ds-neutral-800);
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      overflow: hidden;
+      border: 1px solid var(--ds-neutral-200);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .slider-main {
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #ffffff;
+      z-index: 2;
+    }
+
+    .slider-expanded {
+      max-width: 0px;
+      opacity: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 0;
+      background: var(--ds-neutral-100);
+      font-size: 11px;
+      color: var(--ds-neutral-600);
+      font-weight: 600;
+    }
+
+    .chip-option-4:hover {
+      border-color: var(--ds-blue-500);
+    }
+
+    .chip-option-4:hover .slider-expanded {
+      max-width: 180px;
+      opacity: 1;
+      padding: 6px 12px 6px 8px;
+    }
+
+    /* --------------------------------------------------------------------------
+       OPTION 5: Radar Sweep
+       -------------------------------------------------------------------------- */
+    .chip-option-5 {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #e6f7ed;
+      color: var(--ds-green-600);
+      padding: 6px 12px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid var(--ds-green-500);
+    }
+
+    .radar-svg {
+      width: 18px;
+      height: 18px;
+      position: relative;
+    }
+
+    .radar-sweep-line {
+      transform-origin: 9px 9px;
+      animation: radar-spin 3s linear infinite;
+    }
+
+    @keyframes radar-spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       OPTION 6: Glassmorphic Aura (Soft Glow)
+       -------------------------------------------------------------------------- */
+    .chip-option-6-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .chip-option-6 {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: var(--ds-blue-500);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid rgba(15, 38, 92, 0.15);
+      position: relative;
+      z-index: 2;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(9, 30, 66, 0.05);
+      transition: all 0.3s ease;
+    }
+
+    .chip-aura-glow {
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, rgba(15, 38, 92, 0.3), rgba(255, 112, 67, 0.3));
+      filter: blur(6px);
+      opacity: 0.5;
+      z-index: 1;
+      transition: all 0.3s ease;
+      animation: aura-shift 4s ease infinite alternate;
+    }
+
+    .chip-option-6-container:hover .chip-aura-glow {
+      filter: blur(10px);
+      opacity: 0.95;
+    }
+
+    @keyframes aura-shift {
+      0% {
+        transform: scale(1);
+      }
+      100% {
+        transform: scale(1.08) rotate(2deg);
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       OPTION 7: Crossing Utensils (Playful micro-interaction)
+       -------------------------------------------------------------------------- */
+    .chip-option-7 {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      color: var(--ds-neutral-800);
+      padding: 6px 12px;
+      border-radius: var(--ds-radius-200);
+      font-size: 13px;
+      font-weight: 700;
+      border: 1.5px solid var(--ds-neutral-200);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .chip-option-7:hover {
+      border-color: var(--ds-orange-500);
+      color: var(--ds-orange-600);
+      background: var(--ds-orange-50);
+    }
+
+    .fork-icon {
+      transform-origin: bottom center;
+      transition: transform 0.3s ease;
+    }
+    .knife-icon {
+      transform-origin: bottom center;
+      transition: transform 0.3s ease;
+    }
+
+    .chip-option-7:hover .fork-icon {
+      transform: rotate(20deg) translateX(1px);
+    }
+
+    .chip-option-7:hover .knife-icon {
+      transform: rotate(-20deg) translateX(-1px);
+    }
+
+    /* --------------------------------------------------------------------------
+       OPTION 8: Circular Orbit Dot
+       -------------------------------------------------------------------------- */
+    .chip-option-8 {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--ds-blue-50);
+      color: var(--ds-blue-500);
+      padding: 6px 12px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid var(--ds-blue-100);
+    }
+
+    .orbit-container {
+      width: 20px;
+      height: 20px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .orbit-ring {
+      width: 18px;
+      height: 18px;
+      border: 1px dashed rgba(15, 38, 92, 0.4);
+      border-radius: 50%;
+      position: absolute;
+    }
+
+    .orbit-dot {
+      width: 4px;
+      height: 4px;
+      background: var(--ds-orange-500);
+      border-radius: 50%;
+      position: absolute;
+      top: 0;
+      left: 8px;
+      transform-origin: 2px 10px;
+      animation: orbit-spin 4s linear infinite;
+    }
+
+    @keyframes orbit-spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       OPTION 9: Info Tooltip Card (Interactive Details)
+       -------------------------------------------------------------------------- */
+    .chip-option-9-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .chip-option-9 {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--ds-neutral-50);
+      color: var(--ds-neutral-800);
+      padding: 6px 12px;
+      border-radius: var(--ds-radius-200);
+      font-size: 13px;
+      font-weight: 700;
+      border: 1.5px solid var(--ds-neutral-200);
+      cursor: help;
+    }
+
+    .badge-tooltip {
+      position: absolute;
+      bottom: 120%;
+      left: 50%;
+      transform: translateX(-50%) translateY(8px);
+      width: 240px;
+      background: var(--ds-neutral-800);
+      color: #fff;
+      border-radius: var(--ds-radius-300);
+      padding: 12px;
+      font-size: 11px;
+      box-shadow: var(--ds-shadow-overlay);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 10;
+    }
+
+    .badge-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -6px;
+      border-width: 6px;
+      border-style: solid;
+      border-color: var(--ds-neutral-800) transparent transparent transparent;
+    }
+
+    .chip-option-9-container:hover .badge-tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .tooltip-title {
+      font-weight: 800;
+      font-size: 12px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      padding-bottom: 4px;
+      color: var(--ds-orange-500);
+    }
+
+    .tooltip-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    /* --------------------------------------------------------------------------
+       OPTION 10: Rotating Gear of Control
+       -------------------------------------------------------------------------- */
+    .chip-option-10 {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--ds-blue-500);
+      color: #ffffff;
+      padding: 6px 14px;
+      border-radius: var(--ds-radius-100);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .chip-option-10:hover {
+      background: var(--ds-blue-600);
+    }
+
+    .gear-svg {
+      width: 16px;
+      height: 16px;
+      animation: gear-spin-slow 20s linear infinite;
+    }
+
+    .chip-option-10:hover .gear-svg {
+      animation-duration: 2s; /* Spins faster on hover */
+    }
+
+    @keyframes gear-spin-slow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>
+        <svg style="width:36px; height:36px; stroke: currentColor; fill:none; stroke-width: 2.5;" viewBox="0 0 24 24">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+        EnRegla · Dashboard Badge Proposals
+      </h1>
+      <p>Explora estas 10 alternativas de diseño e interactividad (micro-animaciones SVG, efectos hover y estados dinámicos) para sustituir el badge estático de sector comercial.</p>
+    </header>
+
+    <div class="showcase-grid">
+
+      <!-- ========================================== -->
+      <!-- PROPUESTA 1 -->
+      <!-- ========================================== -->
+      <div class="option-card">
+        <div class="option-title">
+          <span>Propuesta 1: The Steaming Cloche (Micro-animación en Hover)</span>
+          <span class="badge-num">Opción 01</span>
+        </div>
+        <p style="font-size: 14px; color: var(--ds-neutral-600); margin-bottom: 16px;">
+          Un domo de comida interactivo. Al colocar el cursor sobre el badge, el domo se levanta ligeramente y emite ondas de vapor dinámicas que se elevan y disuelven. Transmite calidez y dinamismo.
+        </p>
+        
+        <div class="dashboard-header-mock">
+          <div class="header-layout">
+            <div>
+              <div class="company-title-area">
+                <span class="company-name">La Parrilla del Sol</span>
+                
+                <!-- Badge Option 1 -->
+                <div class="chip-option-1" title="Haz hover para ver la animación">
+                  <div class="cloche-svg">
+                    <svg viewBox="0 0 24 24" style="width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:2.2;">
+                      <!-- Steam Trails -->
+                      <path class="steam-path" d="M10 5 C10 3, 11 2, 10.5 1" />
+                      <path class="steam-path" style="animation-delay: 0.2s;" d="M12 5 C12 3, 13 2, 12.5 1" />
+                      <path class="steam-path" style="animation-delay: 0.4s;" d="M14 5 C14 3, 15 2, 14.5 1" />
+                      <!-- Liftable dome -->
+                      <path class="cloche-dome" d="M4 16 A8 8 0 0 1 20 16 Z M12 8 a 1 1 0 1 1 0-2" />
+                      <!-- Tray Base -->
+                      <path d="M2 17h20v2H2z"/>
+                    </svg>
+                  </div>
+                  <span>Restaurante</span>
+                </div>
+                
+              </div>
+              <div class="sub-info-row">
+                <span>9 de 12 permisos vigentes</span>
+                <span class="sub-info-dot"></span>
+                <span>3 sedes</span>
+                <span class="sub-info-dot"></span>
+                <span>Riesgo Operativo: Medio</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PROPUESTA 2 -->
+      <!-- ========================================== -->
+      <div class="option-card">
+        <div class="option-title">
+          <span>Propuesta 2: Halo de Control Activo (Pulse concentric rings)</span>
+          <span class="badge-num">Opción 02</span>
+        </div>
+        <p style="font-size: 14px; color: var(--ds-neutral-600); margin-bottom: 16px;">
+          Un diseño limpio que contiene un halo o radar pulsante en la parte izquierda. Transmite una sensación de escaneo automático continuo y resguardo en tiempo real.
+        </p>
+        
+        <div class="dashboard-header-mock">
+          <div class="header-layout">
+            <div>
+              <div class="company-title-area">
+                <span class="company-name">Gourmet Andino</span>
+                
+                <!-- Badge Option 2 -->
+                <div class="chip-option-2">
+                  <div class="pulse-halo-container">
+                    <div class="pulse-ring"></div>
+                    <div class="pulse-ring"></div>
+                    <div class="pulse-dot"></div>
+                  </div>
+                  <span>Restaurante</span>
+                </div>
+                
+              </div>
+              <div class="sub-info-row">
+                <span>12 de 12 permisos vigentes</span>
+                <span class="sub-info-dot"></span>
+                <span>1 sede</span>
+                <span class="sub-info-dot"></span>
+                <span>Riesgo Operativo: Bajo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PROPUESTA 3 -->
+      <!-- ========================================== -->
+      <div class="option-card">
+        <div class="option-title">
+          <span>Propuesta 3: Escudo Premium de Cumplimiento (Gold Shimmer)</span>
+          <span class="badge-num">Opción 03</span>
+        </div>
+        <p style="font-size: 14px; color: var(--ds-neutral-600); margin-bottom: 16px;">
+          Un diseño corporativo premium. Una base azul oscura y bordes dorados. Al pasar el cursor, un destello luminoso cruza el badge horizontalmente, transmitiendo orden, estatus y control corporativo.
+        </p>
+        
+        <div class="dashboard-header-mock">
+          <div class="header-layout">
+            <div>
+              <div class="company-title-area">
+                <span class="company-name">Corporación Gastronómica Ec</span>
+                
+                <!-- Badge Option 3 -->
+                <div class="chip-option-3">
+                  <svg class="shield-svg" viewBox="0 0 24 24">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <path d="M9 11l2 2 4-4"/>
+                  </svg>
+                  <span>Restaurante Premium</span>
+                </div>
+                
+              </div>
+              <div class="sub-info-row">
+                <span>28 de 30 permisos vigentes</span>
+                <span class="sub-info-dot"></span>
+                <span>8 sedes</span>
+                <span class="sub-info-dot"></span>
+                <span>Riesgo Operativo: Bajo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PROPUESTA 4 -->
+      <!-- ========================================== -->
+      <div class="option-card">
+        <div class="option-title">
+          <span>Propuesta 4: Sector-Status Slider (Pill Desplizable)</span>
+          <span class="badge-num">Opción 04</span>
+        </div>
+        <p style="font-size: 14px; color: var(--ds-neutral-600); margin-bottom: 16px;">
+          Optimización de espacio interactiva. Inicialmente se muestra como un chip normal, pero al colocar el cursor se desliza suavemente revelando metadatos adicionales del sector comercial.
+        </p>
+        
+        <div class="dashboard-header-mock">
+          <div class="header-layout">
+            <div>
+              <div class="company-title-area">
+                <span class="company-name">Sushi Green</span>
+                
+                <!-- Badge Option 4 -->
+                <div class="chip-option-4">
+                  <div class="slider-main">
+                    <svg class="badge-icon" style="color:var(--ds-blue-500);" viewBox="0 0 24 24">
+                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5 M2 12l10 5 10-5"/>
+                    </svg>
+                    <span>Restaurante</span>
+                  </div>
+                  <div class="slider-expanded">
+                    <span>· Matriz ARCSA Activa</span>
+                  </div>
+                </div>
+                
+              </div>
+              <div class="sub-info-row">
+                <span>5 de 6 permisos vigentes</span>
+                <span class="sub-info-dot"></span>
+                <span>2 locales</span>
+                <span class="sub-info-dot"></span>
+                <span>Riesgo Operativo: Bajo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PROPUESTA 5 -->
+      <!-- ========================================== -->
+      <div class="option-card">
+        <div class="option-title">
+          <span>Propuesta 5: Radar Sweep (Monitoreo de Suelo y Normativa)</span>
+          <span class="badge-num">Opción 05</span>
+        </div>
+        <p style="font-size: 14px; color: var(--ds-neutral-600); margin-bottom: 16px;">
+          Un diseño verde esperanza que incorpora un radar activo en movimiento de rotación perpetua de 360 grados. Transmite protección permanente y legalidad.
+        </p>
+        
+        <div class="dashboard-header-mock">
+          <div class="header-layout">
+            <div>
+              <div class="company-title-area">
+                <span class="company-name">Café del Parque</span>
+                
+                <!-- Badge Option 5 -->
+                <div class="chip-option-5">
+                  <div class="radar-svg">
+                    <svg viewBox="0 0 18 18" style="width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:1.5;">
+                      <circle cx="9" cy="9" r="8" stroke-dasharray="2 2" />
+                      <circle cx="9" cy="9" r="4" />
+                      <circle cx="9" cy="9" r="1" fill="currentColor" />
+                      <!-- sweep line -->
+                      <line class="radar-sweep-line" x1="9" y1="9" x2="9" y2="1" />
+                    </svg>
+                  </div>
+                  <span>Establecimiento Seguro</span>
+                </div>
+                
+              </div>
+              <div class="sub-info-row">
+                <span>6 de 6 permisos vigentes</span>
+                <span class="sub-info-dot"></span>
+                <span>1 local</span>
+                <span class="sub-info-dot"></span>
+                <span>Riesgo Operativo: Bajo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PROPUESTA 6 -->
+      <!-- ========================================== -->
+      <div class="option-card">
+        <div class="option-title">
+          <span>Propuesta 6: Glassmorphism Aura (Fondo con Gradiente de Neon)</span>
+          <span class="badge-num">Opción 06</span>
+        </div>
+        <p style="font-size: 14px; color: var(--ds-neutral-600); margin-bottom: 16px;">
+          Un badge flotante con un desenfoque de fondo y un brillo en aura de color de fondo cambiante. Da un aspecto muy tecnológico y pulido a la interfaz del dashboard.
+        </p>
+        
+        <div class="dashboard-header-mock" style="background:#091e42; border-color:transparent;">
+          <div class="header-layout" style="border-bottom-color: rgba(255,255,255,0.1)">
+            <div>
+              <div class="company-title-area">
+                <span class="company-name" style="color:#ffffff;">Taberna Celta</span>
+                
+                <!-- Badge Option 6 -->
+                <div class="chip-option-6-container">
+                  <div class="chip-aura-glow"></div>
+                  <div class="chip-option-6">
+                    <svg class="badge-icon" style="stroke: var(--ds-blue-500)" viewBox="0 0 24 24">
+                      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                    <span style="color:var(--ds-blue-500);">Bar & Food</span>
+                  </div>
+                </div>
+                
+              </div>
+              <div class="sub-info-row" style="color:rgba(255,255,255,0.6);">
+                <span>8 de 10 permisos vigentes</span>
+                <span class="sub-info-dot" style="background:rgba(255,255,255,0.2)"></span>
+                <span>1 local</span>
+                <span class="sub-info-dot" style="background:rgba(255,255,255,0.2)"></span>
+                <span>Riesgo Operativo: Medio</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PROPUESTA 7 -->
+      <!-- ========================================== -->
+      <div class="option-card">
+        <div class="option-title">
+          <span>Propuesta 7: Crossing Utensils (Clink animado)</span>
+          <span class="badge-num">Opción 07</span>
+        </div>
+        <p style="font-size: 14px; color: var(--ds-neutral-600); margin-bottom: 16px;">
+          Un badge que cambia de color a naranja (color secundario de EnRegla) en hover, y hace que el tenedor y el cuchillo interactúen inclinándose entre sí. Aporta cercanía y engagement.
+        </p>
+        
+        <div class="dashboard-header-mock">
+          <div class="header-layout">
+            <div>
+              <div class="company-title-area">
+                <span class="company-name">Pizzería DaVinci</span>
+                
+                <!-- Badge Option 7 -->
+                <div class="chip-option-7">
+                  <svg viewBox="0 0 24 24" style="width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2.2;">
+                    <!-- Fork -->
+                    <g class="fork-icon">
+                      <path d="M6 3v8a3 3 0 0 0 3 3h0a3 3 0 0 0 3-3V3M9 3v4M6 6h6M9 14v7" />
+                    </g>
+                    <!-- Knife -->
+                    <g class="knife-icon">
+                      <path d="M17 3v11 M14 21h6v-2h-3v-5c0-3.5-3-4-3-4V3" />
+                    </g>
+                  </svg>
+                  <span>Restaurante</span>
+                </div>
+                
+              </div>
+              <div class="sub-info-row">
+                <span>3 de 4 permisos vigentes</span>
+                <span class="sub-info-dot"></span>
+                <span>1 local</span>
+                <span class="sub-info-dot"></span>
+                <span>Riesgo Operativo: Medio</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PROPUESTA 8 -->
+      <!-- ========================================== -->
+      <div class="option-card">
+        <div class="option-title">
+          <span>Propuesta 8: Circular Compliance Orbit</span>
+          <span class="badge-num">Opción 08</span>
+        </div>
+        <p style="font-size: 14px; color: var(--ds-neutral-600); margin-bottom: 16px;">
+          Un sombrero de chef clásico con un satélite/punto que orbita a su alrededor en un movimiento orbital continuo. Representa la órbita de control alrededor del núcleo del negocio.
+        </p>
+        
+        <div class="dashboard-header-mock">
+          <div class="header-layout">
+            <div>
+              <div class="company-title-area">
+                <span class="company-name">Panadería La Espiga</span>
+                
+                <!-- Badge Option 8 -->
+                <div class="chip-option-8">
+                  <div class="orbit-container">
+                    <div class="orbit-ring"></div>
+                    <div class="orbit-dot"></div>
+                    <svg viewBox="0 0 24 24" style="width:12px; height:12px; fill:currentColor; stroke:none;">
+                      <path d="M12 3c-3 0-5.5 2-5.9 4.8C5 8 4 9.5 4 11.2 4 13.3 5.7 15 7.8 15h8.4c2.1 0 3.8-1.7 3.8-3.8 0-1.7-1-3.2-2.1-3.4C17.5 5 15 3 12 3zm-5 13h10v2H7z"/>
+                    </svg>
+                  </div>
+                  <span>Restaurante & Panadería</span>
+                </div>
+                
+              </div>
+              <div class="sub-info-row">
+                <span>4 de 4 permisos vigentes</span>
+                <span class="sub-info-dot"></span>
+                <span>1 local</span>
+                <span class="sub-info-dot"></span>
+                <span>Riesgo Operativo: Bajo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PROPUESTA 9 -->
+      <!-- ========================================== -->
+      <div class="option-card">
+        <div class="option-title">
+          <span>Propuesta 9: Interactive Tooltip Badge (Tarjeta Flotante)</span>
+          <span class="badge-num">Opción 09</span>
+        </div>
+        <p style="font-size: 14px; color: var(--ds-neutral-600); margin-bottom: 16px;">
+          Un badge que actúa como gatillo de un Tooltip descriptivo en hover. Ideal para que el usuario conozca las regulaciones de su sector de forma rápida sin cambiar de vista.
+        </p>
+        
+        <div class="dashboard-header-mock">
+          <div class="header-layout">
+            <div>
+              <div class="company-title-area">
+                <span class="company-name">Resto-Bar El Faro</span>
+                
+                <!-- Badge Option 9 -->
+                <div class="chip-option-9-container">
+                  <div class="chip-option-9">
+                    <svg class="badge-icon" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="16" x2="12" y2="12" />
+                      <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                    <span>Sector Comercial: Restaurante</span>
+                  </div>
+                  
+                  <div class="badge-tooltip">
+                    <div class="tooltip-title">Requisitos del Sector</div>
+                    <div class="tooltip-item"><span>ARCSA Sanitario:</span> <span>Obligatorio</span></div>
+                    <div class="tooltip-item"><span>Bomberos (Riesgo B):</span> <span>Obligatorio</span></div>
+                    <div class="tooltip-item"><span>LUAE (Categoría II):</span> <span>Aplicable</span></div>
+                  </div>
+                </div>
+                
+              </div>
+              <div class="sub-info-row">
+                <span>9 de 10 permisos vigentes</span>
+                <span class="sub-info-dot"></span>
+                <span>2 sedes</span>
+                <span class="sub-info-dot"></span>
+                <span>Riesgo Operativo: Bajo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- PROPUESTA 10 -->
+      <!-- ========================================== -->
+      <div class="option-card">
+        <div class="option-title">
+          <span>Propuesta 10: The Rotating Gear of Operation</span>
+          <span class="badge-num">Opción 10</span>
+        </div>
+        <p style="font-size: 14px; color: var(--ds-neutral-600); margin-bottom: 16px;">
+          Una rueda de engranaje que representa la maquinaria operativa del negocio. Gira de forma constante y fluida en hover a velocidad acelerada, representando el control operativo de EnRegla.
+        </p>
+        
+        <div class="dashboard-header-mock">
+          <div class="header-layout">
+            <div>
+              <div class="company-title-area">
+                <span class="company-name">Wok Express</span>
+                
+                <!-- Badge Option 10 -->
+                <div class="chip-option-10">
+                  <svg class="gear-svg" viewBox="0 0 24 24" style="fill:none; stroke:currentColor; stroke-width:2.2;">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                  </svg>
+                  <span>Restaurante & FastFood</span>
+                </div>
+                
+              </div>
+              <div class="sub-info-row">
+                <span>12 de 12 permisos vigentes</span>
+                <span class="sub-info-dot"></span>
+                <span>3 locales</span>
+                <span class="sub-info-dot"></span>
+                <span>Riesgo Operativo: Bajo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>
