@@ -1,0 +1,19 @@
+/* Hoja de impresión para el Estudio de Cumplimiento.
+   Solo afecta a la impresión / exportación a PDF del navegador. */
+@media print {
+  @page {
+    size: A4;
+    margin: 16mm 14mm;
+  }
+
+  /* Evita cortar tarjetas de área a la mitad entre páginas. */
+  .estudio-area {
+    break-inside: avoid;
+  }
+
+  /* Fuerza colores de fondo de badges/encabezados en impresión. */
+  .estudio-doc {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

@@ -74,6 +74,7 @@ export {
   Bell,
   BellOff,
   Shield,
+  ShieldCheck,
   Lock,
   KeyRound,
   QrCode,

@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EnRegla - Propuesta de Dashboard Rediseñado</title>
+  <!-- Google Fonts: Manrope -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Manrope', 'sans-serif'],
+          },
+          colors: {
+            ds: {
+              blue: {
+                50: '#e8ebf3',
+                100: '#d1d7e7',
+                200: '#a3afcf',
+                300: '#7587b7',
+                400: '#475f9f',
+                500: '#0f265c',
+                600: '#0d2153',
+                700: '#0b1c4a',
+                800: '#091741',
+                900: '#071238',
+              },
+              orange: {
+                50: '#fff4f0',
+                100: '#ffe8e0',
+                200: '#ffd1c1',
+                300: '#ffb99d',
+                400: '#ff9670',
+                500: '#ff7043',
+                600: '#ff5722',
+              },
+              green: {
+                50: '#ecf6ee',
+                500: '#36b37e',
+                600: '#2a9d66',
+              },
+              red: {
+                50: '#fbe6e6',
+                200: '#ee9c9c',
+                500: '#de350b',
+                600: '#bf2600',
+              },
+              yellow: {
+                50: '#fff8e1',
+                500: '#ffab00',
+              },
+              neutral: {
+                50: '#f7f8f9',
+                100: '#f1f2f4',
+                200: '#dcdfe4',
+                300: '#b3b9c4',
+                400: '#8993a4',
+                500: '#626f86',
+                600: '#44546f',
+                700: '#2c3e5d',
+                800: '#172b4d',
+                900: '#091e42',
+              }
+            }
+          },
+          boxShadow: {
+            'ds-raised': '0px 1px 1px rgba(9,30,66,0.25), 0px 0px 1px rgba(9,30,66,0.31)',
+            'ds-overflow': '0px 4px 8px rgba(9,30,66,0.08), 0px 0px 1px rgba(9,30,66,0.31)',
+            'ds-overlay': '0px 8px 16px rgba(9,30,66,0.15), 0px 0px 1px rgba(9,30,66,0.31)',
+            'ds-glow-emerald': '0 0 15px rgba(54,179,126,0.35)',
+            'ds-glow-red': '0 0 15px rgba(222,53,11,0.35)',
+            'ds-glow-orange': '0 0 15px rgba(255,112,67,0.35)'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Spacing tokens matching Design System */
+    :root {
+      --ds-space-050: 4px;
+      --ds-space-100: 8px;
+      --ds-space-150: 12px;
+      --ds-space-200: 16px;
+      --ds-space-300: 24px;
+      --ds-space-400: 32px;
+    }
+    
+    @keyframes pulse-glow {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.015); opacity: 0.95; }
+    }
+    .animate-pulse-glow {
+      animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    @keyframes dash {
+      to {
+        stroke-dashoffset: -40;
+      }
+    }
+    .animate-flow-dash {
+      stroke-dasharray: 5, 5;
+      animation: dash 2.5s linear infinite;
+    }
+  </style>
+</head>
+<body class="bg-[#f7f8f9] text-ds-neutral-900 font-sans antialiased flex min-h-screen">
+
+  <!-- ========================== SIDEBAR (KEEP ORIGINAL LOGO & STRUCTURE) ========================== -->
+  <aside class="w-64 bg-[#f7f8f9] border-r border-ds-neutral-200 flex flex-col flex-shrink-0 z-45">
+    <!-- KEEP ORIGINAL LOGO: Building2 Icon inside gradient circle -->
+    <div class="flex items-center gap-[12px] px-[16px] h-16 border-b border-ds-neutral-200">
+      <div class="w-10 h-10 rounded-[6px] bg-gradient-to-br from-blue-900 to-blue-800 flex items-center justify-center">
+        <!-- Building2 Icon -->
+        <svg class="w-5 h-5 text-white stroke-current fill-none" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
+          <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" />
+          <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" />
+          <path d="M10 6h4" /><path d="M10 10h4" /><path d="M10 14h4" /><path d="M10 18h4" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-sm font-bold text-ds-neutral-900">EnRegla</p>
+        <p class="text-[10px] text-ds-neutral-500 font-semibold tracking-wider uppercase">Control operativo</p>
+      </div>
+    </div>
+
+    <!-- Navigation links -->
+    <nav class="flex-1 p-[12px] space-y-1">
+      <p class="text-[10px] font-bold text-ds-neutral-400 uppercase mb-2 px-[12px]">Menú Principal</p>
+      <a href="#" class="flex items-center gap-3 px-[12px] py-2 bg-ds-blue-50 text-ds-blue-500 font-semibold rounded-[3px]">
+        <span class="w-5 h-5 flex items-center justify-center">🏠</span>
+        <span class="text-sm">Dashboard</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 px-[12px] py-2 text-ds-neutral-600 hover:bg-ds-neutral-100 rounded-[3px] transition-colors">
+        <span class="w-5 h-5 flex items-center justify-center">📍</span>
+        <span class="text-sm">Sedes</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 px-[12px] py-2 text-ds-neutral-600 hover:bg-ds-neutral-100 rounded-[3px] transition-colors">
+        <span class="w-5 h-5 flex items-center justify-center">🕸️</span>
+        <span class="text-sm">Mapa Interactivo</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 px-[12px] py-2 text-ds-neutral-600 hover:bg-ds-neutral-100 rounded-[3px] transition-colors">
+        <span class="w-5 h-5 flex items-center justify-center">📄</span>
+        <span class="text-sm">Permisos</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 px-[12px] py-2 text-ds-neutral-600 hover:bg-ds-neutral-100 rounded-[3px] transition-colors">
+        <span class="w-5 h-5 flex items-center justify-center">📅</span>
+        <span class="text-sm">Renovaciones</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 px-[12px] py-2 text-ds-neutral-600 hover:bg-ds-neutral-100 rounded-[3px] transition-colors">
+        <span class="w-5 h-5 flex items-center justify-center">⚖️</span>
+        <span class="text-sm">Marco Legal</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 px-[12px] py-2 text-ds-neutral-600 hover:bg-ds-neutral-100 rounded-[3px] transition-colors">
+        <span class="w-5 h-5 flex items-center justify-center">⚙️</span>
+        <span class="text-sm">Configuración</span>
+      </a>
+    </nav>
+
+    <!-- Footer of Sidebar -->
+    <div class="p-[12px] border-t border-ds-neutral-200">
+      <div class="flex items-center gap-3 p-2 bg-white rounded-[3px] border border-ds-neutral-200">
+        <div class="w-8 h-8 rounded-full bg-ds-blue-50 text-ds-blue-500 font-bold flex items-center justify-center text-xs">U</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-bold text-ds-neutral-900 truncate">Danilo Rojas</p>
+          <p class="text-[10px] text-ds-neutral-500 truncate capitalize font-medium">Administrador</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========================== MAIN CONTAINER ========================== -->
+  <div class="flex-1 flex flex-col min-w-0 bg-[#f7f8f9]">
+    <!-- Topbar Header -->
+    <header class="h-16 bg-white border-b border-ds-neutral-200 flex items-center justify-between px-[24px]">
+      <div>
+        <h1 class="text-lg font-bold text-ds-neutral-900">Dashboard</h1>
+        <p class="text-[11px] text-ds-neutral-500">Resumen general de cumplimiento normativo</p>
+      </div>
+      
+      <div class="flex items-center gap-4">
+        <!-- Notification Icon -->
+        <button class="relative w-8 h-8 rounded-full hover:bg-ds-neutral-100 flex items-center justify-center border border-ds-neutral-200">
+          <span>🔔</span>
+          <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-ds-orange-500 rounded-full border-2 border-white animate-pulse"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="p-[24px] space-y-[24px] overflow-y-auto flex-1">
+      
+      <!-- Top Actions Bar -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-[12px] bg-white p-[16px] rounded-[3px] border border-ds-neutral-200 shadow-ds-raised">
+        <div>
+          <h2 class="text-base font-extrabold text-ds-blue-500">Corporación Don Pollo</h2>
+          <p class="text-xs text-ds-neutral-600">3 sedes registradas · Riesgo operativo global: 
+            <span class="inline-flex items-center px-2 py-0.5 rounded bg-ds-green-50 text-ds-green-600 border border-ds-green-500/10 text-[10px] font-bold uppercase ml-1">Bajo</span>
+          </p>
+        </div>
+        
+        <div class="flex gap-2.5 w-full sm:w-auto">
+          <!-- Button sizes match standard size tokens: h-8 px-3.5 -->
+          <button class="bg-ds-blue-500 hover:bg-ds-blue-600 text-white font-bold h-8 px-[12px] text-xs rounded-[3px] inline-flex items-center gap-1.5 shadow-ds-raised transition-all">
+            <span>+</span> Nuevo permiso
+          </button>
+          <button class="bg-white hover:bg-ds-neutral-50 text-ds-neutral-700 font-semibold h-8 px-[12px] text-xs rounded-[3px] border border-ds-neutral-300 shadow-ds-raised transition-all">
+            Exportar reporte
+          </button>
+        </div>
+      </div>
+
+      <!-- Urgent Alert Strip (Dynamic, Glowing Alert in place of small text) -->
+      <div class="bg-ds-orange-50 text-ds-orange-600 border border-ds-orange-500/20 rounded-[3px] p-[16px] flex items-center justify-between gap-4 animate-pulse-glow shadow-ds-glow-orange">
+        <div class="flex items-center gap-3">
+          <span class="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm">⚠️</span>
+          <div>
+            <h4 class="font-extrabold text-ds-blue-900 text-sm">Vencimiento Urgente Programado</h4>
+            <p class="text-xs text-ds-neutral-600 mt-0.5">El permiso de <strong class="text-ds-blue-500">ARCSA Sanitario</strong> de la <strong class="text-ds-blue-500">Sede Sur</strong> vence en 15 días.</p>
+          </div>
+        </div>
+        <!-- Small button size token: h-7 px-2.5 -->
+        <button class="bg-ds-orange-500 hover:bg-ds-orange-600 text-white font-bold h-7 px-[8px] text-[11px] rounded-[3px] transition-all flex-shrink-0">
+          Iniciar Trámite →
+        </button>
+      </div>
+
+      <!-- Hero Grid: Gauge & Invoice Card -->
+      <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-[24px]">
+        
+        <!-- Left: Redesigned Circular Cumplimiento Gauge -->
+        <div class="bg-white border border-ds-neutral-200 rounded-[3px] p-[24px] shadow-ds-raised flex flex-col justify-between">
+          <div>
+            <h3 class="text-xs font-bold text-ds-neutral-500 uppercase tracking-widest mb-6">Porcentaje de Cumplimiento</h3>
+            
+            <div class="grid sm:grid-cols-[auto_1fr] gap-[24px] items-center">
+              <!-- Animated Gauge Circle -->
+              <div class="relative w-40 h-40 mx-auto sm:mx-0 flex items-center justify-center flex-shrink-0">
+                <svg class="w-full h-full transform -rotate-90">
+                  <circle cx="80" cy="80" r="68" stroke="#F1F2F4" stroke-width="10" fill="transparent" />
+                  <circle cx="80" cy="80" r="68" stroke="url(#gauge-grad)" stroke-width="10" fill="transparent" 
+                          stroke-dasharray="427" stroke-dashoffset="64" stroke-linecap="round" />
+                  <defs>
+                    <linearGradient id="gauge-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#36B37E" />
+                      <stop offset="100%" stop-color="#2A9D66" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <span class="text-3xl font-black text-ds-blue-900 tracking-tight">85%</span>
+                  <span class="text-[9px] font-extrabold text-ds-green-600 uppercase tracking-widest mt-0.5">Óptimo</span>
+                </div>
+              </div>
+
+              <!-- Metrics Summary -->
+              <div class="space-y-4">
+                <div class="space-y-1">
+                  <div class="flex justify-between text-xs font-semibold text-ds-neutral-600">
+                    <span>Vigentes</span>
+                    <span class="text-ds-green-600 font-bold">17 / 20 permisos</span>
+                  </div>
+                  <div class="w-full h-2.5 bg-ds-neutral-100 rounded-full overflow-hidden">
+                    <div class="h-full bg-ds-green-500 rounded-full" style="width: 85%"></div>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 text-[10px]">
+                  <div class="border border-ds-neutral-200 rounded p-2 bg-ds-neutral-50">
+                    <span class="text-ds-neutral-500 block">Por vencer</span>
+                    <span class="font-bold text-ds-orange-600 text-sm">2</span>
+                  </div>
+                  <div class="border border-ds-neutral-200 rounded p-2 bg-ds-neutral-50">
+                    <span class="text-ds-neutral-500 block">Vencidos</span>
+                    <span class="font-bold text-ds-red-600 text-sm">1</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="border-t border-ds-neutral-100 pt-4 mt-6 text-xs text-ds-neutral-500 flex justify-between items-center">
+            <span>Última inspección pública hace 4 días.</span>
+            <a href="#" class="text-ds-blue-500 font-bold hover:underline">Ver registro público →</a>
+          </div>
+        </div>
+
+        <!-- Right: Proposed Redesigned Invoice list ("Lo que te falta pagar") -->
+        <!-- Omit thermal paper receipt format; replace with sleek corporate rows -->
+        <div class="bg-white border border-ds-neutral-200 rounded-[3px] p-[24px] shadow-ds-raised flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-6">
+              <h3 class="text-xs font-bold text-ds-neutral-500 uppercase tracking-widest">Presupuesto Estimado de Pago</h3>
+              <span class="text-[9px] font-bold bg-ds-neutral-100 text-ds-neutral-500 px-2 py-0.5 rounded uppercase font-mono">Aprox.</span>
+            </div>
+
+            <!-- Sleek Rows aligned with spacing tokens -->
+            <div class="divide-y divide-ds-neutral-200">
+              <div class="py-[12px] flex justify-between items-center gap-[12px]">
+                <div>
+                  <p class="text-xs font-extrabold text-ds-neutral-900">Patente Municipal</p>
+                  <p class="text-[10px] text-ds-neutral-500">Sede Norte · Quito</p>
+                </div>
+                <span class="text-xs font-mono font-bold text-ds-neutral-900">$120 – $180</span>
+              </div>
+
+              <div class="py-[12px] flex justify-between items-center gap-[12px]">
+                <div>
+                  <p class="text-xs font-extrabold text-ds-neutral-900">Permiso de Bomberos</p>
+                  <p class="text-[10px] text-ds-neutral-500">Sede Sur · Guayaquil</p>
+                </div>
+                <span class="text-xs font-mono font-bold text-ds-neutral-900">$45 – $70</span>
+              </div>
+
+              <div class="py-[12px] flex justify-between items-center gap-[12px]">
+                <div>
+                  <p class="text-xs font-extrabold text-ds-neutral-900">Tasa Habilitación Sanitaria</p>
+                  <p class="text-[10px] text-ds-neutral-500">Sede Cumbayá · UIO</p>
+                </div>
+                <span class="text-xs font-mono font-bold text-ds-neutral-900">$30 – $40</span>
+              </div>
+            </div>
+
+            <!-- Total Box -->
+            <div class="pt-[16px] mt-2 flex justify-between items-baseline font-bold text-ds-blue-900 border-t border-ds-neutral-300">
+              <span class="text-xs">Total Pendiente</span>
+              <span class="text-base font-mono">$195 – $290 <span class="text-[9px] font-normal text-ds-neutral-500">USD</span></span>
+            </div>
+          </div>
+
+          <!-- Fine Warning Box (Glow red alert) -->
+          <div class="mt-6 bg-ds-red-50 text-ds-red-600 border border-ds-red-500/10 rounded-[3px] p-[12px] text-[11px] leading-snug">
+            <strong>Riesgo de Multa:</strong> Hasta <strong>$1,200 USD</strong> potenciales si no se regulan las sedes Sur y Cumbayá antes del vencimiento.
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Sedes Grid -->
+      <div class="space-y-[12px]">
+        <h3 class="text-xs font-bold text-ds-neutral-500 uppercase tracking-widest">Ubicaciones y Estado de Riesgo</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-[24px]">
+          <!-- Sede 1 Card with hover elevation -->
+          <div class="group bg-white border border-ds-neutral-200 rounded-[3px] p-[16px] transition-all duration-200 hover:-translate-y-1 hover:border-ds-blue-500 hover:shadow-ds-raised relative overflow-hidden">
+            <div class="absolute left-0 top-0 h-full w-[4px] bg-ds-green-600"></div>
+            <div class="flex justify-between items-start pl-2">
+              <div>
+                <h4 class="font-extrabold text-ds-neutral-950 text-sm group-hover:text-ds-blue-500 transition-colors">Don Pollo · Sede Norte</h4>
+                <p class="text-[10px] text-ds-neutral-500 mt-0.5">Av. de los Shyris, Quito</p>
+              </div>
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-ds-green-50 text-ds-green-600 border border-ds-green-500/10">Bajo Riesgo</span>
+            </div>
+            
+            <div class="mt-4 pl-2 flex justify-between items-center text-xs">
+              <span class="text-ds-neutral-500">6/6 Permisos al día</span>
+              <span class="font-mono font-bold text-ds-green-600">100%</span>
+            </div>
+            <!-- Progress slots -->
+            <div class="mt-2 pl-2 flex gap-1">
+              <span class="w-2.5 h-2.5 rounded-full bg-ds-green-600 shadow-sm"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-ds-green-600 shadow-sm"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-ds-green-600 shadow-sm"></span>
+            </div>
+          </div>
+
+          <!-- Sede 2 -->
+          <div class="group bg-white border border-ds-neutral-200 rounded-[3px] p-[16px] transition-all duration-200 hover:-translate-y-1 hover:border-ds-blue-500 hover:shadow-ds-raised relative overflow-hidden">
+            <div class="absolute left-0 top-0 h-full w-[4px] bg-ds-orange-500"></div>
+            <div class="flex justify-between items-start pl-2">
+              <div>
+                <h4 class="font-extrabold text-ds-neutral-950 text-sm group-hover:text-ds-blue-500 transition-colors">Don Pollo · Sede Sur</h4>
+                <p class="text-[10px] text-ds-neutral-500 mt-0.5">Av. Maldonado, Guayaquil</p>
+              </div>
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-ds-orange-50 text-ds-orange-600 border border-ds-orange-500/10">Alerta</span>
+            </div>
+            
+            <div class="mt-4 pl-2 flex justify-between items-center text-xs">
+              <span class="text-ds-neutral-500">5/7 Permisos al día</span>
+              <span class="font-mono font-bold text-ds-orange-600 font-extrabold">71%</span>
+            </div>
+            <!-- Progress slots -->
+            <div class="mt-2 pl-2 flex gap-1">
+              <span class="w-2.5 h-2.5 rounded-full bg-ds-green-600 shadow-sm"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-ds-green-600 shadow-sm"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-ds-orange-500 shadow-sm animate-pulse"></span>
+            </div>
+          </div>
+
+          <!-- Sede 3 -->
+          <div class="group bg-white border border-ds-neutral-200 rounded-[3px] p-[16px] transition-all duration-200 hover:-translate-y-1 hover:border-ds-blue-500 hover:shadow-ds-raised relative overflow-hidden">
+            <div class="absolute left-0 top-0 h-full w-[4px] bg-ds-green-600"></div>
+            <div class="flex justify-between items-start pl-2">
+              <div>
+                <h4 class="font-extrabold text-ds-neutral-950 text-sm group-hover:text-ds-blue-500 transition-colors">Don Pollo · Cumbayá</h4>
+                <p class="text-[10px] text-ds-neutral-500 mt-0.5">Av. Interoceánica, Cumbayá</p>
+              </div>
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-ds-green-50 text-ds-green-600 border border-ds-green-500/10">Bajo Riesgo</span>
+            </div>
+            
+            <div class="mt-4 pl-2 flex justify-between items-center text-xs">
+              <span class="text-ds-neutral-500">6/7 Permisos al día</span>
+              <span class="font-mono font-bold text-ds-green-600">85%</span>
+            </div>
+            <!-- Progress slots -->
+            <div class="mt-2 pl-2 flex gap-1">
+              <span class="w-2.5 h-2.5 rounded-full bg-ds-green-600 shadow-sm"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-ds-green-600 shadow-sm"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-ds-green-600 shadow-sm"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Interactive Flow Map -->
+      <div class="bg-white border border-ds-neutral-200 rounded-[3px] p-[24px] shadow-ds-raised">
+        <h3 class="text-xs font-bold text-ds-neutral-500 uppercase tracking-widest mb-4">Relación de Red de Cumplimiento (React Flow Preview)</h3>
+        
+        <div class="h-64 border border-ds-neutral-100 bg-ds-neutral-50 rounded-[3px] relative flex items-center justify-center overflow-hidden">
+          <div class="absolute inset-0 pointer-events-none opacity-20" style="background-image: radial-gradient(circle, #DCDFE4 1.5px, transparent 1.5px); background-size: 20px 20px;"></div>
+          
+          <!-- Center Node: Matriz -->
+          <div class="w-20 h-20 rounded-full bg-ds-blue-500 text-white flex items-center justify-center font-bold text-xs shadow-ds-overlay z-10 border-[6px] border-white select-none hover:scale-105 transition-transform">
+            Matriz
+          </div>
+
+          <!-- Sede 1 Node -->
+          <div class="absolute top-6 left-12 bg-white border border-ds-neutral-200 rounded-lg p-2.5 flex flex-col items-center shadow-ds-raised z-10 select-none hover:-translate-y-0.5 transition-all">
+            <span class="text-[9px] font-extrabold text-ds-blue-900 leading-none">Sede Norte</span>
+            <span class="w-2 h-2 rounded-full bg-ds-green-600 mt-2 shadow-ds-glow-emerald"></span>
+          </div>
+          <svg class="absolute inset-0 w-full h-full pointer-events-none">
+            <path d="M 80 45 L 170 115" stroke="#36B37E" stroke-width="2" class="animate-flow-dash" />
+          </svg>
+
+          <!-- Sede 2 Node -->
+          <div class="absolute bottom-6 left-8 bg-white border border-ds-neutral-200 rounded-lg p-2.5 flex flex-col items-center shadow-ds-raised z-10 select-none hover:-translate-y-0.5 transition-all">
+            <span class="text-[9px] font-extrabold text-ds-blue-900 leading-none">Sede Sur</span>
+            <span class="w-2 h-2 rounded-full bg-ds-orange-500 mt-2 shadow-ds-glow-orange animate-pulse"></span>
+          </div>
+          <svg class="absolute inset-0 w-full h-full pointer-events-none">
+            <path d="M 80 195 L 170 145" stroke="#FFAB00" stroke-width="2" class="animate-flow-dash" />
+          </svg>
+
+          <!-- Sede 3 Node -->
+          <div class="absolute right-12 top-1/2 -translate-y-1/2 bg-white border border-ds-neutral-200 rounded-lg p-2.5 flex flex-col items-center shadow-ds-raised z-10 select-none hover:-translate-y-0.5 transition-all">
+            <span class="text-[9px] font-extrabold text-ds-blue-900 leading-none">Sede Cumbayá</span>
+            <span class="w-2 h-2 rounded-full bg-ds-green-600 mt-2 shadow-ds-glow-emerald"></span>
+          </div>
+          <svg class="absolute inset-0 w-full h-full pointer-events-none">
+            <path d="M 270 128 L 220 128" stroke="#36B37E" stroke-width="2" class="animate-flow-dash" />
+          </svg>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+</body>
+</html>
