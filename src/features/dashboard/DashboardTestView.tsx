@@ -305,16 +305,29 @@ export function DashboardTestView() {
 
 function ActionItemRow({ action }: { action: CriticalAction }) {
   // Determine color coding for action status badge
-  const badgeStyle = (() => {
+  const badgeVariant = (() => {
     switch (action.status) {
       case 'vencido':
-        return 'bg-[var(--ds-risk-critico-bg)] text-[var(--ds-risk-critico-text)] border-[var(--ds-risk-critico-border)] shadow-sm'
+        return 'risk-critico'
       case 'por_vencer':
-        return 'bg-[var(--ds-risk-alto-bg)] text-[var(--ds-risk-alto-text)] border-[var(--ds-risk-alto-border)]'
+        return 'risk-alto'
       case 'no_registrado':
-        return 'bg-[var(--ds-risk-medio-bg)] text-[var(--ds-risk-medio-text)] border-[var(--ds-risk-medio-border)]'
+        return 'risk-medio'
       default:
-        return 'bg-[var(--ds-neutral-100)] text-[var(--ds-text-subtle)] border-transparent'
+        return 'secondary'
+    }
+  })()
+
+  const badgeBorderClass = (() => {
+    switch (action.status) {
+      case 'vencido':
+        return 'border-[var(--ds-risk-critico-border)] shadow-sm'
+      case 'por_vencer':
+        return 'border-[var(--ds-risk-alto-border)]'
+      case 'no_registrado':
+        return 'border-[var(--ds-risk-medio-border)]'
+      default:
+        return 'border-transparent'
     }
   })()
 
@@ -341,15 +354,15 @@ function ActionItemRow({ action }: { action: CriticalAction }) {
   })()
 
   return (
-    <div className="flex justify-between items-center py-[var(--ds-space-150)] gap-[var(--ds-space-150)]">
+    <div className="flex justify-between items-center py-[var(--ds-space-150)] px-[var(--ds-space-150)] gap-[var(--ds-space-150)] hover:bg-[var(--ds-neutral-50)] rounded-[var(--ds-radius-100)] transition-all duration-200">
       <div className="min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-[var(--ds-font-size-100)] font-semibold text-[var(--ds-text)] truncate">
             {permitTypeLabel(action.type)}
           </span>
-          <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[var(--ds-font-size-075)] font-bold uppercase border ${badgeStyle}`}>
+          <Badge variant={badgeVariant} size="lg" className={`border ${badgeBorderClass}`}>
             {labelText}
-          </span>
+          </Badge>
         </div>
         <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] font-medium mt-1 flex flex-wrap gap-1.5 items-center">
           <span>{action.locationName}</span>
@@ -361,7 +374,7 @@ function ActionItemRow({ action }: { action: CriticalAction }) {
       </div>
 
       <Link to={`/permisos/${action.id}`} className="flex-shrink-0">
-        <Button variant="outline" size="sm" className="font-bold flex items-center gap-1">
+        <Button variant="subtle" size="sm" className="font-bold flex items-center gap-1">
           Resolver
           <ArrowRight className="w-3.5 h-3.5" />
         </Button>
