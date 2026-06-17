@@ -8,7 +8,7 @@ import { useCompany } from '@/hooks/useCompany'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Building2, Plus, Download, ChevronRight, ArrowRight } from '@/lib/lucide-icons'
+import { Building2, Plus, ChevronRight, ArrowRight, Check } from '@/lib/lucide-icons'
 import { permitTypeLabel } from '@/lib/domain/permit-types'
 import { SkeletonList } from '@/components/ui/skeleton'
 import { ErrorState } from '@/components/ui/error-state'
@@ -101,14 +101,17 @@ export function DashboardTestView() {
             : null
         })()
 
-    const riskLevel: 'low' | 'medium' | 'high' =
-      vencidos > 0 && percentage < 50 ? 'high' : percentage < 80 || vencidos > 0 ? 'medium' : 'low'
-
     const weather = computeComplianceWeather({
       vencidos,
       porVencer,
       noRegistrado,
+      total,
     })
+
+    const riskLevel: 'low' | 'medium' | 'high' =
+      weather.state === 'err' ? 'high'
+      : weather.state === 'warn' ? 'medium'
+      : 'low'
 
     return {
       vigentes,
@@ -215,10 +218,6 @@ export function DashboardTestView() {
                 Nuevo permiso
               </Button>
             </Link>
-            <Button variant="secondary" className="w-full sm:w-auto h-8 px-[var(--ds-space-150)] text-[var(--ds-font-size-100)] font-bold rounded-[var(--ds-radius-100)]">
-              <Download className="w-4 h-4" />
-              Exportar reporte
-            </Button>
           </div>
         </div>
 
@@ -250,7 +249,9 @@ export function DashboardTestView() {
 
               {metrics.pendingActions.length === 0 ? (
                 <div className="py-[var(--ds-space-400)] text-center flex flex-col items-center justify-center gap-2.5">
-                  <span className="w-12 h-12 rounded-full bg-[var(--ds-green-50)] flex items-center justify-center text-[var(--ds-status-vigente)] text-[var(--ds-font-size-200)] border border-[var(--ds-green-200)] shadow-sm">✓</span>
+                  <div className="w-12 h-12 rounded-full bg-[var(--ds-green-50)] flex items-center justify-center text-[var(--ds-status-vigente)] border border-[var(--ds-green-200)] shadow-sm">
+                    <Check className="w-5 h-5" />
+                  </div>
                   <div>
                     <h4 className="text-[var(--ds-font-size-100)] font-extrabold text-[var(--ds-text)]">¡Todo seguro!</h4>
                     <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mt-0.5 max-w-[200px]">No tienes alertas operativas ni permisos que requieran acción inmediata.</p>
@@ -354,7 +355,10 @@ function ActionItemRow({ action }: { action: CriticalAction }) {
   })()
 
   return (
-    <div className="flex justify-between items-center py-[var(--ds-space-150)] px-[var(--ds-space-150)] gap-[var(--ds-space-150)] hover:bg-[var(--ds-neutral-50)] rounded-[var(--ds-radius-100)] transition-all duration-200">
+    <Link
+      to={`/permisos/${action.id}`}
+      className="flex justify-between items-center py-[var(--ds-space-150)] px-[var(--ds-space-150)] gap-[var(--ds-space-150)] hover:bg-[var(--ds-neutral-50)] rounded-[var(--ds-radius-100)] transition-all duration-200 cursor-pointer"
+    >
       <div className="min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-[var(--ds-font-size-100)] font-semibold text-[var(--ds-text)] truncate">
@@ -373,13 +377,11 @@ function ActionItemRow({ action }: { action: CriticalAction }) {
         </p>
       </div>
 
-      <Link to={`/permisos/${action.id}`} className="flex-shrink-0">
-        <Button variant="subtle" size="sm" className="font-bold flex items-center gap-1">
-          Resolver
-          <ArrowRight className="w-3.5 h-3.5" />
-        </Button>
-      </Link>
-    </div>
+      <Button variant="subtle" size="sm" className="font-bold flex items-center gap-1 flex-shrink-0">
+        Resolver
+        <ArrowRight className="w-3.5 h-3.5" />
+      </Button>
+    </Link>
   )
 }
 
@@ -389,20 +391,19 @@ function DashboardLocationCard({ location, permits }: { location: Location; perm
   const total = activePermits.length
   const percentage = total > 0 ? (vigentes / total) * 100 : 0
 
-  const riskLevel: 'Bajo' | 'Medio' | 'Alto' | 'Crítico' =
-    percentage >= 90 ? 'Bajo'
+  const riskLevel: 'Bajo' | 'Medio' | 'Alto' | 'Crítico' | 'Sin Permisos' =
+    total === 0 ? 'Sin Permisos'
+    : percentage >= 90 ? 'Bajo'
     : percentage >= 70 ? 'Medio'
     : percentage >= 40 ? 'Alto'
     : 'Crítico'
 
   const riskBadgeVariant =
-    riskLevel === 'Bajo'
-      ? 'risk-bajo'
-      : riskLevel === 'Medio'
-        ? 'risk-medio'
-        : riskLevel === 'Alto'
-          ? 'risk-alto'
-          : 'risk-critico'
+    riskLevel === 'Sin Permisos' ? 'secondary'
+    : riskLevel === 'Bajo' ? 'risk-bajo'
+    : riskLevel === 'Medio' ? 'risk-medio'
+    : riskLevel === 'Alto' ? 'risk-alto'
+    : 'risk-critico'
 
   const locationCode = `SEDE-${location.id.substring(0, 8).toUpperCase()}`
   
@@ -419,7 +420,7 @@ function DashboardLocationCard({ location, permits }: { location: Location; perm
       className="block focus-visible:outline-none"
       aria-label={`Ver detalles de ${location.name}`}
     >
-      <Card className="p-[var(--ds-space-300)] flex flex-col justify-between gap-[var(--ds-space-200)] hover:bg-[var(--ds-neutral-50)] transition-colors cursor-pointer h-full">
+      <Card className="p-[var(--ds-space-300)] flex flex-col justify-between gap-[var(--ds-space-200)] hover:bg-[var(--ds-neutral-50)] border border-transparent hover:border-[var(--ds-border-bold)] transition-all duration-200 cursor-pointer h-full">
         {/* Header: icon + name + code */}
         <div className="flex items-start gap-[var(--ds-space-200)] mb-1">
           <div className="w-10 h-10 bg-[var(--ds-neutral-100)] rounded-[var(--ds-radius-200)] flex items-center justify-center shrink-0">

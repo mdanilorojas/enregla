@@ -10,8 +10,17 @@ export function computeComplianceWeather(metrics: {
   vencidos: number
   porVencer: number
   noRegistrado: number
+  total: number
 }): WeatherMetrics {
-  const { vencidos, porVencer, noRegistrado } = metrics
+  const { vencidos, porVencer, noRegistrado, total } = metrics
+
+  if (total === 0) {
+    return {
+      state: 'warn',
+      chipLabel: 'Configuración',
+      headline: 'Registra tu primer permiso para comenzar a monitorear.',
+    }
+  }
 
   if (vencidos > 0) {
     return {
