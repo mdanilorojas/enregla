@@ -120,7 +120,7 @@ export default function App() {
             }
           />
           <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/auth-test" element={<AuthTest />} />
+          {import.meta.env.DEV && <Route path="/auth-test" element={<AuthTest />} />}
           <Route path="/forgot-password" element={<ForgotPasswordView />} />
           <Route path="/reset-password" element={<ResetPasswordView />} />
           <Route path="/pago" element={<PaywallView />} />
@@ -151,9 +151,13 @@ export default function App() {
             <Route path="/marco-legal" element={<LegalIndexView />} />
             <Route path="/marco-legal/matriz" element={<LegalMatrixView />} />
             <Route path="/marco-legal/:permitType" element={<LegalPermitDetailView />} />
-            <Route path="/design-system" element={<DesignSystemView />} />
-            <Route path="/design-system-showcase" element={<DesignSystemShowcase />} />
-            <Route path="/dashboard-test" element={<DashboardTestView />} />
+            {import.meta.env.DEV && (
+              <>
+                <Route path="/design-system" element={<DesignSystemView />} />
+                <Route path="/design-system-showcase" element={<DesignSystemShowcase />} />
+                <Route path="/dashboard-test" element={<DashboardTestView />} />
+              </>
+            )}
             <Route path="/settings" element={<SettingsView />} />
             <Route path="/settings/notifications" element={<SettingsView />} />
           </Route>
