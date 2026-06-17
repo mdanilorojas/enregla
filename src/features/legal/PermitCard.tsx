@@ -55,7 +55,7 @@ export function PermitCard({ reference }: PermitCardProps) {
                 {getIssuerShort(reference)}
               </p>
             </div>
-            <ChevronRight className="w-4 h-4 shrink-0 text-[var(--ds-text-muted)] group-hover:text-[var(--ds-text-subtle)] transition-colors mt-0.5" />
+            <ChevronRight className="w-4 h-4 shrink-0 text-[var(--ds-text-subtle)] group-hover:text-[var(--ds-text-subtle)] transition-colors mt-0.5" />
           </div>
           <div className="flex gap-[var(--ds-space-075)] mt-[var(--ds-space-150)] flex-wrap">
             <span className="text-[var(--ds-font-size-050)] px-[var(--ds-space-100)] py-[var(--ds-space-025)] rounded-[var(--ds-radius-050)] bg-[var(--ds-blue-50)] text-[var(--ds-blue-700)] font-medium">

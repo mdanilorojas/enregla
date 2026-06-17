@@ -145,14 +145,14 @@ export function LegalIndexView() {
         </div>
 
         <div className="relative">
-          <Search className="absolute left-[var(--ds-space-200)] top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--ds-text-muted)]" />
+          <Search className="absolute left-[var(--ds-space-200)] top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--ds-text-subtle)]" />
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar normativa, permiso o entidad (ej: RUC, bomberos, patente)"
             aria-label="Buscar en el marco legal"
-            className="w-full bg-white border border-[var(--ds-border)] rounded-[var(--ds-radius-200)] pl-[var(--ds-space-500)] pr-[var(--ds-space-300)] py-[var(--ds-space-200)] text-[var(--ds-font-size-100)] text-[var(--ds-text)] placeholder:text-[var(--ds-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--ds-background-brand)]/20 focus:border-[var(--ds-border-bold)] transition-all"
+            className="w-full bg-white border border-[var(--ds-border)] rounded-[var(--ds-radius-200)] pl-[var(--ds-space-500)] pr-[var(--ds-space-300)] py-[var(--ds-space-200)] text-[var(--ds-font-size-100)] text-[var(--ds-text)] placeholder:text-[var(--ds-text-subtle)] focus:outline-none focus:ring-2 focus:ring-[var(--ds-background-brand)]/20 focus:border-[var(--ds-border-bold)] transition-all"
           />
         </div>
 
@@ -203,7 +203,7 @@ function EmptyState({
   return (
     <div className="bg-white border border-[var(--ds-border)] rounded-[var(--ds-radius-200)] p-[var(--ds-space-500)] text-center">
       <div className="w-12 h-12 mx-auto rounded-full bg-[var(--ds-neutral-50)] flex items-center justify-center mb-[var(--ds-space-200)]">
-        <Search className="w-5 h-5 text-[var(--ds-text-muted)]" />
+        <Search className="w-5 h-5 text-[var(--ds-text-subtle)]" />
       </div>
       <h3 className="text-[var(--ds-font-size-200)] font-semibold text-[var(--ds-text)] mb-[var(--ds-space-075)]">
         {searching ? 'Sin resultados' : 'No hay permisos en esta categoría'}

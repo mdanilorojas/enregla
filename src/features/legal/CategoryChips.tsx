@@ -61,7 +61,7 @@ export function CategoryChips({ active, totalCount, onChange }: CategoryChipsPro
               isActive
                 ? 'bg-[var(--ds-background-brand)] border-[var(--ds-background-brand)] text-white'
                 : chip.disabled
-                ? 'bg-[var(--ds-neutral-50)] border-[var(--ds-border)] text-[var(--ds-text-muted)] cursor-not-allowed opacity-60'
+                ? 'bg-[var(--ds-neutral-50)] border-[var(--ds-border)] text-[var(--ds-text-subtle)] cursor-not-allowed opacity-60'
                 : 'bg-white border-[var(--ds-border)] text-[var(--ds-text-subtle)] hover:border-[var(--ds-border-bold)] hover:text-[var(--ds-text)]'
             )}
           >
