@@ -12,7 +12,8 @@ import { ShareLocationModal } from '@/features/public-links/ShareLocationModal';
 import { LocationPermitsTab, type LocationPermitSummary } from './LocationPermitsTab';
 import { LocationDocumentsTab } from './LocationDocumentsTab';
 import { LocationHistoryTab } from './LocationHistoryTab';
-import { CheckCircle2, AlertTriangle, XCircle, Share2 } from '@/lib/lucide-icons';
+import { DeleteLocationDialog } from './DeleteLocationDialog';
+import { CheckCircle2, AlertTriangle, XCircle, Share2, Trash2 } from '@/lib/lucide-icons';
 import { ErrorState } from '@/components/ui/error-state';
 import type { Permit } from '@/types/database';
 
@@ -26,6 +27,7 @@ export function LocationDetailView() {
   const [selectedPermit, setSelectedPermit] = useState<Permit | null>(null);
   const [renewModalOpen, setRenewModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const location = useMemo(() => {
     return locations.find(loc => loc.id === id);
@@ -119,6 +121,14 @@ export function LocationDetailView() {
               <Share2 className="w-4 h-4" />
               Generar QR
             </Button>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteOpen(true)}
+              className="w-full sm:w-auto text-[var(--ds-red-600)]"
+            >
+              <Trash2 className="w-4 h-4" />
+              Eliminar sede
+            </Button>
           </div>
         </div>
 
@@ -192,6 +202,18 @@ export function LocationDetailView() {
           locationAddress={location.address}
           isOpen={shareModalOpen}
           onClose={() => setShareModalOpen(false)}
+        />
+
+        <DeleteLocationDialog
+          open={deleteOpen}
+          onOpenChange={setDeleteOpen}
+          locationId={location.id}
+          locationName={location.name}
+          permitCount={locationPermits.length}
+          onDeleted={() => {
+            void refetchLocations();
+            navigate('/sedes');
+          }}
         />
       </div>
     </div>
