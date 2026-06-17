@@ -10,9 +10,10 @@ export function computeComplianceWeather(metrics: {
   vencidos: number
   porVencer: number
   noRegistrado: number
+  enTramite: number
   total: number
 }): WeatherMetrics {
-  const { vencidos, porVencer, noRegistrado, total } = metrics
+  const { vencidos, porVencer, noRegistrado, enTramite, total } = metrics
 
   if (total === 0) {
     return {
@@ -27,6 +28,14 @@ export function computeComplianceWeather(metrics: {
       state: 'err',
       chipLabel: 'Riesgo Crítico',
       headline: 'Atención: tienes permisos vencidos que requieren acción.',
+    }
+  }
+
+  if (enTramite > 0) {
+    return {
+      state: 'warn',
+      chipLabel: 'Alerta Operativa',
+      headline: 'Tienes permisos próximos a vencer, en trámite o sin registrar.',
     }
   }
 

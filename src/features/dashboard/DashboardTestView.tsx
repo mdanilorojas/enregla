@@ -105,11 +105,13 @@ export function DashboardTestView() {
       vencidos,
       porVencer,
       noRegistrado,
+      enTramite,
       total,
     })
 
-    const riskLevel: 'low' | 'medium' | 'high' =
-      weather.state === 'err' ? 'high'
+    const riskLevel: 'low' | 'medium' | 'high' | 'critical' =
+      total === 0 ? 'low'
+      : weather.state === 'err' ? 'critical'
       : weather.state === 'warn' ? 'medium'
       : 'low'
 
@@ -178,8 +180,17 @@ export function DashboardTestView() {
   }
 
   const brandName = company?.name ?? 'tu negocio'
+  const riskBadgeVariant =
+    metrics.riskLevel === 'critical' ? 'risk-critico'
+    : metrics.riskLevel === 'high' ? 'risk-alto'
+    : metrics.riskLevel === 'medium' ? 'risk-medio'
+    : 'risk-bajo'
+
   const riskLabel =
-    metrics.riskLevel === 'high' ? 'Alto' : metrics.riskLevel === 'medium' ? 'Medio' : 'Bajo'
+    metrics.riskLevel === 'critical' ? 'Crítico'
+    : metrics.riskLevel === 'high' ? 'Alto'
+    : metrics.riskLevel === 'medium' ? 'Medio'
+    : 'Bajo'
 
 
   return (
@@ -204,7 +215,7 @@ export function DashboardTestView() {
               <span>·</span>
               <span className="flex items-center gap-1">
                 Riesgo operativo
-                <Badge variant={metrics.riskLevel === 'high' ? 'risk-alto' : metrics.riskLevel === 'medium' ? 'risk-medio' : 'risk-bajo'} size="sm">
+                <Badge variant={riskBadgeVariant} size="sm">
                   {riskLabel}
                 </Badge>
               </span>
@@ -377,9 +388,11 @@ function ActionItemRow({ action }: { action: CriticalAction }) {
         </p>
       </div>
 
-      <Button variant="subtle" size="sm" className="font-bold flex items-center gap-1 flex-shrink-0">
-        Resolver
-        <ArrowRight className="w-3.5 h-3.5" />
+      <Button asChild variant="subtle" size="sm" className="font-bold flex items-center gap-1 flex-shrink-0">
+        <span>
+          Resolver
+          <ArrowRight className="w-3.5 h-3.5" />
+        </span>
       </Button>
     </Link>
   )
@@ -391,12 +404,14 @@ function DashboardLocationCard({ location, permits }: { location: Location; perm
   const total = activePermits.length
   const percentage = total > 0 ? (vigentes / total) * 100 : 0
 
+  const locationVencidos = activePermits.filter((p) => p.status === 'vencido').length
+
   const riskLevel: 'Bajo' | 'Medio' | 'Alto' | 'Crítico' | 'Sin Permisos' =
     total === 0 ? 'Sin Permisos'
+    : locationVencidos > 0 ? 'Crítico'
     : percentage >= 90 ? 'Bajo'
     : percentage >= 70 ? 'Medio'
-    : percentage >= 40 ? 'Alto'
-    : 'Crítico'
+    : 'Alto'
 
   const riskBadgeVariant =
     riskLevel === 'Sin Permisos' ? 'secondary'
