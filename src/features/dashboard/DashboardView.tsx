@@ -9,7 +9,7 @@ import { usePermitRequirements } from '@/lib/domain/permit-requirements'
 import { LocationsGrid } from '@/features/locations/LocationsGrid'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Button } from '@/components/ui/button'
-import { Building2, Plus, Download, AlertTriangle } from '@/lib/lucide-icons'
+import { Building2, Plus, AlertTriangle } from '@/lib/lucide-icons'
 import { permitTypeLabel } from '@/lib/domain/permit-types'
 import { SkeletonList } from '@/components/ui/skeleton'
 import { ErrorState } from '@/components/ui/error-state'
@@ -268,10 +268,6 @@ export function DashboardView() {
                 Nuevo permiso
               </Button>
             </Link>
-            <Button variant="secondary" className="w-full sm:w-auto">
-              <Download className="w-4 h-4" />
-              Exportar reporte
-            </Button>
           </div>
         </div>
 
