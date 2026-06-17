@@ -29,6 +29,17 @@
 4. **Confianza Visual** - Estados claros, feedback inmediato, sin sorpresas
 5. **Consistencia Multi-Contexto** - Debe funcionar igual de bien en desktop, laptop y tablet
 
+## Development & Consistency Rules
+
+1. **Component Reuse over Custom Markup:**  
+   Always reuse official components from `@/components/ui/` (e.g., `{ Card }` from `@/components/ui/card`, `{ Button }` from `@/components/ui/button`) instead of rebuilding cards or buttons with custom `div` or `button` tags and CSS variables. This guarantees visual consistency with existing views like Settings, Renewals, and Permits.
+2. **Strict Use of Typography Tokens:**  
+   Never hardcode custom font sizes (e.g., `text-[11px]`, `text-[10px]`, `text-[9px]`) or native Tailwind utilities (e.g., `text-xs`). Use the official Design System tokens: `text-[var(--ds-font-size-100)]` for base text and `text-[var(--ds-font-size-075)]` for small/subtle details.
+3. **Subtle Interactivity:**  
+   Clickable list cards must not scale, elevate, or change shadow intensity in a way that breaks consistency with static cards (no `hover:-translate-y-*` or `hover:shadow-overlay`). Use subtle background/border transitions (e.g., `hover:bg-[var(--ds-neutral-50)] hover:border-[var(--ds-border-bold)]`) to indicate clickability.
+4. **Cross-Feature Context Verification:**  
+   Before implementing any layout, review other features in the codebase (e.g., `SettingsView`, `RenewalGridView`, `PermitListView`) to align structural patterns and component tree choices.
+
 ## Tech Stack
 
 - **Frontend**: React + TypeScript + Vite

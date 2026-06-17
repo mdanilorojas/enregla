@@ -10,9 +10,11 @@ import {
   Network,
   CalendarClock,
   Scale,
-  Settings
+  Settings,
+  ClipboardCheck
 } from '@/lib/lucide-icons';
 import { useAuth } from '@/hooks/useAuth';
+import { DEMO_MODE } from '@/lib/demo';
 import { NotificationBell } from '@/components/NotificationBell';
 import { TrialBanner } from './TrialBanner';
 import { AppFooter } from './AppFooter';
@@ -156,6 +158,25 @@ export function AppLayout() {
               );
             })}
           </ul>
+
+          {(profile?.is_staff || DEMO_MODE) && (
+            <div className="mt-[var(--ds-space-200)] pt-[var(--ds-space-150)] border-t border-[var(--ds-border)]">
+              <p className="text-[var(--ds-font-size-075)] font-semibold text-[var(--ds-text-subtlest)] uppercase mb-2 px-[var(--ds-space-150)]">
+                Interno
+              </p>
+              <Link
+                to="/evaluacion"
+                className={`flex items-center gap-[var(--ds-space-150)] px-[var(--ds-space-150)] py-2.5 rounded-[var(--ds-radius-200)] transition-colors ${focusRing} ${
+                  location.pathname.startsWith('/evaluacion')
+                    ? 'bg-[var(--ds-blue-50)] text-[var(--ds-text-brand)] font-medium'
+                    : 'text-[var(--ds-text-subtle)] hover:bg-[var(--ds-neutral-50)] hover:text-[var(--ds-text)]'
+                }`}
+              >
+                <ClipboardCheck size={20} aria-hidden="true" />
+                <span className="text-[var(--ds-font-size-100)]">Evaluación</span>
+              </Link>
+            </div>
+          )}
         </nav>
 
         {/* Footer */}

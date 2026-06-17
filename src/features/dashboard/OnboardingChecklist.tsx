@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { CheckCircle2, Circle, X } from '@/lib/lucide-icons'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { Card } from '@/components/ui/card'
 
 interface Props {
   companyId: string | null | undefined
@@ -92,7 +93,7 @@ export function OnboardingChecklist({
   }
 
   return (
-    <div className="bg-white border border-[var(--ds-border)] rounded-[var(--ds-radius-300)] p-[var(--ds-space-300)]">
+    <Card className="p-[var(--ds-space-300)]">
       <div className="flex items-start justify-between gap-[var(--ds-space-200)] mb-[var(--ds-space-200)]">
         <div>
           <h2 className="text-[var(--ds-font-size-300)] font-semibold text-[var(--ds-text)]">
@@ -147,6 +148,6 @@ export function OnboardingChecklist({
           </Link>
         ))}
       </div>
-    </div>
+    </Card>
   )
 }

@@ -28,10 +28,16 @@ const LegalPermitDetailView = lazy(() => import('@/features/legal/LegalPermitDet
 const NetworkMapPage = lazy(() => import('@/features/network/NetworkMapPage').then((m) => ({ default: m.NetworkMapPage })));
 const DesignSystemView = lazy(() => import('@/features/design-system/DesignSystemView').then((m) => ({ default: m.DesignSystemView })));
 const DesignSystemShowcase = lazy(() => import('@/features/design-system/DesignSystemShowcase').then((m) => ({ default: m.DesignSystemShowcase })));
+const DashboardTestView = lazy(() => import('@/features/dashboard/DashboardTestView').then((m) => ({ default: m.DashboardTestView })));
 const SettingsView = lazy(() => import('@/features/settings/SettingsView').then((m) => ({ default: m.SettingsView })));
 const PaywallView = lazy(() => import('@/features/billing/PaywallView').then((m) => ({ default: m.PaywallView })));
 const PrivacyPolicyView = lazy(() => import('@/features/legal-pages/PrivacyPolicyView').then((m) => ({ default: m.PrivacyPolicyView })));
 const TermsView = lazy(() => import('@/features/legal-pages/TermsView').then((m) => ({ default: m.TermsView })));
+const EvaluacionLayout = lazy(() => import('@/features/evaluacion/EvaluacionLayout').then((m) => ({ default: m.EvaluacionLayout })));
+const EvaluacionListView = lazy(() => import('@/features/evaluacion/EvaluacionListView').then((m) => ({ default: m.EvaluacionListView })));
+const EvaluacionWizardView = lazy(() => import('@/features/evaluacion/EvaluacionWizardView').then((m) => ({ default: m.EvaluacionWizardView })));
+const EstudioView = lazy(() => import('@/features/evaluacion/EstudioView').then((m) => ({ default: m.EstudioView })));
+const StaffRoute = lazy(() => import('@/features/evaluacion/StaffRoute').then((m) => ({ default: m.StaffRoute })));
 
 function OnboardingRoute() {
   const { profile, loading } = useAuth();
@@ -147,8 +153,24 @@ export default function App() {
             <Route path="/marco-legal/:permitType" element={<LegalPermitDetailView />} />
             <Route path="/design-system" element={<DesignSystemView />} />
             <Route path="/design-system-showcase" element={<DesignSystemShowcase />} />
+            <Route path="/dashboard-test" element={<DashboardTestView />} />
             <Route path="/settings" element={<SettingsView />} />
             <Route path="/settings/notifications" element={<SettingsView />} />
+          </Route>
+          {/* Evaluación — herramienta interna de venta, solo staff, layout aislado */}
+          <Route
+            path="/evaluacion"
+            element={
+              <ProtectedRoute>
+                <StaffRoute>
+                  <EvaluacionLayout />
+                </StaffRoute>
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<EvaluacionListView />} />
+            <Route path="nueva" element={<EvaluacionWizardView />} />
+            <Route path=":id" element={<EstudioView />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

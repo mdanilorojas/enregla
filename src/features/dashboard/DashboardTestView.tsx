@@ -208,7 +208,7 @@ export function DashboardTestView() {
             <h1 className="text-[var(--ds-font-size-500)] sm:text-[var(--ds-font-size-600)] font-extrabold text-[var(--ds-text)] break-words tracking-tight">
               {brandName}
             </h1>
-            <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)] mt-1 font-medium flex flex-wrap items-center gap-2">
+            <div className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)] mt-1 font-medium flex flex-wrap items-center gap-2">
               <span>{metrics.vigentes} de {metrics.total} permisos vigentes</span>
               <span>·</span>
               <span>{locations.length} {locations.length === 1 ? 'sede' : 'sedes'}</span>
@@ -219,7 +219,7 @@ export function DashboardTestView() {
                   {riskLabel}
                 </Badge>
               </span>
-            </p>
+            </div>
           </div>
           
           <div className="flex flex-col sm:flex-row-reverse gap-[var(--ds-space-100)] w-full lg:w-auto">
