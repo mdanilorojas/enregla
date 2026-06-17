@@ -91,13 +91,14 @@ export function CompanyTab() {
     // casting due to stale generated types — see audit follow-up
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const query = supabase.from('companies') as any
-    const { error: updateError } = await query
+    const { data: updated, error: updateError } = await query
       .update({
         name: draft.name.trim(),
         ruc: draft.ruc.trim(),
         city: draft.city.trim(),
       })
       .eq('id', companyId)
+      .select()
 
     if (updateError) {
       console.error('[CompanyTab] Error updating company:', updateError)
@@ -106,15 +107,15 @@ export function CompanyTab() {
       return
     }
 
-    setCompany(
-      (prev) =>
-        prev && {
-          ...prev,
-          name: draft.name.trim(),
-          ruc: draft.ruc.trim(),
-          city: draft.city.trim(),
-        }
-    )
+    // Si RLS filtró la fila, el update no afecta nada y no lanza error: detectarlo
+    // en vez de mostrar un falso "guardado".
+    if (!updated || updated.length === 0) {
+      setError('No se pudo guardar el cambio. Verifica tus permisos e intenta de nuevo.')
+      setSaving(false)
+      return
+    }
+
+    setCompany(updated[0] as Company)
     setSaving(false)
     toast.success('Empresa actualizada')
   }

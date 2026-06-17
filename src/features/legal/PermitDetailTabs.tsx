@@ -148,7 +148,7 @@ function ResumenPanel({ reference }: { reference: LegalReference }) {
       </section>
 
       <section>
-        <h3 className="text-[var(--ds-font-size-075)] uppercase tracking-wider text-[var(--ds-text-muted)] font-semibold mb-[var(--ds-space-150)]">
+        <h3 className="text-[var(--ds-font-size-075)] uppercase tracking-wider text-[var(--ds-text-subtle)] font-semibold mb-[var(--ds-space-150)]">
           Frecuencia y vigencia
         </h3>
         <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text)] leading-relaxed">
@@ -203,7 +203,7 @@ function ProcesoPanel({ reference }: { reference: LegalReference }) {
     <div className="space-y-[var(--ds-space-400)]">
       {hasDocs && (
         <section>
-          <h3 className="text-[var(--ds-font-size-075)] uppercase tracking-wider text-[var(--ds-text-muted)] font-semibold mb-[var(--ds-space-200)]">
+          <h3 className="text-[var(--ds-font-size-075)] uppercase tracking-wider text-[var(--ds-text-subtle)] font-semibold mb-[var(--ds-space-200)]">
             Documentos requeridos
           </h3>
           <ul className="space-y-[var(--ds-space-150)]">
@@ -224,7 +224,7 @@ function ProcesoPanel({ reference }: { reference: LegalReference }) {
 
       {hasSteps && (
         <section>
-          <h3 className="text-[var(--ds-font-size-075)] uppercase tracking-wider text-[var(--ds-text-muted)] font-semibold mb-[var(--ds-space-200)]">
+          <h3 className="text-[var(--ds-font-size-075)] uppercase tracking-wider text-[var(--ds-text-subtle)] font-semibold mb-[var(--ds-space-200)]">
             Proceso típico
           </h3>
           <ol className="space-y-[var(--ds-space-200)]">
@@ -279,7 +279,7 @@ function RiesgosPanel({ reference }: { reference: LegalReference }) {
 function FactCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-[var(--ds-neutral-50)] border border-[var(--ds-border)] rounded-[var(--ds-radius-100)] p-[var(--ds-space-200)]">
-      <div className="text-[var(--ds-font-size-050)] uppercase tracking-wider text-[var(--ds-text-muted)] font-semibold mb-[var(--ds-space-050)]">
+      <div className="text-[var(--ds-font-size-050)] uppercase tracking-wider text-[var(--ds-text-subtle)] font-semibold mb-[var(--ds-space-050)]">
         {label}
       </div>
       <div className="text-[var(--ds-font-size-100)] text-[var(--ds-text)] font-medium">

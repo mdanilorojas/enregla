@@ -33,6 +33,15 @@ export async function getLocation(locationId: string): Promise<Location | null> 
 }
 
 /**
+ * Delete a location. Cascades to its permits, documents, public links,
+ * notifications and events (DB FK ON DELETE CASCADE). Destructive.
+ */
+export async function deleteLocation(locationId: string): Promise<void> {
+  const { error } = await supabase.from('locations').delete().eq('id', locationId);
+  if (error) throw error;
+}
+
+/**
  * Update location risk level
  */
 export async function updateLocationRisk(

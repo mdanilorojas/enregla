@@ -5,10 +5,29 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Download, ArrowLeft, FileX, ShieldCheck, Edit, Trash2 } from '@/lib/lucide-icons';
+import {
+  Download,
+  ArrowLeft,
+  FileX,
+  ShieldCheck,
+  Edit,
+  Trash2,
+  Building2,
+  ClipboardCheck,
+  Landmark,
+  Users,
+  type LucideIcon,
+} from '@/lib/lucide-icons';
 import { useEvaluation, useBusinessType, useDeleteEvaluation } from './useEvaluacion';
 import { evaluateRequirements, countRequirements } from './engine';
-import { RENEWAL_LABELS, type InputFieldDef, type InputValues } from './types';
+import { RENEWAL_LABELS, type InputFieldDef, type InputValues, type RequirementArea } from './types';
+
+const AREA_ICONS: Record<RequirementArea, LucideIcon> = {
+  funcionamiento: Building2,
+  sectorial: ClipboardCheck,
+  sri: Landmark,
+  laboral_iess: Users,
+};
 import './estudio-print.css';
 
 export function EstudioView() {
@@ -68,7 +87,7 @@ export function EstudioView() {
   return (
     <div className="space-y-[var(--ds-space-300)]">
       {/* Barra de acciones (no se imprime) */}
-      <div className="flex items-center justify-between gap-[var(--ds-space-200)] print:hidden">
+      <div className="mx-auto w-full max-w-[820px] flex items-center justify-between gap-[var(--ds-space-200)] print:hidden">
         <Link
           to="/evaluacion"
           className="flex items-center gap-[var(--ds-space-050)] text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] hover:text-[var(--ds-text)]"
@@ -97,7 +116,7 @@ export function EstudioView() {
       </div>
 
       {/* Documento */}
-      <div className="estudio-doc bg-white rounded-[var(--ds-radius-200)] shadow-[var(--ds-shadow-raised)] print:shadow-none print:rounded-none p-[var(--ds-space-400)] print:p-0 space-y-[var(--ds-space-400)]">
+      <div className="estudio-doc mx-auto w-full max-w-[820px] bg-white rounded-[var(--ds-radius-200)] shadow-[var(--ds-shadow-raised)] print:max-w-none print:shadow-none print:rounded-none p-[var(--ds-space-400)] print:p-0 space-y-[var(--ds-space-400)]">
         {/* Portada */}
         <header className="estudio-portada border-b border-[var(--ds-border)] pb-[var(--ds-space-300)]">
           <div className="flex items-center gap-[var(--ds-space-150)] mb-[var(--ds-space-300)]">
@@ -124,7 +143,7 @@ export function EstudioView() {
 
           <div className="mt-[var(--ds-space-300)] inline-flex items-center gap-[var(--ds-space-100)] rounded-[var(--ds-radius-200)] bg-[var(--ds-blue-50)] px-[var(--ds-space-200)] py-[var(--ds-space-150)]">
             <span className="text-[var(--ds-font-size-400)] font-bold text-[var(--ds-text-brand)]">{total}</span>
-            <span className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] max-w-[200px]">
+            <span className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)]">
               requisitos de cumplimiento aplican a este negocio
             </span>
           </div>
@@ -135,7 +154,7 @@ export function EstudioView() {
           <h2 className="text-[var(--ds-font-size-300)] font-semibold text-[var(--ds-text)] mb-[var(--ds-space-200)]">
             Resumen del negocio
           </h2>
-          <dl className="grid gap-[var(--ds-space-150)] sm:grid-cols-2">
+          <dl className="grid gap-[var(--ds-space-150)]">
             {bt.inputFields.map((f) => (
               <div key={f.key} className="flex justify-between gap-[var(--ds-space-200)] border-b border-[var(--ds-border)] pb-[var(--ds-space-075)]">
                 <dt className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)]">{f.label}</dt>
@@ -150,7 +169,13 @@ export function EstudioView() {
         {/* Requisitos por área */}
         {results.map((group) => (
           <section key={group.area} className="estudio-area">
-            <h2 className="text-[var(--ds-font-size-300)] font-semibold text-[var(--ds-text)] mb-[var(--ds-space-150)]">
+            <h2 className="flex items-center gap-[var(--ds-space-150)] text-[var(--ds-font-size-400)] font-bold text-[var(--ds-text)] mb-[var(--ds-space-150)] pb-[var(--ds-space-100)] border-b-2 border-[var(--ds-border)]">
+              <span className="flex items-center justify-center w-8 h-8 rounded-[var(--ds-radius-200)] bg-[var(--ds-blue-50)] text-[var(--ds-text-brand)] shrink-0">
+                {(() => {
+                  const Icon = AREA_ICONS[group.area];
+                  return <Icon size={18} aria-hidden="true" />;
+                })()}
+              </span>
               {group.label}
             </h2>
             <div className="overflow-hidden rounded-[var(--ds-radius-200)] border border-[var(--ds-border)]">

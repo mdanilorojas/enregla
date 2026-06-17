@@ -20,7 +20,7 @@ Quick reference para deployment del sistema de notificaciones por email.
 
 ### 1.2 Verify Domain
 1. Go to **Domains** → **Add Domain**
-2. Enter: `enregla.app`
+2. Enter your sending domain: `enregla.ec`
 3. Add DNS records to your domain provider:
 
 ```
@@ -60,8 +60,14 @@ PROJECT_REF="your-project-ref-here"
 # Set Resend API key
 supabase secrets set RESEND_API_KEY="re_xxxxxxxxxxxxxxxxxxxxx" --project-ref $PROJECT_REF
 
-# Set app URL
-supabase secrets set APP_URL="https://enregla.app" --project-ref $PROJECT_REF
+# Set sender (must use the verified domain — NOT onboarding@resend.dev in prod)
+supabase secrets set RESEND_FROM="EnRegla <alertas@enregla.ec>" --project-ref $PROJECT_REF
+
+# Set app URL (used for links inside emails)
+supabase secrets set APP_URL="https://app.enregla.ec" --project-ref $PROJECT_REF
+
+# Set the cron secret the function requires in the `x-cron-secret` header
+supabase secrets set CRON_SECRET="$(openssl rand -hex 32)" --project-ref $PROJECT_REF
 
 # Verify secrets are set
 supabase secrets list --project-ref $PROJECT_REF
@@ -70,7 +76,9 @@ supabase secrets list --project-ref $PROJECT_REF
 **Expected output**:
 ```
 RESEND_API_KEY  re_******
-APP_URL         https://enregla.app
+RESEND_FROM     EnRegla <alertas@enregla.ec>
+APP_URL         https://app.enregla.ec
+CRON_SECRET     ******
 ```
 
 ---
@@ -88,14 +96,15 @@ supabase functions deploy send-expiry-alerts --project-ref $PROJECT_REF
 
 ### Verify Deployment
 
-Get your service role key from Supabase Dashboard → Settings → API → `service_role` key
+The function authenticates with the `x-cron-secret` header (the `CRON_SECRET`
+you set in Step 2), not the service role key.
 
 ```bash
-SERVICE_ROLE_KEY="your-service-role-key-here"
+CRON_SECRET="the-cron-secret-from-step-2"
 
 # Test function
 curl -X POST https://$PROJECT_REF.supabase.co/functions/v1/send-expiry-alerts \
-  -H "Authorization: Bearer $SERVICE_ROLE_KEY" \
+  -H "x-cron-secret: $CRON_SECRET" \
   -H "Content-Type: application/json"
 ```
 
@@ -127,7 +136,7 @@ supabase functions logs send-expiry-alerts --project-ref $PROJECT_REF
 
 **IMPORTANT**: Replace placeholders before running:
 - `YOUR_PROJECT_REF` → Your Supabase project reference
-- `YOUR_SERVICE_ROLE_KEY` → Your service role key (from Step 3)
+- `YOUR_CRON_SECRET` → The `CRON_SECRET` you set in Step 2
 
 ```sql
 SELECT cron.schedule(
@@ -136,7 +145,7 @@ SELECT cron.schedule(
   $$
   SELECT net.http_post(
     url := 'https://YOUR_PROJECT_REF.supabase.co/functions/v1/send-expiry-alerts',
-    headers := '{"Content-Type": "application/json", "Authorization": "Bearer YOUR_SERVICE_ROLE_KEY"}'::jsonb,
+    headers := '{"Content-Type": "application/json", "x-cron-secret": "YOUR_CRON_SECRET"}'::jsonb,
     body := '{}'::jsonb
   );
   $$
@@ -179,7 +188,7 @@ SELECT cron.schedule(
   $$
   SELECT net.http_post(
     url := 'https://YOUR_PROJECT_REF.supabase.co/functions/v1/send-expiry-alerts',
-    headers := '{"Content-Type": "application/json", "Authorization": "Bearer YOUR_SERVICE_ROLE_KEY"}'::jsonb,
+    headers := '{"Content-Type": "application/json", "x-cron-secret": "YOUR_CRON_SECRET"}'::jsonb,
     body := '{}'::jsonb
   );
   $$
@@ -200,7 +209,7 @@ SELECT cron.schedule(
   $$
   SELECT net.http_post(
     url := 'https://YOUR_PROJECT_REF.supabase.co/functions/v1/send-expiry-alerts',
-    headers := '{"Content-Type": "application/json", "Authorization": "Bearer YOUR_SERVICE_ROLE_KEY"}'::jsonb,
+    headers := '{"Content-Type": "application/json", "x-cron-secret": "YOUR_CRON_SECRET"}'::jsonb,
     body := '{}'::jsonb
   );
   $$
@@ -227,7 +236,7 @@ Note the permit ID returned.
 
 ```bash
 curl -X POST https://$PROJECT_REF.supabase.co/functions/v1/send-expiry-alerts \
-  -H "Authorization: Bearer $SERVICE_ROLE_KEY" \
+  -H "x-cron-secret: $CRON_SECRET" \
   -H "Content-Type: application/json" \
   -v
 ```
@@ -271,7 +280,7 @@ LIMIT 5;
 
 ### 5.5 Test Preferences Toggle
 
-1. Login to app: https://enregla.app
+1. Login to app: https://app.enregla.ec
 2. Navigate to **Settings** → **Notificaciones** (or `/settings/notifications`)
 3. Uncheck **"Alertas de permisos por vencer"**
 4. Trigger function again (Step 5.2)

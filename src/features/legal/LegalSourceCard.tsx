@@ -35,7 +35,7 @@ export function LegalSourceCard({ source }: LegalSourceCardProps) {
           )}
           {source.articles && (
             <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text)] mt-[var(--ds-space-100)]">
-              <span className="text-[var(--ds-text-muted)]">Artículos: </span>
+              <span className="text-[var(--ds-text-subtle)]">Artículos: </span>
               {source.articles}
             </p>
           )}

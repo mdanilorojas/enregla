@@ -16,7 +16,8 @@ export function PrivacyTab() {
   const [exporting, setExporting] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
 
-  const isOwner = profile?.role === 'owner'
+  // El creador de la empresa tiene rol 'admin' (no existe 'owner' en el modelo).
+  const isOwner = profile?.role === 'admin'
 
   async function handleExport() {
     if (!companyId) return
@@ -92,8 +93,8 @@ export function PrivacyTab() {
 
         {!isOwner && (
           <Banner variant="info">
-            Solo el dueño (<strong>owner</strong>) de la empresa puede eliminarla. Pide al
-            dueño que ejecute esta acción si es necesario.
+            Solo un <strong>administrador</strong> de la empresa puede eliminarla. Pide a un
+            administrador que ejecute esta acción si es necesario.
           </Banner>
         )}
 

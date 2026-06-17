@@ -28,7 +28,6 @@ const LegalPermitDetailView = lazy(() => import('@/features/legal/LegalPermitDet
 const NetworkMapPage = lazy(() => import('@/features/network/NetworkMapPage').then((m) => ({ default: m.NetworkMapPage })));
 const DesignSystemView = lazy(() => import('@/features/design-system/DesignSystemView').then((m) => ({ default: m.DesignSystemView })));
 const DesignSystemShowcase = lazy(() => import('@/features/design-system/DesignSystemShowcase').then((m) => ({ default: m.DesignSystemShowcase })));
-const DashboardTestView = lazy(() => import('@/features/dashboard/DashboardTestView').then((m) => ({ default: m.DashboardTestView })));
 const SettingsView = lazy(() => import('@/features/settings/SettingsView').then((m) => ({ default: m.SettingsView })));
 const PaywallView = lazy(() => import('@/features/billing/PaywallView').then((m) => ({ default: m.PaywallView })));
 const PrivacyPolicyView = lazy(() => import('@/features/legal-pages/PrivacyPolicyView').then((m) => ({ default: m.PrivacyPolicyView })));
@@ -120,7 +119,7 @@ export default function App() {
             }
           />
           <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/auth-test" element={<AuthTest />} />
+          {import.meta.env.DEV && <Route path="/auth-test" element={<AuthTest />} />}
           <Route path="/forgot-password" element={<ForgotPasswordView />} />
           <Route path="/reset-password" element={<ResetPasswordView />} />
           <Route path="/pago" element={<PaywallView />} />
@@ -151,9 +150,12 @@ export default function App() {
             <Route path="/marco-legal" element={<LegalIndexView />} />
             <Route path="/marco-legal/matriz" element={<LegalMatrixView />} />
             <Route path="/marco-legal/:permitType" element={<LegalPermitDetailView />} />
-            <Route path="/design-system" element={<DesignSystemView />} />
-            <Route path="/design-system-showcase" element={<DesignSystemShowcase />} />
-            <Route path="/dashboard-test" element={<DashboardTestView />} />
+            {import.meta.env.DEV && (
+              <>
+                <Route path="/design-system" element={<DesignSystemView />} />
+                <Route path="/design-system-showcase" element={<DesignSystemShowcase />} />
+              </>
+            )}
             <Route path="/settings" element={<SettingsView />} />
             <Route path="/settings/notifications" element={<SettingsView />} />
           </Route>
