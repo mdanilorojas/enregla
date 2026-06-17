@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Banner } from '@/components/ui/banner'
 import { Badge } from '@/components/ui/badge'
-import { Mail, Trash2, Users } from '@/lib/lucide-icons'
+import { Mail, Trash2, Users, Copy, Check } from '@/lib/lucide-icons'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 
@@ -37,6 +37,8 @@ export function MembersTab() {
   const [email, setEmail] = useState('')
   const [role, setRole] = useState<'admin' | 'operator' | 'viewer'>('operator')
   const [error, setError] = useState<string | null>(null)
+  const [inviteLink, setInviteLink] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
 
   const refresh = async () => {
     if (!companyId) {
@@ -62,26 +64,33 @@ export function MembersTab() {
   }, [companyId])
 
   const handleInvite = async () => {
-    if (!email.trim()) return
+    if (!email.trim() || !companyId || !profile?.id) return
     setInviting(true)
     setError(null)
+    setInviteLink(null)
+    setCopied(false)
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) throw new Error('Tu sesión expiró. Inicia sesión de nuevo.')
+      const token = `${crypto.randomUUID()}${crypto.randomUUID()}`.replace(/-/g, '')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error: insErr } = await (supabase as any)
+        .from('company_invitations')
+        .insert({
+          company_id: companyId,
+          email: email.trim().toLowerCase(),
+          role,
+          token,
+          invited_by: profile.id,
+        })
+      if (insErr) throw new Error(insErr.message)
 
-      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-invitation`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({ email: email.trim(), role }),
-      })
-      const data = await res.json()
-      if (!res.ok || !data.ok) {
-        throw new Error(data.error || 'No se pudo enviar la invitación')
+      const link = `${window.location.origin}/aceptar-invitacion?token=${token}`
+      setInviteLink(link)
+      try {
+        await navigator.clipboard.writeText(link)
+        toast.success('Invitación creada · enlace copiado')
+      } catch {
+        toast.success('Invitación creada')
       }
-      toast.success(data.email_sent ? 'Invitación enviada' : 'Invitación creada (email no enviado)')
       setEmail('')
       refresh()
     } catch (e) {
@@ -90,6 +99,17 @@ export function MembersTab() {
       toast.error(msg)
     } finally {
       setInviting(false)
+    }
+  }
+
+  const copyLink = async () => {
+    if (!inviteLink) return
+    try {
+      await navigator.clipboard.writeText(inviteLink)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      toast.error('No se pudo copiar')
     }
   }
 
@@ -157,12 +177,24 @@ export function MembersTab() {
             <option value="viewer">Solo lectura</option>
           </select>
           <Button variant="default" onClick={handleInvite} disabled={!email || inviting}>
-            {inviting ? 'Enviando...' : 'Enviar invitación'}
+            {inviting ? 'Creando...' : 'Crear invitación'}
           </Button>
         </div>
         <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mt-[var(--ds-space-100)]">
-          Se envía un email con un enlace que expira en 7 días.
+          Se genera un enlace de invitación (válido 7 días) que puedes compartir con la persona.
         </p>
+
+        {inviteLink && (
+          <div className="mt-[var(--ds-space-200)] flex items-center gap-[var(--ds-space-100)] p-[var(--ds-space-150)] rounded-[var(--ds-radius-200)] bg-[var(--ds-neutral-50)] border border-[var(--ds-border)]">
+            <span className="flex-1 min-w-0 truncate text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)]">
+              {inviteLink}
+            </span>
+            <Button variant="outline" size="sm" onClick={copyLink}>
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              {copied ? 'Copiado' : 'Copiar enlace'}
+            </Button>
+          </div>
+        )}
       </Card>
 
       <Card className="p-[var(--ds-space-400)]">
