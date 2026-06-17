@@ -7,6 +7,7 @@ import { usePermits } from '@/hooks/usePermits'
 import { useCompany } from '@/hooks/useCompany'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { Building2, Plus, Download, ChevronRight, ArrowRight } from '@/lib/lucide-icons'
 import { permitTypeLabel } from '@/lib/domain/permit-types'
 import { SkeletonList } from '@/components/ui/skeleton'
@@ -161,7 +162,7 @@ export function DashboardTestView() {
             description="Crea tu primera sede para comenzar a gestionar permisos"
             action={
               <Link to="/sedes">
-                <Button variant="default" className="h-8 px-[var(--ds-space-150)] text-sm font-semibold rounded-[var(--ds-radius-100)]">
+                <Button variant="default" className="h-8 px-[var(--ds-space-150)] text-[var(--ds-font-size-100)] font-semibold rounded-[var(--ds-radius-100)]">
                   <Plus className="w-4 h-4" />
                   Crear Primera Sede
                 </Button>
@@ -176,12 +177,6 @@ export function DashboardTestView() {
   const brandName = company?.name ?? 'tu negocio'
   const riskLabel =
     metrics.riskLevel === 'high' ? 'Alto' : metrics.riskLevel === 'medium' ? 'Medio' : 'Bajo'
-  const riskBadgeClass =
-    metrics.riskLevel === 'high'
-      ? 'bg-[var(--ds-risk-alto-bg)] text-[var(--ds-risk-alto-text)] border-[var(--ds-risk-alto-border)]'
-      : metrics.riskLevel === 'medium'
-        ? 'bg-[var(--ds-risk-medio-bg)] text-[var(--ds-risk-medio-text)] border-[var(--ds-risk-medio-border)]'
-        : 'bg-[var(--ds-risk-bajo-bg)] text-[var(--ds-risk-bajo-text)] border-[var(--ds-risk-bajo-border)]'
 
 
   return (
@@ -206,9 +201,9 @@ export function DashboardTestView() {
               <span>·</span>
               <span className="flex items-center gap-1">
                 Riesgo operativo
-                <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[var(--ds-font-size-075)] font-bold border ${riskBadgeClass}`}>
+                <Badge variant={metrics.riskLevel === 'high' ? 'risk-alto' : metrics.riskLevel === 'medium' ? 'risk-medio' : 'risk-bajo'} size="sm">
                   {riskLabel}
-                </span>
+                </Badge>
               </span>
             </p>
           </div>
@@ -255,7 +250,7 @@ export function DashboardTestView() {
 
               {metrics.pendingActions.length === 0 ? (
                 <div className="py-[var(--ds-space-400)] text-center flex flex-col items-center justify-center gap-2.5">
-                  <span className="w-12 h-12 rounded-full bg-[var(--ds-green-50)] flex items-center justify-center text-[var(--ds-status-vigente)] text-xl border border-[var(--ds-green-200)] shadow-sm">✓</span>
+                  <span className="w-12 h-12 rounded-full bg-[var(--ds-green-50)] flex items-center justify-center text-[var(--ds-status-vigente)] text-[var(--ds-font-size-200)] border border-[var(--ds-green-200)] shadow-sm">✓</span>
                   <div>
                     <h4 className="text-[var(--ds-font-size-100)] font-extrabold text-[var(--ds-text)]">¡Todo seguro!</h4>
                     <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mt-0.5 max-w-[200px]">No tienes alertas operativas ni permisos que requieran acción inmediata.</p>
@@ -273,7 +268,7 @@ export function DashboardTestView() {
             {/* Bottom Actions Footer */}
             <div className="border-t border-[var(--ds-border)] pt-[var(--ds-space-200)]">
               <Link to="/permisos" className="w-full">
-                <Button variant="secondary" className="w-full h-8 text-xs font-bold rounded-[var(--ds-radius-100)] flex justify-center items-center gap-1">
+                <Button variant="secondary" className="w-full h-8 text-[var(--ds-font-size-075)] font-bold rounded-[var(--ds-radius-100)] flex justify-center items-center gap-1">
                   Ver Todos los Permisos
                   <ChevronRight className="w-4 h-4" />
                 </Button>
@@ -387,14 +382,14 @@ function DashboardLocationCard({ location, permits }: { location: Location; perm
     : percentage >= 40 ? 'Alto'
     : 'Crítico'
 
-  const riskBadgeClass =
+  const riskBadgeVariant =
     riskLevel === 'Bajo'
-      ? 'bg-[var(--ds-risk-bajo-bg)] text-[var(--ds-risk-bajo-text)] border-[var(--ds-risk-bajo-border)]'
+      ? 'risk-bajo'
       : riskLevel === 'Medio'
-        ? 'bg-[var(--ds-risk-medio-bg)] text-[var(--ds-risk-medio-text)] border-[var(--ds-risk-medio-border)]'
+        ? 'risk-medio'
         : riskLevel === 'Alto'
-          ? 'bg-[var(--ds-risk-alto-bg)] text-[var(--ds-risk-alto-text)] border-[var(--ds-risk-alto-border)]'
-          : 'bg-[var(--ds-risk-critico-bg)] text-[var(--ds-risk-critico-text)] border-[var(--ds-risk-critico-border)]'
+          ? 'risk-alto'
+          : 'risk-critico'
 
   const locationCode = `SEDE-${location.id.substring(0, 8).toUpperCase()}`
   
@@ -431,9 +426,9 @@ function DashboardLocationCard({ location, permits }: { location: Location; perm
         <div className="flex items-center gap-[var(--ds-space-150)] text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)] font-medium mb-1">
           <span>{statusLabel}</span>
           <span className="text-[var(--ds-border)]">|</span>
-          <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[var(--ds-font-size-075)] font-bold uppercase border ${riskBadgeClass}`}>
+          <Badge variant={riskBadgeVariant} size="sm">
             {riskLevel}
-          </span>
+          </Badge>
         </div>
 
         {/* Permits progress */}
