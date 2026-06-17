@@ -20,6 +20,7 @@ export interface SedeMapData {
 
 export interface DashboardMapProps {
   empresaName: string
+  businessType?: string
   sedes: SedeMapData[]
   fillParent?: boolean
   onSedeClick?: (sedeId: string) => void
@@ -37,7 +38,7 @@ function radiusFor(n: number) {
   return 380 + (n - 8) * 28
 }
 
-export function DashboardMap({ empresaName, sedes, fillParent = false, onSedeClick }: DashboardMapProps) {
+export function DashboardMap({ empresaName, businessType, sedes, fillParent = false, onSedeClick }: DashboardMapProps) {
   const { nodes, edges } = useMemo(() => {
     const centerX = 0
     const centerY = 0
@@ -48,7 +49,7 @@ export function DashboardMap({ empresaName, sedes, fillParent = false, onSedeCli
         id: 'empresa',
         type: 'empresa',
         position: { x: centerX - HUB_W / 2, y: centerY - HUB_H / 2 },
-        data: { label: empresaName },
+        data: { label: empresaName, businessType },
         draggable: true,
       },
     ]
@@ -79,7 +80,7 @@ export function DashboardMap({ empresaName, sedes, fillParent = false, onSedeCli
     })
 
     return { nodes, edges }
-  }, [empresaName, sedes])
+  }, [empresaName, businessType, sedes])
 
   const containerStyle = fillParent
     ? { width: '100%', height: '100%' }

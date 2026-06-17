@@ -54,6 +54,7 @@ export function NetworkMapPage() {
       >
         <NetworkMapCanvas
           empresaName={company?.name ?? 'Mi empresa'}
+          businessType={company?.business_type}
           sedes={sedes}
           onSedeClick={(id) => navigate(`/sedes/${id}`)}
         />
