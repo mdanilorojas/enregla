@@ -68,7 +68,7 @@ export function EstudioView() {
   return (
     <div className="space-y-[var(--ds-space-300)]">
       {/* Barra de acciones (no se imprime) */}
-      <div className="flex items-center justify-between gap-[var(--ds-space-200)] print:hidden">
+      <div className="mx-auto w-full max-w-[820px] flex items-center justify-between gap-[var(--ds-space-200)] print:hidden">
         <Link
           to="/evaluacion"
           className="flex items-center gap-[var(--ds-space-050)] text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] hover:text-[var(--ds-text)]"
@@ -97,7 +97,7 @@ export function EstudioView() {
       </div>
 
       {/* Documento */}
-      <div className="estudio-doc bg-white rounded-[var(--ds-radius-200)] shadow-[var(--ds-shadow-raised)] print:shadow-none print:rounded-none p-[var(--ds-space-400)] print:p-0 space-y-[var(--ds-space-400)]">
+      <div className="estudio-doc mx-auto w-full max-w-[820px] bg-white rounded-[var(--ds-radius-200)] shadow-[var(--ds-shadow-raised)] print:max-w-none print:shadow-none print:rounded-none p-[var(--ds-space-400)] print:p-0 space-y-[var(--ds-space-400)]">
         {/* Portada */}
         <header className="estudio-portada border-b border-[var(--ds-border)] pb-[var(--ds-space-300)]">
           <div className="flex items-center gap-[var(--ds-space-150)] mb-[var(--ds-space-300)]">
@@ -124,7 +124,7 @@ export function EstudioView() {
 
           <div className="mt-[var(--ds-space-300)] inline-flex items-center gap-[var(--ds-space-100)] rounded-[var(--ds-radius-200)] bg-[var(--ds-blue-50)] px-[var(--ds-space-200)] py-[var(--ds-space-150)]">
             <span className="text-[var(--ds-font-size-400)] font-bold text-[var(--ds-text-brand)]">{total}</span>
-            <span className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] max-w-[200px]">
+            <span className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)]">
               requisitos de cumplimiento aplican a este negocio
             </span>
           </div>
