@@ -28,7 +28,6 @@ const LegalPermitDetailView = lazy(() => import('@/features/legal/LegalPermitDet
 const NetworkMapPage = lazy(() => import('@/features/network/NetworkMapPage').then((m) => ({ default: m.NetworkMapPage })));
 const DesignSystemView = lazy(() => import('@/features/design-system/DesignSystemView').then((m) => ({ default: m.DesignSystemView })));
 const DesignSystemShowcase = lazy(() => import('@/features/design-system/DesignSystemShowcase').then((m) => ({ default: m.DesignSystemShowcase })));
-const DashboardTestView = lazy(() => import('@/features/dashboard/DashboardTestView').then((m) => ({ default: m.DashboardTestView })));
 const SettingsView = lazy(() => import('@/features/settings/SettingsView').then((m) => ({ default: m.SettingsView })));
 const PaywallView = lazy(() => import('@/features/billing/PaywallView').then((m) => ({ default: m.PaywallView })));
 const PrivacyPolicyView = lazy(() => import('@/features/legal-pages/PrivacyPolicyView').then((m) => ({ default: m.PrivacyPolicyView })));
@@ -155,7 +154,6 @@ export default function App() {
               <>
                 <Route path="/design-system" element={<DesignSystemView />} />
                 <Route path="/design-system-showcase" element={<DesignSystemShowcase />} />
-                <Route path="/dashboard-test" element={<DashboardTestView />} />
               </>
             )}
             <Route path="/settings" element={<SettingsView />} />
