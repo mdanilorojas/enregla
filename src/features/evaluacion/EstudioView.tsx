@@ -1,19 +1,33 @@
 import { useMemo } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Download, ArrowLeft, FileX, ShieldCheck } from '@/lib/lucide-icons';
-import { useEvaluation, useBusinessType } from './useEvaluacion';
+import { Download, ArrowLeft, FileX, ShieldCheck, Edit, Trash2 } from '@/lib/lucide-icons';
+import { useEvaluation, useBusinessType, useDeleteEvaluation } from './useEvaluacion';
 import { evaluateRequirements, countRequirements } from './engine';
 import { RENEWAL_LABELS, type InputFieldDef, type InputValues } from './types';
 import './estudio-print.css';
 
 export function EstudioView() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { data: evaluation, isLoading: loadingEval } = useEvaluation(id);
   const { data: bt, isLoading: loadingBt } = useBusinessType(evaluation?.businessTypeSlug);
+  const del = useDeleteEvaluation();
+
+  const handleDelete = async () => {
+    if (!id) return;
+    if (!window.confirm('¿Eliminar este estudio? Esta acción no se puede deshacer.')) return;
+    try {
+      await del.mutateAsync(id);
+      navigate('/evaluacion');
+    } catch {
+      toast.error('No se pudo eliminar el estudio.');
+    }
+  };
 
   const results = useMemo(
     () => (bt && evaluation ? evaluateRequirements(bt, evaluation.inputs) : []),
@@ -61,10 +75,25 @@ export function EstudioView() {
         >
           <ArrowLeft size={14} aria-hidden="true" /> Volver
         </Link>
-        <Button onClick={() => window.print()}>
-          <Download aria-hidden="true" />
-          Generar PDF
-        </Button>
+        <div className="flex items-center gap-[var(--ds-space-150)]">
+          <Button variant="outline" onClick={() => navigate(`/evaluacion/${id}/editar`)}>
+            <Edit aria-hidden="true" />
+            Editar
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleDelete}
+            loading={del.isPending}
+            className="text-[var(--ds-red-600)]"
+          >
+            <Trash2 aria-hidden="true" />
+            Eliminar
+          </Button>
+          <Button onClick={() => window.print()}>
+            <Download aria-hidden="true" />
+            Generar PDF
+          </Button>
+        </div>
       </div>
 
       {/* Documento */}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, ArrowRight, Check } from '@/lib/lucide-icons';
-import { useBusinessTypes, useBusinessType, useSaveEvaluation } from './useEvaluacion';
+import {
+  useBusinessTypes,
+  useBusinessType,
+  useSaveEvaluation,
+  useUpdateEvaluation,
+  useEvaluation,
+} from './useEvaluacion';
 import type { BusinessTypeDef, InputFieldDef, InputValues, ProspectMeta } from './types';
 
 type Step = 'tipo' | 'datos';
@@ -27,23 +33,39 @@ function defaultValues(bt: BusinessTypeDef): InputValues {
 
 export function EvaluacionWizardView() {
   const navigate = useNavigate();
+  const { id: editId } = useParams<{ id: string }>();
+  const isEdit = !!editId;
   const { data: types, isLoading: loadingTypes } = useBusinessTypes();
 
-  const [step, setStep] = useState<Step>('tipo');
+  const [step, setStep] = useState<Step>(isEdit ? 'datos' : 'tipo');
   const [slug, setSlug] = useState<string>('');
   const [prospect, setProspect] = useState<ProspectMeta>({ name: '' });
   const [values, setValues] = useState<InputValues>({});
+  const [prefilled, setPrefilled] = useState(false);
 
-  const { data: bt } = useBusinessType(step === 'datos' ? slug : undefined);
+  const { data: editing } = useEvaluation(editId);
+  const { data: bt } = useBusinessType(step === 'datos' ? slug || editing?.businessTypeSlug : undefined);
   const save = useSaveEvaluation();
+  const update = useUpdateEvaluation();
+  const busy = save.isPending || update.isPending;
 
-  // Inicializa los valores por defecto cuando carga el tipo elegido.
+  // Modo edición: precarga datos del estudio existente (una vez).
   useEffect(() => {
-    if (bt && Object.keys(values).length === 0) {
+    if (isEdit && editing && !prefilled) {
+      setSlug(editing.businessTypeSlug);
+      setProspect(editing.prospect);
+      setValues(editing.inputs);
+      setPrefilled(true);
+    }
+  }, [isEdit, editing, prefilled]);
+
+  // Modo creación: valores por defecto al cargar el tipo elegido.
+  useEffect(() => {
+    if (!isEdit && bt && Object.keys(values).length === 0) {
       setValues(defaultValues(bt));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bt]);
+  }, [bt, isEdit]);
 
   const selectType = (s: string) => {
     setSlug(s);
@@ -63,17 +85,23 @@ export function EvaluacionWizardView() {
       };
     });
 
-  const canSubmit = bt != null && prospect.name.trim().length > 0 && !save.isPending;
+  const canSubmit = bt != null && prospect.name.trim().length > 0 && !busy;
 
   const handleSubmit = async () => {
     if (!bt || !canSubmit) return;
+    const cleanProspect = { ...prospect, name: prospect.name.trim() };
     try {
-      const ev = await save.mutateAsync({
-        businessTypeSlug: bt.slug,
-        prospect: { ...prospect, name: prospect.name.trim() },
-        inputs: values,
-      });
-      navigate(`/evaluacion/${ev.id}`);
+      if (isEdit && editId) {
+        await update.mutateAsync({ id: editId, patch: { prospect: cleanProspect, inputs: values } });
+        navigate(`/evaluacion/${editId}`);
+      } else {
+        const ev = await save.mutateAsync({
+          businessTypeSlug: bt.slug,
+          prospect: cleanProspect,
+          inputs: values,
+        });
+        navigate(`/evaluacion/${ev.id}`);
+      }
     } catch {
       toast.error('No se pudo guardar el estudio.');
     }
@@ -138,18 +166,20 @@ export function EvaluacionWizardView() {
   return (
     <div className="space-y-[var(--ds-space-300)]">
       <button
-        onClick={() => setStep('tipo')}
+        onClick={() => (isEdit ? navigate(`/evaluacion/${editId}`) : setStep('tipo'))}
         className="flex items-center gap-[var(--ds-space-050)] text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] hover:text-[var(--ds-text)]"
       >
-        <ArrowLeft size={14} aria-hidden="true" /> Cambiar tipo
+        <ArrowLeft size={14} aria-hidden="true" /> {isEdit ? 'Volver al estudio' : 'Cambiar tipo'}
       </button>
 
       <div>
         <h1 className="text-[var(--ds-font-size-400)] font-semibold text-[var(--ds-text)]">
-          {bt.name}
+          {isEdit ? 'Editar estudio' : bt.name}
         </h1>
         <p className="text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)] mt-1">
-          Captura los datos del negocio para generar el estudio.
+          {isEdit
+            ? `${bt.name} · Actualiza los datos del negocio.`
+            : 'Captura los datos del negocio para generar el estudio.'}
         </p>
       </div>
 
@@ -209,11 +239,14 @@ export function EvaluacionWizardView() {
       </Card>
 
       <div className="flex justify-end gap-[var(--ds-space-150)]">
-        <Button variant="outline" onClick={() => navigate('/evaluacion')}>
+        <Button
+          variant="outline"
+          onClick={() => navigate(isEdit ? `/evaluacion/${editId}` : '/evaluacion')}
+        >
           Cancelar
         </Button>
-        <Button onClick={handleSubmit} disabled={!canSubmit} loading={save.isPending}>
-          Generar estudio
+        <Button onClick={handleSubmit} disabled={!canSubmit} loading={busy}>
+          {isEdit ? 'Guardar cambios' : 'Generar estudio'}
           <ArrowRight aria-hidden="true" />
         </Button>
       </div>

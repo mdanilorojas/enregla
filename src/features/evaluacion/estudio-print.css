@@ -11,10 +11,6 @@
     break-inside: avoid;
   }
 
-  .estudio-portada {
-    break-after: page;
-  }
-
   /* Fuerza colores de fondo de badges/encabezados en impresión. */
   .estudio-doc {
     -webkit-print-color-adjust: exact;

@@ -44,6 +44,19 @@ export function saveEvaluation(
   return evaluation;
 }
 
+export function updateEvaluation(
+  id: string,
+  patch: Pick<Evaluation, 'prospect' | 'inputs'>
+): Evaluation {
+  const all = readAll();
+  const idx = all.findIndex((e) => e.id === id);
+  if (idx === -1) throw new Error('Evaluación no encontrada');
+  const updated: Evaluation = { ...all[idx], ...patch };
+  all[idx] = updated;
+  writeAll(all);
+  return updated;
+}
+
 export function deleteEvaluation(id: string): void {
   writeAll(readAll().filter((e) => e.id !== id));
 }

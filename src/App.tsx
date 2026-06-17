@@ -171,6 +171,7 @@ export default function App() {
             <Route index element={<EvaluacionListView />} />
             <Route path="nueva" element={<EvaluacionWizardView />} />
             <Route path=":id" element={<EstudioView />} />
+            <Route path=":id/editar" element={<EvaluacionWizardView />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

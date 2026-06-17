@@ -186,6 +186,29 @@ export async function saveEvaluation(
   return mapEval(inserted);
 }
 
+export async function updateEvaluation(
+  id: string,
+  patch: Pick<Evaluation, 'prospect' | 'inputs'>
+): Promise<Evaluation> {
+  if (DEMO_MODE) return local.updateEvaluation(id, patch);
+  const { data, error } = await db
+    .from('evaluations')
+    .update({
+      prospect_name: patch.prospect.name,
+      prospect_ruc: patch.prospect.ruc ?? null,
+      prospect_city: patch.prospect.city ?? null,
+      contact: patch.prospect.contact ?? null,
+      inputs: patch.inputs,
+      company_id: patch.prospect.companyId ?? null,
+      location_id: patch.prospect.locationId ?? null,
+    })
+    .eq('id', id)
+    .select('*, business_types(slug)')
+    .single();
+  if (error) throw error;
+  return mapEval(data);
+}
+
 export async function deleteEvaluation(id: string): Promise<void> {
   if (DEMO_MODE) {
     local.deleteEvaluation(id);

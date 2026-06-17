@@ -5,6 +5,7 @@ import {
   listEvaluations,
   getEvaluation,
   saveEvaluation,
+  updateEvaluation,
   deleteEvaluation,
 } from './api';
 import type { Evaluation } from './types';
@@ -46,6 +47,18 @@ export function useSaveEvaluation() {
   return useMutation({
     mutationFn: (data: Omit<Evaluation, 'id' | 'createdAt'>) => saveEvaluation(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['evaluacion', 'list'] }),
+  });
+}
+
+export function useUpdateEvaluation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, patch }: { id: string; patch: Pick<Evaluation, 'prospect' | 'inputs'> }) =>
+      updateEvaluation(id, patch),
+    onSuccess: (_data, vars) => {
+      qc.invalidateQueries({ queryKey: ['evaluacion', 'list'] });
+      qc.invalidateQueries({ queryKey: ['evaluacion', 'item', vars.id] });
+    },
   });
 }
 
