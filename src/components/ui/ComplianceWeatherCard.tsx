@@ -1,4 +1,6 @@
 import { useEffect, useRef, memo } from 'react';
+import { Button } from './button';
+import { cn } from '@/lib/utils';
 
 export type WeatherState = 'sunny' | 'warn' | 'err';
 
@@ -10,6 +12,7 @@ export interface ComplianceWeatherCardProps {
   permitsDone: number;
   permitsTotal: number;
   locations: number;
+  onActionClick?: () => void;
 }
 
 function ComplianceWeatherCardImpl({
@@ -20,6 +23,7 @@ function ComplianceWeatherCardImpl({
   permitsDone,
   permitsTotal,
   locations,
+  onActionClick,
 }: ComplianceWeatherCardProps) {
   const dustCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const warnCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -374,6 +378,23 @@ function ComplianceWeatherCardImpl({
               <div className="v">{locations}</div>
             </div>
           </div>
+
+          {onActionClick && (
+            <>
+              <div className="action-divider" />
+              <Button
+                onClick={onActionClick}
+                className={cn(
+                  "action-btn font-bold transition-all duration-200 border-none shrink-0 h-8 px-[var(--ds-space-150)] rounded-[var(--ds-radius-100)] text-[var(--ds-font-size-075)] sm:text-[var(--ds-font-size-100)] shadow-sm",
+                  state === 'sunny' ? 'bg-white text-green-700 hover:bg-green-50' :
+                  state === 'warn' ? 'bg-white text-orange-700 hover:bg-orange-50' :
+                  'bg-white text-red-700 hover:bg-red-50'
+                )}
+              >
+                {state === 'sunny' ? 'Ver permisos' : 'Resolver alertas'}
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -662,6 +683,26 @@ const CSS = `
     justify-content: space-between;
     gap: var(--ds-space-200);
     flex-wrap: wrap;
+  }
+}
+
+.hero-card .action-divider {
+  width: 1px;
+  height: 24px;
+  background: currentColor;
+  opacity: 0.22;
+  display: none;
+}
+@media (min-width: 768px) {
+  .hero-card .action-divider {
+    display: block;
+  }
+}
+
+@media (max-width: 767px) {
+  .hero-card .action-btn {
+    width: 100%;
+    margin-top: var(--ds-space-100);
   }
 }
 

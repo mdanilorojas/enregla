@@ -50,6 +50,13 @@ export function DashboardView() {
     return () => clearTimeout(timer)
   }, [])
 
+  const handleResolveAlerts = () => {
+    const el = document.getElementById('action-hub')
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }
+
   const { locations, loading: loadingLocs, error: locationsError, refetch: refetchLocations } = useLocations(companyId)
   const { permits, loading: loadingPermits, error: permitsError, refetch: refetchPermits } = usePermits({ companyId })
   const { data: company } = useCompany(companyId)
@@ -289,6 +296,7 @@ export function DashboardView() {
           permitsDone={metrics.vigentes}
           permitsTotal={metrics.total}
           locations={locations.length}
+          onActionClick={handleResolveAlerts}
         />
 
         {/* Core Dashboard Grid */}
@@ -317,7 +325,7 @@ export function DashboardView() {
 
           {/* Right Column: Action Hub (Acciones Críticas y Tareas) */}
           <div className="lg:col-span-5 xl:col-span-4">
-            <Card className="p-[var(--ds-space-300)] flex flex-col justify-between gap-[var(--ds-space-300)]">
+            <Card id="action-hub" className="p-[var(--ds-space-300)] flex flex-col justify-between gap-[var(--ds-space-300)]">
               <div>
                 <div className="flex justify-between items-center pb-[var(--ds-space-150)] border-b border-[var(--ds-border)] mb-[var(--ds-space-150)]">
                   <h3 className="text-[var(--ds-font-size-075)] font-extrabold text-[var(--ds-text-subtle)] uppercase tracking-[0.1em]">
