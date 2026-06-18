@@ -8,7 +8,7 @@ import { useCompany } from '@/hooks/useCompany'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Building2, Plus, ChevronRight, Check, AlertTriangle, Clock, FileText } from '@/lib/lucide-icons'
+import { Building2, Plus, ChevronRight, Check } from '@/lib/lucide-icons'
 import { permitTypeLabel } from '@/lib/domain/permit-types'
 import { businessTypeLabel } from '@/lib/domain/business-types'
 import { SkeletonList } from '@/components/ui/skeleton'
@@ -380,33 +380,18 @@ export function DashboardView() {
 }
 
 function ActionItemRow({ action }: { action: CriticalAction }) {
-  // Severity drives the leading chip: color = urgency, icon = what's needed.
+  // Severity drives the left accent rail + status dot (solid color) and the
+  // status text color (darker, readable variant).
   const severity = (() => {
     switch (action.status) {
       case 'vencido':
-        return {
-          Icon: AlertTriangle,
-          chip: 'bg-[var(--ds-risk-critico-bg)] text-[var(--ds-risk-critico-text)] ring-1 ring-inset ring-[var(--ds-risk-critico-border)]',
-          text: 'text-[var(--ds-status-vencido-text)]',
-        }
+        return { solid: 'bg-[var(--ds-status-vencido)]', text: 'text-[var(--ds-status-vencido-text)]' }
       case 'por_vencer':
-        return {
-          Icon: Clock,
-          chip: 'bg-[var(--ds-risk-alto-bg)] text-[var(--ds-risk-alto-text)] ring-1 ring-inset ring-[var(--ds-risk-alto-border)]',
-          text: 'text-[var(--ds-status-por-vencer-text)]',
-        }
+        return { solid: 'bg-[var(--ds-status-por-vencer)]', text: 'text-[var(--ds-status-por-vencer-text)]' }
       case 'no_registrado':
-        return {
-          Icon: FileText,
-          chip: 'bg-[var(--ds-risk-medio-bg)] text-[var(--ds-risk-medio-text)] ring-1 ring-inset ring-[var(--ds-risk-medio-border)]',
-          text: 'text-[var(--ds-risk-medio-text)]',
-        }
+        return { solid: 'bg-[var(--ds-risk-medio)]', text: 'text-[var(--ds-risk-medio-text)]' }
       default:
-        return {
-          Icon: Clock,
-          chip: 'bg-[var(--ds-neutral-100)] text-[var(--ds-text-subtle)] ring-1 ring-inset ring-[var(--ds-border)]',
-          text: 'text-[var(--ds-text-subtle)]',
-        }
+        return { solid: 'bg-[var(--ds-neutral-400)]', text: 'text-[var(--ds-text-subtle)]' }
     }
   })()
 
@@ -432,25 +417,24 @@ function ActionItemRow({ action }: { action: CriticalAction }) {
     return `Vence en ${action.days} día${action.days === 1 ? '' : 's'}`
   })()
 
-  const { Icon } = severity
-
   return (
     <Link
       to={`/permisos/${action.id}`}
-      className="group flex items-center gap-[var(--ds-space-150)] py-[var(--ds-space-150)] px-[var(--ds-space-150)] rounded-[var(--ds-radius-300)] hover:bg-[var(--ds-neutral-50)] transition-colors duration-150"
+      className="group relative flex items-center gap-[var(--ds-space-150)] py-[var(--ds-space-150)] pl-[var(--ds-space-200)] pr-[var(--ds-space-150)] rounded-[var(--ds-radius-300)] hover:bg-[var(--ds-neutral-50)] transition-colors duration-150"
     >
-      <span className={`flex items-center justify-center w-[34px] h-[34px] shrink-0 rounded-[9px] ${severity.chip}`}>
-        <Icon className="w-[17px] h-[17px]" aria-hidden="true" />
-      </span>
+      <span className={`absolute left-[var(--ds-space-075)] top-[var(--ds-space-150)] bottom-[var(--ds-space-150)] w-[3px] rounded-full ${severity.solid}`} aria-hidden="true" />
 
       <div className="min-w-0 flex-1">
         <span className="block text-[var(--ds-font-size-100)] font-semibold text-[var(--ds-text)] truncate">
           {permitTypeLabel(action.type)}
         </span>
-        <span className="block text-[var(--ds-font-size-075)] font-medium text-[var(--ds-text-subtle)] truncate mt-0.5">
-          {action.locationName}
-          <span className="mx-1 text-[var(--ds-text-subtlest)]">·</span>
-          <span className={`font-semibold ${severity.text}`}>{statusText}</span>
+        <span className="flex items-center gap-[var(--ds-space-075)] text-[var(--ds-font-size-075)] font-medium text-[var(--ds-text-subtle)] truncate mt-0.5">
+          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${severity.solid}`} aria-hidden="true" />
+          <span className="truncate">
+            <span className={`font-semibold ${severity.text}`}>{statusText}</span>
+            <span className="mx-1 text-[var(--ds-text-subtlest)]">·</span>
+            {action.locationName}
+          </span>
         </span>
       </div>
 
