@@ -600,11 +600,11 @@ const CSS = `
 .hero-card .content {
   position: relative;
   z-index: 10;
-  padding: 20px;
+  padding: var(--ds-space-250);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--ds-space-200);
   min-height: auto;
 }
 @media (min-width: 768px) {
@@ -612,17 +612,17 @@ const CSS = `
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    gap: 24px;
+    gap: var(--ds-space-300);
     min-height: 120px;
-    padding: 16px 28px;
+    padding: var(--ds-space-200) var(--ds-space-300);
   }
 }
 
 .hero-card .state-chip {
-  display: inline-flex; align-items: center; gap: 7px;
-  padding: 5px 12px;
+  display: inline-flex; align-items: center; gap: var(--ds-space-075);
+  padding: var(--ds-space-050) var(--ds-space-150);
   border-radius: 100px;
-  font-size: 10px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase;
+  font-size: var(--ds-font-size-050); font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase;
   color: white;
   align-self: flex-start;
 }
@@ -642,7 +642,7 @@ const CSS = `
 .hero-card .left-block {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--ds-space-100);
   max-width: 100%;
 }
 @media (min-width: 768px) {
@@ -654,19 +654,19 @@ const CSS = `
 .hero-card .right-block {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: var(--ds-space-250);
 }
 @media (max-width: 767px) {
   .hero-card .right-block {
     width: 100%;
     justify-content: space-between;
-    gap: 16px;
+    gap: var(--ds-space-200);
     flex-wrap: wrap;
   }
 }
 
 .hero-card .headline {
-  font-size: 22px; font-weight: 400; letter-spacing: -0.2px;
+  font-size: var(--ds-font-size-400); font-weight: 400; letter-spacing: -0.2px;
   line-height: 1.35; margin: 0;
 }
 .hero-card--sunny .headline { color: #0f265c; }
@@ -676,13 +676,13 @@ const CSS = `
 .hero-card .headline .brand { font-weight: 600; }
 @media (min-width: 768px) {
   .hero-card .headline {
-    font-size: 18px;
+    font-size: var(--ds-font-size-300);
     line-height: 1.3;
   }
 }
 
 .hero-card .hero-stats {
-  display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+  display: flex; align-items: baseline; gap: var(--ds-space-150); flex-wrap: wrap;
 }
 .hero-card .big-pct {
   font-size: 56px; font-weight: 100; line-height: 0.9;
@@ -702,19 +702,19 @@ const CSS = `
 }
 
 .hero-card .big-pct small {
-  font-size: 20px; font-weight: 200; opacity: 0.75;
+  font-size: var(--ds-font-size-300); font-weight: 200; opacity: 0.75;
   margin-left: 1px; letter-spacing: -0.5px;
 }
 @media (min-width: 768px) {
   .hero-card .big-pct small {
-    font-size: 16px;
+    font-size: var(--ds-font-size-200);
   }
 }
 
 .hero-card .data-pill {
-  display: inline-flex; align-items: center; gap: 20px;
-  padding: 9px 16px;
-  border-radius: 11px;
+  display: inline-flex; align-items: center; gap: var(--ds-space-250);
+  padding: var(--ds-space-100) var(--ds-space-200);
+  border-radius: var(--ds-radius-400);
   backdrop-filter: blur(14px);
   align-self: flex-start;
 }
@@ -733,21 +733,21 @@ const CSS = `
   border: 1px solid rgba(252, 165, 165, 0.25);
   color: #fef2f2;
 }
-.hero-card .data-pill .k { font-size: 10px; font-weight: 500; opacity: 0.75; }
-.hero-card .data-pill .v { font-size: 19px; font-weight: 300; margin-top: 3px; font-variant-numeric: tabular-nums; letter-spacing: -0.3px; }
-.hero-card .data-pill .vdiv { width: 1px; height: 24px; background: currentColor; opacity: 0.22; }
+.hero-card .data-pill .k { font-size: var(--ds-font-size-050); font-weight: 500; opacity: 0.75; }
+.hero-card .data-pill .v { font-size: var(--ds-font-size-300); font-weight: 300; margin-top: var(--ds-space-025); font-variant-numeric: tabular-nums; letter-spacing: -0.3px; }
+.hero-card .data-pill .vdiv { width: 1px; height: var(--ds-space-300); background: currentColor; opacity: 0.22; }
 @media (min-width: 768px) {
   .hero-card .data-pill {
-    padding: 6px 14px;
-    gap: 16px;
-    border-radius: 8px;
+    padding: var(--ds-space-075) var(--ds-space-150);
+    gap: var(--ds-space-200);
+    border-radius: var(--ds-radius-300);
   }
   .hero-card .data-pill .v {
-    font-size: 16px;
+    font-size: var(--ds-font-size-200);
     margin-top: 1px;
   }
   .hero-card .data-pill .vdiv {
-    height: 18px;
+    height: var(--ds-space-200);
   }
 }
 `;
