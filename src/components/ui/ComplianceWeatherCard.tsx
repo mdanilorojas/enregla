@@ -350,7 +350,7 @@ function ComplianceWeatherCardImpl({
       )}
 
       <div className="content">
-        <div className="top-row">
+        <div className="left-block">
           <div className="state-chip">
             <span className="dot" />
             {chipLabel}
@@ -358,19 +358,21 @@ function ComplianceWeatherCardImpl({
           <h2 className="headline">{headline}</h2>
         </div>
 
-        <div className="hero-stats">
-          <div className="big-pct"><span>{percentage}</span><small>%</small></div>
-        </div>
-
-        <div className="data-pill">
-          <div>
-            <div className="k">Permisos</div>
-            <div className="v">{permitsDone} de {permitsTotal}</div>
+        <div className="right-block">
+          <div className="hero-stats">
+            <div className="big-pct"><span>{percentage}</span><small>%</small></div>
           </div>
-          <div className="vdiv" />
-          <div>
-            <div className="k">Locales</div>
-            <div className="v">{locations}</div>
+
+          <div className="data-pill">
+            <div>
+              <div className="k">Permisos</div>
+              <div className="v">{permitsDone} de {permitsTotal}</div>
+            </div>
+            <div className="vdiv" />
+            <div>
+              <div className="k">Locales</div>
+              <div className="v">{locations}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -386,10 +388,15 @@ const CSS = `
   position: relative;
   border-radius: 16px;
   overflow: hidden;
-  min-height: 340px;
+  min-height: auto;
   box-shadow: 0 4px 20px rgba(0,0,0,0.08);
   isolation: isolate;
   color: #0f265c;
+}
+@media (min-width: 768px) {
+  .hero-card {
+    min-height: 120px;
+  }
 }
 .hero-card--sunny { background: linear-gradient(180deg, #6ab0ff 0%, #a6c8eb 35%, #d7e4f3 65%, #f4f1ea 100%); color: #0f265c; }
 .hero-card--warn  { background: linear-gradient(180deg, #3d4a5c 0%, #55637a 30%, #6b7a91 60%, #7a849a 100%); color: #f1f5f9; }
@@ -434,6 +441,16 @@ const CSS = `
   border-radius: 50%; filter: blur(3px);
   animation: hcSunCorePulse 3s ease-in-out infinite;
 }
+@media (min-width: 768px) {
+  .hero-card .sun-halo {
+    top: -90px; right: 50px;
+    width: 240px; height: 240px;
+  }
+  .hero-card .sun-core {
+    top: 15px; right: 120px;
+    width: 60px; height: 60px;
+  }
+}
 @keyframes hcSunBreathe { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.95; } }
 @keyframes hcSunCorePulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
 
@@ -444,6 +461,11 @@ const CSS = `
 .hero-card .cloud-1 { top: 40px; left: 0; width: 200px; opacity: 0.82; animation: hcCloudDrift 50s linear infinite; }
 .hero-card .cloud-2 { top: 120px; left: 0; width: 160px; opacity: 0.62; animation: hcCloudDrift 70s linear infinite -20s; }
 .hero-card .cloud-3 { top: 30px; left: 0; width: 180px; opacity: 0.78; animation: hcCloudDrift 40s linear infinite -35s; }
+@media (min-width: 768px) {
+  .hero-card .cloud-1 { top: 10px; width: 140px; }
+  .hero-card .cloud-2 { top: 45px; width: 110px; }
+  .hero-card .cloud-3 { top: 20px; width: 120px; }
+}
 @keyframes hcCloudDrift {
   from { transform: translateX(-120%); }
   to   { transform: translateX(1000%); }
@@ -457,6 +479,12 @@ const CSS = `
 .hero-card .hc-2 { top: 30px; left: 0; width: 300px; animation: hcCloudDrift 110s linear infinite -40s; }
 .hero-card .hc-3 { top: 80px; left: 0; width: 280px; opacity: 0.82; animation: hcCloudDrift 70s linear infinite -20s; }
 .hero-card .hc-4 { top: 130px; left: 0; width: 240px; opacity: 0.7; animation: hcCloudDrift 80s linear infinite -50s; }
+@media (min-width: 768px) {
+  .hero-card .hc-1 { top: -20px; width: 240px; }
+  .hero-card .hc-2 { top: 15px; width: 200px; }
+  .hero-card .hc-3 { top: 40px; width: 180px; }
+  .hero-card .hc-4 { top: 60px; width: 150px; }
+}
 .hero-card .mist {
   position: absolute; inset: 0;
   background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%);
@@ -473,6 +501,12 @@ const CSS = `
 .hero-card .dk-2 { top: 20px; left: 20%; width: 360px; animation: hcStormRoll 50s ease-in-out infinite -15s; }
 .hero-card .dk-3 { top: 70px; left: 45%; width: 320px; opacity: 0.88; animation: hcStormRoll 45s ease-in-out infinite -25s; }
 .hero-card .dk-4 { top: 100px; left: 0; width: 280px; opacity: 0.8; animation: hcStormRoll 55s ease-in-out infinite -35s; }
+@media (min-width: 768px) {
+  .hero-card .dk-1 { top: -30px; width: 280px; }
+  .hero-card .dk-2 { top: 10px; width: 240px; }
+  .hero-card .dk-3 { top: 40px; width: 200px; }
+  .hero-card .dk-4 { top: 55px; width: 180px; }
+}
 @keyframes hcStormRoll { 0% { transform: translateX(-40px); } 50% { transform: translateX(20px); } 100% { transform: translateX(-40px); } }
 
 /* ============ lightning (err) ============ */
@@ -482,6 +516,12 @@ const CSS = `
   filter: drop-shadow(0 0 8px rgba(200, 220, 255, 0.8)) drop-shadow(0 0 24px rgba(180, 200, 255, 0.6));
 }
 .hero-card .lightning-bolt svg { overflow: visible; }
+@media (min-width: 768px) {
+  .hero-card .lightning-bolt svg {
+    transform: scale(0.6);
+    transform-origin: top left;
+  }
+}
 .hero-card .lightning-bolt path { fill: white; stroke: rgba(200, 220, 255, 0.9); stroke-width: 0.5; }
 .hero-card .flash-overlay {
   position: absolute; inset: 0;
@@ -499,6 +539,13 @@ const CSS = `
   filter: blur(1.4px);
 }
 .hero-card .shield-wm svg { width: 100%; height: 100%; display: block; }
+@media (min-width: 768px) {
+  .hero-card .shield-wm {
+    width: 240px;
+    height: 280px;
+    right: -40px;
+  }
+}
 
 .hero-card .shield-ok {
   opacity: 0.22;
@@ -553,12 +600,22 @@ const CSS = `
 .hero-card .content {
   position: relative;
   z-index: 10;
-  padding: 32px 36px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 20px;
-  min-height: 340px;
+  gap: 16px;
+  min-height: auto;
+}
+@media (min-width: 768px) {
+  .hero-card .content {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    min-height: 120px;
+    padding: 16px 28px;
+  }
 }
 
 .hero-card .state-chip {
@@ -582,13 +639,34 @@ const CSS = `
 .hero-card--err   .state-chip .dot { background: #fecaca; box-shadow: 0 0 6px #fecaca; }
 @keyframes hcPulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.55; transform: scale(1.15); } }
 
-.hero-card .top-row {
-  display: flex; flex-direction: column; gap: 12px;
-  max-width: 520px;
+.hero-card .left-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 100%;
+}
+@media (min-width: 768px) {
+  .hero-card .left-block {
+    max-width: 55%;
+  }
+}
+
+.hero-card .right-block {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+@media (max-width: 767px) {
+  .hero-card .right-block {
+    width: 100%;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
 }
 
 .hero-card .headline {
-  font-size: 24px; font-weight: 400; letter-spacing: -0.2px;
+  font-size: 22px; font-weight: 400; letter-spacing: -0.2px;
   line-height: 1.35; margin: 0;
 }
 .hero-card--sunny .headline { color: #0f265c; }
@@ -596,22 +674,41 @@ const CSS = `
 .hero-card--err   .headline { color: #fef2f2; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
 .hero-card .headline b { font-weight: 600; }
 .hero-card .headline .brand { font-weight: 600; }
+@media (min-width: 768px) {
+  .hero-card .headline {
+    font-size: 18px;
+    line-height: 1.3;
+  }
+}
 
 .hero-card .hero-stats {
-  display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap;
+  display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
 }
 .hero-card .big-pct {
-  font-size: 120px; font-weight: 100; line-height: 0.9;
-  letter-spacing: -5px;
+  font-size: 56px; font-weight: 100; line-height: 0.9;
+  letter-spacing: -2px;
   font-variant-numeric: tabular-nums;
   text-shadow: 0 2px 14px rgba(255,255,255,0.5);
 }
 .hero-card--sunny .big-pct { color: #166534; }
 .hero-card--warn  .big-pct { color: #fed7aa; text-shadow: 0 2px 16px rgba(0,0,0,0.3); }
 .hero-card--err   .big-pct { color: #fca5a5; text-shadow: 0 0 24px rgba(252,165,165,0.6), 0 2px 8px rgba(0,0,0,0.8); }
+@media (min-width: 768px) {
+  .hero-card .big-pct {
+    font-size: 44px;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+}
+
 .hero-card .big-pct small {
-  font-size: 38px; font-weight: 200; opacity: 0.75;
-  margin-left: 0; letter-spacing: -1.4px;
+  font-size: 20px; font-weight: 200; opacity: 0.75;
+  margin-left: 1px; letter-spacing: -0.5px;
+}
+@media (min-width: 768px) {
+  .hero-card .big-pct small {
+    font-size: 16px;
+  }
 }
 
 .hero-card .data-pill {
@@ -639,4 +736,18 @@ const CSS = `
 .hero-card .data-pill .k { font-size: 10px; font-weight: 500; opacity: 0.75; }
 .hero-card .data-pill .v { font-size: 19px; font-weight: 300; margin-top: 3px; font-variant-numeric: tabular-nums; letter-spacing: -0.3px; }
 .hero-card .data-pill .vdiv { width: 1px; height: 24px; background: currentColor; opacity: 0.22; }
+@media (min-width: 768px) {
+  .hero-card .data-pill {
+    padding: 6px 14px;
+    gap: 16px;
+    border-radius: 8px;
+  }
+  .hero-card .data-pill .v {
+    font-size: 16px;
+    margin-top: 1px;
+  }
+  .hero-card .data-pill .vdiv {
+    height: 18px;
+  }
+}
 `;
