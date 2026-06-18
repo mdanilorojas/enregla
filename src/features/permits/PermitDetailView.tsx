@@ -10,7 +10,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Banner } from '@/components/ui/banner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { PermitTimeline, type TimelineEvent } from './PermitTimeline';
 import { PermitUploadForm } from './PermitUploadForm';
 import { PermitInfoCard } from './PermitInfoCard';
 import { PermitAssignment } from './PermitAssignment';
@@ -167,32 +166,6 @@ export function PermitDetailView() {
 
   const loading = loadingPermits || loadingLocations;
 
-  const timeline = useMemo<TimelineEvent[]>(() => {
-    if (!permit) return [];
-    const events: TimelineEvent[] = [];
-
-    if (permit.issue_date) {
-      events.push({
-        id: 'issued',
-        type: 'issued',
-        date: permit.issue_date,
-        description: 'Permiso emitido',
-      });
-    }
-
-    if (permit.expiry_date) {
-      const isExpired = new Date(permit.expiry_date) < new Date();
-      events.push({
-        id: 'expires',
-        type: isExpired ? 'expired' : 'expires',
-        date: permit.expiry_date,
-        description: isExpired ? 'Permiso vencido' : 'Fecha de vencimiento',
-      });
-    }
-
-    return events;
-  }, [permit]);
-
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-200)] sm:p-[var(--ds-space-300)] lg:p-[var(--ds-space-400)]">
@@ -312,6 +285,40 @@ export function PermitDetailView() {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[var(--ds-space-300)]">
+          {/* 1. Documento */}
+          <Card className="p-[var(--ds-space-300)]">
+            <h2 className="text-[var(--ds-font-size-300)] font-semibold mb-[var(--ds-space-200)]">
+              Documento
+            </h2>
+            <DocumentPanel
+              loading={loadingDocs}
+              documents={documents}
+              dragOver={dragOver}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onFileInput={handleFileInput}
+              onRefresh={fetchDocuments}
+              acceptedTypes={ACCEPTED_TYPES}
+            />
+          </Card>
+
+          {/* 2. ¿Quién se encarga? */}
+          <Card className="p-[var(--ds-space-300)]">
+            <div className="text-[var(--ds-font-size-100)] font-semibold mb-[var(--ds-space-200)]">¿Quién se encarga?</div>
+            {permit.company_id ? (
+              <PermitAssignment
+                permitId={permit.id}
+                delegatedToEnregla={(permit as unknown as { delegated_to_enregla?: boolean }).delegated_to_enregla ?? false}
+                delegationRequestedAt={(permit as unknown as { delegation_requested_at?: string | null }).delegation_requested_at ?? null}
+                onChanged={() => void refetch()}
+              />
+            ) : (
+              <div className="text-sm text-[var(--ds-text-subtlest)] italic">Sin empresa asociada</div>
+            )}
+          </Card>
+
+          {/* 3. Información del trámite */}
           <Card className="p-[var(--ds-space-300)]">
             <h2 className="text-[var(--ds-font-size-300)] font-semibold mb-[var(--ds-space-200)]">
               Información
@@ -376,46 +383,9 @@ export function PermitDetailView() {
             </dl>
           </Card>
 
-          <Card className="p-[var(--ds-space-300)]">
-            <h2 className="text-[var(--ds-font-size-300)] font-semibold mb-[var(--ds-space-200)]">
-              Timeline
-            </h2>
-            <PermitTimeline events={timeline} />
-          </Card>
-
-          <Card className="p-[var(--ds-space-300)]">
-            <h2 className="text-[var(--ds-font-size-300)] font-semibold mb-[var(--ds-space-200)]">
-              Documento
-            </h2>
-            <DocumentPanel
-              loading={loadingDocs}
-              documents={documents}
-              dragOver={dragOver}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              onFileInput={handleFileInput}
-              onRefresh={fetchDocuments}
-              acceptedTypes={ACCEPTED_TYPES}
-            />
-          </Card>
-
           <PermitInfoCard permit={permit} />
 
-          <Card className="p-[var(--ds-space-300)]">
-            <div className="text-[var(--ds-font-size-100)] font-semibold mb-[var(--ds-space-200)]">¿Quién se encarga?</div>
-            {permit.company_id ? (
-              <PermitAssignment
-                permitId={permit.id}
-                delegatedToEnregla={(permit as unknown as { delegated_to_enregla?: boolean }).delegated_to_enregla ?? false}
-                delegationRequestedAt={(permit as unknown as { delegation_requested_at?: string | null }).delegation_requested_at ?? null}
-                onChanged={() => void refetch()}
-              />
-            ) : (
-              <div className="text-sm text-[var(--ds-text-subtlest)] italic">Sin empresa asociada</div>
-            )}
-          </Card>
-
+          {/* 4. Historial */}
           <Card className="p-[var(--ds-space-300)]">
             <div className="text-[var(--ds-font-size-100)] font-semibold mb-[var(--ds-space-200)]">Historial</div>
             <PermitEventsTimeline permitId={permit.id} />
