@@ -293,15 +293,15 @@ export function DashboardView() {
           locations={locations.length}
         />
 
-        {/* Core Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-[var(--ds-space-200)] lg:gap-[var(--ds-space-300)] items-start">
-          
-          {/* Left Column: Locations */}
-          <div className="lg:col-span-7 xl:col-span-8 space-y-[var(--ds-space-150)]">
+        {/* Core Dashboard: single-column stack */}
+        <div className="space-y-[var(--ds-space-300)]">
+
+          {/* Locations list */}
+          <div className="space-y-[var(--ds-space-150)]">
             <h3 className="text-[var(--ds-font-size-075)] font-extrabold text-[var(--ds-text-subtle)] uppercase tracking-[0.1em] px-[var(--ds-space-100)]">
               Tus Locales y Estado por Sede
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-[var(--ds-space-200)] lg:gap-[var(--ds-space-300)]">
+            <div className="space-y-[var(--ds-space-200)]">
               {locations.map((location) => {
                 const locationPermits = permits.filter(
                   (p) => p.location_id === location.id && p.is_active
@@ -317,8 +317,8 @@ export function DashboardView() {
             </div>
           </div>
 
-          {/* Right Column: Action Hub (Acciones Críticas y Tareas) */}
-          <div className="lg:col-span-5 xl:col-span-4">
+          {/* Action Hub (Acciones Críticas y Tareas) */}
+          <div>
             <Card id="action-hub" className="p-[var(--ds-space-300)] flex flex-col justify-between gap-[var(--ds-space-300)]">
               <div>
                 <div className="flex justify-between items-center pb-[var(--ds-space-150)] border-b border-[var(--ds-border)] mb-[var(--ds-space-150)]">
