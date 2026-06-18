@@ -14,7 +14,8 @@ import { businessTypeLabel } from '@/lib/domain/business-types'
 import { SkeletonList } from '@/components/ui/skeleton'
 import { ErrorState } from '@/components/ui/error-state'
 import { EmptyState } from '@/components/ui/empty-state'
-import { OnboardingChecklist } from './OnboardingChecklist'
+// ponytail: disabled for now — re-enable with the render block below
+// import { OnboardingChecklist } from './OnboardingChecklist'
 import { daysUntil } from '@/lib/dates'
 import type { Permit, Location } from '@/types/database'
 import { ComplianceWeatherCard } from '@/components/ui/ComplianceWeatherCard'
@@ -206,11 +207,13 @@ export function DashboardView() {
   return (
     <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-200)] sm:p-[var(--ds-space-300)] lg:p-[var(--ds-space-400)]">
       <div className="max-w-7xl mx-auto space-y-[var(--ds-space-400)]">
+        {/* ponytail: onboarding checklist disabled for now — re-enable when ready
         <OnboardingChecklist
           companyId={companyId}
           locationsCount={locations.length}
           permitsCount={permits.filter((p) => p.is_active).length}
         />
+        */}
 
         {/* Header Section */}
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-[var(--ds-space-200)] lg:gap-[var(--ds-space-300)] pb-[var(--ds-space-200)] border-b border-[var(--ds-border)]">
