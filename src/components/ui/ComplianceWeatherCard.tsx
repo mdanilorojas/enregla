@@ -386,9 +386,9 @@ function ComplianceWeatherCardImpl({
                 onClick={onActionClick}
                 className={cn(
                   "action-btn font-bold transition-all duration-200 border-none shrink-0 h-8 px-[var(--ds-space-150)] rounded-[var(--ds-radius-100)] text-[var(--ds-font-size-075)] sm:text-[var(--ds-font-size-100)] shadow-sm",
-                  state === 'sunny' ? 'bg-white text-green-700 hover:bg-green-50' :
-                  state === 'warn' ? 'bg-white text-orange-700 hover:bg-orange-50' :
-                  'bg-white text-red-700 hover:bg-red-50'
+                  state === 'sunny' ? 'bg-white text-[var(--ds-risk-bajo-text)] hover:bg-[var(--ds-risk-bajo-bg)]' :
+                  state === 'warn' ? 'bg-white text-[var(--ds-risk-alto-text)] hover:bg-[var(--ds-risk-alto-bg)]' :
+                  'bg-white text-[var(--ds-risk-critico-text)] hover:bg-[var(--ds-risk-critico-bg)]'
                 )}
               >
                 {state === 'sunny' ? 'Ver permisos' : 'Resolver alertas'}
