@@ -365,7 +365,7 @@ export function DashboardView() {
               <div className="border-t border-[var(--ds-border)] pt-[var(--ds-space-200)]">
                 <Link to="/permisos" className="w-full">
                   <Button variant="secondary" className="w-full h-8 text-[var(--ds-font-size-075)] font-bold rounded-[var(--ds-radius-100)] flex justify-center items-center gap-1">
-                    Registrar permisos pendientes
+                    {metrics.pendingActions.length === 0 ? 'Ver permisos' : 'Registrar permisos pendientes'}
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </Link>
