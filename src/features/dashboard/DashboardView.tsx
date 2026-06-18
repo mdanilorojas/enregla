@@ -8,13 +8,14 @@ import { useCompany } from '@/hooks/useCompany'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Building2, Plus, ChevronRight, ArrowRight, Check } from '@/lib/lucide-icons'
+import { Building2, Plus, ChevronRight, Check } from '@/lib/lucide-icons'
 import { permitTypeLabel } from '@/lib/domain/permit-types'
 import { businessTypeLabel } from '@/lib/domain/business-types'
 import { SkeletonList } from '@/components/ui/skeleton'
 import { ErrorState } from '@/components/ui/error-state'
 import { EmptyState } from '@/components/ui/empty-state'
-import { OnboardingChecklist } from './OnboardingChecklist'
+// ponytail: disabled for now — re-enable with the render block below
+// import { OnboardingChecklist } from './OnboardingChecklist'
 import { daysUntil } from '@/lib/dates'
 import type { Permit, Location } from '@/types/database'
 import { ComplianceWeatherCard } from '@/components/ui/ComplianceWeatherCard'
@@ -206,11 +207,13 @@ export function DashboardView() {
   return (
     <div className="min-h-screen bg-[var(--ds-neutral-50)] p-[var(--ds-space-200)] sm:p-[var(--ds-space-300)] lg:p-[var(--ds-space-400)]">
       <div className="max-w-7xl mx-auto space-y-[var(--ds-space-400)]">
+        {/* ponytail: onboarding checklist disabled for now — re-enable when ready
         <OnboardingChecklist
           companyId={companyId}
           locationsCount={locations.length}
           permitsCount={permits.filter((p) => p.is_active).length}
         />
+        */}
 
         {/* Header Section */}
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-[var(--ds-space-200)] lg:gap-[var(--ds-space-300)] pb-[var(--ds-space-200)] border-b border-[var(--ds-border)]">
@@ -334,9 +337,9 @@ export function DashboardView() {
                   <h3 className="text-[var(--ds-font-size-075)] font-extrabold text-[var(--ds-text-subtle)] uppercase tracking-[0.1em]">
                     Acciones Requeridas
                   </h3>
-                  <span className="text-[var(--ds-font-size-075)] font-bold bg-[var(--ds-risk-critico-bg)] text-[var(--ds-risk-critico-text)] px-2 py-0.5 rounded-full border border-[var(--ds-risk-critico-border)]">
-                    {metrics.pendingActions.length} alertas
-                  </span>
+                  <Badge variant="secondary" size="sm" className="whitespace-nowrap shrink-0">
+                    {metrics.pendingActions.length} pendientes
+                  </Badge>
                 </div>
 
                 {metrics.pendingActions.length === 0 ? (
@@ -362,7 +365,7 @@ export function DashboardView() {
               <div className="border-t border-[var(--ds-border)] pt-[var(--ds-space-200)]">
                 <Link to="/permisos" className="w-full">
                   <Button variant="secondary" className="w-full h-8 text-[var(--ds-font-size-075)] font-bold rounded-[var(--ds-radius-100)] flex justify-center items-center gap-1">
-                    Ver Todos los Permisos
+                    {metrics.pendingActions.length === 0 ? 'Ver permisos' : 'Registrar permisos pendientes'}
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </Link>
@@ -377,84 +380,68 @@ export function DashboardView() {
 }
 
 function ActionItemRow({ action }: { action: CriticalAction }) {
-  // Determine color coding for action status badge
-  const badgeVariant = (() => {
+  // Severity drives the left accent rail + status dot (solid color) and the
+  // status text color (darker, readable variant).
+  const severity = (() => {
     switch (action.status) {
       case 'vencido':
-        return 'risk-critico'
+        return { solid: 'bg-[var(--ds-status-vencido)]', text: 'text-[var(--ds-status-vencido-text)]' }
       case 'por_vencer':
-        return 'risk-alto'
+        return { solid: 'bg-[var(--ds-status-por-vencer)]', text: 'text-[var(--ds-status-por-vencer-text)]' }
       case 'no_registrado':
-        return 'risk-medio'
+        return { solid: 'bg-[var(--ds-risk-medio)]', text: 'text-[var(--ds-risk-medio-text)]' }
       default:
-        return 'secondary'
+        return { solid: 'bg-[var(--ds-neutral-400)]', text: 'text-[var(--ds-text-subtle)]' }
     }
   })()
 
-  const badgeBorderClass = (() => {
-    switch (action.status) {
-      case 'vencido':
-        return 'border-[var(--ds-risk-critico-border)] shadow-sm'
-      case 'por_vencer':
-        return 'border-[var(--ds-risk-alto-border)]'
-      case 'no_registrado':
-        return 'border-[var(--ds-risk-medio-border)]'
-      default:
-        return 'border-transparent'
+  // Status phrase on the meta line, colored by severity.
+  const statusText = (() => {
+    if (action.days === null) {
+      switch (action.status) {
+        case 'no_registrado':
+          return 'Falta registrar'
+        case 'vencido':
+          return 'Vencido'
+        case 'por_vencer':
+          return 'Por vencer'
+        default:
+          return 'Pendiente'
+      }
     }
-  })()
-
-  const labelText = (() => {
-    switch (action.status) {
-      case 'vencido':
-        return 'Vencido'
-      case 'por_vencer':
-        return 'Por Vencer'
-      case 'no_registrado':
-        return 'Falta Registrar'
-      default:
-        return 'Pendiente'
-    }
-  })()
-
-  const urgencyText = (() => {
-    if (action.days === null) return 'Sin fecha límite'
     if (action.days < 0) {
       const abs = Math.abs(action.days)
-      return `Expiró hace ${abs} día${abs === 1 ? '' : 's'}`
+      return `Venció hace ${abs} día${abs === 1 ? '' : 's'}`
     }
-    return `Expira en ${action.days} día${action.days === 1 ? '' : 's'}`
+    if (action.days === 0) return 'Vence hoy'
+    return `Vence en ${action.days} día${action.days === 1 ? '' : 's'}`
   })()
 
   return (
     <Link
       to={`/permisos/${action.id}`}
-      className="flex justify-between items-center py-[var(--ds-space-150)] px-[var(--ds-space-150)] gap-[var(--ds-space-150)] hover:bg-[var(--ds-neutral-50)] rounded-[var(--ds-radius-100)] transition-all duration-200 cursor-pointer"
+      className="group relative flex items-center gap-[var(--ds-space-150)] py-[var(--ds-space-150)] pl-[var(--ds-space-200)] pr-[var(--ds-space-150)] rounded-[var(--ds-radius-300)] hover:bg-[var(--ds-neutral-50)] transition-colors duration-150"
     >
-      <div className="min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[var(--ds-font-size-100)] font-semibold text-[var(--ds-text)] truncate">
-            {permitTypeLabel(action.type)}
+      <span className={`absolute left-[var(--ds-space-075)] top-[var(--ds-space-150)] bottom-[var(--ds-space-150)] w-[3px] rounded-full ${severity.solid}`} aria-hidden="true" />
+
+      <div className="min-w-0 flex-1">
+        <span className="block text-[var(--ds-font-size-100)] font-semibold text-[var(--ds-text)] truncate">
+          {permitTypeLabel(action.type)}
+        </span>
+        <span className="flex items-center gap-[var(--ds-space-075)] text-[var(--ds-font-size-075)] font-medium text-[var(--ds-text-subtle)] truncate mt-0.5">
+          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${severity.solid}`} aria-hidden="true" />
+          <span className="truncate">
+            <span className={`font-semibold ${severity.text}`}>{statusText}</span>
+            <span className="mx-1 text-[var(--ds-text-subtlest)]">·</span>
+            {action.locationName}
           </span>
-          <Badge variant={badgeVariant} size="lg" className={`border ${badgeBorderClass}`}>
-            {labelText}
-          </Badge>
-        </div>
-        <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] font-medium mt-1 flex flex-wrap gap-1.5 items-center">
-          <span>{action.locationName}</span>
-          <span>·</span>
-          <span className={action.status === 'vencido' ? 'text-[var(--ds-status-vencido-text)] font-semibold' : action.status === 'por_vencer' ? 'text-[var(--ds-status-por-vencer-text)] font-semibold' : ''}>
-            {urgencyText}
-          </span>
-        </p>
+        </span>
       </div>
 
-      <Button asChild variant="subtle" size="sm" className="font-bold flex items-center gap-1 flex-shrink-0">
-        <span>
-          Resolver
-          <ArrowRight className="w-3.5 h-3.5" />
-        </span>
-      </Button>
+      <ChevronRight
+        className="w-4 h-4 shrink-0 text-[var(--ds-text-subtlest)] transition-all duration-150 group-hover:text-[var(--ds-text-subtle)] group-hover:translate-x-0.5"
+        aria-hidden="true"
+      />
     </Link>
   )
 }
