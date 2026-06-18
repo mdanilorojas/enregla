@@ -337,9 +337,9 @@ export function DashboardView() {
                   <h3 className="text-[var(--ds-font-size-075)] font-extrabold text-[var(--ds-text-subtle)] uppercase tracking-[0.1em]">
                     Acciones Requeridas
                   </h3>
-                  <span className="text-[var(--ds-font-size-075)] font-bold bg-[var(--ds-risk-critico-bg)] text-[var(--ds-risk-critico-text)] px-2 py-0.5 rounded-full border border-[var(--ds-risk-critico-border)]">
+                  <Badge variant="risk-critico" size="sm" className="border border-[var(--ds-risk-critico-border)] whitespace-nowrap shrink-0">
                     {metrics.pendingActions.length} alertas
-                  </span>
+                  </Badge>
                 </div>
 
                 {metrics.pendingActions.length === 0 ? (
@@ -434,25 +434,25 @@ function ActionItemRow({ action }: { action: CriticalAction }) {
       to={`/permisos/${action.id}`}
       className="flex justify-between items-center py-[var(--ds-space-150)] px-[var(--ds-space-150)] gap-[var(--ds-space-150)] hover:bg-[var(--ds-neutral-50)] rounded-[var(--ds-radius-100)] transition-all duration-200 cursor-pointer"
     >
-      <div className="min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[var(--ds-font-size-100)] font-semibold text-[var(--ds-text)] truncate">
-            {permitTypeLabel(action.type)}
-          </span>
-          <Badge variant={badgeVariant} size="lg" className={`border ${badgeBorderClass}`}>
+      <div className="min-w-0 flex-1">
+        <span className="block text-[var(--ds-font-size-100)] font-semibold text-[var(--ds-text)] truncate">
+          {permitTypeLabel(action.type)}
+        </span>
+        <div className="flex items-center gap-[var(--ds-space-100)] mt-1 min-w-0">
+          <Badge variant={badgeVariant} size="sm" className={`border ${badgeBorderClass} whitespace-nowrap shrink-0`}>
             {labelText}
           </Badge>
-        </div>
-        <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] font-medium mt-1 flex flex-wrap gap-1.5 items-center">
-          <span>{action.locationName}</span>
-          <span>·</span>
-          <span className={action.status === 'vencido' ? 'text-[var(--ds-status-vencido-text)] font-semibold' : action.status === 'por_vencer' ? 'text-[var(--ds-status-por-vencer-text)] font-semibold' : ''}>
-            {urgencyText}
+          <span className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] font-medium truncate">
+            {action.locationName}
+            <span className="mx-1">·</span>
+            <span className={action.status === 'vencido' ? 'text-[var(--ds-status-vencido-text)] font-semibold' : action.status === 'por_vencer' ? 'text-[var(--ds-status-por-vencer-text)] font-semibold' : ''}>
+              {urgencyText}
+            </span>
           </span>
-        </p>
+        </div>
       </div>
 
-      <Button asChild variant="subtle" size="sm" className="font-bold flex items-center gap-1 flex-shrink-0">
+      <Button asChild variant="subtle" size="sm" className="font-bold flex items-center gap-1 shrink-0">
         <span>
           Resolver
           <ArrowRight className="w-3.5 h-3.5" />
