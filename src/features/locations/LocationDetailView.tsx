@@ -13,7 +13,8 @@ import { LocationPermitsTab, type LocationPermitSummary } from './LocationPermit
 import { LocationDocumentsTab } from './LocationDocumentsTab';
 import { LocationHistoryTab } from './LocationHistoryTab';
 import { DeleteLocationDialog } from './DeleteLocationDialog';
-import { CheckCircle2, AlertTriangle, XCircle, Share2, Trash2 } from '@/lib/lucide-icons';
+import { EditLocationModal } from './EditLocationModal';
+import { CheckCircle2, AlertTriangle, XCircle, Share2, Trash2, Edit } from '@/lib/lucide-icons';
 import { ErrorState } from '@/components/ui/error-state';
 import type { Permit } from '@/types/database';
 
@@ -27,6 +28,7 @@ export function LocationDetailView() {
   const [selectedPermit, setSelectedPermit] = useState<Permit | null>(null);
   const [renewModalOpen, setRenewModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const location = useMemo(() => {
@@ -117,6 +119,10 @@ export function LocationDetailView() {
             )}
           </div>
           <div className="flex flex-col sm:flex-row gap-[var(--ds-space-100)] w-full lg:w-auto">
+            <Button variant="outline" onClick={() => setEditOpen(true)} className="w-full sm:w-auto">
+              <Edit className="w-4 h-4" />
+              Editar sede
+            </Button>
             <Button variant="outline" onClick={() => setShareModalOpen(true)} className="w-full sm:w-auto">
               <Share2 className="w-4 h-4" />
               Generar QR
@@ -193,6 +199,20 @@ export function LocationDetailView() {
           }}
           onRenewed={(newPermitId) => {
             navigate(`/permisos/${newPermitId}`);
+          }}
+        />
+
+        <EditLocationModal
+          open={editOpen}
+          onClose={() => setEditOpen(false)}
+          onSuccess={() => {
+            void refetchLocations();
+          }}
+          location={{
+            id: location.id,
+            name: location.name,
+            address: location.address,
+            status: location.status,
           }}
         />
 

@@ -65,6 +65,35 @@ export async function updateLocationRisk(
 }
 
 /**
+ * Update a location's basic data (name, address, status).
+ */
+export async function updateLocation(
+  locationId: string,
+  data: {
+    name: string;
+    address: string;
+    status: 'operando' | 'en_preparacion' | 'cerrado';
+  }
+): Promise<Location> {
+  // casting due to stale generated types — see audit follow-up
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const query = supabase.from('locations') as any;
+  const { data: location, error } = await query
+    .update({
+      name: data.name,
+      address: data.address,
+      status: data.status,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', locationId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return location;
+}
+
+/**
  * Create a new location
  * Note: risk_level is set to 'bajo' by default but will be calculated on-demand
  */
