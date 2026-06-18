@@ -293,16 +293,16 @@ export function DashboardView() {
           locations={locations.length}
         />
 
-        {/* Core Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-[var(--ds-space-200)] lg:gap-[var(--ds-space-300)] items-start">
-          
-          {/* Left Column: Locations */}
-          <div className="lg:col-span-7 xl:col-span-8 space-y-[var(--ds-space-150)]">
+        {/* Core Dashboard: 2/3 locations + 1/3 action hub */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-[var(--ds-space-300)] items-start">
+
+          {/* Locations list (2/3) */}
+          <div className="lg:col-span-2 space-y-[var(--ds-space-150)]">
             <h3 className="text-[var(--ds-font-size-075)] font-extrabold text-[var(--ds-text-subtle)] uppercase tracking-[0.1em] px-[var(--ds-space-100)]">
               Tus Locales y Estado por Sede
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-[var(--ds-space-200)] lg:gap-[var(--ds-space-300)]">
-              {locations.map((location) => {
+            <div className="space-y-[var(--ds-space-200)]">
+              {locations.slice(0, 3).map((location) => {
                 const locationPermits = permits.filter(
                   (p) => p.location_id === location.id && p.is_active
                 )
@@ -315,10 +315,19 @@ export function DashboardView() {
                 )
               })}
             </div>
+            {locations.length > 3 && (
+              <Link
+                to="/sedes"
+                className="flex items-center justify-center gap-1 text-[var(--ds-font-size-075)] font-bold text-[var(--ds-text-subtle)] hover:text-[var(--ds-text)] py-[var(--ds-space-150)] transition-colors"
+              >
+                Ver todas las sedes ({locations.length})
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            )}
           </div>
 
-          {/* Right Column: Action Hub (Acciones Críticas y Tareas) */}
-          <div className="lg:col-span-5 xl:col-span-4">
+          {/* Action Hub (Acciones Críticas y Tareas) — 1/3 */}
+          <div className="lg:col-span-1">
             <Card id="action-hub" className="p-[var(--ds-space-300)] flex flex-col justify-between gap-[var(--ds-space-300)]">
               <div>
                 <div className="flex justify-between items-center pb-[var(--ds-space-150)] border-b border-[var(--ds-border)] mb-[var(--ds-space-150)]">
@@ -487,13 +496,13 @@ function DashboardLocationCard({ location, permits }: { location: Location; perm
       className="block focus-visible:outline-none"
       aria-label={`Ver detalles de ${location.name}`}
     >
-      <Card className="p-[var(--ds-space-300)] flex flex-col justify-between gap-[var(--ds-space-200)] hover:bg-[var(--ds-neutral-50)] border border-transparent hover:border-[var(--ds-border-bold)] transition-all duration-200 cursor-pointer h-full">
-        {/* Header: icon + name + code */}
-        <div className="flex items-start gap-[var(--ds-space-200)] mb-1">
+      <Card className="p-[var(--ds-space-300)] flex flex-col sm:flex-row sm:items-center justify-between gap-[var(--ds-space-200)] sm:gap-[var(--ds-space-300)] hover:bg-[var(--ds-neutral-50)] border border-transparent hover:border-[var(--ds-border-bold)] transition-all duration-200 cursor-pointer">
+        {/* Left: icon + name + code */}
+        <div className="flex items-center gap-[var(--ds-space-200)] min-w-0">
           <div className="w-10 h-10 bg-[var(--ds-neutral-100)] rounded-[var(--ds-radius-200)] flex items-center justify-center shrink-0">
             <Building2 className="w-5 h-5 text-[var(--ds-text-subtle)]" aria-hidden="true" />
           </div>
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0">
             <h3 className="font-bold text-[var(--ds-font-size-200)] text-[var(--ds-text)] truncate">
               {location.name}
             </h3>
@@ -503,21 +512,15 @@ function DashboardLocationCard({ location, permits }: { location: Location; perm
           </div>
         </div>
 
-        {/* Meta row: Estado | Riesgo */}
-        <div className="flex items-center gap-[var(--ds-space-150)] text-[var(--ds-font-size-100)] text-[var(--ds-text-subtle)] font-medium mb-1">
-          <span>{statusLabel}</span>
-          <span className="text-[var(--ds-border)]">|</span>
-          <Badge variant={riskBadgeVariant} size="sm">
-            {riskLevel}
+        {/* Right: badge + permits + progress */}
+        <div className="flex flex-col items-stretch sm:items-end gap-[var(--ds-space-100)] shrink-0 w-full sm:w-[240px]">
+          <Badge variant={riskBadgeVariant} size="sm" className="self-start sm:self-auto uppercase tracking-[0.04em]">
+            {statusLabel} | {riskLevel}
           </Badge>
-        </div>
-
-        {/* Permits progress */}
-        <div className="mt-1">
-          <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mb-1.5 font-medium">
+          <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] font-medium">
             {vigentes}/{total || 0} permisos vigentes
           </p>
-          <div className="h-[6px] bg-[var(--ds-neutral-100)] rounded-full overflow-hidden">
+          <div className="h-[6px] w-full bg-[var(--ds-neutral-100)] rounded-full overflow-hidden">
             <div className="h-full rounded-full transition-all duration-500 bg-[var(--ds-status-vigente)]" style={{ width: `${percentage}%` }} />
           </div>
         </div>
