@@ -293,11 +293,11 @@ export function DashboardView() {
           locations={locations.length}
         />
 
-        {/* Core Dashboard: single-column stack */}
-        <div className="space-y-[var(--ds-space-300)]">
+        {/* Core Dashboard: 2/3 locations + 1/3 action hub */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-[var(--ds-space-300)] items-start">
 
-          {/* Locations list */}
-          <div className="space-y-[var(--ds-space-150)]">
+          {/* Locations list (2/3) */}
+          <div className="lg:col-span-2 space-y-[var(--ds-space-150)]">
             <h3 className="text-[var(--ds-font-size-075)] font-extrabold text-[var(--ds-text-subtle)] uppercase tracking-[0.1em] px-[var(--ds-space-100)]">
               Tus Locales y Estado por Sede
             </h3>
@@ -317,8 +317,8 @@ export function DashboardView() {
             </div>
           </div>
 
-          {/* Action Hub (Acciones Críticas y Tareas) */}
-          <div>
+          {/* Action Hub (Acciones Críticas y Tareas) — 1/3 */}
+          <div className="lg:col-span-1">
             <Card id="action-hub" className="p-[var(--ds-space-300)] flex flex-col justify-between gap-[var(--ds-space-300)]">
               <div>
                 <div className="flex justify-between items-center pb-[var(--ds-space-150)] border-b border-[var(--ds-border)] mb-[var(--ds-space-150)]">
