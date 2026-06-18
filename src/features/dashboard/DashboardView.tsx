@@ -337,9 +337,9 @@ export function DashboardView() {
                   <h3 className="text-[var(--ds-font-size-075)] font-extrabold text-[var(--ds-text-subtle)] uppercase tracking-[0.1em]">
                     Acciones Requeridas
                   </h3>
-                  <span className="text-[var(--ds-font-size-050)] font-bold text-[var(--ds-text-subtle)] bg-[var(--ds-neutral-100)] rounded-full px-[var(--ds-space-150)] py-[var(--ds-space-025)] whitespace-nowrap shrink-0">
-                    <span className="text-[var(--ds-text)] font-extrabold">{metrics.pendingActions.length}</span> pendientes
-                  </span>
+                  <Badge variant="secondary" size="sm" className="whitespace-nowrap shrink-0">
+                    {metrics.pendingActions.length} pendientes
+                  </Badge>
                 </div>
 
                 {metrics.pendingActions.length === 0 ? (
@@ -365,7 +365,7 @@ export function DashboardView() {
               <div className="border-t border-[var(--ds-border)] pt-[var(--ds-space-200)]">
                 <Link to="/permisos" className="w-full">
                   <Button variant="secondary" className="w-full h-8 text-[var(--ds-font-size-075)] font-bold rounded-[var(--ds-radius-100)] flex justify-center items-center gap-1">
-                    Ver Todos los Permisos
+                    Registrar permisos pendientes
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 </Link>
