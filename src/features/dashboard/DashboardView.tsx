@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { resolveCompanyId } from '@/lib/demo'
 import { useLocations } from '@/hooks/useLocations'
@@ -38,7 +38,6 @@ interface CriticalAction {
 }
 
 export function DashboardView() {
-  const navigate = useNavigate()
   const { companyId: authCompanyId } = useAuth()
   const companyId = resolveCompanyId(authCompanyId) ?? undefined
 
@@ -142,17 +141,6 @@ export function DashboardView() {
       weather,
     }
   }, [permits, locationsById])
-
-  const handleResolveAlerts = () => {
-    if (metrics.weather.state === 'sunny') {
-      navigate('/permisos')
-    } else {
-      const el = document.getElementById('action-hub')
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      }
-    }
-  }
 
   if (loading) {
     return (
@@ -303,7 +291,6 @@ export function DashboardView() {
           permitsDone={metrics.vigentes}
           permitsTotal={metrics.total}
           locations={locations.length}
-          onActionClick={handleResolveAlerts}
         />
 
         {/* Core Dashboard Grid */}
