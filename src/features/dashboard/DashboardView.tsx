@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { resolveCompanyId } from '@/lib/demo'
 import { useLocations } from '@/hooks/useLocations'
@@ -38,6 +38,7 @@ interface CriticalAction {
 }
 
 export function DashboardView() {
+  const navigate = useNavigate()
   const { companyId: authCompanyId } = useAuth()
   const companyId = resolveCompanyId(authCompanyId) ?? undefined
 
@@ -49,6 +50,8 @@ export function DashboardView() {
     }, 1500)
     return () => clearTimeout(timer)
   }, [])
+
+
 
   const { locations, loading: loadingLocs, error: locationsError, refetch: refetchLocations } = useLocations(companyId)
   const { permits, loading: loadingPermits, error: permitsError, refetch: refetchPermits } = usePermits({ companyId })
@@ -139,6 +142,17 @@ export function DashboardView() {
       weather,
     }
   }, [permits, locationsById])
+
+  const handleResolveAlerts = () => {
+    if (metrics.weather.state === 'sunny') {
+      navigate('/permisos')
+    } else {
+      const el = document.getElementById('action-hub')
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    }
+  }
 
   if (loading) {
     return (
@@ -280,83 +294,86 @@ export function DashboardView() {
           </div>
         </div>
 
+        {/* Compliance Weather Card at full width */}
+        <ComplianceWeatherCard
+          state={metrics.weather.state}
+          chipLabel={metrics.weather.chipLabel}
+          headline={metrics.weather.headline}
+          percentage={metrics.percentage}
+          permitsDone={metrics.vigentes}
+          permitsTotal={metrics.total}
+          locations={locations.length}
+          onActionClick={handleResolveAlerts}
+        />
+
         {/* Core Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-[var(--ds-space-200)] lg:gap-[var(--ds-space-300)] items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-[var(--ds-space-200)] lg:gap-[var(--ds-space-300)] items-start">
           
-          {/* Left Column: Compliance Weather Card */}
-          <ComplianceWeatherCard
-            state={metrics.weather.state}
-            chipLabel={metrics.weather.chipLabel}
-            headline={metrics.weather.headline}
-            percentage={metrics.percentage}
-            permitsDone={metrics.vigentes}
-            permitsTotal={metrics.total}
-            locations={locations.length}
-          />
+          {/* Left Column: Locations */}
+          <div className="lg:col-span-7 xl:col-span-8 space-y-[var(--ds-space-150)]">
+            <h3 className="text-[var(--ds-font-size-075)] font-extrabold text-[var(--ds-text-subtle)] uppercase tracking-[0.1em] px-[var(--ds-space-100)]">
+              Tus Locales y Estado por Sede
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[var(--ds-space-200)] lg:gap-[var(--ds-space-300)]">
+              {locations.map((location) => {
+                const locationPermits = permits.filter(
+                  (p) => p.location_id === location.id && p.is_active
+                )
+                return (
+                  <DashboardLocationCard
+                    key={location.id}
+                    location={location}
+                    permits={locationPermits}
+                  />
+                )
+              })}
+            </div>
+          </div>
 
           {/* Right Column: Action Hub (Acciones Críticas y Tareas) */}
-          <Card className="p-[var(--ds-space-300)] flex flex-col justify-between gap-[var(--ds-space-300)]">
-            <div>
-              <div className="flex justify-between items-center pb-[var(--ds-space-150)] border-b border-[var(--ds-border)] mb-[var(--ds-space-150)]">
-                <h3 className="text-[var(--ds-font-size-075)] font-extrabold text-[var(--ds-text-subtle)] uppercase tracking-[0.1em]">
-                  Acciones Requeridas
-                </h3>
-                <span className="text-[var(--ds-font-size-075)] font-bold bg-[var(--ds-risk-critico-bg)] text-[var(--ds-risk-critico-text)] px-2 py-0.5 rounded-full border border-[var(--ds-risk-critico-border)]">
-                  {metrics.pendingActions.length} alertas
-                </span>
+          <div className="lg:col-span-5 xl:col-span-4">
+            <Card id="action-hub" className="p-[var(--ds-space-300)] flex flex-col justify-between gap-[var(--ds-space-300)]">
+              <div>
+                <div className="flex justify-between items-center pb-[var(--ds-space-150)] border-b border-[var(--ds-border)] mb-[var(--ds-space-150)]">
+                  <h3 className="text-[var(--ds-font-size-075)] font-extrabold text-[var(--ds-text-subtle)] uppercase tracking-[0.1em]">
+                    Acciones Requeridas
+                  </h3>
+                  <span className="text-[var(--ds-font-size-075)] font-bold bg-[var(--ds-risk-critico-bg)] text-[var(--ds-risk-critico-text)] px-2 py-0.5 rounded-full border border-[var(--ds-risk-critico-border)]">
+                    {metrics.pendingActions.length} alertas
+                  </span>
+                </div>
+
+                {metrics.pendingActions.length === 0 ? (
+                  <div className="py-[var(--ds-space-400)] text-center flex flex-col items-center justify-center gap-2.5">
+                    <div className="w-12 h-12 rounded-full bg-[var(--ds-green-50)] flex items-center justify-center text-[var(--ds-status-vigente)] border border-[var(--ds-green-200)] shadow-sm">
+                      <Check className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-[var(--ds-font-size-100)] font-extrabold text-[var(--ds-text)]">¡Todo seguro!</h4>
+                      <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mt-0.5 max-w-[200px]">No tienes alertas operativas ni permisos que requieran acción inmediata.</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-[var(--ds-neutral-100)]">
+                    {metrics.pendingActions.slice(0, 4).map((action) => (
+                      <ActionItemRow key={action.id} action={action} />
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {metrics.pendingActions.length === 0 ? (
-                <div className="py-[var(--ds-space-400)] text-center flex flex-col items-center justify-center gap-2.5">
-                  <div className="w-12 h-12 rounded-full bg-[var(--ds-green-50)] flex items-center justify-center text-[var(--ds-status-vigente)] border border-[var(--ds-green-200)] shadow-sm">
-                    <Check className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-[var(--ds-font-size-100)] font-extrabold text-[var(--ds-text)]">¡Todo seguro!</h4>
-                    <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mt-0.5 max-w-[200px]">No tienes alertas operativas ni permisos que requieran acción inmediata.</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="divide-y divide-[var(--ds-neutral-100)]">
-                  {metrics.pendingActions.slice(0, 4).map((action) => (
-                    <ActionItemRow key={action.id} action={action} />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Bottom Actions Footer */}
-            <div className="border-t border-[var(--ds-border)] pt-[var(--ds-space-200)]">
-              <Link to="/permisos" className="w-full">
-                <Button variant="secondary" className="w-full h-8 text-[var(--ds-font-size-075)] font-bold rounded-[var(--ds-radius-100)] flex justify-center items-center gap-1">
-                  Ver Todos los Permisos
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </Link>
-            </div>
-          </Card>
-
-        </div>
-
-        {/* Locations Grid at the bottom */}
-        <div className="space-y-[var(--ds-space-150)]">
-          <h3 className="text-[var(--ds-font-size-075)] font-extrabold text-[var(--ds-text-subtle)] uppercase tracking-[0.1em] px-[var(--ds-space-100)]">
-            Tus Locales y Estado por Sede
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-[var(--ds-space-300)]">
-            {locations.map((location) => {
-              const locationPermits = permits.filter(
-                (p) => p.location_id === location.id && p.is_active
-              )
-              return (
-                <DashboardLocationCard
-                  key={location.id}
-                  location={location}
-                  permits={locationPermits}
-                />
-              )
-            })}
+              {/* Bottom Actions Footer */}
+              <div className="border-t border-[var(--ds-border)] pt-[var(--ds-space-200)]">
+                <Link to="/permisos" className="w-full">
+                  <Button variant="secondary" className="w-full h-8 text-[var(--ds-font-size-075)] font-bold rounded-[var(--ds-radius-100)] flex justify-center items-center gap-1">
+                    Ver Todos los Permisos
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+            </Card>
           </div>
+
         </div>
       </div>
     </div>

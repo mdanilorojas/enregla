@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EnRegla - Propuestas de Estructura y UX de Dashboard</title>
+  <!-- Google Fonts: Manrope -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Manrope', 'sans-serif'],
+          },
+          colors: {
+            ds: {
+              blue: {
+                50: '#e8ebf3',
+                100: '#d1d7e7',
+                200: '#a3afcf',
+                500: '#0f265c',
+                600: '#0d2153',
+                700: '#0b1c4a',
+                900: '#091e42',
+              },
+              orange: {
+                50: '#fff4f0',
+                100: '#ffe8e0',
+                500: '#ff7043',
+                600: '#ff5722',
+              },
+              green: {
+                50: '#ecf6ee',
+                500: '#36b37e',
+                600: '#2a9d66',
+              },
+              red: {
+                50: '#fbe6e6',
+                500: '#de350b',
+                600: '#bf2600',
+              },
+              yellow: {
+                50: '#fff8e1',
+                500: '#ffab00',
+              },
+              neutral: {
+                50: '#f7f8f9',
+                100: '#f1f2f4',
+                200: '#dcdfe4',
+                500: '#626f86',
+                600: '#44546f',
+                800: '#172b4d',
+                900: '#091e42',
+              }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Spacing & UI helpers */
+    :root {
+      --ds-space-050: 4px;
+      --ds-space-100: 8px;
+      --ds-space-150: 12px;
+      --ds-space-200: 16px;
+      --ds-space-300: 24px;
+      --ds-space-400: 32px;
+    }
+
+    /* Badge cloche animation */
+    @keyframes clocheEntrance {
+      0% { transform: translateY(0) rotate(0); }
+      25% { transform: translateY(-4px) rotate(-5deg); }
+      50% { transform: translateY(-4px) rotate(3deg); }
+      75% { transform: translateY(-1px) rotate(-1deg); }
+      100% { transform: translateY(0) rotate(0); }
+    }
+    .animate-cloche-entrance {
+      animation: clocheEntrance 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    
+    @keyframes steamRise {
+      0% { opacity: 0; transform: translateY(2px); }
+      50% { opacity: 0.8; }
+      100% { opacity: 0; transform: translateY(-6px); }
+    }
+    .animate-steam-rise {
+      animation: steamRise 1s ease-out infinite;
+    }
+
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.5; }
+      50% { transform: scale(1.05); opacity: 0.3; }
+      100% { transform: scale(0.95); opacity: 0.5; }
+    }
+    .animate-pulse-ring {
+      animation: pulse-ring 2s ease-in-out infinite;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--ds-neutral-300, #b3b9c4);
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="bg-ds-neutral-50 text-ds-neutral-900 font-sans min-h-screen flex flex-col lg:flex-row overflow-x-hidden">
+
+  <!-- ========================================== -->
+  <!-- SIDEBAR: Selector de Diseños -->
+  <!-- ========================================== -->
+  <aside class="w-full lg:w-[320px] bg-ds-blue-900 text-white p-6 flex flex-col border-r border-ds-blue-700 shrink-0">
+    <div class="mb-8">
+      <h2 class="text-xl font-extrabold flex items-center gap-2 text-ds-orange-500">
+        <svg class="w-6 h-6 stroke-current fill-none stroke-[2]" viewBox="0 0 24 24">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+        EnRegla UX Labs
+      </h2>
+      <p class="text-xs text-ds-blue-200 mt-1">Estructuras y layouts alternativos de Dashboard para mejorar la densidad y la jerarquía de alertas operativas.</p>
+    </div>
+
+    <nav class="space-y-1 overflow-y-auto flex-1 pr-2">
+      <!-- Buttons will be rendered here dynamically -->
+      <div id="layout-selector-container" class="space-y-1"></div>
+    </nav>
+
+    <div class="mt-8 pt-4 border-t border-ds-blue-700 text-[10px] text-ds-blue-300">
+      EnRegla © 2026 · Diseñado con Daytime Office Theme.
+    </div>
+  </aside>
+
+  <!-- ========================================== -->
+  <!-- MAIN CONTENT: Lienzo del Dashboard -->
+  <!-- ========================================== -->
+  <main class="flex-1 flex flex-col min-h-screen">
+    <!-- Showcase header with UX Explanation -->
+    <section id="ux-explanation-bar" class="bg-white border-b border-ds-neutral-200 p-6 shadow-sm">
+      <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <span class="text-xs font-extrabold uppercase tracking-widest text-ds-orange-500" id="current-layout-badge">DISEÑO 1</span>
+          <h2 class="text-lg font-bold text-ds-blue-500 mt-1" id="current-layout-name">Cargando propuesta...</h2>
+          <p class="text-sm text-ds-neutral-600 mt-1" id="current-layout-desc">Descripción de la propuesta estructural y su justificación.</p>
+        </div>
+        <div class="flex flex-col gap-1.5 bg-ds-neutral-50 border border-ds-neutral-200 rounded-lg p-3 text-xs md:max-w-xs shrink-0">
+          <div class="flex items-center justify-between"><span class="font-bold">Densidad de Datos:</span> <span id="stat-density" class="font-extrabold text-ds-blue-500">Normal</span></div>
+          <div class="flex items-center justify-between"><span class="font-bold">Uso del Espacio (Fold):</span> <span id="stat-fold" class="font-extrabold text-ds-blue-500">Medio</span></div>
+          <div class="flex items-center justify-between"><span class="font-bold">Enfoque:</span> <span id="stat-focus" class="font-extrabold text-ds-blue-500">Alertas</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Simulated Dashboard viewport container -->
+    <section class="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto" id="dashboard-viewport">
+      <!-- The dynamic layout mockup will render here -->
+    </section>
+  </main>
+
+  <!-- ========================================== -->
+  <!-- JAVASCRIPT: Layout Switching Engine -->
+  <!-- ========================================== -->
+  <script>
+    // 10 Layout Specifications
+    const layouts = [
+      {
+        id: 1,
+        name: "Héroe Horizontal Fino + Columnas",
+        badge: "DISEÑO 1",
+        density: "Alta",
+        fold: "Excelente",
+        focus: "Acción & Sedes",
+        desc: "Transforma la alerta operativa (Compliance Weather) en un banner horizontal superior delgado de ancho completo. Libera el 80% de la pantalla para colocar el listado de locales a la izquierda y las alertas a la derecha.",
+        html: `
+          <!-- Header -->
+          <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-ds-neutral-200 pb-4 mb-6 gap-4">
+            <div>
+              <div class="flex items-center gap-3">
+                <h1 class="text-2xl font-extrabold text-ds-neutral-900">La Parrilla del Sol</h1>
+                <div class="inline-flex items-center gap-1.5 bg-ds-blue-50 text-ds-blue-600 px-2.5 py-1 rounded-full text-xs font-bold">
+                  <span>Restaurante</span>
+                </div>
+              </div>
+              <p class="text-xs text-ds-neutral-500 mt-1">Cumplimiento centralizado multisede</p>
+            </div>
+            <div class="text-right text-xs text-ds-neutral-600">
+              <span class="font-bold">9 de 12</span> permisos vigentes · <span class="font-bold">3 sedes</span>
+            </div>
+          </div>
+
+          <!-- Thin Horizontal Weather Banner (Operational Alert) -->
+          <div class="bg-gradient-to-r from-amber-500 to-ds-orange-500 text-white rounded-xl p-4 shadow-sm mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-2xl shrink-0">
+                ☁️
+              </div>
+              <div>
+                <h4 class="font-extrabold text-base">Alerta Operativa: Clima Inestable</h4>
+                <p class="text-xs text-white/90">Tienes 3 alertas críticas de vencimiento que requieren atención inmediata para evitar riesgos de clausura.</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 shrink-0">
+              <div class="text-right">
+                <span class="text-2xl font-extrabold">75%</span>
+                <span class="text-[10px] block opacity-80">Índice Global</span>
+              </div>
+              <div class="h-8 w-[1px] bg-white/30"></div>
+              <button class="bg-white text-ds-orange-600 hover:bg-ds-neutral-50 px-4 py-2 rounded-lg text-xs font-extrabold transition-colors">
+                Resolver alertas
+              </button>
+            </div>
+          </div>
+
+          <!-- Two Column Workspace -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <!-- Left: Locations List (7 cols) -->
+            <div class="lg:col-span-7 space-y-4">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xs font-extrabold text-ds-neutral-500 uppercase tracking-wider">Locales y Sedes (3)</h3>
+                <button class="text-xs font-bold text-ds-blue-500 hover:underline">Ver mapa interactivo</button>
+              </div>
+              
+              <!-- Sede cards -->
+              <div class="bg-white border border-ds-neutral-200 rounded-xl p-4 shadow-sm hover:border-ds-neutral-300 transition-colors">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h4 class="font-bold text-sm">Sede Quito Norte (Principal)</h4>
+                    <p class="text-xs text-ds-neutral-500 mt-0.5">Av. Amazonas y Naciones Unidas</p>
+                  </div>
+                  <span class="bg-ds-red-50 text-ds-red-500 border border-ds-red-200 px-2 py-0.5 rounded text-[10px] font-bold">1 Alerta Crítica</span>
+                </div>
+                <div class="mt-4 flex items-center gap-6 text-xs text-ds-neutral-600">
+                  <span><strong class="text-ds-neutral-900">3 de 4</strong> Permisos Vigentes</span>
+                  <span>Riesgo: <strong class="text-ds-red-500">Alto</strong></span>
+                </div>
+              </div>
+
+              <div class="bg-white border border-ds-neutral-200 rounded-xl p-4 shadow-sm hover:border-ds-neutral-300 transition-colors">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h4 class="font-bold text-sm">Sede Guayaquil Urdesa</h4>
+                    <p class="text-xs text-ds-neutral-500 mt-0.5">Av. Víctor Emilio Estrada</p>
+                  </div>
+                  <span class="bg-ds-green-50 text-ds-green-600 border border-ds-green-500/20 px-2 py-0.5 rounded text-[10px] font-bold">Sin Alertas</span>
+                </div>
+                <div class="mt-4 flex items-center gap-6 text-xs text-ds-neutral-600">
+                  <span><strong class="text-ds-neutral-900">4 de 4</strong> Permisos Vigentes</span>
+                  <span>Riesgo: <strong class="text-ds-green-600">Bajo</strong></span>
+                </div>
+              </div>
+
+              <div class="bg-white border border-ds-neutral-200 rounded-xl p-4 shadow-sm hover:border-ds-neutral-300 transition-colors">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h4 class="font-bold text-sm">Sede Cuenca Centro</h4>
+                    <p class="text-xs text-ds-neutral-500 mt-0.5">Calle Larga y Borrero</p>
+                  </div>
+                  <span class="bg-ds-orange-50 text-ds-orange-500 border border-ds-orange-100 px-2 py-0.5 rounded text-[10px] font-bold">1 Por Vencer</span>
+                </div>
+                <div class="mt-4 flex items-center gap-6 text-xs text-ds-neutral-600">
+                  <span><strong class="text-ds-neutral-900">2 de 4</strong> Permisos Vigentes</span>
+                  <span>Riesgo: <strong class="text-ds-orange-500">Medio</strong></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Action Required (5 cols) -->
+            <div class="lg:col-span-5 space-y-4">
+              <h3 class="text-xs font-extrabold text-ds-neutral-500 uppercase tracking-wider">Acciones Requeridas (3)</h3>
+              
+              <div class="bg-white border border-ds-neutral-200 rounded-xl p-4 shadow-sm space-y-3">
+                <div class="flex items-start gap-3 pb-3 border-b border-ds-neutral-100">
+                  <div class="w-8 h-8 rounded-full bg-ds-red-50 text-ds-red-500 flex items-center justify-center shrink-0 text-sm">🚨</div>
+                  <div>
+                    <h4 class="font-bold text-xs">Permiso de Bomberos Vencido</h4>
+                    <p class="text-[11px] text-ds-neutral-500 mt-0.5">Sede Quito Norte · Venció hace 12 días</p>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-3 pb-3 border-b border-ds-neutral-100">
+                  <div class="w-8 h-8 rounded-full bg-ds-orange-50 text-ds-orange-500 flex items-center justify-center shrink-0 text-sm">⚠️</div>
+                  <div>
+                    <h4 class="font-bold text-xs">Renovación LUAE Pendiente</h4>
+                    <p class="text-[11px] text-ds-neutral-500 mt-0.5">Sede Cuenca Centro · Vence en 18 días</p>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-3">
+                  <div class="w-8 h-8 rounded-full bg-ds-yellow-50 text-ds-yellow-500 flex items-center justify-center shrink-0 text-sm">ℹ️</div>
+                  <div>
+                    <h4 class="font-bold text-xs">Falta Evidencia ARCSA</h4>
+                    <p class="text-[11px] text-ds-neutral-500 mt-0.5">Sede Quito Norte · Permiso no registrado</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `
+      },
+      {
+        id: 2,
+        name: "Barra Lateral de Sedes + Alertas Centrales",
+        badge: "DISEÑO 2",
+        density: "Alta",
+        fold: "Excelente",
+        focus: "Sedes Activas",
+        desc: "Perfecto para empresas multisede. Coloca un menú lateral de navegación rápido entre sedes en el dashboard. El clima normativo se reduce a un pequeño indicador circular tipo velocímetro en la esquina superior del panel principal.",
+        html: `
+          <div class="flex flex-col md:flex-row gap-6 items-stretch min-h-[480px]">
+            <!-- Sidebar: Sedes quicklist -->
+            <div class="w-full md:w-[240px] bg-white border border-ds-neutral-200 rounded-xl p-4 shrink-0 space-y-3">
+              <h4 class="text-xs font-extrabold text-ds-neutral-500 uppercase tracking-wider border-b border-ds-neutral-100 pb-2">Seleccionar Local</h4>
+              <div class="space-y-1">
+                <button class="w-full text-left p-2.5 rounded-lg bg-ds-blue-50 text-ds-blue-600 font-bold text-xs flex justify-between items-center">
+                  <span>Quito Norte</span>
+                  <span class="w-2 h-2 rounded-full bg-ds-red-500"></span>
+                </button>
+                <button class="w-full text-left p-2.5 rounded-lg hover:bg-ds-neutral-50 text-ds-neutral-800 font-medium text-xs flex justify-between items-center">
+                  <span>Guayaquil Urdesa</span>
+                  <span class="w-2 h-2 rounded-full bg-ds-green-500"></span>
+                </button>
+                <button class="w-full text-left p-2.5 rounded-lg hover:bg-ds-neutral-50 text-ds-neutral-800 font-medium text-xs flex justify-between items-center">
+                  <span>Cuenca Centro</span>
+                  <span class="w-2 h-2 rounded-full bg-ds-yellow-500"></span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Main Panel -->
+            <div class="flex-1 bg-white border border-ds-neutral-200 rounded-xl p-6 flex flex-col justify-between gap-6">
+              <div>
+                <!-- Top Panel bar -->
+                <div class="flex justify-between items-start border-b border-ds-neutral-100 pb-4 mb-4 gap-4">
+                  <div>
+                    <h3 class="text-lg font-extrabold">Sede Quito Norte (Matriz)</h3>
+                    <p class="text-xs text-ds-neutral-500 mt-0.5">Actualmente tiene 1 alerta roja que requiere atención</p>
+                  </div>
+                  <!-- Compact climate indicator -->
+                  <div class="flex items-center gap-2 border border-ds-neutral-200 rounded-lg p-2 bg-ds-neutral-50 shrink-0">
+                    <span class="text-xl">☁️</span>
+                    <div class="text-[10px]">
+                      <span class="font-extrabold text-ds-orange-500 uppercase block leading-none">Inestable</span>
+                      <span class="text-ds-neutral-500 mt-0.5 block">75% compliance</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Alert details -->
+                <div class="space-y-3">
+                  <h4 class="text-xs font-bold text-ds-neutral-500 uppercase">Alertas en este local</h4>
+                  <div class="border border-ds-red-200 bg-ds-red-50/20 rounded-lg p-3.5 flex items-start gap-3">
+                    <span class="text-lg text-ds-red-500">🚨</span>
+                    <div>
+                      <h5 class="font-extrabold text-xs text-ds-red-600">Permiso de Bomberos Vencido</h5>
+                      <p class="text-xs text-ds-neutral-600 mt-1">El certificado de prevención de incendios expiró el 05 de junio. Riesgo alto de inspección y multa.</p>
+                      <button class="mt-2.5 bg-ds-red-500 text-white hover:bg-ds-red-600 px-3 py-1.5 rounded text-[10px] font-bold">Subir Renovación</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Footer navigation -->
+              <div class="border-t border-ds-neutral-100 pt-4 flex justify-between items-center">
+                <span class="text-xs text-ds-neutral-500">Administrador: Danilo Rojas</span>
+                <button class="text-xs font-bold text-ds-blue-500 hover:underline">Ver todos los documentos de este local →</button>
+              </div>
+            </div>
+          </div>
+        `
+      },
+      {
+        id: 3,
+        name: "Fila de KPIs + Panel de Grid Balanceado",
+        badge: "DISEÑO 3",
+        density: "Alta",
+        fold: "Excelente",
+        focus: "Estadísticas",
+        desc: "Elimina el concepto del clima operativo visual grande y lo integra en un bloque de métricas clave (KPIs) en la fila superior. El resto del layout es un balance limpio en 2 columnas: Alertas y Sedes.",
+        html: `
+          <!-- KPI Row -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white border border-ds-neutral-200 rounded-xl p-4 shadow-sm">
+              <span class="text-[10px] font-bold text-ds-neutral-500 uppercase tracking-wider block">Estado General</span>
+              <div class="flex items-center gap-2 mt-2">
+                <span class="text-lg">☁️</span>
+                <span class="text-sm font-extrabold text-ds-orange-500">Alerta (75%)</span>
+              </div>
+            </div>
+            <div class="bg-white border border-ds-neutral-200 rounded-xl p-4 shadow-sm">
+              <span class="text-[10px] font-bold text-ds-neutral-500 uppercase tracking-wider block">Locales Activos</span>
+              <div class="text-xl font-extrabold mt-1 text-ds-neutral-800">3 sedes</div>
+            </div>
+            <div class="bg-white border border-ds-neutral-200 rounded-xl p-4 shadow-sm">
+              <span class="text-[10px] font-bold text-ds-neutral-500 uppercase tracking-wider block">Alertas Activas</span>
+              <div class="text-xl font-extrabold mt-1 text-ds-red-500">1 crítica · 1 aviso</div>
+            </div>
+            <div class="bg-white border border-ds-neutral-200 rounded-xl p-4 shadow-sm">
+              <span class="text-[10px] font-bold text-ds-neutral-500 uppercase tracking-wider block">Permisos Vigentes</span>
+              <div class="text-xl font-extrabold mt-1 text-ds-green-500">9 de 12</div>
+            </div>
+          </div>
+
+          <!-- Bottom Grid -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Left: Alerts Card -->
+            <div class="bg-white border border-ds-neutral-200 rounded-xl p-6 shadow-sm space-y-4">
+              <div class="border-b border-ds-neutral-100 pb-3 flex justify-between items-center">
+                <h3 class="font-extrabold text-xs uppercase tracking-wider text-ds-neutral-500">Alertas Operativas</h3>
+                <span class="bg-ds-red-50 text-ds-red-500 px-2 py-0.5 rounded text-[10px] font-bold">Acción Requerida</span>
+              </div>
+              <div class="space-y-3">
+                <div class="flex items-start gap-3 p-2.5 rounded-lg bg-ds-red-50/20 border border-ds-red-200">
+                  <span class="text-lg">🚨</span>
+                  <div>
+                    <h4 class="font-bold text-xs text-ds-red-600">Bomberos Quito Vencido</h4>
+                    <p class="text-[11px] text-ds-neutral-600 mt-0.5">Sede Quito Norte · Expiró el 5 de Junio</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3 p-2.5 rounded-lg bg-ds-orange-50/20 border border-ds-orange-100">
+                  <span class="text-lg">⚠️</span>
+                  <div>
+                    <h4 class="font-bold text-xs text-ds-orange-600">Renovación LUAE Quito</h4>
+                    <p class="text-[11px] text-ds-neutral-600 mt-0.5">Sede Cuenca Centro · Vence en 18 días</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Sede list -->
+            <div class="bg-white border border-ds-neutral-200 rounded-xl p-6 shadow-sm space-y-4">
+              <div class="border-b border-ds-neutral-100 pb-3 flex justify-between items-center">
+                <h3 class="font-extrabold text-xs uppercase tracking-wider text-ds-neutral-500">Sedes Registradas</h3>
+                <button class="text-xs text-ds-blue-500 font-bold hover:underline">Ver detalles</button>
+              </div>
+              <div class="divide-y divide-ds-neutral-100">
+                <div class="py-2.5 flex justify-between items-center">
+                  <span class="text-xs font-bold">Quito Norte</span>
+                  <span class="text-xs text-ds-red-500 font-semibold">1 alerta activa</span>
+                </div>
+                <div class="py-2.5 flex justify-between items-center">
+                  <span class="text-xs font-bold">Guayaquil Urdesa</span>
+                  <span class="text-xs text-ds-green-600 font-semibold">Completo</span>
+                </div>
+                <div class="py-2.5 flex justify-between items-center">
+                  <span class="text-xs font-bold">Cuenca Centro</span>
+                  <span class="text-xs text-ds-orange-500 font-semibold">1 por vencer</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `
+      },
+      {
+        id: 4,
+        name: "Tres Columnas (Zero Scroll Layout)",
+        badge: "DISEÑO 4",
+        density: "Muy Alta",
+        fold: "Excelente",
+        focus: "Control Total",
+        desc: "Ideal para monitores anchos de oficina. Divide el dashboard en tres columnas iguales: a la izquierda el Clima Normativo vertical compacto, en el centro las Alertas Críticas detalladas, y a la derecha el listado de locales.",
+        html: `
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+            
+            <!-- Column 1: Vertical Weather Card -->
+            <div class="bg-gradient-to-br from-ds-blue-900 to-ds-blue-950 text-white rounded-xl p-6 flex flex-col justify-between shadow-sm min-h-[360px]">
+              <div>
+                <span class="bg-white/20 text-white px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Estado Global</span>
+                <div class="text-4xl mt-4">☁️</div>
+                <h3 class="text-xl font-extrabold mt-3">Clima Inestable</h3>
+                <p class="text-xs text-ds-blue-100 mt-2">Tienes tareas críticas de cumplimiento normativo pendientes en el sistema.</p>
+              </div>
+              <div class="pt-6 border-t border-white/10">
+                <div class="text-3xl font-extrabold">75%</div>
+                <span class="text-[10px] text-ds-blue-200 uppercase tracking-wider">Cumplimiento General</span>
+              </div>
+            </div>
+
+            <!-- Column 2: Alerts -->
+            <div class="bg-white border border-ds-neutral-200 rounded-xl p-6 shadow-sm flex flex-col justify-between min-h-[360px]">
+              <div class="space-y-4">
+                <h3 class="text-xs font-extrabold text-ds-neutral-500 uppercase tracking-wider border-b border-ds-neutral-100 pb-2">Alertas Operativas (2)</h3>
+                <div class="space-y-2.5">
+                  <div class="p-2.5 rounded-lg bg-ds-red-50 text-ds-red-500 border border-ds-red-100 text-xs">
+                    <span class="font-bold block">Bomberos Vencido</span>
+                    <span class="opacity-80 block mt-0.5">Sede Quito Norte · hace 12 días</span>
+                  </div>
+                  <div class="p-2.5 rounded-lg bg-ds-orange-50 text-ds-orange-500 border border-ds-orange-100 text-xs">
+                    <span class="font-bold block">LUAE por vencer</span>
+                    <span class="opacity-80 block mt-0.5">Sede Cuenca Centro · en 18 días</span>
+                  </div>
+                </div>
+              </div>
+              <button class="w-full bg-ds-neutral-100 hover:bg-ds-neutral-200 text-ds-neutral-800 text-xs font-bold py-2 rounded-lg transition-colors">
+                Resolver alertas
+              </button>
+            </div>
+
+            <!-- Column 3: Sedes -->
+            <div class="bg-white border border-ds-neutral-200 rounded-xl p-6 shadow-sm flex flex-col justify-between min-h-[360px]">
+              <div class="space-y-4">
+                <h3 class="text-xs font-extrabold text-ds-neutral-500 uppercase tracking-wider border-b border-ds-neutral-100 pb-2">Sedes (3)</h3>
+                <div class="space-y-2">
+                  <div class="flex justify-between items-center text-xs p-2 rounded hover:bg-ds-neutral-50">
+                    <span class="font-medium">Quito Norte</span>
+                    <span class="w-3 h-3 rounded-full bg-ds-red-500"></span>
+                  </div>
+                  <div class="flex justify-between items-center text-xs p-2 rounded hover:bg-ds-neutral-50">
+                    <span class="font-medium">Guayaquil Urdesa</span>
+                    <span class="w-3 h-3 rounded-full bg-ds-green-500"></span>
+                  </div>
+                  <div class="flex justify-between items-center text-xs p-2 rounded hover:bg-ds-neutral-50">
+                    <span class="font-medium">Cuenca Centro</span>
+                    <span class="w-3 h-3 rounded-full bg-ds-yellow-500"></span>
+                  </div>
+                </div>
+              </div>
+              <button class="w-full bg-ds-blue-500 text-white hover:bg-ds-blue-600 text-xs font-bold py-2 rounded-lg transition-colors">
+                Ver mapa de sedes
+              </button>
+            </div>
+
+          </div>
+        `
+      },
+      {
+        id: 5,
+        name: "Dashboard por Pestañas (Tabs)",
+        badge: "DISEÑO 5",
+        density: "Normal",
+        fold: "Excelente",
+        focus: "Limpieza",
+        desc: "Ideal para usuarios que buscan minimalismo y cero ruidos visuales. Esconde la complejidad del dashboard agrupándola bajo pestañas interactivas. El clima general se mantiene en el header como un badge de estado muy fino.",
+        html: `
+          <!-- Tabs Navigation -->
+          <div class="flex border-b border-ds-neutral-200 mb-6 gap-2">
+            <button class="px-4 py-2 border-b-2 border-ds-blue-500 text-ds-blue-600 font-extrabold text-xs">
+              Resumen General
+            </button>
+            <button class="px-4 py-2 text-ds-neutral-500 hover:text-ds-neutral-800 font-bold text-xs">
+              Sedes (3)
+            </button>
+            <button class="px-4 py-2 text-ds-neutral-500 hover:text-ds-neutral-800 font-bold text-xs">
+              Alertas del mes (2)
+            </button>
+          </div>
+
+          <!-- Tab Content (Resumen) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white border border-ds-neutral-200 rounded-xl p-6 shadow-sm space-y-4">
+              <h3 class="font-extrabold text-sm">Estado de la cuenta</h3>
+              <p class="text-xs text-ds-neutral-500">Actualmente no has renovado el permiso de bomberos en la matriz de Quito. Esto expone a tu negocio a clausuras.</p>
+              <!-- Small inline climate -->
+              <div class="inline-flex items-center gap-2 bg-ds-orange-50 text-ds-orange-600 px-3 py-1.5 rounded-lg text-xs font-bold">
+                <span>☁️ Clima de Compliance: Inestable (75%)</span>
+              </div>
+            </div>
+
+            <div class="bg-white border border-ds-neutral-200 rounded-xl p-6 shadow-sm space-y-4 flex flex-col justify-between">
+              <div>
+                <h3 class="font-extrabold text-sm">Renovaciones inmediatas</h3>
+                <p class="text-xs text-ds-neutral-500 mt-1">El local Cuenca Centro tiene 1 permiso en fase de advertencia por vencer en 18 días.</p>
+              </div>
+              <button class="bg-ds-blue-500 text-white hover:bg-ds-blue-600 text-xs font-bold py-2 rounded-lg transition-colors">
+                Ir a Renovaciones
+              </button>
+            </div>
+          </div>
+        `
+      },
+      {
+        id: 6,
+        name: "Mapa Interactivo con Paneles Flotantes",
+        badge: "DISEÑO 6",
+        density: "Media",
+        fold: "Excelente",
+        focus: "Geolocalización",
+        desc: "Ideal para dueños de empresas con muchos locales en la ciudad. El mapa interactivo ocupa la pantalla completa de fondo y los indicadores de alerta y sedes flotan a los lados en paneles traslúcidos.",
+        html: `
+          <div class="relative w-full h-[460px] bg-ds-neutral-100 rounded-xl border border-ds-neutral-200 overflow-hidden flex items-center justify-center">
+            
+            <!-- Simulated Map Canvas Background -->
+            <div class="absolute inset-0 bg-slate-50 flex items-center justify-center select-none">
+              <!-- Grid background -->
+              <div class="absolute inset-0 bg-[radial-gradient(var(--ds-neutral-200)_1.5px,transparent_1.5px)] [background-size:16px_16px]"></div>
+              
+              <!-- Center Hub -->
+              <div class="absolute w-[180px] bg-ds-blue-500 text-white text-xs font-bold rounded-lg p-3 text-center shadow-lg">
+                <span>La Parrilla del Sol</span>
+                <span class="block text-[10px] text-ds-blue-200 mt-0.5">Restaurante Principal</span>
+              </div>
+
+              <!-- Orbit Nodes -->
+              <div class="absolute top-[80px] left-[150px] bg-white border-2 border-ds-red-500 text-ds-neutral-800 text-[10px] font-bold rounded-md px-2 py-1 shadow-sm">
+                Sede Quito
+              </div>
+              
+              <div class="absolute bottom-[80px] right-[150px] bg-white border-2 border-ds-green-500 text-ds-neutral-800 text-[10px] font-bold rounded-md px-2 py-1 shadow-sm">
+                Sede Urdesa
+              </div>
+            </div>
+
+            <!-- Floating Weather indicator -->
+            <div class="absolute top-4 left-4 bg-white/90 backdrop-blur border border-ds-neutral-200 rounded-xl p-3 shadow-md max-w-[180px] z-10">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">☁️</span>
+                <div class="text-[10px]">
+                  <span class="font-extrabold text-ds-orange-500 block leading-none">Inestable (75%)</span>
+                  <span class="text-ds-neutral-500 block mt-0.5">Clima de la empresa</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Floating Critical Alerts sidebar -->
+            <div class="absolute top-4 right-4 bottom-4 w-[200px] bg-white/90 backdrop-blur border border-ds-neutral-200 rounded-xl p-4 shadow-md z-10 flex flex-col justify-between">
+              <div class="space-y-3">
+                <span class="text-[9px] font-extrabold text-ds-neutral-500 uppercase tracking-widest block">Alertas Críticas</span>
+                <div class="space-y-2">
+                  <div class="p-2 rounded bg-ds-red-50 text-ds-red-500 border border-ds-red-100 text-[10px] font-bold">
+                    Bomberos Quito Vencido
+                  </div>
+                  <div class="p-2 rounded bg-ds-orange-50 text-ds-orange-500 border border-ds-orange-100 text-[10px] font-bold">
+                    LUAE Cuenca por vencer
+                  </div>
+                </div>
+              </div>
+              <button class="w-full bg-ds-blue-500 text-white hover:bg-ds-blue-600 text-[10px] font-bold py-1.5 rounded transition-colors">
+                Ver Listado Completo
+              </button>
+            </div>
+
+          </div>
+        `
+      },
+      {
+        id: 7,
+        name: "Secciones Acordeón Colapsables",
+        badge: "DISEÑO 7",
+        density: "Variable",
+        fold: "Personalizable",
+        focus: "Control del Usuario",
+        desc: "Permite al usuario expandir o colapsar secciones. Si no desea ver el clima normativo porque ya lo conoce, puede colapsarlo a una sola línea delgada de estado, dándole prioridad a las tablas de sedes.",
+        html: `
+          <div class="space-y-4">
+            
+            <!-- Collapsible 1: Weather -->
+            <div class="bg-white border border-ds-neutral-200 rounded-xl shadow-sm overflow-hidden">
+              <div class="bg-ds-neutral-50 p-4 border-b border-ds-neutral-200 flex justify-between items-center cursor-pointer">
+                <span class="text-xs font-extrabold text-ds-neutral-600 uppercase">1. Clima de Cumplimiento (Inestable - 75%)</span>
+                <span class="text-xs text-ds-blue-500 font-bold">Colapsar [-]</span>
+              </div>
+              <div class="p-4 flex items-center justify-between bg-gradient-to-r from-amber-50 to-ds-orange-50/20">
+                <div class="flex items-center gap-3">
+                  <span class="text-3xl">☁️</span>
+                  <div>
+                    <h4 class="font-extrabold text-sm text-ds-orange-600">Alerta de Renovación</h4>
+                    <p class="text-xs text-ds-neutral-600 mt-0.5">El local Quito Norte requiere acción inmediata en el permiso de Bomberos.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Collapsible 2: Sedes -->
+            <div class="bg-white border border-ds-neutral-200 rounded-xl shadow-sm overflow-hidden">
+              <div class="bg-ds-neutral-50 p-4 border-b border-ds-neutral-200 flex justify-between items-center cursor-pointer">
+                <span class="text-xs font-extrabold text-ds-neutral-600 uppercase">2. Resumen por Sede (3 locales)</span>
+                <span class="text-xs text-ds-blue-500 font-bold">Expandido [v]</span>
+              </div>
+              <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="p-3 bg-ds-neutral-50 rounded-lg border border-ds-neutral-200 text-xs">
+                  <span class="font-bold block">Quito Norte</span>
+                  <span class="text-ds-red-500 block mt-1">1 alerta crítica</span>
+                </div>
+                <div class="p-3 bg-ds-neutral-50 rounded-lg border border-ds-neutral-200 text-xs">
+                  <span class="font-bold block">Guayaquil Urdesa</span>
+                  <span class="text-ds-green-600 block mt-1">Sin alertas</span>
+                </div>
+                <div class="p-3 bg-ds-neutral-50 rounded-lg border border-ds-neutral-200 text-xs">
+                  <span class="font-bold block">Cuenca Centro</span>
+                  <span class="text-ds-orange-500 block mt-1">1 por vencer</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        `
+      },
+      {
+        id: 8,
+        name: "Línea de Tiempo Operativa (Feed de Eventos)",
+        badge: "DISEÑO 8",
+        density: "Alta",
+        fold: "Buena",
+        focus: "Eventos",
+        desc: "Presenta el dashboard como una línea de tiempo (feed) secuencial de las tareas operativas de las sedes. Muestra de forma cronológica los próximos vencimientos y renovaciones pendientes.",
+        html: `
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Timeline feed (8 cols) -->
+            <div class="lg:col-span-8 bg-white border border-ds-neutral-200 rounded-xl p-6 shadow-sm space-y-6">
+              <h3 class="text-xs font-extrabold text-ds-neutral-500 uppercase tracking-wider border-b border-ds-neutral-100 pb-2">Línea de Tiempo de Cumplimiento</h3>
+              
+              <div class="relative pl-6 border-l-2 border-ds-neutral-200 space-y-6">
+                <!-- Node 1 -->
+                <div class="relative">
+                  <span class="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-ds-red-500 border-4 border-white"></span>
+                  <div class="text-xs font-bold text-ds-red-600">HACE 12 DÍAS (VENCIDO)</div>
+                  <h4 class="font-bold text-sm mt-1">Permiso de Bomberos - Quito Norte</h4>
+                  <p class="text-xs text-ds-neutral-500 mt-0.5">El local comercial Quito Norte opera con el permiso de bomberos caducado. Peligro de clausura.</p>
+                </div>
+
+                <!-- Node 2 -->
+                <div class="relative">
+                  <span class="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-ds-orange-500 border-4 border-white"></span>
+                  <div class="text-xs font-bold text-ds-orange-500">EN 18 DÍAS (ADVERTENCIA)</div>
+                  <h4 class="font-bold text-sm mt-1">Renovación de Licencia LUAE - Cuenca</h4>
+                  <p class="text-xs text-ds-neutral-500 mt-0.5">Distrito Centro Cuenca. Asignado a: Danilo Rojas.</p>
+                </div>
+
+                <!-- Node 3 -->
+                <div class="relative">
+                  <span class="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-ds-green-500 border-4 border-white"></span>
+                  <div class="text-xs font-bold text-ds-green-600">EN 3 MESES</div>
+                  <h4 class="font-bold text-sm mt-1">Patente Municipal - Guayaquil</h4>
+                  <p class="text-xs text-ds-neutral-500 mt-0.5">Sede Urdesa. En regla.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Compact info widget (4 cols) -->
+            <div class="lg:col-span-4 bg-white border border-ds-neutral-200 rounded-xl p-4 shadow-sm space-y-4">
+              <h3 class="text-xs font-extrabold text-ds-neutral-500 uppercase tracking-wider border-b border-ds-neutral-100 pb-2">Clima de la Empresa</h3>
+              <div class="flex items-center gap-3">
+                <span class="text-3xl">☁️</span>
+                <div>
+                  <span class="text-xs font-extrabold text-ds-orange-500 block">75% General</span>
+                  <span class="text-[10px] text-ds-neutral-500 block mt-0.5">1 local inestable de 3</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        `
+      },
+      {
+        id: 9,
+        name: "Tabla de Cumplimiento Densa (Power Users)",
+        badge: "DISEÑO 9",
+        density: "Extrema",
+        fold: "Excelente",
+        focus: "Detalles",
+        desc: "Ideal para auditores, gerentes legales y de cumplimiento. Elimina los cards por un diseño de tabla compacta tipo Excel, donde se listan todas las sedes, su riesgo operativo, porcentaje y acciones urgentes en una sola vista tabular.",
+        html: `
+          <div class="bg-white border border-ds-neutral-200 rounded-xl overflow-hidden shadow-sm">
+            <div class="p-4 border-b border-ds-neutral-200 bg-ds-neutral-50 flex justify-between items-center">
+              <h3 class="font-extrabold text-xs uppercase tracking-wider text-ds-neutral-500">Matriz Operativa de Locales</h3>
+              <!-- Inline climate -->
+              <span class="text-xs font-bold text-ds-orange-500 bg-ds-orange-50 px-2 py-0.5 rounded border border-ds-orange-100">Clima: Inestable (75%)</span>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="border-b border-ds-neutral-200 bg-ds-neutral-50 text-[10px] font-extrabold text-ds-neutral-500 uppercase tracking-wider">
+                    <th class="p-3">Local Commercial</th>
+                    <th class="p-3">Permisos Vigentes</th>
+                    <th class="p-3">Porcentaje</th>
+                    <th class="p-3">Riesgo</th>
+                    <th class="p-3">Alerta Crítica</th>
+                    <th class="p-3">Acción</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-ds-neutral-100">
+                  <tr>
+                    <td class="p-3 font-bold">Quito Norte (Matriz)</td>
+                    <td class="p-3">3 de 4</td>
+                    <td class="p-3 font-bold text-ds-red-500">75%</td>
+                    <td class="p-3"><span class="bg-ds-red-50 text-ds-red-500 px-2 py-0.5 rounded text-[10px] font-bold">Alto</span></td>
+                    <td class="p-3 text-ds-neutral-600">Bomberos Quito Vencido</td>
+                    <td class="p-3"><button class="text-ds-blue-500 hover:underline font-bold">Resolver</button></td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-bold">Guayaquil Urdesa</td>
+                    <td class="p-3">4 de 4</td>
+                    <td class="p-3 font-bold text-ds-green-500">100%</td>
+                    <td class="p-3"><span class="bg-ds-green-50 text-ds-green-600 px-2 py-0.5 rounded text-[10px] font-bold">Bajo</span></td>
+                    <td class="p-3 text-ds-neutral-500">Ninguna</td>
+                    <td class="p-3"><button class="text-ds-blue-500 hover:underline font-bold">Ver local</button></td>
+                  </tr>
+                  <tr>
+                    <td class="p-3 font-bold">Cuenca Centro</td>
+                    <td class="p-3">2 de 4 (2 n/a)</td>
+                    <td class="p-3 font-bold text-ds-orange-500">50%</td>
+                    <td class="p-3"><span class="bg-ds-orange-50 text-ds-orange-500 px-2 py-0.5 rounded text-[10px] font-bold">Medio</span></td>
+                    <td class="p-3 text-ds-neutral-600">LUAE Cuenca vence en 18d</td>
+                    <td class="p-3"><button class="text-ds-blue-500 hover:underline font-bold">Ver local</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `
+      },
+      {
+        id: 10,
+        name: "Unified Immersive Header Card Layout",
+        badge: "DISEÑO 10",
+        density: "Alta",
+        fold: "Excelente",
+        focus: "Estética Premium",
+        desc: "Fusiona la alerta operativa dentro de la misma tarjeta del encabezado del negocio (Header), usando un fondo degradado animado sutil que cambia según el estado de riesgo general. El resto del dashboard queda libre de ruidos.",
+        html: `
+          <!-- Immersive Header Card representing the general weather state (Orange/Amber for inestable) -->
+          <div class="bg-gradient-to-br from-amber-500 to-ds-orange-600 text-white rounded-2xl p-6 shadow-md mb-6 relative overflow-hidden">
+            <!-- Background aura pattern -->
+            <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+            
+            <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div>
+                <div class="flex items-center gap-3">
+                  <h1 class="text-2xl font-extrabold tracking-tight">La Parrilla del Sol</h1>
+                  <span class="bg-white/20 text-white px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider">Restaurante</span>
+                </div>
+                <p class="text-xs text-white/85 mt-1">Giro comercial regulado por ARCSA y Bomberos · 3 locales comerciales activos</p>
+                <div class="mt-4 inline-flex items-center gap-2 bg-white/15 px-3 py-1.5 rounded-lg text-xs">
+                  <span>☁️ Clima actual: Inestable (75% cumplimiento) · Tienes 1 alerta crítica</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 shrink-0">
+                <div class="text-right">
+                  <span class="text-3xl font-black">9/12</span>
+                  <span class="text-[10px] block opacity-85 uppercase font-bold tracking-widest">Permisos al día</span>
+                </div>
+                <div class="h-10 w-[1px] bg-white/25"></div>
+                <button class="bg-white text-ds-orange-600 hover:bg-ds-neutral-50 px-4 py-2.5 rounded-lg text-xs font-extrabold transition-all shadow-sm">
+                  Gestionar Alertas
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column layouts below header -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <!-- Left: Sedes -->
+            <div class="lg:col-span-7 space-y-4">
+              <h3 class="text-xs font-extrabold text-ds-neutral-500 uppercase tracking-wider">Locales Operativos</h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="bg-white border border-ds-neutral-200 rounded-xl p-4 shadow-sm">
+                  <h4 class="font-bold text-xs">Quito Norte</h4>
+                  <p class="text-[10px] text-ds-neutral-500 mt-0.5">Riesgo: <strong class="text-ds-red-500">Alto</strong></p>
+                </div>
+                <div class="bg-white border border-ds-neutral-200 rounded-xl p-4 shadow-sm">
+                  <h4 class="font-bold text-xs">Guayaquil Urdesa</h4>
+                  <p class="text-[10px] text-ds-neutral-500 mt-0.5">Riesgo: <strong class="text-ds-green-600">Bajo</strong></p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Actions -->
+            <div class="lg:col-span-5 space-y-4">
+              <h3 class="text-xs font-extrabold text-ds-neutral-500 uppercase tracking-wider">Alertas Pendientes</h3>
+              <div class="bg-white border border-ds-neutral-200 rounded-xl p-4 shadow-sm text-xs font-bold text-ds-red-500 border-l-4 border-l-ds-red-500">
+                🚨 Bomberos Quito Vencido hace 12 días
+              </div>
+            </div>
+          </div>
+        `
+      }
+    ];
+
+    let activeLayoutId = 1;
+
+    // Render Selector Buttons
+    const selectorContainer = document.getElementById("layout-selector-container");
+    layouts.forEach(l => {
+      const button = document.createElement("button");
+      button.id = `btn-layout-${l.id}`;
+      button.className = "w-full text-left p-3 rounded-lg hover:bg-ds-blue-800 transition-colors text-xs font-semibold flex justify-between items-center text-ds-blue-100 mb-1 border border-transparent";
+      button.innerHTML = `
+        <span>${l.name}</span>
+        <span class="bg-ds-blue-700 text-[10px] px-2 py-0.5 rounded-full font-extrabold shrink-0 ml-2">${l.id}</span>
+      `;
+      button.onclick = () => selectLayout(l.id);
+      selectorContainer.appendChild(button);
+    });
+
+    // Selection Engine
+    function selectLayout(id) {
+      // Toggle active states on buttons
+      layouts.forEach(l => {
+        const btn = document.getElementById(`btn-layout-${l.id}`);
+        if (l.id === id) {
+          btn.className = "w-full text-left p-3 rounded-lg bg-ds-orange-500 text-white font-bold text-xs flex justify-between items-center mb-1 border border-ds-orange-600 shadow-sm";
+        } else {
+          btn.className = "w-full text-left p-3 rounded-lg hover:bg-ds-blue-800 transition-colors text-xs font-semibold flex justify-between items-center text-ds-blue-100 mb-1 border border-transparent";
+        }
+      });
+
+      const layout = layouts.find(l => l.id === id);
+      if (layout) {
+        activeLayoutId = id;
+        document.getElementById("current-layout-badge").innerText = layout.badge;
+        document.getElementById("current-layout-name").innerText = layout.name;
+        document.getElementById("current-layout-desc").innerText = layout.desc;
+        document.getElementById("stat-density").innerText = layout.density;
+        document.getElementById("stat-fold").innerText = layout.fold;
+        document.getElementById("stat-focus").innerText = layout.focus;
+        
+        // Render view
+        document.getElementById("dashboard-viewport").innerHTML = layout.html;
+      }
+    }
+
+    // Load initial layout
+    selectLayout(1);
+
+  </script>
+</body>
+</html>

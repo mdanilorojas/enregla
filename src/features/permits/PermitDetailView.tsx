@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { PermitTimeline, type TimelineEvent } from './PermitTimeline';
 import { PermitUploadForm } from './PermitUploadForm';
 import { PermitInfoCard } from './PermitInfoCard';
-import { AssigneePicker } from './AssigneePicker';
+import { PermitAssignment } from './PermitAssignment';
 import { PermitEventsTimeline } from './PermitEventsTimeline';
 import { formatDate } from '@/lib/dates';
 import {
@@ -53,7 +53,7 @@ export function PermitDetailView() {
   const { profile } = useAuth();
   const companyId = resolveCompanyId(profile?.company_id) ?? undefined;
 
-  const { permits, loading: loadingPermits, updatePermit } = usePermits({ companyId });
+  const { permits, loading: loadingPermits, updatePermit, refetch } = usePermits({ companyId });
   const { locations, loading: loadingLocations } = useLocations(companyId);
   const { data: company } = useCompany(companyId);
   const { data: issuers } = useIssuers();
@@ -403,13 +403,13 @@ export function PermitDetailView() {
           <PermitInfoCard permit={permit} />
 
           <Card className="p-[var(--ds-space-300)]">
-            <div className="text-[var(--ds-font-size-100)] font-semibold mb-[var(--ds-space-200)]">Asignado a</div>
+            <div className="text-[var(--ds-font-size-100)] font-semibold mb-[var(--ds-space-200)]">¿Quién se encarga?</div>
             {permit.company_id ? (
-              <AssigneePicker
+              <PermitAssignment
                 permitId={permit.id}
-                permitType={permit.type}
-                companyId={permit.company_id}
-                currentAssigneeId={(permit as unknown as { assigned_to_profile_id: string | null }).assigned_to_profile_id ?? null}
+                delegatedToEnregla={(permit as unknown as { delegated_to_enregla?: boolean }).delegated_to_enregla ?? false}
+                delegationRequestedAt={(permit as unknown as { delegation_requested_at?: string | null }).delegation_requested_at ?? null}
+                onChanged={() => void refetch()}
               />
             ) : (
               <div className="text-sm text-[var(--ds-text-subtlest)] italic">Sin empresa asociada</div>
