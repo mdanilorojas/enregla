@@ -302,7 +302,7 @@ export function DashboardView() {
               Tus Locales y Estado por Sede
             </h3>
             <div className="space-y-[var(--ds-space-200)]">
-              {locations.map((location) => {
+              {locations.slice(0, 3).map((location) => {
                 const locationPermits = permits.filter(
                   (p) => p.location_id === location.id && p.is_active
                 )
@@ -315,6 +315,15 @@ export function DashboardView() {
                 )
               })}
             </div>
+            {locations.length > 3 && (
+              <Link
+                to="/sedes"
+                className="flex items-center justify-center gap-1 text-[var(--ds-font-size-075)] font-bold text-[var(--ds-text-subtle)] hover:text-[var(--ds-text)] py-[var(--ds-space-150)] transition-colors"
+              >
+                Ver todas las sedes ({locations.length})
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            )}
           </div>
 
           {/* Action Hub (Acciones Críticas y Tareas) — 1/3 */}
