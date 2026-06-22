@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EnRegla OS — Pre-venta (borrador landing)</title>
+<style>
+  :root{
+    --ink:#0f1b2d; --ink-soft:#48566b; --ink-faint:#7b8798;
+    --line:#e4e8ef; --bg:#f6f8fb; --card:#ffffff; --brand:#1457c8; --brand-ink:#0c3f96;
+    --ok:#1f8a4c; --ok-bg:#e9f6ee; --soon:#b06a00; --soon-bg:#fdf3e3;
+    --crit:#c0392b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);background:var(--bg);line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 20px}
+  header.hero{background:linear-gradient(180deg,#fff, #f6f8fb);border-bottom:1px solid var(--line);padding:56px 0 40px}
+  .eyebrow{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand);font-weight:700}
+  h1{font-size:40px;line-height:1.12;margin:10px 0 14px;letter-spacing:-.02em}
+  .lede{font-size:19px;color:var(--ink-soft);max-width:760px}
+  .punch{font-weight:700;color:var(--ink);font-size:18px;margin-top:18px}
+  .cta{display:inline-block;margin:22px 10px 0 0;padding:13px 20px;border-radius:10px;font-weight:700;
+    text-decoration:none;font-size:15px;border:1.5px solid var(--brand)}
+  .cta.primary{background:var(--brand);color:#fff}
+  .cta.ghost{color:var(--brand-ink);background:#fff}
+  section{padding:44px 0;border-bottom:1px solid var(--line)}
+  .badge{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    padding:5px 11px;border-radius:999px}
+  .badge.ok{color:var(--ok);background:var(--ok-bg)}
+  .badge.soon{color:var(--soon);background:var(--soon-bg)}
+  h2{font-size:26px;margin:14px 0 6px;letter-spacing:-.01em}
+  .sub{color:var(--ink-soft);max-width:780px;margin:0 0 22px}
+  ul.feat{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  ul.feat li{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  ul.feat li b{display:block;margin-bottom:3px}
+  ul.feat li span{color:var(--ink-soft);font-size:14.5px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .mod{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 20px 18px;position:relative}
+  .mod h3{margin:6px 0 10px;font-size:18px}
+  .mod .pain{color:var(--crit);font-size:13.5px;font-weight:600;margin:0 0 6px}
+  .mod .does{color:var(--ink);font-size:14.5px;margin:0 0 8px}
+  .mod .who{color:var(--ink-faint);font-size:13px;margin:0;border-top:1px dashed var(--line);padding-top:8px}
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);font-size:14.5px;vertical-align:top}
+  th{background:#eef2f8;color:var(--ink);font-size:13px;letter-spacing:.03em;text-transform:uppercase}
+  tr:last-child td{border-bottom:none}
+  .steps{counter-reset:s;list-style:none;padding:0;margin:0;display:grid;gap:12px}
+  .steps li{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px 14px 56px;position:relative}
+  .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:14px;top:12px;width:28px;height:28px;
+    background:var(--brand);color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700}
+  .tags{display:flex;flex-wrap:wrap;gap:10px}
+  .tags span{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:14px;color:var(--ink-soft)}
+  .note{background:#fff;border:1px dashed var(--line);border-radius:12px;padding:16px 18px;color:var(--ink-soft);font-size:14px}
+  footer{padding:30px 0 60px;color:var(--ink-faint);font-size:13px}
+  @media(max-width:720px){.grid,ul.feat{grid-template-columns:1fr}h1{font-size:30px}}
+</style>
+</head>
+<body>
+
+<header class="hero"><div class="wrap">
+  <div class="eyebrow">EnRegla OS</div>
+  <h1>El Sistema Operativo de Cumplimiento Empresarial del Ecuador</h1>
+  <p class="lede">De permisos a cumplimiento total. Una sola plataforma para tus permisos, protección de datos, prevención de lavado de activos, obligaciones societarias, contratos y tu defensa ante cualquier autoridad.</p>
+  <p class="punch">Deja de vivir con miedo a la multa, la clausura o la observación regulatoria.</p>
+  <a class="cta primary" href="#">Empezar gratis</a>
+  <a class="cta ghost" href="#preventa">Reservar acceso Enterprise</a>
+</div></header>
+
+<section><div class="wrap">
+  <span class="badge ok">● Disponible hoy · gratis, sin tarjeta</span>
+  <h2>Tu cumplimiento de permisos, bajo control desde el primer día</h2>
+  <ul class="feat">
+    <li><b>Permisos automáticos por tipo de negocio</b><span>Registras tu sede y EnRegla calcula qué necesitas: LUAE, Patente, Bomberos, Uso de Suelo, ARCSA, RUC, Rotulación, sanitario MSP.</span></li>
+    <li><b>Multi-sede</b><span>Todas tus sucursales en un solo panel.</span></li>
+    <li><b>Documentos en la nube</b><span>Cada permiso emitido, ordenado y encontrable.</span></li>
+    <li><b>Alertas de vencimiento por email</b><span>Te avisamos antes de que algo expire. Nunca más una multa por olvido.</span></li>
+    <li><b>QR público para inspectores</b><span>El inspector verifica tus permisos sin que estés presente.</span></li>
+    <li><b>Marco legal incluido</b><span>Fundamento legal, costo referencial y sanción de cada permiso.</span></li>
+  </ul>
+  <p class="sub" style="margin-top:18px">Empieza gratis con tu cuenta de Google. En 3 minutos tienes tu mapa de permisos.</p>
+</div></section>
+
+<section id="preventa"><div class="wrap">
+  <span class="badge soon">◐ Próximamente · en pre-venta</span>
+  <h2>Módulos Enterprise</h2>
+  <p class="sub">EnRegla deja de ser "el de los permisos" y se vuelve tu <b>carpeta viva de cumplimiento</b>: todo lo que una autoridad, un banco o un inversionista te puede pedir, listo y con evidencia. Reserva como <b>Founding Member</b> y asegura precio de lanzamiento + acceso anticipado.</p>
+  <div class="grid">
+    <div class="mod"><span class="badge soon">UAFE</span><h3>🛡️ Prevención de Lavado de Activos</h3><p class="pain">¿Eres sujeto obligado y no lo sabes? La UAFE multa fuerte.</p><p class="does">Determina si eres sujeto obligado, si necesitas oficial de cumplimiento, si debes reportar (ROS/ROII) y verifica PEP, OFAC, ONU y beneficiario final.</p><p class="who">Constructoras · inmobiliarias · vehículos · joyerías · notarías</p></div>
+    <div class="mod"><span class="badge soon">SPDP / LOPDP</span><h3>🔐 Protección de Datos</h3><p class="pain">Si manejas nombres, correos o teléfonos, ya estás regulado.</p><p class="does">Inventario de datos, RAT, Evaluación de Impacto, consentimientos, gestión de brechas y Delegado de Protección de Datos.</p><p class="who">Cualquier empresa con clientes · crítico en salud, gimnasios, e-commerce</p></div>
+    <div class="mod"><span class="badge soon">Supercias</span><h3>🏛️ Motor Societario</h3><p class="pain">Nombramiento vencido o beneficiario final sin declarar = bloqueo.</p><p class="does">Controla nombramientos, juntas, beneficiario final, poderes, reformas, capital y estados financieros, con alertas.</p><p class="who">SAS · Ltda. · Anónimas · sucursales extranjeras · holdings</p></div>
+    <div class="mod"><span class="badge soon">SRI</span><h3>🧾 Motor Tributario</h3><p class="pain">Régimen equivocado y multas por declarar tarde.</p><p class="does">Identifica tu régimen, tus obligaciones y tu calendario tributario. Te recuerda cada fecha.</p><p class="who">Toda empresa con RUC</p></div>
+    <div class="mod"><span class="badge soon">Contratos IA</span><h3>📑 Motor Contractual</h3><p class="pain">Contratos copiados de internet, con cláusulas abusivas.</p><p class="does">Redacta (civil, mercantil, laboral, NDA, arrendamiento, servicios) y audita: riesgos, vacíos, penalidades, cláusulas abusivas.</p><p class="who">Todas</p></div>
+    <div class="mod"><span class="badge soon">Registral</span><h3>📜 Registral y Notarial</h3><p class="pain">Poderes caducados, nombramientos sin inscribir.</p><p class="does">Controla Registro Mercantil y notaría (poderes, protocolizaciones) con alertas de caducidad.</p><p class="who">Compañías activas</p></div>
+    <div class="mod"><span class="badge soon">Ciber</span><h3>💻 Ciberseguridad</h3><p class="pain">La otra cara obligatoria de proteger datos.</p><p class="does">Evalúa accesos, contraseñas, backups y riesgo de brechas.</p><p class="who">Empresas con datos sensibles</p></div>
+    <div class="mod"><span class="badge soon">Data Room</span><h3>🗂️ Data Room Corporativo</h3><p class="pain">Llega el banco o el due diligence y buscas papeles a las corridas.</p><p class="does">Carpetas siempre listas: Supercias, UAFE, SPDP, tributaria, municipal, laboral, bancaria, licitaciones, inversionistas.</p><p class="who">Empresas que buscan crédito, inversión o licitan</p></div>
+    <div class="mod"><span class="badge soon">IA Auditora</span><h3>🤖 IA Auditora</h3><p class="pain">No sabes cuánto riesgo regulatorio acumulas.</p><p class="does">Audita en continuo y te da tu nivel de cumplimiento, los incumplimientos y tus <b>multas potenciales en dólares</b>.</p><p class="who">Todas</p></div>
+    <div class="mod"><span class="badge soon">Defensa</span><h3>⚖️ Expediente de Defensa</h3><p class="pain">Llega la inspección y no puedes probar que cumpliste.</p><p class="does">Expediente con evidencia y trazabilidad, listo para SPDP, UAFE, Municipio, Supercias, bancos o auditores.</p><p class="who">Todas</p></div>
+    <div class="mod"><span class="badge soon">Quito</span><h3>📍 Motor Municipal Quito (guiado)</h3><p class="pain">El trámite municipal es un laberinto.</p><p class="does">Te guía: usuario PAM, Acuerdo de Medios Electrónicos, predio y clave catastral, uso de suelo y LUAE paso a paso.</p><p class="who">Negocios en el DMQ</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <h2>¿Para quién es EnRegla OS?</h2>
+  <table>
+    <tr><th>Sector</th><th>Por qué lo necesita ya</th></tr>
+    <tr><td><b>Constructoras</b></td><td>Sujeto obligado UAFE + contratos + permisos + subcontratación</td></tr>
+    <tr><td><b>Inmobiliarias</b></td><td>UAFE, debida diligencia, beneficiario final</td></tr>
+    <tr><td><b>Estudios jurídicos</b></td><td>Gestionan el cumplimiento de muchos clientes desde una sola plataforma</td></tr>
+    <tr><td><b>Clínicas</b></td><td>MSP, ARCSA, desechos sanitarios, protección de datos de pacientes</td></tr>
+    <tr><td><b>PYMEs</b> (restaurantes, retail, gimnasios)</td><td>Permisos municipales y sanitarios sin dolor — <b>disponible hoy</b></td></tr>
+  </table>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Cómo funciona la pre-venta</h2>
+  <ol class="steps">
+    <li><b>Reservas tu módulo</b> (UAFE, SPDP, Societario…) como Founding Member.</li>
+    <li><b>Aseguras precio de lanzamiento</b> — el más bajo que va a existir.</li>
+    <li><b>Acceso anticipado</b> apenas el módulo esté listo; tu feedback define la prioridad.</li>
+    <li>Mientras tanto, <b>ya usas gratis</b> todo el módulo de permisos.</li>
+  </ol>
+  <p style="margin-top:20px">
+    <a class="cta primary" href="#">Reservar mi lugar como Founding Member</a>
+    <a class="cta ghost" href="#">Hablar por WhatsApp</a>
+  </p>
+</div></section>
+
+<section><div class="wrap">
+  <h2>Taglines</h2>
+  <div class="tags">
+    <span>"Todo tu cumplimiento. Una sola plataforma. Cero sorpresas."</span>
+    <span>"De los permisos a la defensa ante el regulador."</span>
+    <span>"La carpeta viva de cumplimiento de tu empresa."</span>
+    <span>"Cuando llegue la inspección, ya vas a estar EnRegla."</span>
+    <span>"Permisos gratis hoy. Cumplimiento total, próximamente."</span>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="note"><b>Notas (no van en el landing):</b> "Disponible hoy" = real, no prometas de más. Todo "Próximamente" es pre-venta — lenguaje de lista de espera / Founding Member, no "ya disponible". Orden de construcción sugerido por el doc del abogado: <b>UAFE → SPDP → Societario</b> (mayor dolor + sectores que pagan). Rellena los CTA con tu WhatsApp y correo.</div>
+</div></footer>
+
+</body>
+</html>
