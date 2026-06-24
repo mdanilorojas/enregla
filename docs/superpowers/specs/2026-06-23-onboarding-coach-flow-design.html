@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Onboarding Coach Flow — EnRegla</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#fff; --ink:#1c2024; --sub:#5b6470; --line:#e4e7eb;
+    --brand:#1d4ed8; --brand-bg:#eff4ff;
+    --crit:#dc2626; --high:#ea580c; --med:#ca8a04; --low:#16a34a;
+    --radius:14px; --shadow:0 1px 2px rgba(16,24,40,.06),0 4px 16px rgba(16,24,40,.06);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.55}
+  .wrap{max-width:1060px;margin:0 auto;padding:40px 24px 80px}
+  header.h{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+  .logo{width:38px;height:38px;border-radius:10px;background:var(--ink);color:#fff;display:flex;
+    align-items:center;justify-content:center;font-weight:800;font-size:13px}
+  h1{font-size:30px;margin:0;letter-spacing:-.02em}
+  .meta{color:var(--sub);font-size:14px;margin:2px 0 28px}
+  .meta code{background:#eef1f4;padding:1px 6px;border-radius:5px;font-size:12px}
+  h2{font-size:21px;letter-spacing:-.01em;margin:38px 0 14px;padding-top:10px;border-top:1px solid var(--line)}
+  h3{font-size:16px;margin:22px 0 8px}
+  p{margin:8px 0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:20px 22px;margin:14px 0}
+  .lead{font-size:16px;color:var(--sub)}
+  .quote{border-left:3px solid var(--brand);background:var(--brand-bg);padding:12px 16px;
+    border-radius:0 10px 10px 0;color:#27324a;font-style:italic;margin:14px 0}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:10px 0}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--sub)}
+  tr:last-child td{border-bottom:none}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+  .new{background:#ecfdf5;color:#047857}
+  .keep{background:#eef2ff;color:#4338ca}
+  .mod{background:#fff7ed;color:#c2410c}
+  .pill{display:inline-block;font-size:12px;font-weight:600;padding:3px 10px;border-radius:8px;background:#eef1f4;color:#374151;margin:2px 4px 2px 0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+  .mock{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+  .mock .bar{height:30px;background:#f1f3f5;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:5px;padding:0 10px}
+  .dot{width:9px;height:9px;border-radius:50%}
+  .mock .body{padding:16px}
+  .mtitle{font-weight:700;font-size:14px;margin-bottom:3px}
+  .msub{font-size:12px;color:var(--sub);margin-bottom:12px}
+  .btn{display:inline-block;background:var(--ink);color:#fff;font-size:12px;font-weight:600;
+    padding:7px 13px;border-radius:8px;margin-top:6px}
+  .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  .btn.wa{background:#25d366;color:#063}
+  .permrow{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);
+    border-radius:10px;padding:10px 12px;margin:7px 0;font-size:13px}
+  .chip{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+  .chip.no{background:#fef2f2;color:var(--crit)}
+  .chip.ok{background:#f0fdf4;color:var(--low)}
+  .chip.req{background:#fff7ed;color:var(--high)}
+  details{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 14px;margin:8px 0}
+  summary{cursor:pointer;font-weight:600;font-size:14px}
+  .mermaid{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);margin:14px 0;text-align:center}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:720px){.two{grid-template-columns:1fr}}
+  ul.tight{margin:6px 0;padding-left:20px}
+  ul.tight li{margin:3px 0}
+  .legend span{margin-right:14px;font-size:12px;color:var(--sub)}
+  .sw{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:middle;margin-right:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="h">
+    <div class="logo">ER</div>
+    <div>
+      <h1>Onboarding Coach Flow</h1>
+      <div class="meta">EnRegla · 2026-06-23 · branch <code>feat/onboarding-coach-flow</code> · estado: <b>borrador, en revisión</b></div>
+    </div>
+  </header>
+
+  <p class="lead">Convertir el wizard de formularios secos (Perfil → Empresa → Sedes) en un
+  <b>coach guiado</b> que da la bienvenida, educa sobre los permisos del giro, y cierra con un
+  handoff donde el usuario <b>sube</b> sus permisos o pide que <b>los saquemos por él</b>.</p>
+
+  <div class="quote">"Hola, tienes que primero crear tu empresa… Perfecto, bienvenido a EnRegla.
+  Luego crea tu primera sede… Explícame qué tipo de empresa eres. Para este tipo de empresas
+  sabemos que necesitas estos permisos. Luego recuerda subirlos. Si los tienes a la mano, súbelos.
+  Si no, te dejamos información legal o contáctanos y los sacamos por ti."</div>
+
+  <!-- ================= USER FLOW ================= -->
+  <h2>Mapa de flujo del usuario</h2>
+  <p>Todas las rutas: entrada, ramas por permiso, éxito y salida no bloqueante.</p>
+  <div class="legend">
+    <span><i class="sw" style="background:#eff4ff;border:1px solid #1d4ed8"></i>pantalla nueva</span>
+    <span><i class="sw" style="background:#eef2ff;border:1px solid #4338ca"></i>pantalla existente</span>
+    <span><i class="sw" style="background:#f0fdf4;border:1px solid #16a34a"></i>éxito / salida</span>
+    <span><i class="sw" style="background:#fff7ed;border:1px solid #ea580c"></i>decisión</span>
+  </div>
+
+  <div class="mermaid">
+flowchart TD
+    A([Cuenta nueva inicia sesión con Google]):::start --> B{¿Tiene empresa?}
+    B -->|sí| DASH([Dashboard]):::done
+    B -->|no| W[0 · Bienvenida<br/>saluda + confirma nombre]:::new
+    W --> C[1 · Tu empresa<br/>nombre · RUC · ciudad · tipo]:::keep
+    C --> I((🎉 ¡Bienvenido,<br/>{empresa}!)):::new
+    I --> P[2 · Permisos que vas a necesitar<br/>lee permit_requirements del giro]:::new
+    P --> L[3 · Tu primera sede]:::keep
+    L --> T[[Trigger DB genera permisos]]:::sys
+    T --> H[4 · Súbelos o sácalos<br/>lista permisos reales]:::new
+    H --> Q{Por cada permiso}:::dec
+    Q -->|Lo tengo| U[Subir PDF inline<br/>PermitUploadForm]:::keep
+    U --> V([Permiso vigente ✓]):::done
+    Q -->|No lo tengo| LG[Info legal + portal gov<br/>legal_references]:::new
+    Q -->|Que lo saquen por mí| G[GetItForYouForm]:::new
+    G -->|Solicitud| LEAD[(Lead source=onboarding<br/>→ CRM interno)]:::sys
+    G -->|WhatsApp| WA([wa.me directo]):::done
+    H -->|Ir al Dashboard · siempre| DASH
+    LG -.-> H
+    V -.-> H
+    classDef new fill:#eff4ff,stroke:#1d4ed8,color:#1c2024;
+    classDef keep fill:#eef2ff,stroke:#4338ca,color:#1c2024;
+    classDef done fill:#f0fdf4,stroke:#16a34a,color:#14532d;
+    classDef dec fill:#fff7ed,stroke:#ea580c,color:#7c2d12;
+    classDef sys fill:#f8fafc,stroke:#94a3b8,color:#334155,stroke-dasharray:4 3;
+    classDef start fill:#fff,stroke:#1c2024,color:#1c2024;
+  </div>
+
+  <p style="color:var(--sub);font-size:13px"><b>Resume:</b> cerrar el navegador a mitad → al
+  re-loguear el flujo arranca en el primer hito incompleto (derivado de la DB, sin draft local).
+  Usuario que ya tiene sede → directo al dashboard (el handoff no atrapa el reingreso).</p>
+
+  <!-- ================= SCREENS ================= -->
+  <h2>Las 5 pantallas</h2>
+  <p>El stepper muestra <b>3 hitos</b> (Empresa · Sede · Permisos); bienvenida e interludios son
+  transición, no "trabajo".</p>
+
+  <table>
+    <tr><th>#</th><th>Pantalla</th><th></th><th>Qué pasa</th></tr>
+    <tr><td>0</td><td><b>Bienvenida</b></td><td><span class="tag new">NUEVA</span></td>
+      <td>Saluda con el nombre de Google, confirma <code>full_name</code>, enmarca los 3 pasos. Reemplaza el paso "Perfil" pelado. → <code>saveProfile()</code></td></tr>
+    <tr><td>1</td><td><b>Tu empresa</b></td><td><span class="tag keep">EXISTE</span></td>
+      <td><code>CompanyStep</code> sin cambios. El <b>tipo de negocio</b> elegido alimenta las pantallas 2 y 4. Al guardar → interludio 🎉</td></tr>
+    <tr><td>2</td><td><b>Permisos que vas a necesitar</b></td><td><span class="tag new">NUEVA</span></td>
+      <td>Momento educativo, solo lectura. <code>usePermitRequirements(business_type)</code>: emisor, obligatorio, costo, multa.</td></tr>
+    <tr><td>3</td><td><b>Tu primera sede</b></td><td><span class="tag keep">EXISTE</span></td>
+      <td><code>LocationsStep</code>. Al guardar, el trigger DB genera los permisos. → handoff (en vez de saltar al dashboard).</td></tr>
+    <tr><td>4</td><td><b>Súbelos o sácalos</b></td><td><span class="tag new">NUEVA</span></td>
+      <td>Lista los permisos <b>reales</b>. Por permiso: subir inline · info legal · "lo sacamos por ti". Footer <b>Ir al Dashboard</b> siempre activo.</td></tr>
+  </table>
+
+  <!-- ================= MOCKUPS ================= -->
+  <h2>Mockups</h2>
+
+  <h3>Pantalla 2 — Permisos que vas a necesitar <span class="tag new">NUEVA</span></h3>
+  <div class="mock">
+    <div class="bar"><span class="dot" style="background:#ef4444"></span><span class="dot" style="background:#eab308"></span><span class="dot" style="background:#22c55e"></span></div>
+    <div class="body">
+      <div class="mtitle">Para un <u>Restaurante</u> vas a necesitar estos permisos</div>
+      <div class="msub">Todavía no tenés que hacer nada — primero creemos tu sede.</div>
+      <div class="permrow"><div><b>Permiso de bomberos</b> · Cuerpo de Bomberos <span class="chip req">Obligatorio</span><br/><span style="color:var(--sub)">Costo ~$30–$80 · Multa por no tenerlo $200–$2.000</span></div></div>
+      <div class="permrow"><div><b>Permiso sanitario (ARCSA)</b> · ARCSA <span class="chip req">Obligatorio</span><br/><span style="color:var(--sub)">Costo ~$50 · Multa $500+</span></div></div>
+      <div class="permrow"><div><b>LUAE</b> · Municipio <span class="chip req">Obligatorio</span></div></div>
+      <a class="btn">Crear mi primera sede →</a>
+    </div>
+  </div>
+
+  <h3>Pantalla 4 — Súbelos o sácalos <span class="tag new">NUEVA</span></h3>
+  <div class="mock">
+    <div class="bar"><span class="dot" style="background:#ef4444"></span><span class="dot" style="background:#eab308"></span><span class="dot" style="background:#22c55e"></span></div>
+    <div class="body">
+      <div class="mtitle">¡Tu sede <u>Sucursal Centro</u> está lista! 🎉</div>
+      <div class="msub">Estos son tus permisos. Si los tenés a la mano subilos; si no, te decimos cómo sacarlos.</div>
+
+      <div class="permrow"><div><b>Permiso de bomberos</b> <span class="chip ok">Vigente ✓</span></div><a class="btn ghost">Ver</a></div>
+
+      <div class="permrow"><div><b>Permiso sanitario (ARCSA)</b> <span class="chip no">Sin registrar</span></div>
+        <div><a class="btn">Subir</a> <a class="btn ghost">No lo tengo</a></div></div>
+
+      <details>
+        <summary>No lo tengo — ¿cómo lo saco?</summary>
+        <p style="font-size:13px;color:var(--sub)">Permiso que habilita el manejo de alimentos. Se renueva cada año. Costo estimado ~$50.</p>
+        <a class="btn ghost" href="#">Ir al portal de ARCSA ↗</a>
+        <a class="btn" href="#">Contáctanos y lo sacamos por ti</a>
+      </details>
+
+      <a class="btn ghost" style="margin-top:14px">Ir al Dashboard</a>
+    </div>
+  </div>
+
+  <h3>GetItForYouForm — "lo sacamos por ti" <span class="tag new">NUEVA</span></h3>
+  <div class="two">
+    <div class="mock"><div class="bar"><span class="dot" style="background:#ef4444"></span><span class="dot" style="background:#eab308"></span><span class="dot" style="background:#22c55e"></span></div>
+      <div class="body">
+        <div class="mtitle">Lo sacamos por ti</div>
+        <div class="msub">Dejanos tus datos y te contactamos para tramitar el <b>Permiso sanitario (ARCSA)</b>.</div>
+        <div class="pill">Nombre: Danilo Rojas <span style="color:var(--sub)">(de tu cuenta)</span></div>
+        <div class="pill">Email: danilo@… <span style="color:var(--sub)">(de Gmail)</span></div>
+        <div class="pill">Teléfono: <i style="color:var(--sub)">opcional</i></div>
+        <div><a class="btn">Enviar solicitud</a> <a class="btn wa">WhatsApp directo</a></div>
+      </div></div>
+    <div class="card">
+      <h3 style="margin-top:0">Qué hace</h3>
+      <ul class="tight">
+        <li><b>Enviar solicitud</b> → inserta <code>leads</code> (<code>source='onboarding'</code>, <code>status='nuevo'</code>), aparece en el CRM interno.</li>
+        <li><b>WhatsApp directo</b> → <code>wa.me</code> con mensaje pre-armado (reusa <code>VITE_WHATSAPP_NUMBER</code> de PaywallView). Se muestra solo si el env está seteado.</li>
+        <li>Nombre + email vienen de la sesión Google; solo el teléfono es opcional y editable.</li>
+        <li>Permiso solicitado + empresa + ciudad se adjuntan en <code>notas</code>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ================= INFRA ================= -->
+  <h2>Cambios de infraestructura</h2>
+  <div class="grid">
+    <div class="card"><span class="tag mod">MIGRACIÓN</span>
+      <h3 style="margin-top:8px">Extender CHECK de leads.source</h3>
+      <p style="font-size:13px;color:var(--sub)">Agregar <code>'onboarding'</code> al constraint para atribuir las solicitudes en el CRM. RLS ya permite INSERT autenticado — sin cambio de policy.</p>
+    </div>
+    <div class="card"><span class="tag new">API</span>
+      <h3 style="margin-top:8px">createPermitServiceLead()</h3>
+      <p style="font-size:13px;color:var(--sub)">Una función en <code>onboarding.ts</code> que inserta el lead. Sin notificación email a staff en v1 (el CRM basta).</p>
+    </div>
+    <div class="card"><span class="tag keep">REUSO</span>
+      <h3 style="margin-top:8px">Todo lo demás</h3>
+      <p style="font-size:13px;color:var(--sub)"><code>PermitUploadForm</code>, <code>usePermitRequirements</code>, <code>useLegalReferences</code>, <code>getLocationPermits</code>, patrón <code>wa.me</code>. Trigger de permisos intacto.</p>
+    </div>
+  </div>
+
+  <!-- ================= SCOPE ================= -->
+  <h2>Fuera de alcance (YAGNI)</h2>
+  <ul class="tight">
+    <li>Email a staff cuando entra un lead (la fila en el CRM alcanza para v1).</li>
+    <li>Agregación multi-sede en el handoff (primera sede + link al dashboard basta).</li>
+    <li>Editar/borrar permisos desde el handoff (eso vive en el dashboard).</li>
+    <li>Mantener el wizard viejo en paralelo — se modifica en sitio, se reusan las pantallas.</li>
+    <li>Guardar draft en localStorage (el resume derivado de la DB ya lo cubre).</li>
+  </ul>
+
+  <h2>Criterios de éxito</h2>
+  <ul class="tight">
+    <li>✅ La cuenta nueva es recibida, enmarcada y guiada como coach: Empresa → Sede → Permisos.</li>
+    <li>✅ Antes de crear la sede, el usuario ve qué permisos exige su giro, con costo y multa, desde la DB.</li>
+    <li>✅ Tras crear la sede: sube un permiso <b>inline</b>, o recibe <b>info legal + portal gov</b>, o pide que <b>lo saquemos por él</b> (lead + teléfono opcional + WhatsApp).</li>
+    <li>✅ Onboarding nunca bloquea: <i>Ir al Dashboard</i> siempre disponible; reingresos lo saltan.</li>
+    <li>✅ Única infra nueva: 1 migración de CHECK + 1 función de lead. El resto reusa componentes ya en producción.</li>
+  </ul>
+
+</div>
+<script>mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{fontSize:'14px'}});</script>
+</body>
+</html>

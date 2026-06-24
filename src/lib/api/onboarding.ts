@@ -223,3 +223,41 @@ export async function checkHasLocations(
   if (error) throw error;
   return (data?.length ?? 0) > 0;
 }
+
+// ===== Lead "lo sacamos por ti" (handoff de permisos en onboarding) =====
+
+export interface PermitServiceLeadInput {
+  nombre: string;
+  email: string;
+  telefono?: string;
+  negocio: string;
+  ciudad?: string;
+  permitType: string;
+}
+
+/** Mapea el input a los parametros del RPC (puro, testeable sin red). */
+export function buildOnboardingLeadParams(input: PermitServiceLeadInput) {
+  return {
+    p_nombre: input.nombre,
+    p_negocio: input.negocio,
+    p_email: input.email,
+    p_telefono: input.telefono?.trim() ? input.telefono.trim() : null,
+    p_ciudad: input.ciudad?.trim() ? input.ciudad.trim() : null,
+    p_permit_type: input.permitType,
+  };
+}
+
+/**
+ * Inserta un lead de solicitud de servicio via RPC SECURITY DEFINER.
+ * Motivo: la policy de INSERT en leads esta restringida a service_role; el RPC
+ * create_onboarding_lead corre como definer y exige auth.uid(). El lead aparece
+ * en el CRM interno (LeadsTable) con source='onboarding'.
+ */
+export async function createPermitServiceLead(input: PermitServiceLeadInput): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase as any).rpc(
+    'create_onboarding_lead',
+    buildOnboardingLeadParams(input),
+  );
+  if (error) throw error;
+}
