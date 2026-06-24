@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { Card } from '@/components/ui/card'
 import { Avatar } from '@/components/ui/avatar'
@@ -9,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 
 export function ProfileTab() {
+  const navigate = useNavigate()
   const { profile, user } = useAuth()
   const typedProfile = profile as { id?: string; full_name?: string; email?: string } | null
 
@@ -89,6 +91,16 @@ export function ProfileTab() {
         <Button variant="default" onClick={handleSave} disabled={!isDirty || saving}>
           {saving ? 'Guardando...' : 'Guardar cambios'}
         </Button>
+
+        <div className="pt-[var(--ds-space-300)] border-t border-[var(--ds-border)]">
+          <label className="block text-[var(--ds-font-size-075)] font-semibold mb-[var(--ds-space-050)]">Tutorial de bienvenida</label>
+          <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mb-[var(--ds-space-150)]">
+            Repasá cómo funciona EnRegla. No modifica ningún dato.
+          </p>
+          <Button variant="outline" onClick={() => navigate('/tutorial')}>
+            Ver tutorial
+          </Button>
+        </div>
       </div>
     </Card>
   )

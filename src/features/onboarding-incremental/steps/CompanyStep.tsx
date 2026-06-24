@@ -14,12 +14,13 @@ interface CompanyStepProps {
   initialData?: Partial<CompanyData>;
   onNext: (data: CompanyData) => Promise<void>;
   loading: boolean;
+  readOnly?: boolean;
 }
 
 // ponytail: solo Quito habilitado por ahora; agregar ciudades cuando haya cobertura
 const CITIES = [{ value: 'Quito', label: 'Quito' }];
 
-export function CompanyStep({ initialData, onNext, loading }: CompanyStepProps) {
+export function CompanyStep({ initialData, onNext, loading, readOnly = false }: CompanyStepProps) {
   const [data, setData] = useState<CompanyData>({
     name: initialData?.name || '',
     ruc: initialData?.ruc || '',
@@ -64,8 +65,8 @@ export function CompanyStep({ initialData, onNext, loading }: CompanyStepProps) 
             value={data.name}
             onChange={(e) => updateField('name', e.target.value)}
             placeholder="Ej: Supermaxi S.A."
-            disabled={loading}
-            autoFocus
+            disabled={loading || readOnly}
+            autoFocus={!readOnly}
             className={`${baseInputClass} border-[var(--ds-border)] focus:ring-[var(--ds-background-brand)]/20 focus:border-[var(--ds-border-bold)]`}
           />
         </div>
@@ -83,7 +84,7 @@ export function CompanyStep({ initialData, onNext, loading }: CompanyStepProps) 
             }}
             placeholder="13 dígitos"
             maxLength={13}
-            disabled={loading}
+            disabled={loading || readOnly}
             className={`${baseInputClass} ${
               showRucError
                 ? 'border-[var(--ds-red-300)] focus:ring-[var(--ds-red-500)]/20 focus:border-[var(--ds-red-400)]'
@@ -106,7 +107,7 @@ export function CompanyStep({ initialData, onNext, loading }: CompanyStepProps) 
           <select
             value={data.city}
             onChange={(e) => updateField('city', e.target.value)}
-            disabled={loading}
+            disabled={loading || readOnly}
             className={`${baseInputClass} border-[var(--ds-border)] focus:ring-[var(--ds-background-brand)]/20 focus:border-[var(--ds-border-bold)]`}
           >
             {CITIES.map(({ value, label }) => (
@@ -127,7 +128,7 @@ export function CompanyStep({ initialData, onNext, loading }: CompanyStepProps) 
           <select
             value={data.business_type}
             onChange={(e) => updateField('business_type', e.target.value)}
-            disabled={loading}
+            disabled={loading || readOnly}
             className={`${baseInputClass} border-[var(--ds-border)] focus:ring-[var(--ds-background-brand)]/20 focus:border-[var(--ds-border-bold)]`}
           >
             {BUSINESS_TYPES.map((t) => (
