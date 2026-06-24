@@ -16,14 +16,8 @@ interface CompanyStepProps {
   loading: boolean;
 }
 
-const CITIES = [
-  { value: 'Quito', label: 'Quito' },
-  { value: 'Guayaquil', label: 'Guayaquil' },
-  { value: 'Cuenca', label: 'Cuenca' },
-  { value: 'Ambato', label: 'Ambato' },
-  { value: 'Manta', label: 'Manta' },
-  { value: 'Santo Domingo', label: 'Santo Domingo' },
-];
+// ponytail: solo Quito habilitado por ahora; agregar ciudades cuando haya cobertura
+const CITIES = [{ value: 'Quito', label: 'Quito' }];
 
 export function CompanyStep({ initialData, onNext, loading }: CompanyStepProps) {
   const [data, setData] = useState<CompanyData>({
@@ -120,6 +114,9 @@ export function CompanyStep({ initialData, onNext, loading }: CompanyStepProps) 
                 {label}
               </option>
             ))}
+            <option value="" disabled>
+              Más ciudades próximamente
+            </option>
           </select>
         </div>
 
