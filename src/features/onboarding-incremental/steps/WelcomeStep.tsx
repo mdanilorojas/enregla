@@ -6,6 +6,7 @@ export interface WelcomeStepProps {
   initialName?: string;
   onNext: (fullName: string) => Promise<void>;
   loading: boolean;
+  readOnly?: boolean;
 }
 
 const MILESTONES = [
@@ -14,7 +15,7 @@ const MILESTONES = [
   { icon: FileCheck, label: 'Poné tus permisos en regla' },
 ];
 
-export function WelcomeStep({ initialName = '', onNext, loading }: WelcomeStepProps) {
+export function WelcomeStep({ initialName = '', onNext, loading, readOnly = false }: WelcomeStepProps) {
   const [fullName, setFullName] = useState(initialName);
   const firstName = (initialName || '').trim().split(' ')[0];
 
@@ -54,8 +55,8 @@ export function WelcomeStep({ initialName = '', onNext, loading }: WelcomeStepPr
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
           placeholder="Nombre completo"
-          disabled={loading}
-          autoFocus
+          disabled={loading || readOnly}
+          autoFocus={!readOnly}
           className="w-full bg-white border border-[var(--ds-border)] rounded-[var(--ds-radius-200)] px-[var(--ds-space-150)] py-[var(--ds-space-100)] text-[var(--ds-font-size-100)] text-[var(--ds-text)] placeholder:text-[var(--ds-text-subtlest)] focus:outline-none focus:ring-2 focus:ring-[var(--ds-background-brand)]/20 focus:border-[var(--ds-border-bold)] transition-all disabled:opacity-50"
         />
       </div>
