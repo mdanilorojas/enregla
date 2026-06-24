@@ -7,7 +7,7 @@
 
 // ============ LEADS ============
 
-export type LeadSource = 'diagnostico' | 'partners' | 'home' | 'sobre' | 'otro'
+export type LeadSource = 'diagnostico' | 'partners' | 'home' | 'sobre' | 'otro' | 'onboarding'
 
 export type LeadStatus =
   | 'nuevo'

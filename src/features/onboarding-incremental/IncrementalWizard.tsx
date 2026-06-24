@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2 } from '@/lib/lucide-icons';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthStore } from '@/store/authStore';
 import { supabase } from '@/lib/supabase';
@@ -11,28 +10,46 @@ import {
 } from '@/lib/api/onboarding';
 import { Button } from '@/components/ui/button';
 import { Banner } from '@/components/ui/banner';
-import { ProgressStepper } from './components/ProgressStepper';
-import { Stepper } from './Stepper';
-import { ProfileStep } from './steps/ProfileStep';
+import { ProgressStepper, type WizardStep } from './components/ProgressStepper';
+import { StepInterlude } from './components/StepInterlude';
+import { WelcomeStep } from './steps/WelcomeStep';
 import { CompanyStep } from './steps/CompanyStep';
+import { PermitPreviewStep } from './steps/PermitPreviewStep';
 import { LocationsStep } from './steps/LocationsStep';
+import { PermitHandoffStep } from './steps/PermitHandoffStep';
 
-type Step = 'profile' | 'company' | 'locations';
+// 'interlude' is a transient celebration shown after company save.
+type Step = WizardStep | 'interlude';
 
-interface IncrementalWizardProps {
-  initialStep?: Step;
+interface CompanyData {
+  name: string;
+  ruc: string;
+  city: string;
+  business_type: string;
 }
 
-export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizardProps) {
+interface IncrementalWizardProps {
+  initialStep?: WizardStep;
+}
+
+export function IncrementalWizard({ initialStep = 'welcome' }: IncrementalWizardProps) {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
+
+  const googleName =
+    user?.user_metadata?.full_name ||
+    user?.user_metadata?.name ||
+    (user?.user_metadata?.given_name && user?.user_metadata?.family_name
+      ? `${user.user_metadata.given_name} ${user.user_metadata.family_name}`
+      : '');
+
   const [currentStep, setCurrentStep] = useState<Step>(initialStep);
-  const [completedSteps, setCompletedSteps] = useState<Step[]>(() => {
-    const steps: Step[] = [];
-    if (initialStep === 'company' || initialStep === 'locations') {
-      steps.push('profile');
+  const [completedSteps, setCompletedSteps] = useState<WizardStep[]>(() => {
+    const steps: WizardStep[] = [];
+    if (initialStep === 'company' || initialStep === 'preview' || initialStep === 'locations') {
+      steps.push('welcome');
     }
-    if (initialStep === 'locations') {
+    if (initialStep === 'preview' || initialStep === 'locations') {
       steps.push('company');
     }
     return steps;
@@ -40,29 +57,22 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Track saved data for "Back" navigation
-  // Pre-fill name from Google OAuth if available
-  const googleName = user?.user_metadata?.full_name
-    || user?.user_metadata?.name
-    || (user?.user_metadata?.given_name && user?.user_metadata?.family_name
-        ? `${user.user_metadata.given_name} ${user.user_metadata.family_name}`
-        : '');
-  const [savedProfile, setSavedProfile] = useState(profile?.full_name || googleName);
-  // casting due to stale generated types — see audit follow-up
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [savedCompany, setSavedCompany] = useState<any>(null);
+  const [savedName, setSavedName] = useState(profile?.full_name || googleName);
+  const [company, setCompany] = useState<CompanyData | null>(null);
   const [companyId, setCompanyId] = useState<string | null>(profile?.company_id || null);
+  const [createdLocation, setCreatedLocation] = useState<{ id: string; name: string } | null>(null);
 
-  const handleProfileNext = async (fullName: string) => {
+  const markDone = (step: WizardStep) =>
+    setCompletedSteps((prev) => (prev.includes(step) ? prev : [...prev, step]));
+
+  const handleWelcomeNext = async (fullName: string) => {
     if (!user) return;
-
     setLoading(true);
     setError(null);
-
     try {
       await saveProfile(user.id, fullName);
-      setSavedProfile(fullName);
-      setCompletedSteps((prev) => [...prev, 'profile']);
+      setSavedName(fullName);
+      markDone('welcome');
       setCurrentStep('company');
     } catch (err) {
       console.error('Profile save error:', err);
@@ -72,19 +82,16 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleCompanyNext = async (companyData: any) => {
+  const handleCompanyNext = async (data: CompanyData) => {
     if (!user) return;
-
     setLoading(true);
     setError(null);
-
     try {
-      const newCompanyId = await saveCompany(user.id, companyData);
-      setCompanyId(newCompanyId);
-      setSavedCompany(companyData);
-      setCompletedSteps((prev) => [...prev, 'company']);
-      setCurrentStep('locations');
+      const newId = await saveCompany(user.id, data);
+      setCompanyId(newId);
+      setCompany(data);
+      markDone('company');
+      setCurrentStep('interlude');
     } catch (err) {
       console.error('Company save error:', err);
       setError(err instanceof Error ? err.message : 'Error al guardar empresa');
@@ -93,35 +100,37 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleLocationsComplete = async (locations: any[]) => {
+  const handleLocationsComplete = async (
+    locations: Array<{ name: string; address: string; status: 'operando' | 'en_preparacion' | 'cerrado' }>
+  ) => {
     if (!user || !companyId) return;
-
     setLoading(true);
     setError(null);
-
     try {
-      // Save each location with its permits
-      for (const location of locations) {
-        await saveLocationWithPermits(companyId, location);
+      let firstLocId: string | null = null;
+      let firstLocName = '';
+      for (const loc of locations) {
+        const id = await saveLocationWithPermits(companyId, loc);
+        if (!firstLocId) {
+          firstLocId = id;
+          firstLocName = loc.name;
+        }
       }
 
-      // Refresh profile to get updated company_id
-      const { data: updatedProfile, error: profileError } = await supabase
+      const { data: updatedProfile } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
+      if (updatedProfile) useAuthStore.getState().setProfile(updatedProfile);
 
-      if (profileError) {
-        console.error('Failed to refresh profile:', profileError);
-      } else if (updatedProfile) {
-        // Update auth store with fresh profile
-        useAuthStore.getState().setProfile(updatedProfile);
+      markDone('locations');
+      if (firstLocId) {
+        setCreatedLocation({ id: firstLocId, name: firstLocName });
+        setCurrentStep('handoff');
+      } else {
+        navigate('/');
       }
-
-      // Navigate to dashboard
-      navigate('/');
     } catch (err) {
       console.error('Locations save error:', err);
       setError(err instanceof Error ? err.message : 'Error al guardar locales');
@@ -131,11 +140,9 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
   };
 
   const handleBack = () => {
-    if (currentStep === 'company') {
-      setCurrentStep('profile');
-    } else if (currentStep === 'locations') {
-      setCurrentStep('company');
-    }
+    if (currentStep === 'company') setCurrentStep('welcome');
+    else if (currentStep === 'preview') setCurrentStep('company');
+    else if (currentStep === 'locations') setCurrentStep('preview');
   };
 
   const handleSignOut = async () => {
@@ -144,19 +151,39 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
       navigate('/login');
     } catch (err) {
       console.error('Sign out error:', err);
-      setError(err instanceof Error ? err.message : 'Error al cerrar sesión');
     }
   };
-
-  const canGoBack = currentStep !== 'profile';
-  const showNextButton = currentStep !== 'locations';
 
   const handleSubmitForm = () => {
     const form = document.querySelector('form');
-    if (form) {
-      form.requestSubmit();
+    if (form) form.requestSubmit();
+  };
+
+  // Footer visibility: interlude and handoff own their own CTAs.
+  const footerStep = currentStep !== 'interlude' && currentStep !== 'handoff';
+  const canGoBack =
+    currentStep === 'company' || currentStep === 'preview' || currentStep === 'locations';
+
+  // 'preview' advances via its own footer "Crear mi primera sede" → go to locations (no save).
+  const handleFooterNext = () => {
+    if (currentStep === 'preview') {
+      markDone('company');
+      setCurrentStep('locations');
+    } else {
+      handleSubmitForm();
     }
   };
+
+  const nextLabel =
+    currentStep === 'welcome'
+      ? 'Crear mi empresa'
+      : currentStep === 'preview'
+      ? 'Crear mi primera sede'
+      : currentStep === 'locations'
+      ? 'Ir a permisos'
+      : 'Siguiente';
+
+  const stepperStep: WizardStep = currentStep === 'interlude' ? 'company' : currentStep;
 
   return (
     <div className="min-h-screen bg-[var(--ds-neutral-50)] flex">
@@ -170,9 +197,7 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
             EnRegla
           </span>
         </div>
-
-        <ProgressStepper currentStep={currentStep} completedSteps={completedSteps} />
-
+        <ProgressStepper currentStep={stepperStep} completedSteps={completedSteps} />
         <div className="mt-auto pt-[var(--ds-space-300)]">
           <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtlest)] leading-relaxed">
             Configura tu empresa paso a paso. Cada paso se guarda automáticamente.
@@ -180,99 +205,66 @@ export function IncrementalWizard({ initialStep = 'profile' }: IncrementalWizard
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main */}
       <div className="flex-1 flex flex-col">
         <div className="flex-1 flex items-start justify-center overflow-y-auto py-[var(--ds-space-600)] px-[var(--ds-space-400)]">
           <div className="w-full max-w-2xl">
-            <div className="max-w-2xl mx-auto mb-[var(--ds-space-400)]">
-              <Stepper
-                steps={[
-                  { id: 'profile', label: 'Perfil' },
-                  { id: 'company', label: 'Empresa' },
-                  { id: 'locations', label: 'Sedes' },
-                ]}
-                currentStepId={currentStep}
-              />
-            </div>
-
-            {currentStep === 'profile' && (
-              <ProfileStep
-                initialName={savedProfile}
-                onNext={handleProfileNext}
-                loading={loading}
-              />
+            {currentStep === 'welcome' && (
+              <WelcomeStep initialName={savedName} onNext={handleWelcomeNext} loading={loading} />
             )}
-
             {currentStep === 'company' && (
-              <CompanyStep
-                initialData={savedCompany}
-                onNext={handleCompanyNext}
-                loading={loading}
+              <CompanyStep initialData={company ?? undefined} onNext={handleCompanyNext} loading={loading} />
+            )}
+            {currentStep === 'interlude' && (
+              <StepInterlude
+                title={`¡Genial! Bienvenido a EnRegla${company?.name ? `, ${company.name}` : ''} 🎉`}
+                subtitle="Tu empresa quedó registrada. Ahora te mostramos qué permisos vas a necesitar."
+                ctaLabel="Ver mis permisos →"
+                onContinue={() => setCurrentStep('preview')}
               />
             )}
-
+            {currentStep === 'preview' && (
+              <PermitPreviewStep businessType={company?.business_type ?? 'otro'} />
+            )}
             {currentStep === 'locations' && (
-              <LocationsStep
-                onComplete={handleLocationsComplete}
-                loading={loading}
+              <LocationsStep onComplete={handleLocationsComplete} loading={loading} />
+            )}
+            {currentStep === 'handoff' && companyId && createdLocation && (
+              <PermitHandoffStep
+                companyId={companyId}
+                locationId={createdLocation.id}
+                locationName={createdLocation.name}
+                businessType={company?.business_type ?? 'otro'}
+                leadInfo={{
+                  nombre: savedName,
+                  email: user?.email ?? '',
+                  negocio: company?.name ?? '',
+                  ciudad: company?.city,
+                }}
+                onGoToDashboard={() => navigate('/')}
               />
             )}
 
-            {/* Error Message */}
             {error && (
               <div className="mt-[var(--ds-space-300)]">
-                <Banner variant="error" title="Error">
-                  {error}
-                </Banner>
+                <Banner variant="error" title="Error">{error}</Banner>
               </div>
             )}
           </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="border-t border-[var(--ds-border)] px-[var(--ds-space-400)] py-[var(--ds-space-200)] flex items-center justify-between bg-white/80 backdrop-blur-xl">
-          {canGoBack ? (
-            <Button
-              variant="ghost"
-              onClick={handleBack}
-              disabled={loading}
-            >
-              Atrás
+        {footerStep && (
+          <div className="border-t border-[var(--ds-border)] px-[var(--ds-space-400)] py-[var(--ds-space-200)] flex items-center justify-between bg-white/80 backdrop-blur-xl">
+            {canGoBack ? (
+              <Button variant="ghost" onClick={handleBack} disabled={loading}>Atrás</Button>
+            ) : (
+              <Button variant="ghost" onClick={handleSignOut} disabled={loading}>Cerrar sesión</Button>
+            )}
+            <Button onClick={handleFooterNext} disabled={loading} loading={loading}>
+              {nextLabel}
             </Button>
-          ) : (
-            <Button
-              variant="ghost"
-              onClick={handleSignOut}
-              disabled={loading}
-            >
-              Cerrar sesión
-            </Button>
-          )}
-
-          {showNextButton ? (
-            <Button
-              onClick={handleSubmitForm}
-              disabled={loading}
-              loading={loading}
-            >
-              Siguiente
-            </Button>
-          ) : (
-            <Button
-              onClick={handleSubmitForm}
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="animate-spin" />
-                  Guardando...
-                </>
-              ) : (
-                'Ir al Dashboard'
-              )}
-            </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

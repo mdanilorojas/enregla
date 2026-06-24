@@ -45,15 +45,15 @@ function OnboardingRoute() {
     return <AppLoader />;
   }
 
-  // Determine initial step based on profile state
-  let initialStep: 'profile' | 'company' | 'locations' = 'profile';
-
+  // Map persisted state → first incomplete coach step.
+  // welcome → company → preview → locations (handoff is reached inline after saving a sede).
+  let initialStep: 'welcome' | 'company' | 'preview' = 'welcome';
   if (profile?.full_name && profile?.company_id) {
-    initialStep = 'locations';
+    initialStep = 'preview';
   } else if (profile?.full_name) {
     initialStep = 'company';
   } else {
-    initialStep = 'profile';
+    initialStep = 'welcome';
   }
 
   return <IncrementalWizard initialStep={initialStep} />;
