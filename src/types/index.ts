@@ -179,13 +179,19 @@ export interface ChecklistItem {
   completed: boolean;
 }
 
-export const PERMIT_TYPE_LABELS: Record<PermitType, string> = {
+// Record<string, string> (no Record<PermitType,...>): el catalogo de permisos en
+// DB incluye 'luae' y 'msp' que no estan en el union PermitType legacy. El modulo
+// marco-legal filtra por presencia en este mapa (isKnownPermitType), asi que estos
+// permisos DEBEN figurar aqui o su contenido legal no se muestra.
+export const PERMIT_TYPE_LABELS: Record<string, string> = {
   patente_municipal: 'Patente municipal',
   bomberos: 'Permiso de bomberos',
   arcsa: 'Permiso sanitario ARCSA',
   uso_suelo: 'Certificado uso de suelo',
   rotulacion: 'Permiso de rotulación',
   ruc: 'RUC / situación tributaria',
+  luae: 'LUAE',
+  msp: 'Permiso sanitario MSP',
 };
 
 export const PERMIT_STATUS_LABELS: Record<PermitStatus, string> = {
