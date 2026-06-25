@@ -56,6 +56,7 @@ export async function startTour({ force = false }: { force?: boolean } = {}): Pr
   // Carga driver.js solo cuando el tour corre (fuera del bundle principal).
   const { driver } = await import('driver.js');
   await import('driver.js/dist/driver.css');
+  await import('./tour.css'); // override con tokens --ds-* (despues del base)
 
   const d = driver({
     showProgress: true,
