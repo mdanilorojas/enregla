@@ -129,7 +129,7 @@ export function IncrementalWizard({ initialStep = 'welcome' }: IncrementalWizard
         setCreatedLocation({ id: firstLocId, name: firstLocName });
         setCurrentStep('handoff');
       } else {
-        navigate('/?tour=1');
+        navigate('/?tour=1&force=1');
       }
     } catch (err) {
       console.error('Locations save error:', err);
@@ -245,7 +245,7 @@ export function IncrementalWizard({ initialStep = 'welcome' }: IncrementalWizard
                   negocio: company?.name ?? '',
                   ciudad: company?.city,
                 }}
-                onGoToDashboard={() => navigate('/?tour=1')}
+                onGoToDashboard={() => navigate('/?tour=1&force=1')}
               />
             )}
 
