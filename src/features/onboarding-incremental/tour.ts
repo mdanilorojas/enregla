@@ -47,8 +47,10 @@ export function hasSeenTour(): boolean {
 
 export async function startTour({ force = false }: { force?: boolean } = {}): Promise<void> {
   if (!force && hasSeenTour()) return;
-  // Sidebar (targets del tour) solo visible en ≥lg. En móvil no corremos tour.
-  if (!document.querySelector('[data-tour="sedes"]')) {
+  // El sidebar (targets del tour) solo es visible en ≥lg (Tailwind lg=1024px).
+  // En móvil sigue en el DOM pero fuera de pantalla, así que validamos viewport,
+  // no presencia del nodo. En móvil marcamos visto y salimos.
+  if (window.innerWidth < 1024 || !document.querySelector('[data-tour="sedes"]')) {
     localStorage.setItem(DONE_KEY, '1');
     return;
   }

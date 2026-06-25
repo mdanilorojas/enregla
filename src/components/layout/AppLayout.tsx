@@ -103,14 +103,15 @@ export function AppLayout() {
 
   // Lanza el tour cuando llega ?tour=1 (post-setup o botón en Configuración).
   // &force=1 lo re-corre aunque ya se haya visto. Limpia el query al terminar.
+  // Depende de searchParams: AppLayout NO se re-monta al navegar entre rutas
+  // hijas, así que con deps [] el botón "Ver tutorial" nunca volvía a disparar.
   useEffect(() => {
     if (searchParams.get('tour') !== '1') return;
     const force = searchParams.get('force') === '1';
     const t = setTimeout(() => startTour({ force }), 300); // espera al render del sidebar
     setSearchParams({}, { replace: true });
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [searchParams, setSearchParams]);
 
   const basePath = '/' + location.pathname.split('/').filter(Boolean).slice(0, 1).join('/');
   const title = pageNames[basePath] || pageNames[location.pathname] || 'EnRegla';
