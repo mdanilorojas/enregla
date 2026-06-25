@@ -129,7 +129,7 @@ export function IncrementalWizard({ initialStep = 'welcome' }: IncrementalWizard
         setCreatedLocation({ id: firstLocId, name: firstLocName });
         setCurrentStep('handoff');
       } else {
-        navigate('/');
+        navigate('/?tour=1');
       }
     } catch (err) {
       console.error('Locations save error:', err);
@@ -197,7 +197,11 @@ export function IncrementalWizard({ initialStep = 'welcome' }: IncrementalWizard
             EnRegla
           </span>
         </div>
-        <ProgressStepper currentStep={stepperStep} completedSteps={completedSteps} />
+        <ProgressStepper
+          currentStep={stepperStep}
+          completedSteps={completedSteps}
+          onMilestoneClick={(step) => !loading && setCurrentStep(step)}
+        />
         <div className="mt-auto pt-[var(--ds-space-300)]">
           <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtlest)] leading-relaxed">
             Configura tu empresa paso a paso. Cada paso se guarda automáticamente.
@@ -241,7 +245,7 @@ export function IncrementalWizard({ initialStep = 'welcome' }: IncrementalWizard
                   negocio: company?.name ?? '',
                   ciudad: company?.city,
                 }}
-                onGoToDashboard={() => navigate('/')}
+                onGoToDashboard={() => navigate('/?tour=1')}
               />
             )}
 

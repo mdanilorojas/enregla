@@ -14,7 +14,7 @@ const ForgotPasswordView = lazy(() => import('@/features/auth/ForgotPasswordView
 const ResetPasswordView = lazy(() => import('@/features/auth/ResetPasswordView').then((m) => ({ default: m.ResetPasswordView })));
 const AcceptInvitationView = lazy(() => import('@/features/auth/AcceptInvitationView').then((m) => ({ default: m.AcceptInvitationView })));
 const IncrementalWizard = lazy(() => import('@/features/onboarding-incremental/IncrementalWizard').then((m) => ({ default: m.IncrementalWizard })));
-const TutorialTour = lazy(() => import('@/features/onboarding-incremental/TutorialTour').then((m) => ({ default: m.TutorialTour })));
+const WelcomeCarousel = lazy(() => import('@/features/onboarding-incremental/WelcomeCarousel').then((m) => ({ default: m.WelcomeCarousel })));
 const PublicVerificationPage = lazy(() => import('@/features/public-links/PublicVerificationPage').then((m) => ({ default: m.PublicVerificationPage })));
 const DashboardView = lazy(() => import('@/features/dashboard/DashboardView').then((m) => ({ default: m.DashboardView })));
 const LocationsListViewV2 = lazy(() => import('@/features/locations/LocationsListViewV2').then((m) => ({ default: m.LocationsListViewV2 })));
@@ -74,9 +74,9 @@ function ProtectedOnboardingRoute() {
     return <AppLayout />;
   }
 
-  // If user doesn't have a company, redirect to onboarding
+  // If user doesn't have a company, send to the welcome carousel (→ setup).
   if (!profile?.company_id) {
-    return <Navigate to="/setup" replace />;
+    return <Navigate to="/bienvenida" replace />;
   }
 
   // Mientras carga company, mostrar loader (evita flash de bloqueo)
@@ -134,10 +134,10 @@ export default function App() {
             }
           />
           <Route
-            path="/tutorial"
+            path="/bienvenida"
             element={
               <ProtectedRoute>
-                <TutorialTour />
+                <WelcomeCarousel />
               </ProtectedRoute>
             }
           />

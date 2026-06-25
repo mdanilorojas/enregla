@@ -1,5 +1,6 @@
-import { Outlet, useLocation, Link } from 'react-router-dom';
+import { Outlet, useLocation, Link, useSearchParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { startTour } from '@/features/onboarding-incremental/tour';
 import {
   Home,
   MapPin,
@@ -60,6 +61,14 @@ const menuItems = [
 ];
 
 
+// Anclas para el tour guiado (driver.js apunta a estos data-tour).
+const tourIds: Record<string, string> = {
+  '/sedes': 'sedes',
+  '/permisos': 'permisos',
+  '/renovaciones': 'renovaciones',
+  '/settings': 'settings',
+};
+
 const pageNames: Record<string, string> = {
   '/': 'Dashboard',
   '/sedes': 'Sedes',
@@ -88,8 +97,20 @@ const focusRing =
 export function AppLayout() {
   const { profile, signOut } = useAuth();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [scrolled, setScrolled] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
+
+  // Lanza el tour cuando llega ?tour=1 (post-setup o botón en Configuración).
+  // &force=1 lo re-corre aunque ya se haya visto. Limpia el query al terminar.
+  useEffect(() => {
+    if (searchParams.get('tour') !== '1') return;
+    const force = searchParams.get('force') === '1';
+    const t = setTimeout(() => startTour({ force }), 300); // espera al render del sidebar
+    setSearchParams({}, { replace: true });
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const basePath = '/' + location.pathname.split('/').filter(Boolean).slice(0, 1).join('/');
   const title = pageNames[basePath] || pageNames[location.pathname] || 'EnRegla';
@@ -144,6 +165,7 @@ export function AppLayout() {
                 <li key={item.url}>
                   <Link
                     to={item.url}
+                    data-tour={tourIds[item.url]}
                     aria-current={isActive ? 'page' : undefined}
                     className={`flex items-center gap-[var(--ds-space-150)] px-[var(--ds-space-150)] py-2.5 rounded-[var(--ds-radius-200)] mb-1 transition-colors ${focusRing} ${
                       isActive
@@ -217,7 +239,7 @@ export function AppLayout() {
             </div>
           </div>
 
-          <div className="flex items-center gap-[var(--ds-space-150)]">
+          <div className="flex items-center gap-[var(--ds-space-150)]" data-tour="notifications">
             <NotificationBell />
           </div>
         </header>

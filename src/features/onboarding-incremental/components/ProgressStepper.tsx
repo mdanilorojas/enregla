@@ -7,22 +7,24 @@ interface Milestone {
   label: string;
   icon: typeof Building2;
   steps: WizardStep[];
+  editStep: WizardStep; // paso al que vuelve al clickear un milestone completado
 }
 
 interface ProgressStepperProps {
   currentStep: WizardStep;
   completedSteps: WizardStep[];
+  onMilestoneClick?: (step: WizardStep) => void;
 }
 
 const MILESTONES: Milestone[] = [
-  { id: 'empresa', label: 'Tu empresa', icon: Building2, steps: ['welcome', 'company'] },
-  { id: 'sede', label: 'Tu sede', icon: MapPin, steps: ['preview', 'locations'] },
-  { id: 'permisos', label: 'Permisos', icon: FileCheck, steps: ['handoff'] },
+  { id: 'empresa', label: 'Tu empresa', icon: Building2, steps: ['welcome', 'company'], editStep: 'company' },
+  { id: 'sede', label: 'Tu sede', icon: MapPin, steps: ['preview', 'locations'], editStep: 'preview' },
+  { id: 'permisos', label: 'Permisos', icon: FileCheck, steps: ['handoff'], editStep: 'handoff' },
 ];
 
 const ORDER: WizardStep[] = ['welcome', 'company', 'preview', 'locations', 'handoff'];
 
-export function ProgressStepper({ currentStep, completedSteps }: ProgressStepperProps) {
+export function ProgressStepper({ currentStep, completedSteps, onMilestoneClick }: ProgressStepperProps) {
   const currentIdx = ORDER.indexOf(currentStep);
 
   return (
@@ -35,10 +37,18 @@ export function ProgressStepper({ currentStep, completedSteps }: ProgressStepper
           !isActive &&
           (lastStepIdx < currentIdx || m.steps.every((s) => completedSteps.includes(s)));
 
+        // Milestone completado → clickeable para volver a editar ese paso.
+        const clickable = isCompleted && !!onMilestoneClick;
+
         return (
-          <div
+          <button
             key={m.id}
-            className={`flex items-center gap-[var(--ds-space-150)] rounded-[var(--ds-radius-200)] px-[var(--ds-space-150)] py-[var(--ds-space-100)] transition-all ${
+            type="button"
+            disabled={!clickable}
+            onClick={clickable ? () => onMilestoneClick(m.editStep) : undefined}
+            className={`w-full text-left flex items-center gap-[var(--ds-space-150)] rounded-[var(--ds-radius-200)] px-[var(--ds-space-150)] py-[var(--ds-space-100)] transition-all ${
+              clickable ? 'hover:bg-[var(--ds-neutral-100)] cursor-pointer' : 'cursor-default'
+            } ${
               isActive
                 ? 'bg-[var(--ds-text)] text-white'
                 : isCompleted
@@ -54,7 +64,7 @@ export function ProgressStepper({ currentStep, completedSteps }: ProgressStepper
               {isCompleted ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Icon className="w-3.5 h-3.5" />}
             </div>
             <span className="text-[var(--ds-font-size-075)] font-medium">{m.label}</span>
-          </div>
+          </button>
         );
       })}
     </div>
