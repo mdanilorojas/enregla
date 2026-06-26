@@ -70,26 +70,18 @@ export function MembersTab() {
     setInviteLink(null)
     setCopied(false)
     try {
-      const token = `${crypto.randomUUID()}${crypto.randomUUID()}`.replace(/-/g, '')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error: insErr } = await (supabase as any)
-        .from('company_invitations')
-        .insert({
-          company_id: companyId,
-          email: email.trim().toLowerCase(),
-          role,
-          token,
-          invited_by: profile.id,
-        })
-      if (insErr) throw new Error(insErr.message)
+      const { data, error: fnErr } = await supabase.functions.invoke('send-invitation', {
+        body: { email: email.trim().toLowerCase(), role },
+      })
+      if (fnErr) throw new Error(fnErr.message)
+      if (data?.error) throw new Error(data.error)
 
-      const link = `${window.location.origin}/aceptar-invitacion?token=${token}`
+      const link = `${window.location.origin}/aceptar-invitacion?token=${data.token}`
       setInviteLink(link)
-      try {
-        await navigator.clipboard.writeText(link)
-        toast.success('Invitación creada · enlace copiado')
-      } catch {
-        toast.success('Invitación creada')
+      if (data.email_sent) {
+        toast.success('Invitación enviada por email')
+      } else {
+        toast('Invitación creada (email no enviado · comparte el enlace)', { icon: '⚠️' })
       }
       setEmail('')
       refresh()
