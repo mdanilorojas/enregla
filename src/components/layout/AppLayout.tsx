@@ -108,8 +108,13 @@ export function AppLayout() {
   useEffect(() => {
     if (searchParams.get('tour') !== '1') return;
     const force = searchParams.get('force') === '1';
-    const t = setTimeout(() => startTour({ force }), 300); // espera al render del sidebar
-    setSearchParams({}, { replace: true });
+    // Limpiar el query DENTRO del timeout, no antes: si lo limpiamos sincrónico,
+    // searchParams cambia, el efecto se re-ejecuta y su cleanup hace clearTimeout
+    // matando el tour antes de que dispare.
+    const t = setTimeout(() => {
+      startTour({ force });
+      setSearchParams({}, { replace: true });
+    }, 300); // espera al render del sidebar
     return () => clearTimeout(t);
   }, [searchParams, setSearchParams]);
 

@@ -41,8 +41,8 @@ export function AuthCallback() {
           log('profile has company_id; navigating to /');
           navigate('/', { replace: true });
         } else {
-          log('profile sin company_id; navigating to /setup');
-          navigate('/setup', { replace: true, state: { fromOAuth: true } });
+          log('profile sin company_id; navigating to /bienvenida');
+          navigate('/bienvenida', { replace: true, state: { fromOAuth: true } });
         }
       } catch (err) {
         console.error('[AuthCallback] profile fetch error:', err);
