@@ -260,4 +260,22 @@ export async function createPermitServiceLead(input: PermitServiceLeadInput): Pr
     buildOnboardingLeadParams(input),
   );
   if (error) throw error;
+
+  // Avisar al equipo (hola@enregla.ec). Best-effort: si el email falla, el lead
+  // ya quedó guardado en el CRM, así que no rompemos el flujo del usuario.
+  try {
+    await supabase.functions.invoke('notify-lead', {
+      body: {
+        nombre: input.nombre,
+        negocio: input.negocio,
+        email: input.email,
+        telefono: input.telefono,
+        ciudad: input.ciudad,
+        permitType: input.permitType,
+        source: 'onboarding',
+      },
+    });
+  } catch (e) {
+    console.error('notify-lead invoke failed (lead guardado igual):', e);
+  }
 }

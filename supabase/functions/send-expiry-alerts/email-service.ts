@@ -6,7 +6,10 @@ import type { UserAlerts, EmailSendResult } from './types.ts';
 
 const resendApiKey = Deno.env.get('RESEND_API_KEY')!;
 const appUrl = Deno.env.get('APP_URL') || 'https://app.enregla.ec';
-const fromAddress = Deno.env.get('RESEND_FROM') || 'EnRegla <onboarding@resend.dev>';
+// Remitente único de EnRegla. Hardcodeado a propósito (ignora RESEND_FROM) para
+// que TODAS las notificaciones salgan desde hola@enregla.ec — el único buzón.
+const fromAddress = 'EnRegla <hola@enregla.ec>';
+const replyTo = 'hola@enregla.ec';
 
 const resend = new Resend(resendApiKey);
 
@@ -58,6 +61,7 @@ export async function sendExpiryAlertEmail(userAlerts: UserAlerts): Promise<Emai
 
     const response = await resend.emails.send({
       from: fromAddress,
+      replyTo: replyTo,
       to: user.email,
       subject: generateSubject(userAlerts),
       html: html,
