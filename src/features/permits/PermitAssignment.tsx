@@ -73,7 +73,30 @@ export function PermitAssignment({
       delegation_requested_by: profile?.id ?? null,
       delegation_requested_at: new Date().toISOString(),
     });
-    toast.success('EnRegla fue notificado');
+
+    // Avisar al equipo (hola@enregla.ec). Best-effort: la delegación ya quedó
+    // guardada en DB aunque el email falle.
+    try {
+      const [{ data: permit }, { data: auth }] = await Promise.all([
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (supabase.from('permits') as any).select('type').eq('id', permitId).maybeSingle(),
+        supabase.auth.getUser(),
+      ]);
+      const email = auth?.user?.email;
+      const { error: notifyErr } = await supabase.functions.invoke('notify-lead', {
+        body: {
+          nombre: profile?.full_name || email || 'Cliente',
+          email,
+          permitType: permit?.type,
+          source: 'delegacion-permiso',
+        },
+      });
+      if (notifyErr) throw notifyErr;
+      toast.success('EnRegla fue notificado');
+    } catch (e) {
+      console.error('notify-lead (delegación) falló:', e);
+      toast.success('Delegación guardada · te contactaremos pronto');
+    }
   }
 
   return (
