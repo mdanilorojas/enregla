@@ -197,10 +197,13 @@ export function IncrementalWizard({ initialStep = 'welcome' }: IncrementalWizard
             EnRegla
           </span>
         </div>
+        {/* ponytail: milestones show progress only. Re-entering a completed step
+            re-runs create-only saves (saveCompany RPC throws "User already has a
+            company"; saveLocationWithPermits duplicates the sede + permit set), so
+            in-wizard editing is disabled. Users edit company/sede in Settings. */}
         <ProgressStepper
           currentStep={stepperStep}
           completedSteps={completedSteps}
-          onMilestoneClick={(step) => !loading && setCurrentStep(step)}
         />
         <div className="mt-auto pt-[var(--ds-space-300)]">
           <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtlest)] leading-relaxed">

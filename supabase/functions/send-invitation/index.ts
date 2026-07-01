@@ -26,6 +26,15 @@ function cors(origin: string | null): Record<string, string> {
   };
 }
 
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function sanitizeHeader(s: string): string {
+  // deno-lint-ignore no-control-regex
+  return s.replace(/[\r\n\x00-\x1f\x7f]/g, ' ').trim().slice(0, 200);
+}
+
 function rand(n: number): string {
   const alphabet = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789abcdefghijkmnpqrstuvwxyz';
   const arr = new Uint8Array(n);
@@ -83,12 +92,14 @@ serve(async (req) => {
   }
 
   const acceptUrl = `${APP_URL}/aceptar-invitacion?token=${encodeURIComponent(token)}`;
-  const subject = `${profile.full_name || 'Alguien'} te invitó a ${companyName} en EnRegla`;
+  const inviterName = escapeHtml(profile.full_name || 'Un administrador');
+  const safeCompany = escapeHtml(companyName);
+  const subject = sanitizeHeader(`${profile.full_name || 'Alguien'} te invitó a ${companyName} en EnRegla`);
   const html = `
     <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:560px;margin:0 auto;padding:24px">
-      <h2 style="color:#0f265c;margin:0 0 16px">Te invitaron a ${companyName}</h2>
+      <h2 style="color:#0f265c;margin:0 0 16px">Te invitaron a ${safeCompany}</h2>
       <p style="color:#374151;font-size:15px;line-height:1.6">Hola,<br/><br/>
-        <strong>${profile.full_name || 'Un administrador'}</strong> te invitó a unirte al equipo de <strong>${companyName}</strong> en EnRegla para gestionar permisos y cumplimiento.</p>
+        <strong>${inviterName}</strong> te invitó a unirte al equipo de <strong>${safeCompany}</strong> en EnRegla para gestionar permisos y cumplimiento.</p>
       <p style="margin:24px 0">
         <a href="${acceptUrl}" style="background:#0f265c;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-block">Aceptar invitación</a>
       </p>
@@ -106,6 +117,8 @@ serve(async (req) => {
     }
   } catch (e) {
     console.error('[send-invitation] resend exception:', e);
+    const email_error = e instanceof Error ? e.message : 'send_failed';
+    return new Response(JSON.stringify({ ok: true, invitation_id: inv.id, token, email_sent: false, email_error }), { status: 201, headers: cors(origin) });
   }
 
   return new Response(JSON.stringify({ ok: true, invitation_id: inv.id, token, email_sent: true }), { status: 201, headers: cors(origin) });
