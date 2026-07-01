@@ -95,9 +95,9 @@ export function ProfileTab() {
         <div className="pt-[var(--ds-space-300)] border-t border-[var(--ds-border)]">
           <label className="block text-[var(--ds-font-size-075)] font-semibold mb-[var(--ds-space-050)]">Tutorial de bienvenida</label>
           <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtle)] mb-[var(--ds-space-150)]">
-            Repasá cómo funciona EnRegla. No modifica ningún dato.
+            Repasá dónde se hace cada cosa en la plataforma. No modifica ningún dato.
           </p>
-          <Button variant="outline" onClick={() => navigate('/tutorial')}>
+          <Button variant="outline" onClick={() => navigate('/?tour=1&force=1')}>
             Ver tutorial
           </Button>
         </div>

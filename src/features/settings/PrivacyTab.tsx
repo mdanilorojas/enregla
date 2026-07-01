@@ -9,6 +9,9 @@ import { useCompany } from '@/hooks/useCompany'
 import { supabase } from '@/lib/supabase'
 import { DeleteCompanyDialog } from './DeleteCompanyDialog'
 
+// ponytail: feature flag, export RPC aún no funciona. Poner en true cuando esté listo.
+const EXPORT_ENABLED = false
+
 export function PrivacyTab() {
   const { profile } = useAuth()
   const companyId = profile?.company_id ?? null
@@ -56,6 +59,7 @@ export function PrivacyTab() {
 
   return (
     <div className="space-y-[var(--ds-space-300)]">
+      {EXPORT_ENABLED && (
       <Card className="p-[var(--ds-space-300)] space-y-[var(--ds-space-200)]">
         <div>
           <h2 className="text-[var(--ds-font-size-300)] font-semibold text-[var(--ds-text)]">
@@ -78,6 +82,7 @@ export function PrivacyTab() {
           </Button>
         </div>
       </Card>
+      )}
 
       <Card className="p-[var(--ds-space-300)] space-y-[var(--ds-space-200)] border-[var(--ds-color-danger-border,#fca5a5)]">
         <div>

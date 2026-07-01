@@ -1,0 +1,79 @@
+/* Override del estilo por defecto de driver.js → design system EnRegla.
+   Se importa DESPUES de driver.js/dist/driver.css (que aporta el layout y el
+   posicionamiento del spotlight). Acá solo re-pintamos con tokens --ds-*. */
+
+.driver-popover {
+  background: var(--ds-neutral-0);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-300);
+  box-shadow: var(--ds-shadow-overlay);
+  padding: var(--ds-space-300);
+  max-width: 320px;
+}
+
+.driver-popover-title {
+  font-size: var(--ds-font-size-200);
+  font-weight: 600;
+  color: var(--ds-text);
+  margin-bottom: var(--ds-space-075);
+  letter-spacing: -0.01em;
+}
+
+.driver-popover-description {
+  font-size: var(--ds-font-size-100);
+  color: var(--ds-text-subtle);
+  line-height: 1.5;
+}
+
+.driver-popover-progress-text {
+  font-size: var(--ds-font-size-075);
+  color: var(--ds-text-subtlest);
+}
+
+.driver-popover-footer {
+  margin-top: var(--ds-space-200);
+  gap: var(--ds-space-100);
+}
+
+/* Botones: igualar al componente Button (default = brand, ghost = prev). */
+.driver-popover-footer button {
+  text-shadow: none;
+  border: none;
+  border-radius: var(--ds-radius-200);
+  padding: var(--ds-space-075) var(--ds-space-200);
+  font-size: var(--ds-font-size-075);
+  font-weight: 500;
+  transition: background-color 0.15s ease;
+}
+
+.driver-popover-next-btn,
+.driver-popover-next-btn:hover {
+  background: var(--ds-background-brand);
+  color: #fff;
+}
+.driver-popover-next-btn:hover {
+  filter: brightness(0.95);
+}
+
+.driver-popover-prev-btn,
+.driver-popover-prev-btn:hover {
+  background: transparent;
+  color: var(--ds-text-subtle);
+}
+.driver-popover-prev-btn:hover {
+  background: var(--ds-neutral-100);
+}
+
+.driver-popover-close-btn {
+  color: var(--ds-text-subtlest);
+  font-size: 20px;
+}
+.driver-popover-close-btn:hover {
+  color: var(--ds-text);
+}
+
+/* La flecha hereda el fondo del popover. */
+.driver-popover-arrow-side-left.driver-popover-arrow { border-left-color: var(--ds-neutral-0); }
+.driver-popover-arrow-side-right.driver-popover-arrow { border-right-color: var(--ds-neutral-0); }
+.driver-popover-arrow-side-top.driver-popover-arrow { border-top-color: var(--ds-neutral-0); }
+.driver-popover-arrow-side-bottom.driver-popover-arrow { border-bottom-color: var(--ds-neutral-0); }

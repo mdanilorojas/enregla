@@ -129,7 +129,7 @@ export function IncrementalWizard({ initialStep = 'welcome' }: IncrementalWizard
         setCreatedLocation({ id: firstLocId, name: firstLocName });
         setCurrentStep('handoff');
       } else {
-        navigate('/');
+        navigate('/?tour=1&force=1');
       }
     } catch (err) {
       console.error('Locations save error:', err);
@@ -197,7 +197,14 @@ export function IncrementalWizard({ initialStep = 'welcome' }: IncrementalWizard
             EnRegla
           </span>
         </div>
-        <ProgressStepper currentStep={stepperStep} completedSteps={completedSteps} />
+        {/* ponytail: milestones show progress only. Re-entering a completed step
+            re-runs create-only saves (saveCompany RPC throws "User already has a
+            company"; saveLocationWithPermits duplicates the sede + permit set), so
+            in-wizard editing is disabled. Users edit company/sede in Settings. */}
+        <ProgressStepper
+          currentStep={stepperStep}
+          completedSteps={completedSteps}
+        />
         <div className="mt-auto pt-[var(--ds-space-300)]">
           <p className="text-[var(--ds-font-size-075)] text-[var(--ds-text-subtlest)] leading-relaxed">
             Configura tu empresa paso a paso. Cada paso se guarda automáticamente.
@@ -241,7 +248,7 @@ export function IncrementalWizard({ initialStep = 'welcome' }: IncrementalWizard
                   negocio: company?.name ?? '',
                   ciudad: company?.city,
                 }}
-                onGoToDashboard={() => navigate('/')}
+                onGoToDashboard={() => navigate('/?tour=1&force=1')}
               />
             )}
 

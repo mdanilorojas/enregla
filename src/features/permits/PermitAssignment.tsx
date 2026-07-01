@@ -32,7 +32,7 @@ export function PermitAssignment({
   const [saving, setSaving] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  async function persist(patch: Record<string, unknown>) {
+  async function persist(patch: Record<string, unknown>): Promise<boolean> {
     setSaving(true);
     try {
       // casting due to stale generated types — see audit follow-up
@@ -48,8 +48,10 @@ export function PermitAssignment({
       queryClient.invalidateQueries({ queryKey: ['permits'] });
       queryClient.invalidateQueries({ queryKey: ['permit_events', permitId] });
       onChanged?.();
+      return true;
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Error al asignar');
+      return false;
     } finally {
       setSaving(false);
     }
@@ -57,23 +59,47 @@ export function PermitAssignment({
 
   async function assignSelf() {
     if (!delegatedToEnregla) return;
-    await persist({
+    const ok = await persist({
       delegated_to_enregla: false,
       delegation_requested_by: null,
       delegation_requested_at: null,
       assigned_to_profile_id: profile?.id ?? null,
     });
-    toast.success('Asignado a tu empresa');
+    if (ok) toast.success('Asignado a tu empresa');
   }
 
   async function confirmEnregla() {
     setConfirmOpen(false);
-    await persist({
+    const ok = await persist({
       delegated_to_enregla: true,
       delegation_requested_by: profile?.id ?? null,
       delegation_requested_at: new Date().toISOString(),
     });
-    toast.success('EnRegla fue notificado');
+    if (!ok) return;
+
+    // Avisar al equipo (hola@enregla.ec). Best-effort: la delegación ya quedó
+    // guardada en DB aunque el email falle.
+    try {
+      const [{ data: permit }, { data: auth }] = await Promise.all([
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (supabase.from('permits') as any).select('type').eq('id', permitId).maybeSingle(),
+        supabase.auth.getUser(),
+      ]);
+      const email = auth?.user?.email;
+      const { error: notifyErr } = await supabase.functions.invoke('notify-lead', {
+        body: {
+          nombre: profile?.full_name || email || 'Cliente',
+          email,
+          permitType: permit?.type,
+          source: 'delegacion-permiso',
+        },
+      });
+      if (notifyErr) throw notifyErr;
+      toast.success('EnRegla fue notificado');
+    } catch (e) {
+      console.error('notify-lead (delegación) falló:', e);
+      toast.success('Delegación guardada · te contactaremos pronto');
+    }
   }
 
   return (
